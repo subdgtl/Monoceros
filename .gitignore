@@ -1,0 +1,7 @@
+﻿# Visual Studio things
+.vs/
+
+# C# build directories
+obj/
+bin/
+packages
