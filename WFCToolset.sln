@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30413.136
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WFCToolset", "WFCToolset.csproj", "{DE286F48-ABDD-4474-B49A-CFB55D4F4947}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DE286F48-ABDD-4474-B49A-CFB55D4F4947}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE286F48-ABDD-4474-B49A-CFB55D4F4947}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE286F48-ABDD-4474-B49A-CFB55D4F4947}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE286F48-ABDD-4474-B49A-CFB55D4F4947}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E7F4222D-5BD0-492C-87E4-6A695D995F73}
+	EndGlobalSection
+EndGlobal
