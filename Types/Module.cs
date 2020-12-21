@@ -4,6 +4,7 @@ using System.Linq;
 using GH_IO.Serialization;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
+using Rhino;
 using Rhino.DocObjects;
 using Rhino.Geometry;
 
@@ -14,7 +15,7 @@ namespace WFCToolset
     /// WFC Module type containing name, geometry and submodule and connector info, 
     /// including internal rules holding the module together.
     /// </summary>
-    public class Module : IGH_Goo, IGH_PreviewData
+    public class Module : IGH_Goo, IGH_PreviewData, IGH_BakeAwareObject
     {
 
         /// <summary>
@@ -404,6 +405,8 @@ namespace WFCToolset
             }
         }
 
+        public bool IsBakeCapable => true;
+
         public bool CastFrom(object source) => false;
 
         public bool CastTo<T>(out T target)
@@ -492,6 +495,33 @@ namespace WFCToolset
                 if (geo.ObjectType == ObjectType.Mesh)
                 {
                     args.Pipeline.DrawMeshShaded((Mesh)geo, args.Material);
+                }
+            }
+        }
+
+        public void BakeGeometry(RhinoDoc doc, List<Guid> obj_ids)
+        {
+            BakeGeometry(doc, null, obj_ids);
+        }
+
+        public void BakeGeometry(RhinoDoc doc, ObjectAttributes att, List<Guid> obj_ids)
+        {
+            if (att == null)
+            {
+                att = new ObjectAttributes();
+            }
+
+            foreach (var connector in Connectors)
+            {
+                if (connector.Valence == ModuleConnectorValence.External)
+                {
+                    var cageAttributes = att.Duplicate();
+                    cageAttributes.ObjectColor = Configuration.CAGE_COLOR;
+                    doc.Objects.AddRectangle(connector.Face, cageAttributes);
+                    var dotAttributes = att.Duplicate();
+                    dotAttributes.ObjectColor = Configuration.ColorBackgroundFromDirection(connector.Direction);
+                    var id = doc.Objects.AddTextDot(connector.ConnectorIndex.ToString(), connector.AnchorPlane.Origin, dotAttributes);
+                    obj_ids.Add(id);
                 }
             }
         }
