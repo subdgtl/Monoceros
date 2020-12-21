@@ -11,7 +11,7 @@ namespace WFCToolset
     public class ComponentModuleFromGeometry : GH_Component
     {
         public ComponentModuleFromGeometry() : base("WFC Create module from geometry", "WFCModuleGeo",
-            "Create a WFC Module from input geometry, which will be also used in WFC solver result.",
+            "Create a WFC Module from input geometry, which will be also used in WFC solver result. Prefer Mesh to BRep.",
             "WaveFunctionCollapse", "Module")
         {
         }
@@ -31,6 +31,7 @@ namespace WFCToolset
                GH_ParamAccess.item,
                new Vector3d(1.0, 1.0, 1.0)
                );
+            pManager.AddNumberParameter("Precision", "P", "Module slicer precision (lower = more precise & slower)", GH_ParamAccess.item, 0.5);
         }
 
         /// <summary>
@@ -52,11 +53,13 @@ namespace WFCToolset
             string name = "";
             Plane basePlane = new Plane();
             Vector3d slotDiagonal = new Vector3d();
+            Double precision = 0.5;
 
             if (!DA.GetDataList(0, geometryRaw)) return;
             if (!DA.GetData(1, ref name)) return;
             if (!DA.GetData(2, ref basePlane)) return;
             if (!DA.GetData(3, ref slotDiagonal)) return;
+            if (!DA.GetData(4, ref precision)) return;
 
             if (name.Length == 0)
             {
@@ -89,8 +92,8 @@ namespace WFCToolset
             Transform normalizationTransform = Transform.Scale(basePlane, 1 / slotDiagonal.X, 1 / slotDiagonal.Y, 1 / slotDiagonal.Z);
             // Orient to the world coordinate system
             Transform worldAlignmentTransform = Transform.PlaneToPlane(basePlane, Plane.WorldXY);
-            // TODO: come up with a less random number
-            var divisionLength = 0.1;
+            // Slot dimension is for the sake of this calculation 1,1,1
+            var divisionLength = precision;
             var submoduleCenters = new List<Point3i>();
             foreach (var goo in geometryClean)
             {
@@ -102,6 +105,7 @@ namespace WFCToolset
                     foreach (var geometrypoint in populatePoints)
                     {
                         // Round point locations
+                        // Slot dimension is for the sake of this calculation 1,1,1
                         var slotCenterPoint = new Point3i(
                             Convert.ToInt32(geometrypoint.X),
                             Convert.ToInt32(geometrypoint.Y),
