@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using Grasshopper.Kernel;
+using Rhino;
+using Rhino.DocObjects;
 using Rhino.Geometry;
 
 namespace WFCToolset
 {
 
-    public class ModuleParameter : GH_PersistentParam<Module>, IGH_PreviewObject
+    public class ModuleParameter : GH_PersistentParam<Module>, IGH_PreviewObject, IGH_BakeAwareObject
     {
         public ModuleParameter()
       : base("WFC Module", "WFC-M", "Module definition.", "WaveFunctionCollapse", "Parameters") { }
@@ -42,6 +44,31 @@ namespace WFCToolset
         public void DrawViewportMeshes(IGH_PreviewArgs args)
         {
             Preview_DrawMeshes(args);
+        }
+
+        public bool IsBakeCapable => true;
+
+        public void BakeGeometry(RhinoDoc doc, List<Guid> obj_ids)
+        {
+            BakeGeometry(doc, null, obj_ids);
+        }
+
+        public void BakeGeometry(RhinoDoc doc, ObjectAttributes att, List<Guid> obj_ids)
+        {
+            if (att == null)
+            {
+                att = doc.CreateDefaultAttributes();
+            }
+
+            foreach (IGH_BakeAwareObject item in m_data)
+            {
+                if (item != null)
+                {
+                    List<Guid> idsOut = new List<Guid>();
+                    item.BakeGeometry(doc, att, idsOut);
+                    obj_ids.AddRange(idsOut);
+                }
+            }
         }
     }
 }

@@ -26,11 +26,6 @@ namespace WFCToolset
         public static IEnumerable<Point3d> PopulateGeometry(double distance, GeometryBase goo)
         {
             Rhino.DocObjects.ObjectType type = goo.ObjectType;
-            if (goo.HasBrepForm)
-            {
-                Brep bRep = Brep.TryConvertBrep(goo);
-                return PopulateBrepSurfaces(distance, bRep);
-            }
             switch (type)
             {
                 case Rhino.DocObjects.ObjectType.Point:
@@ -41,7 +36,24 @@ namespace WFCToolset
                     return PopulateCurve(distance, curve);
                 case Rhino.DocObjects.ObjectType.Mesh:
                     Mesh mesh = (Mesh)goo;
-                    return PopulateMesh(distance, mesh);
+                    IEnumerable<Point3d> surfacePoints = PopulateMeshSurface(distance, mesh);
+                    IEnumerable<Point3d> volumePoints = PopulateMeshVolume(distance, mesh);
+                    var points = surfacePoints.Concat(volumePoints);
+                    return points;
+            }
+            if (goo.HasBrepForm)
+            {
+                var meshingParameters = MeshingParameters.FastRenderMesh;
+                var meshes = Mesh.CreateFromBrep(Brep.TryConvertBrep(goo), meshingParameters);
+                var points = new List<Point3d>();
+                foreach (var mesh in meshes)
+                {
+                    IEnumerable<Point3d> surfacePoints = PopulateMeshSurface(distance, mesh);
+                    IEnumerable<Point3d> volumePoints = PopulateMeshVolume(distance, mesh);
+                    points.AddRange(surfacePoints);
+                    points.AddRange(volumePoints);
+                }
+                return points;
             }
             return null;
         }
@@ -58,7 +70,7 @@ namespace WFCToolset
         /// <param name="mesh">
         /// Mesh geometry, which surface should to be populated with points. 
         /// </param>
-        public static IEnumerable<Point3d> PopulateMesh(double distance, Mesh mesh)
+        public static IEnumerable<Point3d> PopulateMeshSurface(double distance, Mesh mesh)
         {
             List<Point3d> pointsOnMesh = new List<Point3d>();
             foreach (MeshFace face in mesh.Faces)
@@ -99,7 +111,9 @@ namespace WFCToolset
         /// </param>
         public static IEnumerable<Point3d> PopulateCurve(double distance, Curve curve)
         {
-            var divisionPoints = curve.DivideByLength(distance, true);
+            // Curve division calcualtion is bearably fast, therefore it can be more precise
+            double preciseDistance = distance * 0.25;
+            var divisionPoints = curve.DivideByLength(preciseDistance, true);
             if (divisionPoints != null)
             {
                 return divisionPoints.Select(t => curve.PointAt(t));
@@ -122,14 +136,15 @@ namespace WFCToolset
         /// <param name="bRep">
         /// BRep geometry (incl. Surface), which surface should to be populated with points. 
         /// </param>
-        public static IEnumerable<Point3d> PopulateBrepSurfaces(double distance, Brep bRep)
+        public static IEnumerable<Point3d> PopulateBrepSurface(double distance, Brep bRep)
         {
+            // TODO: Investigate the unprecise results
             List<Point3d> pointsOnBrepSurfaces = new List<Point3d>();
             Rhino.Geometry.Collections.BrepFaceList faces = bRep.Faces;
             foreach (BrepFace face in faces)
             {
-                BoundingBox bBox = face.GetBoundingBox(Transform.Identity);
-                int divisions = (int)Math.Ceiling(bBox.Diagonal.Length / distance);
+                face.GetSurfaceSize(out double width, out double height);
+                int divisions = (int)Math.Ceiling(Math.Max(width, height) / distance);
                 Interval domainU = face.Domain(0);
                 Interval domainV = face.Domain(1);
                 for (int vCounter = 0; vCounter <= divisions; vCounter++)
@@ -155,6 +170,51 @@ namespace WFCToolset
                 }
             }
             return pointsOnBrepSurfaces;
+        }
+
+        public static IEnumerable<Point3d> PopulateBrepVolume(double distance, Brep bRep)
+        {
+            // TODO: Investigate the unprecise results
+            List<Point3d> pointsInsideBrep = new List<Point3d>();
+            var boundingBox = bRep.GetBoundingBox(false);
+            for (var z = boundingBox.Min.Z - distance; z < boundingBox.Max.Z + distance; z += distance)
+            {
+                for (var y = boundingBox.Min.Y - distance; y < boundingBox.Max.Y + distance; y += distance)
+                {
+                    for (var x = boundingBox.Min.X - distance; x < boundingBox.Max.X + distance; x += distance)
+                    {
+                        var testPoint = new Point3d(x, y, z);
+                        if (bRep.IsPointInside(testPoint, Rhino.RhinoMath.SqrtEpsilon, true))
+                        {
+                            pointsInsideBrep.Add(testPoint);
+                        }
+                    }
+
+                }
+            }
+            return pointsInsideBrep;
+        }
+
+        public static IEnumerable<Point3d> PopulateMeshVolume(double distance, Mesh mesh)
+        {
+            List<Point3d> pointsInsideMesh = new List<Point3d>();
+            var boundingBox = mesh.GetBoundingBox(false);
+            for (var z = boundingBox.Min.Z - distance; z < boundingBox.Max.Z + distance; z += distance)
+            {
+                for (var y = boundingBox.Min.Y - distance; y < boundingBox.Max.Y + distance; y += distance)
+                {
+                    for (var x = boundingBox.Min.X - distance; x < boundingBox.Max.X + distance; x += distance)
+                    {
+                        var testPoint = new Point3d(x, y, z);
+                        if (mesh.IsPointInside(testPoint, Rhino.RhinoMath.SqrtEpsilon, false))
+                        {
+                            pointsInsideMesh.Add(testPoint);
+                        }
+                    }
+
+                }
+            }
+            return pointsInsideMesh;
         }
 
         // TODO: Try to avoid memory allocation
