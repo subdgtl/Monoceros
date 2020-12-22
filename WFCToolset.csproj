@@ -58,6 +58,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\RuleEmptyFromPoint.cs" />
+    <Compile Include="Components\RuleOuterFromPoint.cs" />
+    <Compile Include="Components\RuleIndifferentFromPoint.cs" />
+    <Compile Include="Components\RuleTypedFromPoint.cs" />
     <Compile Include="Components\RuleExplicitFromCurve.cs" />
     <Compile Include="Utilities\GridDirection.cs">
       <LastGenOutput>GridDirection1.cs</LastGenOutput>
