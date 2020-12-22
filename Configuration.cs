@@ -2,11 +2,11 @@
 {
     public class Configuration
     {
-        public const string EMPTY_MODULE_NAME = "empty";
-        public const string OUTER_MODULE_NAME = "out";
-        public const string INDIFFERENT_CONNECTOR_TYPE = "indifferent";
+        public const string EMPTY_TAG = "empty";
+        public const string OUTER_TAG = "out";
+        public const string INDIFFERENT_TAG = "indifferent";
 
-        public static readonly string[] RESERVED_NAMES = { EMPTY_MODULE_NAME, OUTER_MODULE_NAME };
+        public static readonly string[] RESERVED_NAMES = { EMPTY_TAG, OUTER_TAG };
 
         public static System.Drawing.Color CAGE_COLOR = System.Drawing.Color.FromArgb(128, 255, 255, 255);
 
@@ -16,7 +16,6 @@
 
         public static System.Drawing.Color POSITIVE_COLOR_FOREGROUND = System.Drawing.Color.White;
         public static System.Drawing.Color NEGATIVE_COLOR_FOREGROUND = System.Drawing.Color.Black;
-
 
         public static System.Drawing.Color ColorBackgroundFromDirection(Direction dir)
         {

@@ -22,7 +22,7 @@ namespace WFCToolset
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
             pManager.AddGeometryParameter("Geometry", "G", "Geometry defining the module. Point, Curve, Brep, Mesh.", GH_ParamAccess.list);
-            pManager.AddTextParameter("Name", "N", "Module name (except '" + Configuration.EMPTY_MODULE_NAME + "' and '" + Configuration.OUTER_MODULE_NAME + "')", GH_ParamAccess.item);
+            pManager.AddTextParameter("Name", "N", "Module name (except '" + Configuration.EMPTY_TAG + "' and '" + Configuration.OUTER_TAG + "')", GH_ParamAccess.item);
             pManager.AddPlaneParameter("Base plane", "B", "Grid space base plane", GH_ParamAccess.item, Plane.WorldXY);
             pManager.AddVectorParameter(
                "Grid Slot Diagonal",
@@ -67,7 +67,7 @@ namespace WFCToolset
                 return;
             }
 
-            if (name == Configuration.EMPTY_MODULE_NAME || name == Configuration.OUTER_MODULE_NAME)
+            if (name == Configuration.EMPTY_TAG || name == Configuration.OUTER_TAG)
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The module name cannot be '" + name + "' because it is reserved by WFC.");
                 return;
