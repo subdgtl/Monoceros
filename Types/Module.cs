@@ -64,6 +64,10 @@ namespace WFCToolset
         /// </summary>
         public readonly List<RuleExplicit> InternalRules;
 
+        /// <summary>
+        /// Check if the module submodules create a continuous blob. 
+        /// If the module contains islands, then it is not continous and the module will never hold together. 
+        /// </summary>
         public readonly bool Continuous;
 
         /// <summary>
@@ -111,7 +115,7 @@ namespace WFCToolset
 
             Continuous = true;
 
-            // TODO: Make a crawler to test the continuity
+            // TODO: Make a proper crawler to test the continuity
             if (submoduleCenters.Count > 1)
             {
                 foreach (var current in submoduleCenters)
@@ -138,37 +142,12 @@ namespace WFCToolset
             PivotSubmoduleName = Name + 0;
 
             Connectors = ComputeModuleConnectors(submoduleCenters, slotDiagonal, basePlane);
-            //Cages = ComputeCages(submoduleCenters, slotDiagonal, basePlane);
 
             InternalRules = ComputeInternalRules(submoduleCenters);
         }
 
         public Module()
         {
-        }
-
-        private List<Box> ComputeCages(List<Point3i> submoduleCenters, Vector3d slotDiagonal, Plane basePlane)
-        {
-            var cages = new List<Box>(submoduleCenters.Count);
-
-            var size = new Interval(-0.5, 0.5);
-            // Orient to the base coordinate system
-            Transform baseAlignmentTransform = Transform.PlaneToPlane(Plane.WorldXY, basePlane);
-            // Scale up to slot size
-            Transform scalingTransform = Transform.Scale(basePlane, slotDiagonal.X, slotDiagonal.Y, slotDiagonal.Z);
-
-            foreach (var center in submoduleCenters)
-            {
-                var submoduleCenter = new Point3d(center.X, center.Y, center.Z);
-                var cagePlane = Plane.WorldXY;
-                cagePlane.Origin = submoduleCenter;
-                var cage = new Box(cagePlane, size, size, size);
-                cage.Transform(baseAlignmentTransform);
-                cage.Transform(scalingTransform);
-                cages.Add(cage);
-            }
-
-            return cages;
         }
 
         private List<ModuleConnector> ComputeModuleConnectors(List<Point3i> submoduleCenters, Vector3d slotDiagonal, Plane basePlane)
@@ -261,7 +240,6 @@ namespace WFCToolset
                     planeZPositive,
                     faceZPositive);
                 moduleConnectors.Add(connectorZPositive);
-
 
                 var faceCenterXNegative = submoduleCenter + xNegativeVectorUnit * 0.5;
                 faceCenterXNegative.Transform(baseAlignmentTransform);
@@ -365,7 +343,6 @@ namespace WFCToolset
             return Connectors.Where(c => c.Valence == ModuleConnectorValence.External);
         }
 
-        // TODO: check why this says it is valid even if it's not
         public bool IsValid =>
             Connectors != null &&
             Geometry != null &&
@@ -373,6 +350,7 @@ namespace WFCToolset
             Name != null &&
             Pivot != null &&
             PivotSubmoduleName != null &&
+            Connectors.Count > 0 &&
             Continuous;
 
         // TODO: check why this doesn't say it is invalid
@@ -405,12 +383,16 @@ namespace WFCToolset
             }
         }
 
-        public bool IsBakeCapable => true;
-
         public bool CastFrom(object source) => false;
 
         public bool CastTo<T>(out T target)
         {
+            if (IsValid && typeof(T) == typeof(string))
+            {
+                object obj = Name.Clone();
+                target = (T)obj;
+                return true;
+            }
             target = default;
             return false;
         }
@@ -421,6 +403,7 @@ namespace WFCToolset
 
         }
 
+        // TODO: Find out what this is
         public IGH_GooProxy EmitProxy()
         {
             return (IGH_GooProxy)null;
@@ -471,16 +454,13 @@ namespace WFCToolset
                     args.Pipeline.DrawCurve((Curve)geo, args.Color);
                 }
             }
-            foreach (var connector in Connectors)
+            foreach (var externalConnector in GetExternalConnectors())
             {
-                if (connector.Valence == ModuleConnectorValence.External)
-                {
-                    args.Pipeline.DrawPolyline(connector.Face.ToPolyline(), Configuration.CAGE_COLOR);
-                    Point3d anchorPosition = connector.AnchorPlane.Origin;
-                    System.Drawing.Color dotColor = Configuration.ColorBackgroundFromDirection(connector.Direction);
-                    System.Drawing.Color textColor = Configuration.ColorForegroundFromDirection(connector.Direction);
-                    args.Pipeline.DrawDot(anchorPosition, connector.ConnectorIndex.ToString(), dotColor, textColor);
-                }
+                args.Pipeline.DrawPolyline(externalConnector.Face.ToPolyline(), Configuration.CAGE_COLOR);
+                Point3d anchorPosition = externalConnector.AnchorPlane.Origin;
+                System.Drawing.Color dotColor = Configuration.ColorBackgroundFromDirection(externalConnector.Direction);
+                System.Drawing.Color textColor = Configuration.ColorForegroundFromDirection(externalConnector.Direction);
+                args.Pipeline.DrawDot(anchorPosition, externalConnector.ConnectorIndex.ToString(), dotColor, textColor);
             }
         }
 
@@ -499,17 +479,28 @@ namespace WFCToolset
             }
         }
 
+        public bool IsBakeCapable
+        {
+            get
+            {
+                return IsValid;
+            }
+        }
+
         public void BakeGeometry(RhinoDoc doc, List<Guid> obj_ids)
         {
-            BakeGeometry(doc, null, obj_ids);
+            BakeGeometry(doc, new ObjectAttributes(), obj_ids);
         }
 
         public void BakeGeometry(RhinoDoc doc, ObjectAttributes att, List<Guid> obj_ids)
         {
             if (att == null)
             {
-                att = new ObjectAttributes();
+                att = doc.CreateDefaultAttributes();
             }
+
+            var groupCagesId = doc.Groups.Add(Name + "-cages");
+            var groupConnectorsId = doc.Groups.Add(Name + "-connectors");
 
             foreach (var connector in Connectors)
             {
@@ -517,11 +508,16 @@ namespace WFCToolset
                 {
                     var cageAttributes = att.Duplicate();
                     cageAttributes.ObjectColor = Configuration.CAGE_COLOR;
-                    doc.Objects.AddRectangle(connector.Face, cageAttributes);
+                    cageAttributes.ColorSource = ObjectColorSource.ColorFromObject;
+                    var faceId = doc.Objects.AddRectangle(connector.Face, cageAttributes);
+                    doc.Groups.AddToGroup(groupCagesId, faceId);
+                    obj_ids.Add(faceId);
                     var dotAttributes = att.Duplicate();
                     dotAttributes.ObjectColor = Configuration.ColorBackgroundFromDirection(connector.Direction);
-                    var id = doc.Objects.AddTextDot(connector.ConnectorIndex.ToString(), connector.AnchorPlane.Origin, dotAttributes);
-                    obj_ids.Add(id);
+                    dotAttributes.ColorSource = ObjectColorSource.ColorFromObject;
+                    var connectorId = doc.Objects.AddTextDot(connector.ConnectorIndex.ToString(), connector.AnchorPlane.Origin, dotAttributes);
+                    doc.Groups.AddToGroup(groupConnectorsId, connectorId);
+                    obj_ids.Add(connectorId);
                 }
             }
         }
