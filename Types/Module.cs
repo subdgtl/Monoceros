@@ -193,6 +193,7 @@ namespace WFCToolset
                     ModuleConnectorValence.Internal :
                     ModuleConnectorValence.External;
                 ModuleConnector connectorXPositive = new ModuleConnector(
+                    Name,
                     submoduleName,
                     submoduleIndex * 6 + 0,
                     directionXPositive,
@@ -213,6 +214,7 @@ namespace WFCToolset
                     ModuleConnectorValence.Internal :
                     ModuleConnectorValence.External;
                 ModuleConnector connectorYPositive = new ModuleConnector(
+                    Name,
                     submoduleName,
                     submoduleIndex * 6 + 1,
                     directionYPositive,
@@ -233,6 +235,7 @@ namespace WFCToolset
                     ModuleConnectorValence.Internal :
                     ModuleConnectorValence.External;
                 ModuleConnector connectorZPositive = new ModuleConnector(
+                    Name,
                     submoduleName,
                     submoduleIndex * 6 + 2,
                     directionZPositive,
@@ -253,6 +256,7 @@ namespace WFCToolset
                     ModuleConnectorValence.Internal :
                     ModuleConnectorValence.External;
                 ModuleConnector connectorXNegative = new ModuleConnector(
+                    Name,
                     submoduleName,
                     submoduleIndex * 6 + 3,
                     directionXNegative,
@@ -273,6 +277,7 @@ namespace WFCToolset
                     ModuleConnectorValence.Internal :
                     ModuleConnectorValence.External;
                 ModuleConnector connectorYNegative = new ModuleConnector(
+                    Name,
                     submoduleName,
                     submoduleIndex * 6 + 4,
                     directionYNegative,
@@ -293,6 +298,7 @@ namespace WFCToolset
                     ModuleConnectorValence.Internal :
                     ModuleConnectorValence.External;
                 ModuleConnector connectorZNegative = new ModuleConnector(
+                    Name,
                     submoduleName,
                     submoduleIndex * 6 + 5,
                     directionZNegative,
@@ -387,6 +393,7 @@ namespace WFCToolset
 
         public bool CastTo<T>(out T target)
         {
+            // TODO: This is overriden by ToString. Not sure this could ever work
             if (IsValid && typeof(T) == typeof(string))
             {
                 object obj = Name.Clone();
@@ -531,6 +538,7 @@ namespace WFCToolset
 
     public struct ModuleConnector
     {
+        public string ModuleName;
         public string SubmoduleName;
         public int ConnectorIndex;
         public Direction Direction;
@@ -538,8 +546,9 @@ namespace WFCToolset
         public Plane AnchorPlane;
         public Rectangle3d Face;
 
-        public ModuleConnector(string submoduleName, int connectorIndex, Direction direction, ModuleConnectorValence valence, Plane anchorPlane, Rectangle3d face)
+        public ModuleConnector(string moduleName, string submoduleName, int connectorIndex, Direction direction, ModuleConnectorValence valence, Plane anchorPlane, Rectangle3d face)
         {
+            ModuleName = moduleName;
             SubmoduleName = submoduleName;
             ConnectorIndex = connectorIndex;
             Direction = direction;
