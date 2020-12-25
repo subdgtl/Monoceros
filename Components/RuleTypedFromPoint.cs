@@ -13,8 +13,8 @@ namespace WFCToolset
 
     public class ComponentRuleTypedFromPoint : GH_Component
     {
-        public ComponentRuleTypedFromPoint() : base("WFC Create typed rule from point tag", "WFCRuleTypPt",
-            "Create a typed WFC Rule from a point tag.",
+        public ComponentRuleTypedFromPoint() : base("WFC Create Typed rule from point tag", "WFCRuleTypPt",
+            "Create a Typed WFC Rule (connector-to-all-same-type-connectors) from a point tag. The connector Type will be converted to lowercase.",
             "WaveFunctionCollapse", "Rule")
         {
         }
@@ -25,7 +25,7 @@ namespace WFCToolset
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
             pManager.AddParameter(new ModuleParameter(), "Modules", "M", "All available WFC modules", GH_ParamAccess.list);
-            pManager.AddPointParameter("Point tag", "Pt", "Point marking a connetor", GH_ParamAccess.item);
+            pManager.AddPointParameter("Point tag", "Pt", "Point marking a connector", GH_ParamAccess.item);
             pManager.AddTextParameter("Connector type", "T", "Type to be assigned to the connector", GH_ParamAccess.item);
         }
 
@@ -87,7 +87,7 @@ namespace WFCToolset
         /// each of which can be combined with the GH_Exposure.obscure flag, which 
         /// ensures the component will only be visible on panel dropdowns.
         /// </summary>
-        public override GH_Exposure Exposure => GH_Exposure.primary;
+        public override GH_Exposure Exposure => GH_Exposure.tertiary;
 
         /// <summary>
         /// Provides an Icon for every component that will be visible in the User Interface.

@@ -30,7 +30,7 @@ namespace WFCToolset
             get
             {
                 //Return a short string describing the purpose of this GHA library.
-                return "Subdigital's Wave Function Collapse toolset.";
+                return "Subdigital: Wave Function Collapse toolset.";
             }
         }
         public override Guid Id

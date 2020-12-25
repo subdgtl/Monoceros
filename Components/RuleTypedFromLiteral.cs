@@ -10,8 +10,8 @@ namespace WFCToolset
 
     public class ComponentRuleTypedFromLiteral : GH_Component
     {
-        public ComponentRuleTypedFromLiteral() : base("WFC Create typed rule from literal", "WFCRuleTypLit",
-            "Create a typed (connector-to-all-same-type-connecors) WFC Rule from module name, connector number and connector type.",
+        public ComponentRuleTypedFromLiteral() : base("WFC Create Typed rule from literal", "WFCRuleTypLit",
+            "Create a typed WFC Rule (connector-to-all-same-type-connectors) from module name, connector number and connector type. The existence of the module and connector is not being checked. The connector Type will be converted to lowercase.",
             "WaveFunctionCollapse", "Rule")
         {
         }
@@ -73,7 +73,7 @@ namespace WFCToolset
         /// each of which can be combined with the GH_Exposure.obscure flag, which 
         /// ensures the component will only be visible on panel dropdowns.
         /// </summary>
-        public override GH_Exposure Exposure => GH_Exposure.primary;
+        public override GH_Exposure Exposure => GH_Exposure.tertiary;
 
         /// <summary>
         /// Provides an Icon for every component that will be visible in the User Interface.

@@ -70,7 +70,7 @@ namespace WFCToolset
 
         /// <summary>
         /// Check if the module submodules create a continuous blob. 
-        /// If the module contains islands, then it is not continous and the module will never hold together. 
+        /// If the module contains islands, then it is not continuous and the module will never hold together. 
         /// </summary>
         public readonly bool Continuous;
 
@@ -413,7 +413,7 @@ namespace WFCToolset
 
         public bool CastTo<T>(out T target)
         {
-            // TODO: This is overriden by ToString. Not sure this could ever work
+            // TODO: This is overridden by ToString. Not sure this could ever work
             if (IsValid && typeof(T) == typeof(string))
             {
                 var obj = Name.Clone();
@@ -447,7 +447,7 @@ namespace WFCToolset
             Connectors.Count / 6 + " slots and has " +
             Connectors.Count(c => c._valence == ModuleConnectorValence.External) + " connectors." +
             (Continuous ?
-            "The module is continous." :
+            "The module is continuous." :
             "WARNING: The module is not continuous and therefore will not hold together.");
 
 

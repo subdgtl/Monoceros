@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Linq;
+
 namespace WFCToolset
 {
     public class Configuration
@@ -11,6 +13,7 @@ namespace WFCToolset
         public const string INDIFFERENT_TAG = "indifferent";
 
         public static readonly string[] RESERVED_NAMES = { EMPTY_TAG, OUTER_TAG };
+        public static string RESERVED_TO_STRING => RESERVED_NAMES.Aggregate("", (accum, name) => accum + ", " + name);
 
         public static System.Drawing.Color CAGE_COLOR = System.Drawing.Color.FromArgb(128, 255, 255, 255);
 
@@ -18,12 +21,13 @@ namespace WFCToolset
         public static System.Drawing.Color Y_DOT_COLOR = System.Drawing.Color.FromArgb(32, 0, 255, 0);
         public static System.Drawing.Color Z_DOT_COLOR = System.Drawing.Color.FromArgb(32, 0, 0, 255);
 
-        public static System.Drawing.Color X_COLOR = System.Drawing.Color.FromArgb(255, 255, 0, 0);
-        public static System.Drawing.Color Y_COLOR = System.Drawing.Color.FromArgb(255, 0, 255, 0);
-        public static System.Drawing.Color Z_COLOR = System.Drawing.Color.FromArgb(255, 0, 0, 255);
+        public static System.Drawing.Color X_COLOR = System.Drawing.Color.FromArgb(128, 255, 0, 0);
+        public static System.Drawing.Color Y_COLOR = System.Drawing.Color.FromArgb(128, 0, 255, 0);
+        public static System.Drawing.Color Z_COLOR = System.Drawing.Color.FromArgb(128, 0, 0, 255);
 
-        public static System.Drawing.Color POSITIVE_COLOR = System.Drawing.Color.White;
-        public static System.Drawing.Color NEGATIVE_COLOR = System.Drawing.Color.Black;
+        public static System.Drawing.Color POSITIVE_COLOR = System.Drawing.Color.FromArgb(128, 255, 255, 255);
+        public static System.Drawing.Color NEGATIVE_COLOR = System.Drawing.Color.FromArgb(128, 0, 0, 0);
+
 
         public static System.Drawing.Color ColorBackgroundFromDirection(Direction dir)
         {

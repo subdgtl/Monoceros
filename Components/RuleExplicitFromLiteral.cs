@@ -10,8 +10,8 @@ namespace WFCToolset
 
     public class ComponentRuleExplicitFromLiteral : GH_Component
     {
-        public ComponentRuleExplicitFromLiteral() : base("WFC Create explicit rule from literal", "WFCRuleExpLit",
-            "Create an explicit (connector-to-connector) WFC Rule from module name and connector number.",
+        public ComponentRuleExplicitFromLiteral() : base("WFC Create Explicit rule from literal", "WFCRuleExpLit",
+            "Create an Explicit WFC Rule (connector-to-connector) from module name and connector number. The existence of the module and connector as well as whether the connectors are opposite is not being checked.",
             "WaveFunctionCollapse", "Rule")
         {
         }
@@ -84,7 +84,7 @@ namespace WFCToolset
         /// each of which can be combined with the GH_Exposure.obscure flag, which 
         /// ensures the component will only be visible on panel dropdowns.
         /// </summary>
-        public override GH_Exposure Exposure => GH_Exposure.primary;
+        public override GH_Exposure Exposure => GH_Exposure.tertiary;
 
         /// <summary>
         /// Provides an Icon for every component that will be visible in the User Interface.

@@ -115,7 +115,7 @@ namespace WFCToolset
         /// </param>
         public static IEnumerable<Point3d> PopulateCurve(double distance, Curve curve)
         {
-            // Curve division calcualtion is bearably fast, therefore it can be more precise
+            // Curve division calculation is bearably fast, therefore it can be more precise
             var preciseDistance = distance * 0.25;
             var divisionPoints = curve.DivideByLength(preciseDistance, true);
             if (divisionPoints != null)
@@ -142,7 +142,7 @@ namespace WFCToolset
         /// </param>
         public static IEnumerable<Point3d> PopulateBrepSurface(double distance, Brep bRep)
         {
-            // TODO: Investigate the unprecise results
+            // TODO: Investigate the imprecise results
             var pointsOnBrepSurfaces = new List<Point3d>();
             var faces = bRep.Faces;
             foreach (var face in faces)
@@ -178,7 +178,7 @@ namespace WFCToolset
 
         public static IEnumerable<Point3d> PopulateBrepVolume(double distance, Brep bRep)
         {
-            // TODO: Investigate the unprecise results
+            // TODO: Investigate the imprecise results
             var pointsInsideBrep = new List<Point3d>();
             var boundingBox = bRep.GetBoundingBox(false);
             for (var z = boundingBox.Min.Z - distance; z < boundingBox.Max.Z + distance; z += distance)

@@ -12,8 +12,8 @@ namespace WFCToolset
 {
     public class ComponentRuleIndifferentFromPoint : GH_Component
     {
-        public ComponentRuleIndifferentFromPoint() : base("WFC Create Indifferent type rule from point tag", "WFCRuleIndifferentPt",
-            "Allow the connector to connect to any oposite indifferent connector.",
+        public ComponentRuleIndifferentFromPoint() : base("WFC Create Indifferent Type rule from point tag", "WFCRuleIndifferentPt",
+            "Allow the connector to connect to any opposite indifferent connector.",
             "WaveFunctionCollapse", "Rule")
         {
         }
@@ -24,7 +24,7 @@ namespace WFCToolset
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
             pManager.AddParameter(new ModuleParameter(), "Modules", "M", "All available WFC modules", GH_ParamAccess.list);
-            pManager.AddPointParameter("Point tag", "Pt", "Point marking a connetor", GH_ParamAccess.item);
+            pManager.AddPointParameter("Point tag", "Pt", "Point marking a connector", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace WFCToolset
         /// each of which can be combined with the GH_Exposure.obscure flag, which 
         /// ensures the component will only be visible on panel dropdowns.
         /// </summary>
-        public override GH_Exposure Exposure => GH_Exposure.primary;
+        public override GH_Exposure Exposure => GH_Exposure.tertiary;
 
         /// <summary>
         /// Provides an Icon for every component that will be visible in the User Interface.
