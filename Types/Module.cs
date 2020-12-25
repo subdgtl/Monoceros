@@ -88,7 +88,11 @@ namespace WFCToolset
         /// and orientation is defined by the basePlane. submoduleCenters are the only source of 
         /// information about the module's dimensions and occupied submodules.</param>
         /// <param name="slotDiagonal">Dimension of a single world slot.</param>
-        public Module(string name, List<GeometryBase> geometry, Plane basePlane, List<Point3i> submoduleCenters, Vector3d slotDiagonal)
+        public Module(string name,
+                      List<GeometryBase> geometry,
+                      Plane basePlane,
+                      List<Point3i> submoduleCenters,
+                      Vector3d slotDiagonal)
         {
             // Check if any submodule centers are defined
             if (submoduleCenters.Count == 0)
@@ -125,9 +129,9 @@ namespace WFCToolset
                 foreach (var current in submoduleCenters)
                 {
                     if (!submoduleCenters.Any(other =>
-                    (Math.Abs(current.X - other.X) == 1 && current.Y == other.Y && current.Z == other.Z) ||
-                    (Math.Abs(current.Y - other.Y) == 1 && current.X == other.X && current.Z == other.Z) ||
-                    (Math.Abs(current.Z - other.Z) == 1 && current.Y == other.Y && current.X == other.X)
+                    (Math.Abs(current._x - other._x) == 1 && current._y == other._y && current._z == other._z) ||
+                    (Math.Abs(current._y - other._y) == 1 && current._x == other._x && current._z == other._z) ||
+                    (Math.Abs(current._z - other._z) == 1 && current._y == other._y && current._x == other._x)
                     ))
                     {
                         Continuous = false;
@@ -141,7 +145,9 @@ namespace WFCToolset
 
             // Place the pivot into the first submodule and orient is according to the base plane 
             Pivot = basePlane.Clone();
-            Pivot.Origin = new Point3d(submoduleCenters[0].X * slotDiagonal.X, submoduleCenters[0].Y * slotDiagonal.Y, submoduleCenters[0].Z * slotDiagonal.Z);
+            Pivot.Origin = new Point3d(submoduleCenters[0]._x * slotDiagonal.X,
+                                       submoduleCenters[0]._y * slotDiagonal.Y,
+                                       submoduleCenters[0]._z * slotDiagonal.Z);
             // The name of the first submodule which should trigger the geometry placement
             PivotSubmoduleName = Name + 0;
 
@@ -154,16 +160,18 @@ namespace WFCToolset
         {
         }
 
-        private List<ModuleConnector> ComputeModuleConnectors(List<Point3i> submoduleCenters, Vector3d slotDiagonal, Plane basePlane)
+        private List<ModuleConnector> ComputeModuleConnectors(List<Point3i> submoduleCenters,
+                                                              Vector3d slotDiagonal,
+                                                              Plane basePlane)
         {
             var moduleConnectors = new List<ModuleConnector>(submoduleCenters.Count * 6);
 
-            var directionXPositive = new Direction { Axis = Axis.X, Orientation = Orientation.Positive };
-            var directionYPositive = new Direction { Axis = Axis.Y, Orientation = Orientation.Positive };
-            var directionZPositive = new Direction { Axis = Axis.Z, Orientation = Orientation.Positive };
-            var directionXNegative = new Direction { Axis = Axis.X, Orientation = Orientation.Negative };
-            var directionYNegative = new Direction { Axis = Axis.Y, Orientation = Orientation.Negative };
-            var directionZNegative = new Direction { Axis = Axis.Z, Orientation = Orientation.Negative };
+            var directionXPositive = new Direction { _axis = Axis.X, _orientation = Orientation.Positive };
+            var directionYPositive = new Direction { _axis = Axis.Y, _orientation = Orientation.Positive };
+            var directionZPositive = new Direction { _axis = Axis.Z, _orientation = Orientation.Positive };
+            var directionXNegative = new Direction { _axis = Axis.X, _orientation = Orientation.Negative };
+            var directionYNegative = new Direction { _axis = Axis.Y, _orientation = Orientation.Negative };
+            var directionZNegative = new Direction { _axis = Axis.Z, _orientation = Orientation.Negative };
 
             directionXPositive.ToVector(out var xPositiveVectorUnit);
             directionYPositive.ToVector(out var yPositiveVectorUnit);
@@ -183,7 +191,7 @@ namespace WFCToolset
             {
                 var center = submoduleCenters[submoduleIndex];
                 var submoduleName = Name + submoduleIndex;
-                var submoduleCenter = new Point3d(center.X, center.Y, center.Z);
+                var submoduleCenter = new Point3d(center._x, center._y, center._z);
 
                 var faceCenterXPositive = submoduleCenter + xPositiveVectorUnit * 0.5;
                 faceCenterXPositive.Transform(baseAlignmentTransform);
@@ -193,7 +201,7 @@ namespace WFCToolset
                     planeXPositive,
                     new Interval(slotDiagonal.Y * (-0.5), slotDiagonal.Y * 0.5),
                     new Interval(slotDiagonal.Z * (-0.5), slotDiagonal.Z * 0.5));
-                var valenceXPositive = submoduleCenters.Any(o => center.X - o.X == -1 && center.Y == o.Y && center.Z == o.Z) ?
+                var valenceXPositive = submoduleCenters.Any(o => center._x - o._x == -1 && center._y == o._y && center._z == o._z) ?
                     ModuleConnectorValence.Internal :
                     ModuleConnectorValence.External;
                 var connectorXPositive = new ModuleConnector(
@@ -214,7 +222,7 @@ namespace WFCToolset
                     planeYPositive,
                     new Interval(slotDiagonal.X * (-0.5), slotDiagonal.X * 0.5),
                     new Interval(slotDiagonal.Z * (-0.5), slotDiagonal.Z * 0.5));
-                var valenceYPositive = submoduleCenters.Any(o => center.Y - o.Y == -1 && center.X == o.X && center.Z == o.Z) ?
+                var valenceYPositive = submoduleCenters.Any(o => center._y - o._y == -1 && center._x == o._x && center._z == o._z) ?
                     ModuleConnectorValence.Internal :
                     ModuleConnectorValence.External;
                 var connectorYPositive = new ModuleConnector(
@@ -235,7 +243,7 @@ namespace WFCToolset
                     planeZPositive,
                     new Interval(slotDiagonal.X * (-0.5), slotDiagonal.X * 0.5),
                     new Interval(slotDiagonal.Y * (-0.5), slotDiagonal.Y * 0.5));
-                var valenceZPositive = submoduleCenters.Any(o => center.Z - o.Z == -1 && center.X == o.X && center.Y == o.Y) ?
+                var valenceZPositive = submoduleCenters.Any(o => center._z - o._z == -1 && center._x == o._x && center._y == o._y) ?
                     ModuleConnectorValence.Internal :
                     ModuleConnectorValence.External;
                 var connectorZPositive = new ModuleConnector(
@@ -256,7 +264,7 @@ namespace WFCToolset
                     planeXNegative,
                     new Interval(slotDiagonal.Y * (-0.5), slotDiagonal.Y * 0.5),
                     new Interval(slotDiagonal.Z * (-0.5), slotDiagonal.Z * 0.5));
-                var valenceXNegative = submoduleCenters.Any(o => center.X - o.X == 1 && center.Y == o.Y && center.Z == o.Z) ?
+                var valenceXNegative = submoduleCenters.Any(o => center._x - o._x == 1 && center._y == o._y && center._z == o._z) ?
                     ModuleConnectorValence.Internal :
                     ModuleConnectorValence.External;
                 var connectorXNegative = new ModuleConnector(
@@ -277,7 +285,7 @@ namespace WFCToolset
                     planeYNegative,
                     new Interval(slotDiagonal.X * (-0.5), slotDiagonal.X * 0.5),
                     new Interval(slotDiagonal.Z * (-0.5), slotDiagonal.Z * 0.5));
-                var valenceYNegative = submoduleCenters.Any(o => center.Y - o.Y == 1 && center.X == o.X && center.Z == o.Z) ?
+                var valenceYNegative = submoduleCenters.Any(o => center._y - o._y == 1 && center._x == o._x && center._z == o._z) ?
                     ModuleConnectorValence.Internal :
                     ModuleConnectorValence.External;
                 var connectorYNegative = new ModuleConnector(
@@ -298,7 +306,7 @@ namespace WFCToolset
                     planeZNegative,
                     new Interval(slotDiagonal.X * (-0.5), slotDiagonal.X * 0.5),
                     new Interval(slotDiagonal.Y * (-0.5), slotDiagonal.Y * 0.5));
-                var valenceZNegative = submoduleCenters.Any(o => center.Z - o.Z == 1 && center.X == o.X && center.X == o.X) ?
+                var valenceZNegative = submoduleCenters.Any(o => center._z - o._z == 1 && center._x == o._x && center._x == o._x) ?
                     ModuleConnectorValence.Internal :
                     ModuleConnectorValence.External;
                 var connectorZNegative = new ModuleConnector(
@@ -324,21 +332,21 @@ namespace WFCToolset
                 var center = submoduleCenters[thisIndex];
 
                 // Connector numbering convention: (submoduleIndex * 6) + faceIndex, where faceIndex is X=0, Y=1, Z=2, -X=3, -Y=4, -Z=5
-                var otherIndexXPositive = submoduleCenters.FindIndex(o => center.X - o.X == -1 && center.Y == o.Y && center.Z == o.Z);
+                var otherIndexXPositive = submoduleCenters.FindIndex(o => center._x - o._x == -1 && center._y == o._y && center._z == o._z);
                 if (otherIndexXPositive != -1)
                 {
                     rulesInternal.Add(new RuleExplicit(Name, thisIndex * 6 + 0, Name, otherIndexXPositive * 6 + 3));
                     continue;
                 }
 
-                var otherIndexYPositive = submoduleCenters.FindIndex(o => center.Y - o.Y == -1 && center.X == o.X && center.Z == o.Z);
+                var otherIndexYPositive = submoduleCenters.FindIndex(o => center._y - o._y == -1 && center._x == o._x && center._z == o._z);
                 if (otherIndexYPositive != -1)
                 {
                     rulesInternal.Add(new RuleExplicit(Name, thisIndex * 6 + 1, Name, otherIndexYPositive * 6 + 4));
                     continue;
                 }
 
-                var otherIndexZPositive = submoduleCenters.FindIndex(o => center.Z - o.Z == -1 && center.X == o.X && center.Y == o.Y);
+                var otherIndexZPositive = submoduleCenters.FindIndex(o => center._z - o._z == -1 && center._x == o._x && center._y == o._y);
                 if (otherIndexZPositive != -1)
                 {
                     rulesInternal.Add(new RuleExplicit(Name, thisIndex * 6 + 2, Name, otherIndexZPositive * 6 + 5));
@@ -350,14 +358,14 @@ namespace WFCToolset
 
         public IEnumerable<ModuleConnector> GetExternalConnectors()
         {
-            return Connectors.Where(c => c.Valence == ModuleConnectorValence.External);
+            return Connectors.Where(c => c._valence == ModuleConnectorValence.External);
         }
 
         public IEnumerable<ModuleConnector> ExternalConnectorsContainingPoint(Point3d point)
         {
             return GetExternalConnectors().Where(connector =>
-            connector.AnchorPlane.DistanceTo(point) < RhinoMath.SqrtEpsilon &&
-                    connector.Face.Contains(point) == PointContainment.Inside
+            connector._anchorPlane.DistanceTo(point) < RhinoMath.SqrtEpsilon &&
+                    connector._face.Contains(point) == PointContainment.Inside
             );
         }
 
@@ -395,7 +403,7 @@ namespace WFCToolset
                 var unionBox = BoundingBox.Empty;
                 foreach (var connector in Connectors)
                 {
-                    unionBox.Union(connector.Face.BoundingBox);
+                    unionBox.Union(connector._face.BoundingBox);
                 }
                 return unionBox;
             }
@@ -437,14 +445,18 @@ namespace WFCToolset
         public override string ToString() =>
             "Module " + Name + " occupies " +
             Connectors.Count / 6 + " slots and has " +
-            Connectors.Count(c => c.Valence == ModuleConnectorValence.External) + " connectors." +
+            Connectors.Count(c => c._valence == ModuleConnectorValence.External) + " connectors." +
             (Continuous ?
             "The module is continous." :
             "WARNING: The module is not continuous and therefore will not hold together.");
 
 
         // This is to generate Out and Empty modules with Indifferent connector type
-        public static void GenerateNamedEmptySingleModule(string name, string connectorType, Vector3d slotDiagonal, out Module module, out List<RuleTyped> rulesExternal)
+        public static void GenerateNamedEmptySingleModule(string name,
+                                                          string connectorType,
+                                                          Vector3d slotDiagonal,
+                                                          out Module module,
+                                                          out List<RuleTyped> rulesExternal)
         {
             module = new Module(
                 name,
@@ -475,11 +487,11 @@ namespace WFCToolset
             }
             foreach (var externalConnector in GetExternalConnectors())
             {
-                args.Pipeline.DrawPolyline(externalConnector.Face.ToPolyline(), Configuration.CAGE_COLOR);
-                var anchorPosition = externalConnector.AnchorPlane.Origin;
-                var dotColor = Configuration.ColorBackgroundFromDirection(externalConnector.Direction);
-                var textColor = Configuration.ColorForegroundFromDirection(externalConnector.Direction);
-                args.Pipeline.DrawDot(anchorPosition, externalConnector.ConnectorIndex.ToString(), dotColor, textColor);
+                args.Pipeline.DrawPolyline(externalConnector._face.ToPolyline(), Configuration.CAGE_COLOR);
+                var anchorPosition = externalConnector._anchorPlane.Origin;
+                var dotColor = Configuration.ColorBackgroundFromDirection(externalConnector._direction);
+                var textColor = Configuration.ColorForegroundFromDirection(externalConnector._direction);
+                args.Pipeline.DrawDot(anchorPosition, externalConnector._connectorIndex.ToString(), dotColor, textColor);
             }
         }
 
@@ -523,18 +535,20 @@ namespace WFCToolset
 
             foreach (var connector in Connectors)
             {
-                if (connector.Valence == ModuleConnectorValence.External)
+                if (connector._valence == ModuleConnectorValence.External)
                 {
                     var cageAttributes = att.Duplicate();
                     cageAttributes.ObjectColor = Configuration.CAGE_COLOR;
                     cageAttributes.ColorSource = ObjectColorSource.ColorFromObject;
-                    var faceId = doc.Objects.AddRectangle(connector.Face, cageAttributes);
+                    var faceId = doc.Objects.AddRectangle(connector._face, cageAttributes);
                     doc.Groups.AddToGroup(groupCagesId, faceId);
                     obj_ids.Add(faceId);
                     var dotAttributes = att.Duplicate();
-                    dotAttributes.ObjectColor = Configuration.ColorBackgroundFromDirection(connector.Direction);
+                    dotAttributes.ObjectColor = Configuration.ColorBackgroundFromDirection(connector._direction);
                     dotAttributes.ColorSource = ObjectColorSource.ColorFromObject;
-                    var connectorId = doc.Objects.AddTextDot(connector.ConnectorIndex.ToString(), connector.AnchorPlane.Origin, dotAttributes);
+                    var connectorId = doc.Objects.AddTextDot(connector._connectorIndex.ToString(),
+                                                             connector._anchorPlane.Origin,
+                                                             dotAttributes);
                     doc.Groups.AddToGroup(groupConnectorsId, connectorId);
                     obj_ids.Add(connectorId);
                 }
@@ -550,84 +564,90 @@ namespace WFCToolset
 
     public struct ModuleConnector
     {
-        public string ModuleName;
-        public string SubmoduleName;
-        public int ConnectorIndex;
-        public Direction Direction;
-        public ModuleConnectorValence Valence;
-        public Plane AnchorPlane;
-        public Rectangle3d Face;
+        public string _moduleName;
+        public string _submoduleName;
+        public int _connectorIndex;
+        public Direction _direction;
+        public ModuleConnectorValence _valence;
+        public Plane _anchorPlane;
+        public Rectangle3d _face;
 
-        public ModuleConnector(string moduleName, string submoduleName, int connectorIndex, Direction direction, ModuleConnectorValence valence, Plane anchorPlane, Rectangle3d face)
+        public ModuleConnector(string moduleName,
+                               string submoduleName,
+                               int connectorIndex,
+                               Direction direction,
+                               ModuleConnectorValence valence,
+                               Plane anchorPlane,
+                               Rectangle3d face)
         {
-            ModuleName = moduleName;
-            SubmoduleName = submoduleName;
-            ConnectorIndex = connectorIndex;
-            Direction = direction;
-            Valence = valence;
-            AnchorPlane = anchorPlane;
-            Face = face;
+            _moduleName = moduleName;
+            _submoduleName = submoduleName;
+            _connectorIndex = connectorIndex;
+            _direction = direction;
+            _valence = valence;
+            _anchorPlane = anchorPlane;
+            _face = face;
         }
 
         public override bool Equals(object obj)
         {
             return obj is ModuleConnector connector &&
-                   SubmoduleName == connector.SubmoduleName &&
-                   ConnectorIndex == connector.ConnectorIndex &&
-                   EqualityComparer<Direction>.Default.Equals(Direction, connector.Direction) &&
-                   Valence == connector.Valence &&
-                   AnchorPlane.Equals(connector.AnchorPlane) &&
-                   EqualityComparer<Rectangle3d>.Default.Equals(Face, connector.Face);
+                   _submoduleName == connector._submoduleName &&
+                   _connectorIndex == connector._connectorIndex &&
+                   EqualityComparer<Direction>.Default.Equals(_direction, connector._direction) &&
+                   _valence == connector._valence &&
+                   _anchorPlane.Equals(connector._anchorPlane) &&
+                   EqualityComparer<Rectangle3d>.Default.Equals(_face, connector._face);
         }
 
         public override int GetHashCode()
         {
             var hashCode = -855668167;
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(SubmoduleName);
-            hashCode = hashCode * -1521134295 + ConnectorIndex.GetHashCode();
-            hashCode = hashCode * -1521134295 + Direction.GetHashCode();
-            hashCode = hashCode * -1521134295 + Valence.GetHashCode();
-            hashCode = hashCode * -1521134295 + AnchorPlane.GetHashCode();
-            hashCode = hashCode * -1521134295 + Face.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(_submoduleName);
+            hashCode = hashCode * -1521134295 + _connectorIndex.GetHashCode();
+            hashCode = hashCode * -1521134295 + _direction.GetHashCode();
+            hashCode = hashCode * -1521134295 + _valence.GetHashCode();
+            hashCode = hashCode * -1521134295 + _anchorPlane.GetHashCode();
+            hashCode = hashCode * -1521134295 + _face.GetHashCode();
             return hashCode;
         }
     }
 
     public struct Point3i
     {
-        public int X;
-        public int Y;
-        public int Z;
+        public int _x;
+        public int _y;
+        public int _z;
 
         public Point3i(int item1, int item2, int item3)
         {
-            X = item1;
-            Y = item2;
-            Z = item3;
+            _x = item1;
+            _y = item2;
+            _z = item3;
         }
 
         public override bool Equals(object obj)
         {
             return obj is Point3i other &&
-                   X == other.X &&
-                   Y == other.Y &&
-                   Z == other.Z;
+                   _x == other._x &&
+                   _y == other._y &&
+                   _z == other._z;
         }
 
         public override int GetHashCode()
         {
             var hashCode = 341329424;
-            hashCode = hashCode * -1521134295 + X.GetHashCode();
-            hashCode = hashCode * -1521134295 + Y.GetHashCode();
-            hashCode = hashCode * -1521134295 + Z.GetHashCode();
+            hashCode = hashCode * -1521134295 + _x.GetHashCode();
+            hashCode = hashCode * -1521134295 + _y.GetHashCode();
+            hashCode = hashCode * -1521134295 + _z.GetHashCode();
             return hashCode;
         }
 
         public void Deconstruct(out int item1, out int item2, out int item3)
         {
-            item1 = X;
-            item2 = Y;
-            item3 = Z;
+            item1 = _x;
+            item2 = _y;
+            item3 = _z;
         }
     }
 }

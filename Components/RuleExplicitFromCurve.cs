@@ -89,14 +89,14 @@ namespace WFCToolset
             {
                 foreach (var endConnector in endConnectors)
                 {
-                    if (endConnector.Direction.IsOpposite(startConnector.Direction))
+                    if (endConnector._direction.IsOpposite(startConnector._direction))
                     {
                         rules.Add(
                             new Rule(
-                                startConnector.ModuleName,
-                                startConnector.ConnectorIndex,
-                                endConnector.ModuleName,
-                                endConnector.ConnectorIndex
+                                startConnector._moduleName,
+                                startConnector._connectorIndex,
+                                endConnector._moduleName,
+                                endConnector._connectorIndex
                                 )
                             );
                     }

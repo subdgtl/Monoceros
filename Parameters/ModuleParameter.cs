@@ -25,9 +25,15 @@ namespace WFCToolset
 
         public bool Hidden { get; set; }
 
-        public bool IsPreviewCapable => true;
+        public bool GetIsPreviewCapable()
+        {
+            return true;
+        }
 
-        public BoundingBox ClippingBox => Preview_ComputeClippingBox();
+        public BoundingBox GetClippingBox()
+        {
+            return Preview_ComputeClippingBox();
+        }
 
         protected override GH_GetterResult Prompt_Plural(ref List<Module> values)
         {
@@ -51,6 +57,10 @@ namespace WFCToolset
         }
 
         public bool IsBakeCapable => true;
+
+        public bool IsPreviewCapable => true;
+
+        public BoundingBox ClippingBox => Preview_ComputeClippingBox();
 
         public void BakeGeometry(RhinoDoc doc, List<Guid> obj_ids)
         {

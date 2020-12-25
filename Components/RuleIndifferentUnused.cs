@@ -59,34 +59,31 @@ namespace WFCToolset
 
             foreach (var existingRule in existingRules)
             {
-                if (existingRule.RuleExplicit != null &&
-                    existingRule.RuleTyped == null &&
-                    existingRule.RuleExplicit.SourceModuleName == module.Name
+                if (existingRule.IsExplicit() &&
+                    existingRule._ruleExplicit._sourceModuleName == module.Name
                     )
                 {
-                    thisModulesUsedConnectors.Add(existingRule.RuleExplicit.SourceConnectorIndex);
+                    thisModulesUsedConnectors.Add(existingRule._ruleExplicit._sourceConnectorIndex);
                 }
 
-                if (existingRule.RuleExplicit != null &&
-                    existingRule.RuleTyped == null &&
-                    existingRule.RuleExplicit.TargetModuleName == module.Name
+                if (existingRule.IsExplicit() &&
+                    existingRule._ruleExplicit._targetModuleName == module.Name
                     )
                 {
-                    thisModulesUsedConnectors.Add(existingRule.RuleExplicit.TargetConnectorIndex);
+                    thisModulesUsedConnectors.Add(existingRule._ruleExplicit._targetConnectorIndex);
                 }
 
-                if (existingRule.RuleExplicit == null &&
-                    existingRule.RuleTyped != null &&
-                    existingRule.RuleTyped.ModuleName == module.Name
+                if (existingRule.IsTyped() &&
+                    existingRule._ruleTyped._moduleName == module.Name
                     )
                 {
-                    thisModulesUsedConnectors.Add(existingRule.RuleTyped.ConnectorIndex);
+                    thisModulesUsedConnectors.Add(existingRule._ruleTyped._connectorIndex);
                 }
             }
 
             var rules = module.GetExternalConnectors()
-                .Where(connector => !thisModulesUsedConnectors.Contains(connector.ConnectorIndex))
-                .Select(connector => new Rule(connector.ModuleName, connector.ConnectorIndex, type));
+                .Where(connector => !thisModulesUsedConnectors.Contains(connector._connectorIndex))
+                .Select(connector => new Rule(connector._moduleName, connector._connectorIndex, type));
 
             DA.SetDataList(0, rules);
         }

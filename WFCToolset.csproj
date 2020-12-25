@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Components\RuleEmptyFromPoint.cs" />
+    <Compile Include="Components\PreviewRules.cs" />
     <Compile Include="Components\RuleIndifferentUnused.cs" />
     <Compile Include="Components\RuleOuterFromPoint.cs" />
     <Compile Include="Components\RuleIndifferentFromPoint.cs" />

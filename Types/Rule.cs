@@ -11,18 +11,21 @@ namespace WFCToolset
 {
     public class RuleExplicit : IGH_Goo
     {
-        public string SourceModuleName;
-        public int SourceConnectorIndex;
+        public string _sourceModuleName;
+        public int _sourceConnectorIndex;
 
-        public string TargetModuleName;
-        public int TargetConnectorIndex;
+        public string _targetModuleName;
+        public int _targetConnectorIndex;
 
-        public RuleExplicit(string sourceModuleName, int sourceConnectorIndex, string targetModuleName, int targetConnectorIndex)
+        public RuleExplicit(string sourceModuleName,
+                            int sourceConnectorIndex,
+                            string targetModuleName,
+                            int targetConnectorIndex)
         {
-            SourceModuleName = sourceModuleName.ToLower();
-            SourceConnectorIndex = sourceConnectorIndex;
-            TargetModuleName = targetModuleName.ToLower();
-            TargetConnectorIndex = targetConnectorIndex;
+            _sourceModuleName = sourceModuleName.ToLower();
+            _sourceConnectorIndex = sourceConnectorIndex;
+            _targetModuleName = targetModuleName.ToLower();
+            _targetConnectorIndex = targetConnectorIndex;
         }
 
         public override bool Equals(object obj)
@@ -30,37 +33,37 @@ namespace WFCToolset
             return obj is RuleExplicit other &&
                    (
                        (
-                            SourceModuleName == other.SourceModuleName &&
-                            SourceConnectorIndex == other.SourceConnectorIndex &&
-                            TargetModuleName == other.TargetModuleName &&
-                            TargetConnectorIndex == other.TargetConnectorIndex
+                            _sourceModuleName == other._sourceModuleName &&
+                            _sourceConnectorIndex == other._sourceConnectorIndex &&
+                            _targetModuleName == other._targetModuleName &&
+                            _targetConnectorIndex == other._targetConnectorIndex
                         ) ||
                         (
-                            SourceModuleName == other.TargetModuleName &&
-                            SourceConnectorIndex == other.TargetConnectorIndex &&
-                            TargetModuleName == other.SourceModuleName &&
-                            TargetConnectorIndex == other.SourceConnectorIndex
+                            _sourceModuleName == other._targetModuleName &&
+                            _sourceConnectorIndex == other._targetConnectorIndex &&
+                            _targetModuleName == other._sourceModuleName &&
+                            _targetConnectorIndex == other._sourceConnectorIndex
                         )
                    );
         }
 
-        public bool IsValid => SourceModuleName.Length > 0 &&
-                TargetModuleName.Length > 0 &&
-                SourceModuleName == TargetModuleName ^ SourceConnectorIndex == TargetConnectorIndex;
+        public bool IsValid => _sourceModuleName.Length > 0 &&
+                _targetModuleName.Length > 0 &&
+                _sourceModuleName == _targetModuleName ^ _sourceConnectorIndex == _targetConnectorIndex;
 
         public string IsValidWhyNot
         {
             get
             {
-                if (SourceModuleName.Length == 0)
+                if (_sourceModuleName.Length == 0)
                 {
                     return "Source module name is empty";
                 }
-                if (TargetModuleName.Length == 0)
+                if (_targetModuleName.Length == 0)
                 {
                     return "Target module name is empty";
                 }
-                if (SourceModuleName == TargetModuleName && SourceConnectorIndex == TargetConnectorIndex)
+                if (_sourceModuleName == _targetModuleName && _sourceConnectorIndex == _targetConnectorIndex)
                 {
                     return "The connector connects to itself";
                 }
@@ -77,12 +80,12 @@ namespace WFCToolset
             if (source.GetType() == typeof(Rule))
             {
                 var rule = (Rule)source;
-                if (rule.RuleExplicit != null)
+                if (rule.IsExplicit())
                 {
-                    SourceModuleName = rule.RuleExplicit.SourceModuleName;
-                    SourceConnectorIndex = rule.RuleExplicit.SourceConnectorIndex;
-                    TargetModuleName = rule.RuleExplicit.TargetModuleName;
-                    TargetConnectorIndex = rule.RuleExplicit.TargetConnectorIndex;
+                    _sourceModuleName = rule._ruleExplicit._sourceModuleName;
+                    _sourceConnectorIndex = rule._ruleExplicit._sourceConnectorIndex;
+                    _targetModuleName = rule._ruleExplicit._targetModuleName;
+                    _targetConnectorIndex = rule._ruleExplicit._targetConnectorIndex;
                     return true;
                 }
             }
@@ -121,76 +124,91 @@ namespace WFCToolset
         public override string ToString()
         {
             return "Explicit connection: " +
-                SourceModuleName + ":" + SourceConnectorIndex +
+                _sourceModuleName + ":" + _sourceConnectorIndex +
                 " -> " +
-                TargetModuleName + ":" + TargetConnectorIndex;
+                _targetModuleName + ":" + _targetConnectorIndex;
         }
 
         public override int GetHashCode()
         {
             var hashCode = -1103775584;
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(SourceModuleName);
-            hashCode = hashCode * -1521134295 + SourceConnectorIndex.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(TargetModuleName);
-            hashCode = hashCode * -1521134295 + TargetConnectorIndex.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(_sourceModuleName);
+            hashCode = hashCode * -1521134295 + _sourceConnectorIndex.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(_targetModuleName);
+            hashCode = hashCode * -1521134295 + _targetConnectorIndex.GetHashCode();
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(TypeName);
             return hashCode;
         }
 
         public RuleForSolver ToWFCRuleSolver(List<Module> modules)
         {
-            var sourceModule = modules.Find(module => module.Name == SourceModuleName) ?? throw new Exception("Rule" + this + " expects a non-existing module " + SourceModuleName);
-            if (SourceConnectorIndex >= sourceModule.Connectors.Count)
+            var sourceModule = modules.Find(module => module.Name == _sourceModuleName)
+                ?? throw new Exception("Rule" + this + " expects a non-existing module " + _sourceModuleName);
+            if (_sourceConnectorIndex >= sourceModule.Connectors.Count)
             {
-                throw new Exception("Rule" + this + " expects a non-existing connector" + SourceConnectorIndex);
+                throw new Exception("Rule" + this + " expects a non-existing connector" + _sourceConnectorIndex);
             }
-            var sourceConnector = sourceModule.Connectors[SourceConnectorIndex];
-            var targetModule = modules.Find(module => module.Name == TargetModuleName) ?? throw new Exception("Rule" + this + " requires a non-existing module " + TargetModuleName);
-            if (TargetConnectorIndex >= targetModule.Connectors.Count)
+            var sourceConnector = sourceModule.Connectors[_sourceConnectorIndex];
+            var targetModule = modules.Find(module => module.Name == _targetModuleName)
+                ?? throw new Exception("Rule" + this + " requires a non-existing module " + _targetModuleName);
+            if (_targetConnectorIndex >= targetModule.Connectors.Count)
             {
-                throw new Exception("Rule" + this + " expects a non-existing connector" + TargetConnectorIndex);
+                throw new Exception("Rule" + this + " expects a non-existing connector" + _targetConnectorIndex);
             }
-            var targetConnector = targetModule.Connectors[TargetConnectorIndex];
+            var targetConnector = targetModule.Connectors[_targetConnectorIndex];
 
-            if (!sourceConnector.Direction.IsOpposite(targetConnector.Direction))
+            if (!sourceConnector._direction.IsOpposite(targetConnector._direction))
             {
-                throw new Exception("Connectors " + SourceModuleName + ":" + SourceConnectorIndex + " and " + TargetModuleName + ":" + TargetConnectorIndex + " are not opposite");
+                throw new Exception("Connectors " +
+                    _sourceModuleName + ":" +
+                    _sourceConnectorIndex + " and " +
+                    _targetModuleName + ":" +
+                    _targetConnectorIndex + " are not opposite");
             }
-            if (sourceConnector.Direction.Orientation == Orientation.Positive)
+            if (sourceConnector._direction._orientation == Orientation.Positive)
             {
-                return new RuleForSolver(sourceConnector.Direction.Axis.ToString("g"), sourceConnector.SubmoduleName, targetConnector.SubmoduleName);
+                return new RuleForSolver(sourceConnector._direction._axis.ToString("g"),
+                                         sourceConnector._submoduleName,
+                                         targetConnector._submoduleName);
             }
             else
             {
-                return new RuleForSolver(targetConnector.Direction.Axis.ToString("g"), targetConnector.SubmoduleName, sourceConnector.SubmoduleName);
+                return new RuleForSolver(targetConnector._direction._axis.ToString("g"),
+                                         targetConnector._submoduleName,
+                                         sourceConnector._submoduleName);
             }
         }
     }
 
     public class RuleTyped : IGH_Goo
     {
-        public string ModuleName;
-        public int ConnectorIndex;
+        public string _moduleName;
+        public int _connectorIndex;
 
-        public string ConnectorType;
+        public string _connectorType;
+
+        public RuleTyped(string connectorType)
+        {
+            _connectorType = connectorType;
+        }
 
         // Not case sensitive
         public RuleTyped(string moduleName, int connectorIndex, string connectorType)
         {
             if (moduleName.Length > 0)
             {
-                ModuleName = moduleName.ToLower();
+                _moduleName = moduleName.ToLower();
             }
             else
             {
                 throw new Exception("Module name is empty");
             }
 
-            ConnectorIndex = connectorIndex;
+            _connectorIndex = connectorIndex;
 
             if (connectorType.Length > 0)
             {
-                ConnectorType = connectorType.ToLower();
+                _connectorType = connectorType.ToLower();
             }
             else
             {
@@ -202,23 +220,23 @@ namespace WFCToolset
         {
             return obj is RuleTyped other &&
                    (
-                    ModuleName == other.ModuleName &&
-                    ConnectorIndex == other.ConnectorIndex &&
-                    ConnectorType == other.ConnectorType
+                    _moduleName == other._moduleName &&
+                    _connectorIndex == other._connectorIndex &&
+                    _connectorType == other._connectorType
                    );
         }
 
-        public bool IsValid => ModuleName.Length > 0 && ConnectorType.Length > 0;
+        public bool IsValid => _moduleName.Length > 0 && _connectorType.Length > 0;
 
         public string IsValidWhyNot
         {
             get
             {
-                if (ModuleName.Length == 0)
+                if (_moduleName.Length == 0)
                 {
                     return "Module name is empty";
                 }
-                if (ConnectorType.Length == 0)
+                if (_connectorType.Length == 0)
                 {
                     return "Connector type name is empty";
                 }
@@ -235,11 +253,11 @@ namespace WFCToolset
             if (source.GetType() == typeof(Rule))
             {
                 var rule = (Rule)source;
-                if (rule.RuleTyped != null)
+                if (rule._ruleTyped != null)
                 {
-                    ModuleName = rule.RuleTyped.ModuleName;
-                    ConnectorIndex = rule.RuleTyped.ConnectorIndex;
-                    ConnectorType = rule.RuleTyped.ConnectorType;
+                    _moduleName = rule._ruleTyped._moduleName;
+                    _connectorIndex = rule._ruleTyped._connectorIndex;
+                    _connectorType = rule._ruleTyped._connectorType;
                     return true;
                 }
             }
@@ -278,17 +296,17 @@ namespace WFCToolset
         public override string ToString()
         {
             return "Typed connector: " +
-                ModuleName + ":" + ConnectorIndex +
+                _moduleName + ":" + _connectorIndex +
                 " = " +
-                ConnectorType;
+                _connectorType;
         }
 
         public override int GetHashCode()
         {
             var hashCode = 145665365;
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(ModuleName);
-            hashCode = hashCode * -1521134295 + ConnectorIndex.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(ConnectorType);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(_moduleName);
+            hashCode = hashCode * -1521134295 + _connectorIndex.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(_connectorType);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(TypeName);
             return hashCode;
         }
@@ -296,31 +314,36 @@ namespace WFCToolset
         // TODO: If the rule cannot be converted, consider returning null or some sort of an invalid rule, 
         // rather than throwing an exception. The exception happens when the user tries to apply the rules 
         // on an unrelated or incomplete list of modules. This shouldn't happen (or should we try to cope with it?).
-        public List<RuleExplicit> ToWFCRuleExplicit(List<RuleTyped> otherRules, List<Module> modules)
+        public List<RuleExplicit> ToRuleExplicit(IEnumerable<RuleTyped> otherRules, List<Module> modules)
         {
             var rulesExplicit = new List<RuleExplicit>();
-            var sourceModule = modules.Find(module => module.Name == ModuleName) ?? throw new Exception("Rule" + this + " expects a non-existing module " + ModuleName);
-            if (ConnectorIndex >= sourceModule.Connectors.Count)
+            var sourceModule = modules.Find(module => module.Name == _moduleName)
+                ?? throw new Exception("Rule" + this + " expects a non-existing module " + _moduleName);
+            if (_connectorIndex >= sourceModule.Connectors.Count)
             {
-                throw new Exception("Rule" + this + " expects a non-existing connector" + ConnectorIndex);
+                throw new Exception("Rule" + this + " expects a non-existing connector" + _connectorIndex);
             }
-            var sourceConnector = sourceModule.Connectors[ConnectorIndex];
+            var sourceConnector = sourceModule.Connectors[_connectorIndex];
             foreach (var other in otherRules)
             {
-                if (other.ConnectorType != ConnectorType)
+                if (other._connectorType != _connectorType)
                 {
                     continue;
                 }
-                var targetModule = modules.Find(module => module.Name == other.ModuleName) ?? throw new Exception("Rule" + this + " expects a non-existing module " + other.ModuleName);
-                if (other.ConnectorIndex >= targetModule.Connectors.Count)
+                var targetModule = modules.Find(module => module.Name == other._moduleName)
+                    ?? throw new Exception("Rule" + this + " expects a non-existing module " + other._moduleName);
+                if (other._connectorIndex >= targetModule.Connectors.Count)
                 {
-                    throw new Exception("Rule" + this + " expects a non-existing connector" + other.ConnectorIndex);
+                    throw new Exception("Rule" + this + " expects a non-existing connector" + other._connectorIndex);
                 }
-                var targetConnector = targetModule.Connectors[other.ConnectorIndex];
-                if (targetConnector.Direction.IsOpposite(sourceConnector.Direction))
+                var targetConnector = targetModule.Connectors[other._connectorIndex];
+                if (targetConnector._direction.IsOpposite(sourceConnector._direction))
                 {
                     rulesExplicit.Add(
-                        new RuleExplicit(sourceModule.Name, sourceConnector.ConnectorIndex, targetModule.Name, targetConnector.ConnectorIndex)
+                        new RuleExplicit(sourceModule.Name,
+                                         sourceConnector._connectorIndex,
+                                         targetModule.Name,
+                                         targetConnector._connectorIndex)
                         );
                 }
             }
@@ -330,8 +353,8 @@ namespace WFCToolset
 
     public class Rule : IGH_Goo
     {
-        public RuleExplicit RuleExplicit;
-        public RuleTyped RuleTyped;
+        public RuleExplicit _ruleExplicit;
+        public RuleTyped _ruleTyped;
 
         public Rule()
         {
@@ -344,15 +367,15 @@ namespace WFCToolset
             int targetConnectorIndex
         )
         {
-            RuleExplicit = new RuleExplicit(sourceModuleName, sourceConnectorIndex, targetModuleName, targetConnectorIndex);
-            RuleTyped = null;
+            _ruleExplicit = new RuleExplicit(sourceModuleName, sourceConnectorIndex, targetModuleName, targetConnectorIndex);
+            _ruleTyped = null;
         }
         public Rule(
             RuleExplicit ruleExplicit
         )
         {
-            RuleExplicit = ruleExplicit;
-            RuleTyped = null;
+            _ruleExplicit = ruleExplicit;
+            _ruleTyped = null;
         }
 
         public Rule(
@@ -361,27 +384,37 @@ namespace WFCToolset
             string connectorType
         )
         {
-            RuleTyped = new RuleTyped(moduleName, connectorIndex, connectorType);
-            RuleExplicit = null;
+            _ruleTyped = new RuleTyped(moduleName, connectorIndex, connectorType);
+            _ruleExplicit = null;
         }
 
         public Rule(
             RuleTyped ruleTyped
         )
         {
-            RuleTyped = ruleTyped;
-            RuleExplicit = null;
+            _ruleTyped = ruleTyped;
+            _ruleExplicit = null;
+        }
+
+        public bool IsExplicit()
+        {
+            return _ruleExplicit != null && _ruleTyped == null;
+        }
+
+        public bool IsTyped()
+        {
+            return _ruleExplicit == null && _ruleTyped != null;
         }
 
         public override bool Equals(object obj)
         {
-            if (RuleExplicit != null)
+            if (IsExplicit())
             {
-                return RuleExplicit == obj;
+                return _ruleExplicit == obj;
             }
-            if (RuleTyped != null)
+            if (IsTyped())
             {
-                return RuleTyped == obj;
+                return _ruleTyped == obj;
             }
             return false;
         }
@@ -390,42 +423,19 @@ namespace WFCToolset
 
         public string TypeDescription => "WFC Connection rule.";
 
-        bool IGH_Goo.IsValid
-        {
-            get
-            {
-                if (RuleExplicit != null && RuleTyped != null)
-                {
-                    return false;
-                }
-                if (RuleExplicit != null)
-                {
-                    return ((IGH_Goo)RuleExplicit).IsValid;
-                }
-                if (RuleTyped != null)
-                {
-                    return ((IGH_Goo)RuleExplicit).IsValid;
-                }
-                return false;
-
-            }
-        }
+        bool IGH_Goo.IsValid => IsExplicit() || IsTyped();
 
         string IGH_Goo.IsValidWhyNot
         {
             get
             {
-                if (RuleExplicit != null && RuleTyped != null)
+                if (IsExplicit())
                 {
-                    return "The rule the rule appears to be both explicit and typed.";
+                    return ((IGH_Goo)_ruleExplicit).IsValidWhyNot;
                 }
-                if (RuleExplicit != null)
+                if (IsTyped())
                 {
-                    return ((IGH_Goo)RuleExplicit).IsValidWhyNot;
-                }
-                if (RuleTyped != null)
-                {
-                    return ((IGH_Goo)RuleTyped).IsValidWhyNot;
+                    return ((IGH_Goo)_ruleTyped).IsValidWhyNot;
                 }
                 return "The rule is neither explicit, nor typed.";
             }
@@ -435,14 +445,14 @@ namespace WFCToolset
         {
             if (rule.GetType() == typeof(RuleExplicit))
             {
-                RuleExplicit = (RuleExplicit)rule;
-                RuleTyped = null;
+                _ruleExplicit = (RuleExplicit)rule;
+                _ruleTyped = null;
                 return true;
             }
             if (rule.GetType() == typeof(RuleTyped))
             {
-                RuleTyped = (RuleTyped)rule;
-                RuleExplicit = null;
+                _ruleTyped = (RuleTyped)rule;
+                _ruleExplicit = null;
                 return true;
             }
             return false;
@@ -450,14 +460,14 @@ namespace WFCToolset
 
         public bool CastTo<T>(out T target)
         {
-            if (RuleExplicit != null && typeof(T) == typeof(RuleExplicit))
+            if (IsExplicit() && typeof(T) == typeof(RuleExplicit))
             {
-                target = (T)RuleExplicit.Duplicate();
+                target = (T)_ruleExplicit.Duplicate();
                 return true;
             }
-            if (RuleTyped != null && typeof(T) == typeof(RuleTyped))
+            if (IsTyped() && typeof(T) == typeof(RuleTyped))
             {
-                target = (T)RuleTyped.Duplicate();
+                target = (T)_ruleTyped.Duplicate();
                 return true;
             }
 
@@ -486,26 +496,26 @@ namespace WFCToolset
 
         public override string ToString()
         {
-            if (RuleExplicit != null && RuleTyped == null)
+            if (IsExplicit())
             {
-                return RuleExplicit.ToString();
+                return _ruleExplicit.ToString();
             }
-            if (RuleTyped != null && RuleExplicit == null)
+            if (IsTyped())
             {
-                return RuleTyped.ToString();
+                return _ruleTyped.ToString();
             }
             return "The rule is invalid.";
         }
 
         public override int GetHashCode()
         {
-            if (RuleExplicit != null && RuleTyped == null)
+            if (IsExplicit())
             {
-                return RuleExplicit.GetHashCode();
+                return _ruleExplicit.GetHashCode();
             }
-            if (RuleTyped != null && RuleExplicit == null)
+            if (IsTyped())
             {
-                return RuleTyped.GetHashCode();
+                return _ruleTyped.GetHashCode();
             }
             // The rule is invalid, the hash code is not unique
             var hashCode = -1934280001;
@@ -516,34 +526,33 @@ namespace WFCToolset
 
     }
 
-
     public struct RuleForSolver
     {
-        public string AxialDirection;
-        public string SourceSubmoduleName;
-        public string TargetSubmoduleName;
+        public string _axialDirection;
+        public string _sourceSubmoduleName;
+        public string _targetSubmoduleName;
 
         public RuleForSolver(string axialDirection, string sourceSubmoduleName, string targetSubmoduleName)
         {
-            AxialDirection = axialDirection;
-            SourceSubmoduleName = sourceSubmoduleName;
-            TargetSubmoduleName = targetSubmoduleName;
+            _axialDirection = axialDirection;
+            _sourceSubmoduleName = sourceSubmoduleName;
+            _targetSubmoduleName = targetSubmoduleName;
         }
 
         public override bool Equals(object obj)
         {
             return obj is RuleForSolver rule &&
-                   AxialDirection == rule.AxialDirection &&
-                   SourceSubmoduleName == rule.SourceSubmoduleName &&
-                   TargetSubmoduleName == rule.TargetSubmoduleName;
+                   _axialDirection == rule._axialDirection &&
+                   _sourceSubmoduleName == rule._sourceSubmoduleName &&
+                   _targetSubmoduleName == rule._targetSubmoduleName;
         }
 
         public override int GetHashCode()
         {
             var hashCode = -733970503;
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(AxialDirection);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(SourceSubmoduleName);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(TargetSubmoduleName);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(_axialDirection);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(_sourceSubmoduleName);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(_targetSubmoduleName);
             return hashCode;
         }
     }

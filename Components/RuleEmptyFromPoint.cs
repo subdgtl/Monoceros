@@ -63,25 +63,25 @@ namespace WFCToolset
                 var moduleRules = module
                     .ExternalConnectorsContainingPoint(point)
                     .Select(connector => new Rule(
-                                connector.ModuleName,
-                                connector.ConnectorIndex,
+                                connector._moduleName,
+                                connector._connectorIndex,
                                 targetName,
-                                connector.Direction.ToFlipped().ToConnectorIndex()
+                                connector._direction.ToFlipped().ToConnectorIndex()
                                 )
                     );
 
                 foreach (var connector in module.GetExternalConnectors())
                 {
-                    var startToPlaneDistance = connector.AnchorPlane.DistanceTo(point);
+                    var startToPlaneDistance = connector._anchorPlane.DistanceTo(point);
                     if (Math.Abs(startToPlaneDistance) < Rhino.RhinoMath.SqrtEpsilon &&
-                        connector.Face.Contains(point) == PointContainment.Inside)
+                        connector._face.Contains(point) == PointContainment.Inside)
                     {
                         rules.Add(
                             new Rule(
-                                connector.ModuleName,
-                                connector.ConnectorIndex,
+                                connector._moduleName,
+                                connector._connectorIndex,
                                 targetName,
-                                connector.Direction.ToFlipped().ToConnectorIndex()
+                                connector._direction.ToFlipped().ToConnectorIndex()
                                 )
                         );
                     }

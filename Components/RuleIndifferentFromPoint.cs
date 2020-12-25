@@ -62,7 +62,7 @@ namespace WFCToolset
             {
                 var moduleRules = module
                     .ExternalConnectorsContainingPoint(point)
-                    .Select(connector => new Rule(connector.ModuleName, connector.ConnectorIndex, type));
+                    .Select(connector => new Rule(connector._moduleName, connector._connectorIndex, type));
                 rules.AddRange(moduleRules);
             }
 

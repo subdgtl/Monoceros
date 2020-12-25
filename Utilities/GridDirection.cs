@@ -24,28 +24,28 @@ namespace WFCToolset
 
     public struct Direction
     {
-        public Axis Axis;
-        public Orientation Orientation;
+        public Axis _axis;
+        public Orientation _orientation;
 
         public bool IsOpposite(Direction other)
         {
-            return Axis == other.Axis &&
-                Orientation != other.Orientation;
+            return _axis == other._axis &&
+                _orientation != other._orientation;
         }
 
         public Direction ToFlipped()
         {
             var flipped = new Direction()
             {
-                Axis = Axis,
-                Orientation = Orientation == Orientation.Positive ? Orientation.Negative : Orientation.Positive
+                _axis = _axis,
+                _orientation = _orientation == Orientation.Positive ? Orientation.Negative : Orientation.Positive
             };
             return flipped;
         }
 
         public override string ToString()
         {
-            return Orientation.ToString("g") + Axis.ToString("g");
+            return _orientation.ToString("g") + _axis.ToString("g");
         }
 
         /// <summary>
@@ -67,8 +67,8 @@ namespace WFCToolset
             {
                 return new Direction
                 {
-                    Axis = Axis.X,
-                    Orientation = Orientation.Positive
+                    _axis = Axis.X,
+                    _orientation = Orientation.Positive
                 };
             };
             var y = basePlane.YAxis;
@@ -77,8 +77,8 @@ namespace WFCToolset
             {
                 return new Direction
                 {
-                    Axis = Axis.Y,
-                    Orientation = Orientation.Positive
+                    _axis = Axis.Y,
+                    _orientation = Orientation.Positive
                 };
             }
             var z = basePlane.ZAxis;
@@ -87,8 +87,8 @@ namespace WFCToolset
             {
                 return new Direction
                 {
-                    Axis = Axis.Z,
-                    Orientation = Orientation.Positive
+                    _axis = Axis.Z,
+                    _orientation = Orientation.Positive
                 };
             }
             var ix = basePlane.XAxis;
@@ -98,8 +98,8 @@ namespace WFCToolset
             {
                 return new Direction
                 {
-                    Axis = Axis.X,
-                    Orientation = Orientation.Negative
+                    _axis = Axis.X,
+                    _orientation = Orientation.Negative
                 };
             }
             var iy = basePlane.YAxis;
@@ -109,8 +109,8 @@ namespace WFCToolset
             {
                 return new Direction
                 {
-                    Axis = Axis.Y,
-                    Orientation = Orientation.Negative
+                    _axis = Axis.Y,
+                    _orientation = Orientation.Negative
                 };
             }
             var iz = basePlane.ZAxis;
@@ -120,8 +120,8 @@ namespace WFCToolset
             {
                 return new Direction
                 {
-                    Axis = Axis.Z,
-                    Orientation = Orientation.Negative
+                    _axis = Axis.Z,
+                    _orientation = Orientation.Negative
                 };
 
             }
@@ -134,32 +134,32 @@ namespace WFCToolset
 
         public bool ToVector(out Vector3d directionVector)
         {
-            if (Axis == Axis.X && Orientation == Orientation.Positive)
+            if (_axis == Axis.X && _orientation == Orientation.Positive)
             {
                 directionVector = Vector3d.XAxis;
                 return true;
             }
-            if (Axis == Axis.Y && Orientation == Orientation.Positive)
+            if (_axis == Axis.Y && _orientation == Orientation.Positive)
             {
                 directionVector = Vector3d.YAxis;
                 return true;
             }
-            if (Axis == Axis.Z && Orientation == Orientation.Positive)
+            if (_axis == Axis.Z && _orientation == Orientation.Positive)
             {
                 directionVector = Vector3d.ZAxis;
                 return true;
             }
-            if (Axis == Axis.X && Orientation == Orientation.Negative)
+            if (_axis == Axis.X && _orientation == Orientation.Negative)
             {
                 directionVector = Vector3d.XAxis;
                 return directionVector.Reverse();
             }
-            if (Axis == Axis.Y && Orientation == Orientation.Negative)
+            if (_axis == Axis.Y && _orientation == Orientation.Negative)
             {
                 directionVector = Vector3d.YAxis;
                 return directionVector.Reverse();
             }
-            if (Axis == Axis.Z && Orientation == Orientation.Negative)
+            if (_axis == Axis.Z && _orientation == Orientation.Negative)
             {
                 directionVector = Vector3d.ZAxis;
                 return directionVector.Reverse();
@@ -171,27 +171,27 @@ namespace WFCToolset
         public int ToConnectorIndex()
         {
             // Connector numbering convention: (submoduleIndex * 6) + faceIndex, where faceIndex is X=0, Y=1, Z=2, -X=3, -Y=4, -Z=5
-            if (Axis == Axis.X && Orientation == Orientation.Positive)
+            if (_axis == Axis.X && _orientation == Orientation.Positive)
             {
                 return 0;
             }
-            if (Axis == Axis.Y && Orientation == Orientation.Positive)
+            if (_axis == Axis.Y && _orientation == Orientation.Positive)
             {
                 return 1;
             }
-            if (Axis == Axis.Z && Orientation == Orientation.Positive)
+            if (_axis == Axis.Z && _orientation == Orientation.Positive)
             {
                 return 2;
             }
-            if (Axis == Axis.X && Orientation == Orientation.Negative)
+            if (_axis == Axis.X && _orientation == Orientation.Negative)
             {
                 return 3;
             }
-            if (Axis == Axis.Y && Orientation == Orientation.Negative)
+            if (_axis == Axis.Y && _orientation == Orientation.Negative)
             {
                 return 4;
             }
-            if (Axis == Axis.Z && Orientation == Orientation.Negative)
+            if (_axis == Axis.Z && _orientation == Orientation.Negative)
             {
                 return 5;
             }
