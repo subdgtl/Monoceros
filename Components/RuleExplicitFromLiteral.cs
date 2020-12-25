@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
+
+using System;
 using Grasshopper.Kernel;
 
 namespace WFCToolset
@@ -38,15 +42,30 @@ namespace WFCToolset
         /// to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            string sourceName = "";
-            int sourceConnector = 0;
-            string targetName = "";
-            int targetConnector = 0;
+            var sourceName = "";
+            var sourceConnector = 0;
+            var targetName = "";
+            var targetConnector = 0;
 
-            if (!DA.GetData(0, ref sourceName)) return;
-            if (!DA.GetData(1, ref sourceConnector)) return;
-            if (!DA.GetData(2, ref targetName)) return;
-            if (!DA.GetData(3, ref targetConnector)) return;
+            if (!DA.GetData(0, ref sourceName))
+            {
+                return;
+            }
+
+            if (!DA.GetData(1, ref sourceConnector))
+            {
+                return;
+            }
+
+            if (!DA.GetData(2, ref targetName))
+            {
+                return;
+            }
+
+            if (!DA.GetData(3, ref targetConnector))
+            {
+                return;
+            }
 
             if (sourceName == targetName && sourceConnector == targetConnector)
             {

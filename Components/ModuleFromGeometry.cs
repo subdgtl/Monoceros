@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Grasshopper.Kernel;
@@ -49,17 +53,36 @@ namespace WFCToolset
         /// to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            List<IGH_GeometricGoo> geometryRaw = new List<IGH_GeometricGoo>();
-            string name = "";
-            Plane basePlane = new Plane();
-            Vector3d slotDiagonal = new Vector3d();
-            Double precision = 0.5;
+            var geometryRaw = new List<IGH_GeometricGoo>();
+            var name = "";
+            var basePlane = new Plane();
+            var slotDiagonal = new Vector3d();
+            var precision = 0.5;
 
-            if (!DA.GetDataList(0, geometryRaw)) return;
-            if (!DA.GetData(1, ref name)) return;
-            if (!DA.GetData(2, ref basePlane)) return;
-            if (!DA.GetData(3, ref slotDiagonal)) return;
-            if (!DA.GetData(4, ref precision)) return;
+            if (!DA.GetDataList(0, geometryRaw))
+            {
+                return;
+            }
+
+            if (!DA.GetData(1, ref name))
+            {
+                return;
+            }
+
+            if (!DA.GetData(2, ref basePlane))
+            {
+                return;
+            }
+
+            if (!DA.GetData(3, ref slotDiagonal))
+            {
+                return;
+            }
+
+            if (!DA.GetData(4, ref precision))
+            {
+                return;
+            }
 
             if (name.Length == 0)
             {
@@ -73,7 +96,7 @@ namespace WFCToolset
                 return;
             }
 
-            List<GeometryBase> geometryClean = geometryRaw
+            var geometryClean = geometryRaw
                .Where(goo => goo != null)
                .Select(ghGeo =>
                {
@@ -89,9 +112,9 @@ namespace WFCToolset
             }
 
             // Scale down to unit size
-            Transform normalizationTransform = Transform.Scale(basePlane, 1 / slotDiagonal.X, 1 / slotDiagonal.Y, 1 / slotDiagonal.Z);
+            var normalizationTransform = Transform.Scale(basePlane, 1 / slotDiagonal.X, 1 / slotDiagonal.Y, 1 / slotDiagonal.Z);
             // Orient to the world coordinate system
-            Transform worldAlignmentTransform = Transform.PlaneToPlane(basePlane, Plane.WorldXY);
+            var worldAlignmentTransform = Transform.PlaneToPlane(basePlane, Plane.WorldXY);
             // Slot dimension is for the sake of this calculation 1,1,1
             var divisionLength = precision;
             var submoduleCenters = new List<Point3i>();

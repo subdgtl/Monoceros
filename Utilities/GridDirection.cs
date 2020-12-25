@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
+
+using System;
 using Rhino.Geometry;
 
 namespace WFCToolset
@@ -57,7 +61,7 @@ namespace WFCToolset
         {
             const double EPSILON = Rhino.RhinoMath.SqrtEpsilon;
             vector.Unitize();
-            Vector3d x = basePlane.XAxis;
+            var x = basePlane.XAxis;
             x.Unitize();
             if (vector.EpsilonEquals(x, EPSILON))
             {
@@ -67,7 +71,7 @@ namespace WFCToolset
                     Orientation = Orientation.Positive
                 };
             };
-            Vector3d y = basePlane.YAxis;
+            var y = basePlane.YAxis;
             y.Unitize();
             if (vector.EpsilonEquals(y, EPSILON))
             {
@@ -77,7 +81,7 @@ namespace WFCToolset
                     Orientation = Orientation.Positive
                 };
             }
-            Vector3d z = basePlane.ZAxis;
+            var z = basePlane.ZAxis;
             z.Unitize();
             if (vector.EpsilonEquals(z, EPSILON))
             {
@@ -87,7 +91,7 @@ namespace WFCToolset
                     Orientation = Orientation.Positive
                 };
             }
-            Vector3d ix = basePlane.XAxis;
+            var ix = basePlane.XAxis;
             ix.Unitize();
             ix.Reverse();
             if (vector.EpsilonEquals(ix, EPSILON))
@@ -98,7 +102,7 @@ namespace WFCToolset
                     Orientation = Orientation.Negative
                 };
             }
-            Vector3d iy = basePlane.YAxis;
+            var iy = basePlane.YAxis;
             iy.Unitize();
             iy.Reverse();
             if (vector.EpsilonEquals(iy, EPSILON))
@@ -109,7 +113,7 @@ namespace WFCToolset
                     Orientation = Orientation.Negative
                 };
             }
-            Vector3d iz = basePlane.ZAxis;
+            var iz = basePlane.ZAxis;
             iz.Unitize();
             iz.Reverse();
             if (vector.EpsilonEquals(iz, EPSILON))
@@ -162,6 +166,36 @@ namespace WFCToolset
             }
             directionVector = Vector3d.Unset;
             return false;
+        }
+
+        public int ToConnectorIndex()
+        {
+            // Connector numbering convention: (submoduleIndex * 6) + faceIndex, where faceIndex is X=0, Y=1, Z=2, -X=3, -Y=4, -Z=5
+            if (Axis == Axis.X && Orientation == Orientation.Positive)
+            {
+                return 0;
+            }
+            if (Axis == Axis.Y && Orientation == Orientation.Positive)
+            {
+                return 1;
+            }
+            if (Axis == Axis.Z && Orientation == Orientation.Positive)
+            {
+                return 2;
+            }
+            if (Axis == Axis.X && Orientation == Orientation.Negative)
+            {
+                return 3;
+            }
+            if (Axis == Axis.Y && Orientation == Orientation.Negative)
+            {
+                return 4;
+            }
+            if (Axis == Axis.Z && Orientation == Orientation.Negative)
+            {
+                return 5;
+            }
+            return -1;
         }
 
     }

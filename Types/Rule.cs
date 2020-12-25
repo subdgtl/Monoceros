@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
+
+using System;
 using System.Collections.Generic;
 using GH_IO.Serialization;
 using Grasshopper.Kernel.Types;
@@ -100,13 +104,13 @@ namespace WFCToolset
 
         public IGH_Goo Duplicate()
         {
-            return (IGH_Goo)this.MemberwiseClone();
+            return (IGH_Goo)MemberwiseClone();
 
         }
 
         public IGH_GooProxy EmitProxy()
         {
-            return (IGH_GooProxy)null;
+            return null;
         }
 
         public bool Read(GH_IReader reader) => true;
@@ -124,7 +128,7 @@ namespace WFCToolset
 
         public override int GetHashCode()
         {
-            int hashCode = -1103775584;
+            var hashCode = -1103775584;
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(SourceModuleName);
             hashCode = hashCode * -1521134295 + SourceConnectorIndex.GetHashCode();
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(TargetModuleName);
@@ -233,9 +237,9 @@ namespace WFCToolset
                 var rule = (Rule)source;
                 if (rule.RuleTyped != null)
                 {
-                    this.ModuleName = rule.RuleTyped.ModuleName;
-                    this.ConnectorIndex = rule.RuleTyped.ConnectorIndex;
-                    this.ConnectorType = rule.RuleTyped.ConnectorType;
+                    ModuleName = rule.RuleTyped.ModuleName;
+                    ConnectorIndex = rule.RuleTyped.ConnectorIndex;
+                    ConnectorType = rule.RuleTyped.ConnectorType;
                     return true;
                 }
             }
@@ -257,13 +261,13 @@ namespace WFCToolset
 
         public IGH_Goo Duplicate()
         {
-            return (IGH_Goo)this.MemberwiseClone();
+            return (IGH_Goo)MemberwiseClone();
 
         }
 
         public IGH_GooProxy EmitProxy()
         {
-            return (IGH_GooProxy)null;
+            return null;
         }
 
         public bool Read(GH_IReader reader) => true;
@@ -281,7 +285,7 @@ namespace WFCToolset
 
         public override int GetHashCode()
         {
-            int hashCode = 145665365;
+            var hashCode = 145665365;
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(ModuleName);
             hashCode = hashCode * -1521134295 + ConnectorIndex.GetHashCode();
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(ConnectorType);
@@ -465,13 +469,13 @@ namespace WFCToolset
 
         public IGH_Goo Duplicate()
         {
-            return (IGH_Goo)this.MemberwiseClone();
+            return (IGH_Goo)MemberwiseClone();
 
         }
 
         public IGH_GooProxy EmitProxy()
         {
-            return (IGH_GooProxy)null;
+            return null;
         }
 
         public bool Read(GH_IReader reader) => true;
@@ -504,7 +508,7 @@ namespace WFCToolset
                 return RuleTyped.GetHashCode();
             }
             // The rule is invalid, the hash code is not unique
-            int hashCode = -1934280001;
+            var hashCode = -1934280001;
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(TypeName);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(TypeDescription);
             return hashCode;
@@ -536,7 +540,7 @@ namespace WFCToolset
 
         public override int GetHashCode()
         {
-            int hashCode = -733970503;
+            var hashCode = -733970503;
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(AxialDirection);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(SourceSubmoduleName);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(TargetSubmoduleName);

@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using GH_IO.Serialization;
@@ -93,10 +97,10 @@ namespace WFCToolset
             }
 
             // Check if all the submodules are unique
-            for (int i = 0; i < submoduleCenters.Count - 1; i++)
+            for (var i = 0; i < submoduleCenters.Count - 1; i++)
             {
                 var center = submoduleCenters[i];
-                for (int j = i + 1; j < submoduleCenters.Count; j++)
+                for (var j = i + 1; j < submoduleCenters.Count; j++)
                 {
                     var other = submoduleCenters[j];
                     if (other.Equals(center))
@@ -169,13 +173,13 @@ namespace WFCToolset
             directionZNegative.ToVector(out var zNegativeVectorUnit);
 
             // Orient to the base coordinate system
-            Transform baseAlignmentTransform = Transform.PlaneToPlane(Plane.WorldXY, basePlane);
+            var baseAlignmentTransform = Transform.PlaneToPlane(Plane.WorldXY, basePlane);
             // Scale up to slot size
-            Transform scalingTransform = Transform.Scale(basePlane, slotDiagonal.X, slotDiagonal.Y, slotDiagonal.Z);
+            var scalingTransform = Transform.Scale(basePlane, slotDiagonal.X, slotDiagonal.Y, slotDiagonal.Z);
 
             // Connector numbering convention: (submoduleIndex * 6) + faceIndex, where faceIndex is X=0, Y=1, Z=2, -X=3, -Y=4, -Z=5
 
-            for (int submoduleIndex = 0; submoduleIndex < submoduleCenters.Count; submoduleIndex++)
+            for (var submoduleIndex = 0; submoduleIndex < submoduleCenters.Count; submoduleIndex++)
             {
                 var center = submoduleCenters[submoduleIndex];
                 var submoduleName = Name + submoduleIndex;
@@ -192,7 +196,7 @@ namespace WFCToolset
                 var valenceXPositive = submoduleCenters.Any(o => center.X - o.X == -1 && center.Y == o.Y && center.Z == o.Z) ?
                     ModuleConnectorValence.Internal :
                     ModuleConnectorValence.External;
-                ModuleConnector connectorXPositive = new ModuleConnector(
+                var connectorXPositive = new ModuleConnector(
                     Name,
                     submoduleName,
                     submoduleIndex * 6 + 0,
@@ -213,7 +217,7 @@ namespace WFCToolset
                 var valenceYPositive = submoduleCenters.Any(o => center.Y - o.Y == -1 && center.X == o.X && center.Z == o.Z) ?
                     ModuleConnectorValence.Internal :
                     ModuleConnectorValence.External;
-                ModuleConnector connectorYPositive = new ModuleConnector(
+                var connectorYPositive = new ModuleConnector(
                     Name,
                     submoduleName,
                     submoduleIndex * 6 + 1,
@@ -234,7 +238,7 @@ namespace WFCToolset
                 var valenceZPositive = submoduleCenters.Any(o => center.Z - o.Z == -1 && center.X == o.X && center.Y == o.Y) ?
                     ModuleConnectorValence.Internal :
                     ModuleConnectorValence.External;
-                ModuleConnector connectorZPositive = new ModuleConnector(
+                var connectorZPositive = new ModuleConnector(
                     Name,
                     submoduleName,
                     submoduleIndex * 6 + 2,
@@ -255,7 +259,7 @@ namespace WFCToolset
                 var valenceXNegative = submoduleCenters.Any(o => center.X - o.X == 1 && center.Y == o.Y && center.Z == o.Z) ?
                     ModuleConnectorValence.Internal :
                     ModuleConnectorValence.External;
-                ModuleConnector connectorXNegative = new ModuleConnector(
+                var connectorXNegative = new ModuleConnector(
                     Name,
                     submoduleName,
                     submoduleIndex * 6 + 3,
@@ -276,7 +280,7 @@ namespace WFCToolset
                 var valenceYNegative = submoduleCenters.Any(o => center.Y - o.Y == 1 && center.X == o.X && center.Z == o.Z) ?
                     ModuleConnectorValence.Internal :
                     ModuleConnectorValence.External;
-                ModuleConnector connectorYNegative = new ModuleConnector(
+                var connectorYNegative = new ModuleConnector(
                     Name,
                     submoduleName,
                     submoduleIndex * 6 + 4,
@@ -297,7 +301,7 @@ namespace WFCToolset
                 var valenceZNegative = submoduleCenters.Any(o => center.Z - o.Z == 1 && center.X == o.X && center.X == o.X) ?
                     ModuleConnectorValence.Internal :
                     ModuleConnectorValence.External;
-                ModuleConnector connectorZNegative = new ModuleConnector(
+                var connectorZNegative = new ModuleConnector(
                     Name,
                     submoduleName,
                     submoduleIndex * 6 + 5,
@@ -315,7 +319,7 @@ namespace WFCToolset
         {
             var rulesInternal = new List<RuleExplicit>();
 
-            for (int thisIndex = 0; thisIndex < submoduleCenters.Count; thisIndex++)
+            for (var thisIndex = 0; thisIndex < submoduleCenters.Count; thisIndex++)
             {
                 var center = submoduleCenters[thisIndex];
 
@@ -347,6 +351,14 @@ namespace WFCToolset
         public IEnumerable<ModuleConnector> GetExternalConnectors()
         {
             return Connectors.Where(c => c.Valence == ModuleConnectorValence.External);
+        }
+
+        public IEnumerable<ModuleConnector> ExternalConnectorsContainingPoint(Point3d point)
+        {
+            return GetExternalConnectors().Where(connector =>
+            connector.AnchorPlane.DistanceTo(point) < RhinoMath.SqrtEpsilon &&
+                    connector.Face.Contains(point) == PointContainment.Inside
+            );
         }
 
         public bool IsValid =>
@@ -396,7 +408,7 @@ namespace WFCToolset
             // TODO: This is overriden by ToString. Not sure this could ever work
             if (IsValid && typeof(T) == typeof(string))
             {
-                object obj = Name.Clone();
+                var obj = Name.Clone();
                 target = (T)obj;
                 return true;
             }
@@ -406,14 +418,14 @@ namespace WFCToolset
 
         public IGH_Goo Duplicate()
         {
-            return (IGH_Goo)this.MemberwiseClone();
+            return (IGH_Goo)MemberwiseClone();
 
         }
 
         // TODO: Find out what this is
         public IGH_GooProxy EmitProxy()
         {
-            return (IGH_GooProxy)null;
+            return null;
         }
 
         // TODO: Do this for real
@@ -442,7 +454,7 @@ namespace WFCToolset
                 slotDiagonal
                 );
             rulesExternal = new List<RuleTyped>(6);
-            for (int i = 0; i < 6; i++)
+            for (var i = 0; i < 6; i++)
             {
                 rulesExternal.Add(new RuleTyped(name, i, connectorType));
             }
@@ -464,9 +476,9 @@ namespace WFCToolset
             foreach (var externalConnector in GetExternalConnectors())
             {
                 args.Pipeline.DrawPolyline(externalConnector.Face.ToPolyline(), Configuration.CAGE_COLOR);
-                Point3d anchorPosition = externalConnector.AnchorPlane.Origin;
-                System.Drawing.Color dotColor = Configuration.ColorBackgroundFromDirection(externalConnector.Direction);
-                System.Drawing.Color textColor = Configuration.ColorForegroundFromDirection(externalConnector.Direction);
+                var anchorPosition = externalConnector.AnchorPlane.Origin;
+                var dotColor = Configuration.ColorBackgroundFromDirection(externalConnector.Direction);
+                var textColor = Configuration.ColorForegroundFromDirection(externalConnector.Direction);
                 args.Pipeline.DrawDot(anchorPosition, externalConnector.ConnectorIndex.ToString(), dotColor, textColor);
             }
         }
@@ -570,7 +582,7 @@ namespace WFCToolset
 
         public override int GetHashCode()
         {
-            int hashCode = -855668167;
+            var hashCode = -855668167;
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(SubmoduleName);
             hashCode = hashCode * -1521134295 + ConnectorIndex.GetHashCode();
             hashCode = hashCode * -1521134295 + Direction.GetHashCode();
@@ -604,7 +616,7 @@ namespace WFCToolset
 
         public override int GetHashCode()
         {
-            int hashCode = 341329424;
+            var hashCode = 341329424;
             hashCode = hashCode * -1521134295 + X.GetHashCode();
             hashCode = hashCode * -1521134295 + Y.GetHashCode();
             hashCode = hashCode * -1521134295 + Z.GetHashCode();

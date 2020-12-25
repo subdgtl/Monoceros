@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Rhino.Geometry;
@@ -25,19 +29,19 @@ namespace WFCToolset
         /// </param>
         public static IEnumerable<Point3d> PopulateGeometry(double distance, GeometryBase goo)
         {
-            Rhino.DocObjects.ObjectType type = goo.ObjectType;
+            var type = goo.ObjectType;
             switch (type)
             {
                 case Rhino.DocObjects.ObjectType.Point:
-                    Point point = (Point)goo;
+                    var point = (Point)goo;
                     return Enumerable.Repeat(point.Location, 1);
                 case Rhino.DocObjects.ObjectType.Curve:
-                    Curve curve = (Curve)goo;
+                    var curve = (Curve)goo;
                     return PopulateCurve(distance, curve);
                 case Rhino.DocObjects.ObjectType.Mesh:
-                    Mesh mesh = (Mesh)goo;
-                    IEnumerable<Point3d> surfacePoints = PopulateMeshSurface(distance, mesh);
-                    IEnumerable<Point3d> volumePoints = PopulateMeshVolume(distance, mesh);
+                    var mesh = (Mesh)goo;
+                    var surfacePoints = PopulateMeshSurface(distance, mesh);
+                    var volumePoints = PopulateMeshVolume(distance, mesh);
                     var points = surfacePoints.Concat(volumePoints);
                     return points;
             }
@@ -48,8 +52,8 @@ namespace WFCToolset
                 var points = new List<Point3d>();
                 foreach (var mesh in meshes)
                 {
-                    IEnumerable<Point3d> surfacePoints = PopulateMeshSurface(distance, mesh);
-                    IEnumerable<Point3d> volumePoints = PopulateMeshVolume(distance, mesh);
+                    var surfacePoints = PopulateMeshSurface(distance, mesh);
+                    var volumePoints = PopulateMeshVolume(distance, mesh);
                     points.AddRange(surfacePoints);
                     points.AddRange(volumePoints);
                 }
@@ -72,8 +76,8 @@ namespace WFCToolset
         /// </param>
         public static IEnumerable<Point3d> PopulateMeshSurface(double distance, Mesh mesh)
         {
-            List<Point3d> pointsOnMesh = new List<Point3d>();
-            foreach (MeshFace face in mesh.Faces)
+            var pointsOnMesh = new List<Point3d>();
+            foreach (var face in mesh.Faces)
             {
                 pointsOnMesh.AddRange(
                     PopulateTriangle(
@@ -112,7 +116,7 @@ namespace WFCToolset
         public static IEnumerable<Point3d> PopulateCurve(double distance, Curve curve)
         {
             // Curve division calcualtion is bearably fast, therefore it can be more precise
-            double preciseDistance = distance * 0.25;
+            var preciseDistance = distance * 0.25;
             var divisionPoints = curve.DivideByLength(preciseDistance, true);
             if (divisionPoints != null)
             {
@@ -139,20 +143,20 @@ namespace WFCToolset
         public static IEnumerable<Point3d> PopulateBrepSurface(double distance, Brep bRep)
         {
             // TODO: Investigate the unprecise results
-            List<Point3d> pointsOnBrepSurfaces = new List<Point3d>();
-            Rhino.Geometry.Collections.BrepFaceList faces = bRep.Faces;
-            foreach (BrepFace face in faces)
+            var pointsOnBrepSurfaces = new List<Point3d>();
+            var faces = bRep.Faces;
+            foreach (var face in faces)
             {
-                face.GetSurfaceSize(out double width, out double height);
-                int divisions = (int)Math.Ceiling(Math.Max(width, height) / distance);
-                Interval domainU = face.Domain(0);
-                Interval domainV = face.Domain(1);
-                for (int vCounter = 0; vCounter <= divisions; vCounter++)
+                face.GetSurfaceSize(out var width, out var height);
+                var divisions = (int)Math.Ceiling(Math.Max(width, height) / distance);
+                var domainU = face.Domain(0);
+                var domainV = face.Domain(1);
+                for (var vCounter = 0; vCounter <= divisions; vCounter++)
                 {
-                    for (int uCounter = 0; uCounter <= divisions; uCounter++)
+                    for (var uCounter = 0; uCounter <= divisions; uCounter++)
                     {
-                        double u = domainU.Length * uCounter / divisions + domainU.Min;
-                        double v = domainV.Length * vCounter / divisions + domainV.Min;
+                        var u = domainU.Length * uCounter / divisions + domainU.Min;
+                        var v = domainV.Length * vCounter / divisions + domainV.Min;
                         if (face.IsSurface)
                         {
                             pointsOnBrepSurfaces.Add(face.PointAt(u, v));
@@ -160,7 +164,7 @@ namespace WFCToolset
                         else
                         {
                             // If the face is a trimmed surface, then check if the generated point is inside.
-                            PointFaceRelation pointFaceRelation = face.IsPointOnFace(u, v);
+                            var pointFaceRelation = face.IsPointOnFace(u, v);
                             if (pointFaceRelation == PointFaceRelation.Interior || pointFaceRelation == PointFaceRelation.Boundary)
                             {
                                 pointsOnBrepSurfaces.Add(face.PointAt(u, v));
@@ -175,7 +179,7 @@ namespace WFCToolset
         public static IEnumerable<Point3d> PopulateBrepVolume(double distance, Brep bRep)
         {
             // TODO: Investigate the unprecise results
-            List<Point3d> pointsInsideBrep = new List<Point3d>();
+            var pointsInsideBrep = new List<Point3d>();
             var boundingBox = bRep.GetBoundingBox(false);
             for (var z = boundingBox.Min.Z - distance; z < boundingBox.Max.Z + distance; z += distance)
             {
@@ -197,7 +201,7 @@ namespace WFCToolset
 
         public static IEnumerable<Point3d> PopulateMeshVolume(double distance, Mesh mesh)
         {
-            List<Point3d> pointsInsideMesh = new List<Point3d>();
+            var pointsInsideMesh = new List<Point3d>();
             var boundingBox = mesh.GetBoundingBox(false);
             for (var z = boundingBox.Min.Z - distance; z < boundingBox.Max.Z + distance; z += distance)
             {
@@ -238,28 +242,28 @@ namespace WFCToolset
         private static IEnumerable<Point3d> PopulateTriangle(double distance, Point3d aPoint, Point3d bPoint, Point3d cPoint)
         {
             // Compute the density of points on the respective face.
-            double abDistanceSq = aPoint.DistanceToSquared(bPoint);
-            double bcDistanceSq = bPoint.DistanceToSquared(cPoint);
-            double caDistanceSq = cPoint.DistanceToSquared(aPoint);
-            double longestEdgeLen = Math.Sqrt(Math.Max(abDistanceSq, Math.Max(bcDistanceSq, caDistanceSq)));
+            var abDistanceSq = aPoint.DistanceToSquared(bPoint);
+            var bcDistanceSq = bPoint.DistanceToSquared(cPoint);
+            var caDistanceSq = cPoint.DistanceToSquared(aPoint);
+            var longestEdgeLen = Math.Sqrt(Math.Max(abDistanceSq, Math.Max(bcDistanceSq, caDistanceSq)));
 
             // Number of face divisions (points) in each direction.
-            double divisions = Math.Ceiling(longestEdgeLen / distance);
+            var divisions = Math.Ceiling(longestEdgeLen / distance);
 
-            List<Point3d> points = new List<Point3d>((int)Math.Sqrt(divisions + 1));
+            var points = new List<Point3d>((int)Math.Sqrt(divisions + 1));
 
-            for (int ui = 0; ui < divisions; ui++)
+            for (var ui = 0; ui < divisions; ui++)
             {
-                for (int wi = 0; wi < divisions; wi++)
+                for (var wi = 0; wi < divisions; wi++)
                 {
-                    double uNormalized = ui / divisions;
-                    double wNormalized = wi / divisions;
-                    double vNormalized = 1.0 - uNormalized - wNormalized;
+                    var uNormalized = ui / divisions;
+                    var wNormalized = wi / divisions;
+                    var vNormalized = 1.0 - uNormalized - wNormalized;
                     if (vNormalized >= 0.0)
                     {
-                        Point3d barycentric =
+                        var barycentric =
                             new Point3d(uNormalized, vNormalized, wNormalized);
-                        Point3d cartesian = BarycentricToCartesian(
+                        var cartesian = BarycentricToCartesian(
                             barycentric,
                             aPoint,
                             bPoint,

@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
+
+using System;
 using System.Collections.Generic;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
@@ -41,8 +45,15 @@ namespace WFCToolset
             var modules = new List<Module>();
             Curve curve = null;
 
-            if (!DA.GetDataList(0, modules)) return;
-            if (!DA.GetData(1, ref curve)) return;
+            if (!DA.GetDataList(0, modules))
+            {
+                return;
+            }
+
+            if (!DA.GetData(1, ref curve))
+            {
+                return;
+            }
 
             var rules = new List<Rule>();
 
@@ -56,21 +67,12 @@ namespace WFCToolset
             var endConnectors = new List<ModuleConnector>();
             foreach (var module in modules)
             {
-                foreach (var connector in module.GetExternalConnectors())
-                {
-                    var startToPlaneDistance = connector.AnchorPlane.DistanceTo(curve.PointAtStart);
-                    if (Math.Abs(startToPlaneDistance) < Rhino.RhinoMath.SqrtEpsilon &&
-                        connector.Face.Contains(curve.PointAtStart) == PointContainment.Inside)
-                    {
-                        startConnectors.Add(connector);
-                    }
-                    var endToPlaneDistance = connector.AnchorPlane.DistanceTo(curve.PointAtEnd);
-                    if (Math.Abs(endToPlaneDistance) < Rhino.RhinoMath.SqrtEpsilon &&
-                        connector.Face.Contains(curve.PointAtEnd) == PointContainment.Inside)
-                    {
-                        endConnectors.Add(connector);
-                    }
-                }
+                startConnectors.AddRange(
+                    module.ExternalConnectorsContainingPoint(curve.PointAtStart)
+                   );
+                endConnectors.AddRange(
+                    module.ExternalConnectorsContainingPoint(curve.PointAtEnd)
+                   );
             }
 
             if (startConnectors.Count == 0)
@@ -89,7 +91,14 @@ namespace WFCToolset
                 {
                     if (endConnector.Direction.IsOpposite(startConnector.Direction))
                     {
-                        rules.Add(new Rule(startConnector.ModuleName, startConnector.ConnectorIndex, endConnector.ModuleName, endConnector.ConnectorIndex));
+                        rules.Add(
+                            new Rule(
+                                startConnector.ModuleName,
+                                startConnector.ConnectorIndex,
+                                endConnector.ModuleName,
+                                endConnector.ConnectorIndex
+                                )
+                            );
                     }
                     else
                     {

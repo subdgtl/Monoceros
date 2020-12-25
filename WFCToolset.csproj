@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Components\RuleEmptyFromPoint.cs" />
+    <Compile Include="Components\RuleIndifferentUnused.cs" />
     <Compile Include="Components\RuleOuterFromPoint.cs" />
     <Compile Include="Components\RuleIndifferentFromPoint.cs" />
     <Compile Include="Components\RuleTypedFromPoint.cs" />
@@ -84,6 +85,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".editorconfig" />
     <None Include="Icons\W.png" />
     <None Include="Icons\S.png" />
     <None Include="Icons\M.png" />

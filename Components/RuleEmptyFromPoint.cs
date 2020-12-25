@@ -1,5 +1,10 @@
-﻿using System;
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
+
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
@@ -38,16 +43,33 @@ namespace WFCToolset
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             var modules = new List<Module>();
-            Point3d point = new Point3d();
-            string targetName = Configuration.EMPTY_TAG;
+            var point = new Point3d();
+            var targetName = Configuration.EMPTY_TAG;
 
-            if (!DA.GetDataList(0, modules)) return;
-            if (!DA.GetData(1, ref point)) return;
+            if (!DA.GetDataList(0, modules))
+            {
+                return;
+            }
+
+            if (!DA.GetData(1, ref point))
+            {
+                return;
+            }
 
             var rules = new List<Rule>();
 
             foreach (var module in modules)
             {
+                var moduleRules = module
+                    .ExternalConnectorsContainingPoint(point)
+                    .Select(connector => new Rule(
+                                connector.ModuleName,
+                                connector.ConnectorIndex,
+                                targetName,
+                                connector.Direction.ToFlipped().ToConnectorIndex()
+                                )
+                    );
+
                 foreach (var connector in module.GetExternalConnectors())
                 {
                     var startToPlaneDistance = connector.AnchorPlane.DistanceTo(point);
@@ -59,11 +81,9 @@ namespace WFCToolset
                                 connector.ModuleName,
                                 connector.ConnectorIndex,
                                 targetName,
-                                singleModuleConnectorIndexFromDirection(
-                                    connector.Direction.ToFlipped()
-                                    )
+                                connector.Direction.ToFlipped().ToConnectorIndex()
                                 )
-                            );
+                        );
                     }
                 }
             }
@@ -75,37 +95,6 @@ namespace WFCToolset
 
             DA.SetDataList(0, rules);
         }
-
-        private int singleModuleConnectorIndexFromDirection(Direction direction)
-        {
-            // Connector numbering convention: (submoduleIndex * 6) + faceIndex, where faceIndex is X=0, Y=1, Z=2, -X=3, -Y=4, -Z=5
-            if (direction.Axis == Axis.X && direction.Orientation == Orientation.Positive)
-            {
-                return 0;
-            }
-            if (direction.Axis == Axis.Y && direction.Orientation == Orientation.Positive)
-            {
-                return 1;
-            }
-            if (direction.Axis == Axis.Z && direction.Orientation == Orientation.Positive)
-            {
-                return 2;
-            }
-            if (direction.Axis == Axis.X && direction.Orientation == Orientation.Negative)
-            {
-                return 3;
-            }
-            if (direction.Axis == Axis.Y && direction.Orientation == Orientation.Negative)
-            {
-                return 4;
-            }
-            if (direction.Axis == Axis.Z && direction.Orientation == Orientation.Negative)
-            {
-                return 5;
-            }
-            return -1;
-        }
-
         /// <summary>
         /// The Exposure property controls where in the panel a component icon 
         /// will appear. There are seven possible locations (primary to septenary), 

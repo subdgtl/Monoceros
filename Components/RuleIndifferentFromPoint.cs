@@ -1,5 +1,10 @@
-﻿using System;
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
+
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
@@ -38,25 +43,27 @@ namespace WFCToolset
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             var modules = new List<Module>();
-            Point3d point = new Point3d();
-            string type = Configuration.INDIFFERENT_TAG;
+            var point = new Point3d();
+            var type = Configuration.INDIFFERENT_TAG;
 
-            if (!DA.GetDataList(0, modules)) return;
-            if (!DA.GetData(1, ref point)) return;
+            if (!DA.GetDataList(0, modules))
+            {
+                return;
+            }
+
+            if (!DA.GetData(1, ref point))
+            {
+                return;
+            }
 
             var rules = new List<Rule>();
 
             foreach (var module in modules)
             {
-                foreach (var connector in module.GetExternalConnectors())
-                {
-                    var startToPlaneDistance = connector.AnchorPlane.DistanceTo(point);
-                    if (Math.Abs(startToPlaneDistance) < Rhino.RhinoMath.SqrtEpsilon &&
-                        connector.Face.Contains(point) == PointContainment.Inside)
-                    {
-                        rules.Add(new Rule(connector.ModuleName, connector.ConnectorIndex, type));
-                    }
-                }
+                var moduleRules = module
+                    .ExternalConnectorsContainingPoint(point)
+                    .Select(connector => new Rule(connector.ModuleName, connector.ConnectorIndex, type));
+                rules.AddRange(moduleRules);
             }
 
             if (rules.Count == 0)

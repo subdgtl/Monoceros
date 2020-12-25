@@ -6,15 +6,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Grasshopper.Kernel;
-using Rhino.Geometry;
 
 namespace WFCToolset
 {
-
-    public class ComponentRuleTypedFromPoint : GH_Component
+    public class ComponentRuleIndifferentUnused : GH_Component
     {
-        public ComponentRuleTypedFromPoint() : base("WFC Create typed rule from point tag", "WFCRuleTypPt",
-            "Create a typed WFC Rule from a point tag.",
+        public ComponentRuleIndifferentUnused() : base("WFC Set unused connectors to indifferent", "WFCRuleIndifferentUnused",
+            "Allow unused connectors to connect to any oposite indifferent connector.",
             "WaveFunctionCollapse", "Rule")
         {
         }
@@ -24,9 +22,8 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddParameter(new ModuleParameter(), "Modules", "M", "All available WFC modules", GH_ParamAccess.list);
-            pManager.AddPointParameter("Point tag", "Pt", "Point marking a connetor", GH_ParamAccess.item);
-            pManager.AddTextParameter("Connector type", "T", "Type to be assigned to the connector", GH_ParamAccess.item);
+            pManager.AddParameter(new ModuleParameter(), "Module", "M", "WFC module for indifferent rule generation", GH_ParamAccess.item);
+            pManager.AddParameter(new RuleParameter(), "Rules", "R", "All existing WFC rules", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -44,39 +41,52 @@ namespace WFCToolset
         /// to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            var modules = new List<Module>();
-            var point = new Point3d();
-            var type = "";
+            var module = new Module();
+            var existingRules = new List<Rule>();
+            var type = Configuration.INDIFFERENT_TAG;
 
-            if (!DA.GetDataList(0, modules))
+            if (!DA.GetData(0, ref module))
             {
                 return;
             }
 
-            if (!DA.GetData(1, ref point))
+            if (!DA.GetDataList(1, existingRules))
             {
                 return;
             }
 
-            if (!DA.GetData(2, ref type))
+            var thisModulesUsedConnectors = new List<int>();
+
+            foreach (var existingRule in existingRules)
             {
-                return;
+                if (existingRule.RuleExplicit != null &&
+                    existingRule.RuleTyped == null &&
+                    existingRule.RuleExplicit.SourceModuleName == module.Name
+                    )
+                {
+                    thisModulesUsedConnectors.Add(existingRule.RuleExplicit.SourceConnectorIndex);
+                }
+
+                if (existingRule.RuleExplicit != null &&
+                    existingRule.RuleTyped == null &&
+                    existingRule.RuleExplicit.TargetModuleName == module.Name
+                    )
+                {
+                    thisModulesUsedConnectors.Add(existingRule.RuleExplicit.TargetConnectorIndex);
+                }
+
+                if (existingRule.RuleExplicit == null &&
+                    existingRule.RuleTyped != null &&
+                    existingRule.RuleTyped.ModuleName == module.Name
+                    )
+                {
+                    thisModulesUsedConnectors.Add(existingRule.RuleTyped.ConnectorIndex);
+                }
             }
 
-            var rules = new List<Rule>();
-
-            foreach (var module in modules)
-            {
-                var moduleRules = module
-                    .ExternalConnectorsContainingPoint(point)
-                    .Select(connector => new Rule(connector.ModuleName, connector.ConnectorIndex, type));
-                rules.AddRange(moduleRules);
-            }
-
-            if (rules.Count == 0)
-            {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The point does not mark any module connector.");
-            }
+            var rules = module.GetExternalConnectors()
+                .Where(connector => !thisModulesUsedConnectors.Contains(connector.ConnectorIndex))
+                .Select(connector => new Rule(connector.ModuleName, connector.ConnectorIndex, type));
 
             DA.SetDataList(0, rules);
         }
@@ -103,6 +113,6 @@ namespace WFCToolset
         /// It is vital this Guid doesn't change otherwise old ghx files 
         /// that use the old ID will partially fail during loading.
         /// </summary>
-        public override Guid ComponentGuid => new Guid("6A94F17B-60DF-4CAF-B209-9ABE1068A3EC");
+        public override Guid ComponentGuid => new Guid("3AE4F441-BD29-4977-A259-5C8FE84685E0");
     }
 }

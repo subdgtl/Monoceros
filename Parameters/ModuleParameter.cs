@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
+
+using System;
 using System.Collections.Generic;
 using Grasshopper.Kernel;
 using Rhino;
@@ -64,7 +68,7 @@ namespace WFCToolset
             {
                 if (item != null)
                 {
-                    List<Guid> idsOut = new List<Guid>();
+                    var idsOut = new List<Guid>();
                     item.BakeGeometry(doc, att, idsOut);
                     obj_ids.AddRange(idsOut);
                 }
