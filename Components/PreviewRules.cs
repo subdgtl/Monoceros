@@ -80,7 +80,7 @@ namespace WFCToolset
         private double _fontSize;
 
         public ComponentPreviewRules() : base("WFC Preview rules", "WFCRulePreview",
-            "Preview rules as lines connecting individual connectors.",
+            "Preview rules as lines connecting individual connectors. Does not display connections to reserved modules " + Configuration.RESERVED_TO_STRING + ".",
             "WaveFunctionCollapse", "Preview")
         {
         }
@@ -121,18 +121,32 @@ namespace WFCToolset
                 return;
             }
 
-            _fontSize = 1;
+            var minimumSlotDimension = 1.0;
+            var averageSlotDiagonal = new Vector3d();
 
             foreach (var module in modules)
             {
                 var minSize = module.SlotDiagonal.MinimumCoordinate;
-                if (minSize < _fontSize)
+                if (minSize < minimumSlotDimension)
                 {
-                    _fontSize = minSize;
+                    minimumSlotDimension = minSize;
                 }
+                averageSlotDiagonal += module.SlotDiagonal;
             }
 
-            _fontSize /= 10;
+            averageSlotDiagonal /= modules.Count;
+            _fontSize = minimumSlotDimension / 10.0;
+
+            Module.GenerateNamedEmptySingleModule(Configuration.OUTER_TAG, Configuration.INDIFFERENT_TAG,
+                                                      averageSlotDiagonal, out var moduleOut,
+                                                      out var _);
+            modules.Add(moduleOut);
+
+            Module.GenerateNamedEmptySingleModule(Configuration.EMPTY_TAG, Configuration.INDIFFERENT_TAG,
+                                                      averageSlotDiagonal, out var moduleEmpty,
+                                                      out var _);
+            modules.Add(moduleEmpty);
+
 
             var explicitLines = new List<ExplicitLine>();
 
@@ -143,18 +157,22 @@ namespace WFCToolset
 
             foreach (var ruleExplicit in rulesExplicit)
             {
-                GetLinesFromExplicitRule(modules, ruleExplicit, out var linesX, out var linesY, out var linesZ);
+                // TODO: Consider displaying Empty and Out connections somehow too
+                if (!Configuration.RESERVED_NAMES.Contains(ruleExplicit._sourceModuleName) &&
+                    !Configuration.RESERVED_NAMES.Contains(ruleExplicit._targetModuleName))
+                {
+                    GetLinesFromExplicitRule(modules, ruleExplicit, out var linesX, out var linesY, out var linesZ);
 
-                explicitLines.AddRange(
-                    linesX.Select(line => new ExplicitLine(line, Configuration.X_COLOR))
-                    );
-                explicitLines.AddRange(
-                    linesY.Select(line => new ExplicitLine(line, Configuration.Y_COLOR))
-                    );
-                explicitLines.AddRange(
-                    linesZ.Select(line => new ExplicitLine(line, Configuration.Z_COLOR))
-                    );
-
+                    explicitLines.AddRange(
+                        linesX.Select(line => new ExplicitLine(line, Configuration.X_COLOR))
+                        );
+                    explicitLines.AddRange(
+                        linesY.Select(line => new ExplicitLine(line, Configuration.Y_COLOR))
+                        );
+                    explicitLines.AddRange(
+                        linesZ.Select(line => new ExplicitLine(line, Configuration.Z_COLOR))
+                        );
+                }
             }
 
             foreach (var ruleTyped in rulesTyped)
@@ -163,16 +181,21 @@ namespace WFCToolset
 
                 foreach (var ruleExplicit in rulesExplicitComputed)
                 {
-                    GetLinesFromExplicitRule(modules, ruleExplicit, out var linesX, out var linesY, out var linesZ);
-                    typedLines.AddRange(
-                        linesX.Select(line => new TypedLine(line, Configuration.X_COLOR, ruleTyped._connectorType))
-                    );
-                    typedLines.AddRange(
-                        linesY.Select(line => new TypedLine(line, Configuration.Y_COLOR, ruleTyped._connectorType))
-                    );
-                    typedLines.AddRange(
-                        linesZ.Select(line => new TypedLine(line, Configuration.Z_COLOR, ruleTyped._connectorType))
-                    );
+                    // TODO: Consider displaying Empty and Out connections somehow too
+                    if (!Configuration.RESERVED_NAMES.Contains(ruleExplicit._sourceModuleName) &&
+                        !Configuration.RESERVED_NAMES.Contains(ruleExplicit._targetModuleName))
+                    {
+                        GetLinesFromExplicitRule(modules, ruleExplicit, out var linesX, out var linesY, out var linesZ);
+                        typedLines.AddRange(
+                            linesX.Select(line => new TypedLine(line, Configuration.X_COLOR, ruleTyped._connectorType))
+                        );
+                        typedLines.AddRange(
+                            linesY.Select(line => new TypedLine(line, Configuration.Y_COLOR, ruleTyped._connectorType))
+                        );
+                        typedLines.AddRange(
+                            linesZ.Select(line => new TypedLine(line, Configuration.Z_COLOR, ruleTyped._connectorType))
+                        );
+                    }
                 }
             }
 

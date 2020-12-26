@@ -58,6 +58,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\UnwrapRules.cs" />
     <Compile Include="Components\CollectRules.cs" />
     <Compile Include="Components\RuleEmptyFromPoint.cs" />
     <Compile Include="Components\PreviewRules.cs" />
@@ -74,8 +75,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Components\RuleTypedFromLiteral.cs" />
-    <Compile Include="Components\RuleExplicitFromLiteral.cs" />
+    <Compile Include="Components\RuleTypedConstruct.cs" />
+    <Compile Include="Components\RuleExplicitConstruct.cs" />
     <Compile Include="Components\ModuleFromGeometry.cs" />
     <Compile Include="Parameters\RuleParameter.cs" />
     <Compile Include="Parameters\ModuleParameter.cs" />

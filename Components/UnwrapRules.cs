@@ -10,10 +10,10 @@ using Grasshopper.Kernel;
 
 namespace WFCToolset
 {
-    public class ComponentCollectRules : GH_Component
+    public class ComponentUnwrapRules : GH_Component
     {
-        public ComponentCollectRules() : base("WFC Collect rules", "WFCCollectRules",
-            "Collect, convert to Explicit, deduplicate and remove disallowed rules.",
+        public ComponentUnwrapRules() : base("WFC Unwrap typed rules", "WFCUnwrapRules",
+            "Convert Typed rules into Explicit rules and deduplicate.",
             "WaveFunctionCollapse", "Rule")
         {
         }
@@ -24,13 +24,9 @@ namespace WFCToolset
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
             pManager.AddParameter(new ModuleParameter(), "Module", "M", "WFC module for indifferent rule generation", GH_ParamAccess.list);
-            pManager.AddParameter(new RuleParameter(), "Rules Allowed", "RA", "All allowed WFC rules", GH_ParamAccess.list);
-            pManager.AddParameter(new RuleParameter(), "Rules Disallowed", "RD", "All disallowed WFC rules (optional)", GH_ParamAccess.list);
-            pManager.AddBooleanParameter("Include Out module", "O", "Generate rules for the Out module. Set automatically to true if any rule involves the Out module.", GH_ParamAccess.item, true);
-            pManager.AddBooleanParameter("Include Empty module", "E", "Generate rules for the Empty module. Set automatically to true if any rule involves the Empty module.", GH_ParamAccess.item, false);
-            pManager[2].Optional = true;
-            pManager[3].Optional = true;
-            pManager[4].Optional = true;
+            pManager.AddParameter(new RuleParameter(), "Rules", "R", "All WFC rules, including Explicit", GH_ParamAccess.list);
+            pManager.AddBooleanParameter("Include Out module", "O", "Generate rules for the Out module", GH_ParamAccess.item, true);
+            pManager.AddBooleanParameter("Include Empty module", "E", "Generate rules for the Empty module", GH_ParamAccess.item, false);
         }
 
         /// <summary>
@@ -49,8 +45,7 @@ namespace WFCToolset
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             var modules = new List<Module>();
-            var rulesAllowed = new List<Rule>();
-            var rulesDisallowed = new List<Rule>();
+            var rulesInput = new List<Rule>();
 
             var allowOut = false;
             var allowEmpty = false;
@@ -60,16 +55,22 @@ namespace WFCToolset
                 return;
             }
 
-            if (!DA.GetDataList(1, rulesAllowed))
+            if (!DA.GetDataList(1, rulesInput))
             {
                 return;
             }
 
-            DA.GetDataList(2, rulesDisallowed);
-            DA.GetData(3, ref allowOut);
-            DA.GetData(4, ref allowEmpty);
+            if (!DA.GetData(2, ref allowOut))
+            {
+                return;
+            }
 
-            allowOut |= rulesAllowed.Concat(rulesDisallowed).Any(rule =>
+            if (!DA.GetData(3, ref allowEmpty))
+            {
+                return;
+            }
+
+            allowOut |= rulesInput.Any(rule =>
             {
                 if (rule.IsExplicit())
                 {
@@ -83,7 +84,7 @@ namespace WFCToolset
                 return false;
             });
 
-            allowEmpty |= rulesAllowed.Concat(rulesDisallowed).Any(rule =>
+            allowEmpty |= rulesInput.Any(rule =>
             {
                 if (rule.IsExplicit())
                 {
@@ -97,28 +98,14 @@ namespace WFCToolset
                 return false;
             });
 
-            var rulesDisallowedExplicit = rulesDisallowed.Where(rule => rule.IsExplicit());
-            var rulesDisallowedTyped = rulesDisallowed.Where(rule => rule.IsTyped()).Select(rule => rule._ruleTyped);
-            var rulesDisallowedTypedUnwrapped = rulesDisallowedTyped
-                .SelectMany(ruleTyped => ruleTyped.ToRuleExplicit(rulesDisallowedTyped, modules))
-                .Select(ruleExplicit => new Rule(ruleExplicit));
-
-            var rulesDisallowedProcessed = rulesDisallowedExplicit.Concat(rulesDisallowedTypedUnwrapped).Distinct();
-
-
-            var rulesAllowedExplicit = new List<Rule>();
-            var rulesAllowedTypedUnwrapped = new List<Rule>();
-            var rulesAllowedTypedWrapped = new List<Rule>();
-
+            var rulesTyped = rulesInput.Where(rule => rule.IsTyped()).Select(rule => rule._ruleTyped);
 
             if (allowOut)
             {
                 Module.GenerateNamedEmptySingleModule(Configuration.OUTER_TAG, Configuration.INDIFFERENT_TAG,
                                                       new Rhino.Geometry.Vector3d(1, 1, 1), out var moduleOut,
                                                       out var rulesOut);
-                rulesAllowed.AddRange(
-                    rulesOut.Select(ruleExplicit => new Rule(ruleExplicit))
-                    );
+                rulesTyped = rulesTyped.Concat(rulesOut);
                 modules.Add(moduleOut);
             }
 
@@ -127,53 +114,18 @@ namespace WFCToolset
                 Module.GenerateNamedEmptySingleModule(Configuration.EMPTY_TAG, Configuration.INDIFFERENT_TAG,
                                                       new Rhino.Geometry.Vector3d(1, 1, 1), out var moduleEmpty,
                                                       out var rulesEmpty);
-                rulesAllowed.AddRange(
-                    rulesEmpty.Select(ruleExplicit => new Rule(ruleExplicit))
-                    );
+                rulesTyped = rulesTyped.Concat(rulesEmpty);
                 modules.Add(moduleEmpty);
             }
 
-            var rulesAllowedTyped = rulesAllowed.Where(rule => rule.IsTyped()).Select(rule => rule._ruleTyped);
+            var rulesTypedUnwrapped = rulesTyped
+                .SelectMany(ruleTyped => ruleTyped.ToRuleExplicit(rulesTyped, modules))
+                .Select(ruleExplicit => new Rule(ruleExplicit));
 
 
-            foreach (var rule in rulesAllowed)
-            {
-                if (rule.IsExplicit())
-                {
-                    rulesAllowedExplicit.Add(rule);
-                    continue;
-                }
-                if (rule.IsTyped())
-                {
-                    var ruleTyped = rule._ruleTyped;
-                    if (
-                        rulesDisallowedProcessed.Any(ruleDisallowed =>
-                            ruleDisallowed.IsExplicit() &&
-                            (ruleDisallowed._ruleExplicit._sourceModuleName == ruleTyped._moduleName &&
-                             ruleDisallowed._ruleExplicit._sourceConnectorIndex == ruleTyped._connectorIndex) ||
-                            (ruleDisallowed._ruleExplicit._targetModuleName == ruleTyped._moduleName &&
-                             ruleDisallowed._ruleExplicit._targetConnectorIndex == ruleTyped._connectorIndex)
-                            )
-                        )
-                    {
-                        var rulesTypedUnwrapped = ruleTyped
-                            .ToRuleExplicit(rulesAllowedTyped, modules)
-                            .Select(ruleExplicit => new Rule(ruleExplicit));
-                        rulesAllowedTypedUnwrapped.AddRange(rulesTypedUnwrapped);
-                    }
-                    else
-                    {
-                        rulesAllowedTypedWrapped.Add(rule);
-                    }
-                }
-            }
+            var rulesExplicit = rulesInput.Where(rule => rule.IsExplicit());
 
-            var rulesAllowedProcessed = rulesAllowedExplicit
-                .Concat(rulesAllowedTypedUnwrapped)
-                .Concat(rulesAllowedTypedWrapped)
-                .Distinct();
-
-            var rules = rulesAllowedProcessed.Except(rulesDisallowedProcessed);
+            var rules = rulesExplicit.Concat(rulesTypedUnwrapped).Distinct();
 
             DA.SetDataList(0, rules);
         }
@@ -200,6 +152,6 @@ namespace WFCToolset
         /// It is vital this Guid doesn't change otherwise old ghx files 
         /// that use the old ID will partially fail during loading.
         /// </summary>
-        public override Guid ComponentGuid => new Guid("41CC16C9-739A-41C3-B37A-97969D6D5DAF");
+        public override Guid ComponentGuid => new Guid("08CD1CF1-A33C-485D-9E10-436B3E36EA56");
     }
 }
