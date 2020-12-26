@@ -58,6 +58,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\RuleIsExplicit.cs" />
+    <Compile Include="Components\RuleIsTyped.cs" />
+    <Compile Include="Components\RuleTypedDeconstruct.cs" />
+    <Compile Include="Components\RuleExplicitDeconstruct.cs" />
     <Compile Include="Components\UnwrapRules.cs" />
     <Compile Include="Components\CollectRules.cs" />
     <Compile Include="Components\RuleEmptyFromPoint.cs" />
