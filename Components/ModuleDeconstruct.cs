@@ -6,12 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Grasshopper.Kernel;
-using Grasshopper.Kernel.Types;
 using Rhino.Geometry;
 
 namespace WFCToolset
 {
-
     public class ComponentModuleDeconstruct : GH_Component
     {
         public ComponentModuleDeconstruct() : base("WFC Deconstruct module to its components", "WFCDeconModule",
@@ -78,7 +76,6 @@ namespace WFCToolset
             DA.SetDataList(6, connectors.Select(connector => connector._connectorIndex));
             DA.SetDataList(7, connectors.Select(connector => connector._direction.ToVector()));
         }
-
 
         /// <summary>
         /// The Exposure property controls where in the panel a component icon 

@@ -14,7 +14,6 @@ using Rhino.Geometry;
 
 namespace WFCToolset
 {
-
     /// <summary>
     /// WFC Module type containing name, geometry and submodule and connector info, 
     /// including internal rules holding the module together.
@@ -369,18 +368,13 @@ namespace WFCToolset
             return rulesInternal;
         }
 
-        public IEnumerable<ModuleConnector> GetExternalConnectors()
-        {
-            return Connectors.Where(c => c._valence == ModuleConnectorValence.External);
-        }
+        public IEnumerable<ModuleConnector> GetExternalConnectors() => Connectors.Where(c => c._valence == ModuleConnectorValence.External);
 
-        public IEnumerable<ModuleConnector> ExternalConnectorsContainingPoint(Point3d point)
-        {
-            return GetExternalConnectors().Where(connector =>
-            connector._anchorPlane.DistanceTo(point) < RhinoMath.SqrtEpsilon &&
-                    connector._face.Contains(point) == PointContainment.Inside
+        public IEnumerable<ModuleConnector> GetExternalConnectorsContainingPoint(Point3d point) =>
+            GetExternalConnectors().Where(connector =>
+                connector._anchorPlane.DistanceTo(point) < RhinoMath.SqrtEpsilon &&
+                connector._face.Contains(point) == PointContainment.Inside
             );
-        }
 
         public bool IsValid =>
             Connectors != null &&
@@ -437,17 +431,10 @@ namespace WFCToolset
             return false;
         }
 
-        public IGH_Goo Duplicate()
-        {
-            return (IGH_Goo)MemberwiseClone();
-
-        }
+        public IGH_Goo Duplicate() => (IGH_Goo)MemberwiseClone();
 
         // TODO: Find out what this is
-        public IGH_GooProxy EmitProxy()
-        {
-            return null;
-        }
+        public IGH_GooProxy EmitProxy() => null;
 
         // TODO: Do this for real
         public bool Read(GH_IReader reader) => true;
@@ -523,13 +510,7 @@ namespace WFCToolset
             }
         }
 
-        public bool IsBakeCapable
-        {
-            get
-            {
-                return IsValid;
-            }
-        }
+        public bool IsBakeCapable => IsValid;
 
         public void BakeGeometry(RhinoDoc doc, List<Guid> obj_ids)
         {

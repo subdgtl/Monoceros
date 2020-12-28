@@ -7,73 +7,13 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using Grasshopper.Kernel;
+using Rhino;
+using Rhino.DocObjects;
 using Rhino.Geometry;
 
 namespace WFCToolset
 {
-    internal struct ExplicitLine
-    {
-        public Line _line;
-        public Color _color;
-
-        public ExplicitLine(Line line, Color color)
-        {
-            _line = line;
-            _color = color;
-        }
-
-        public override bool Equals(object obj)
-        {
-            var flipped = _line;
-            flipped.Flip();
-            return obj is ExplicitLine line &&
-                   (_line.Equals(line._line) || flipped.Equals(line._line)) &&
-                   EqualityComparer<Color>.Default.Equals(_color, line._color);
-        }
-
-        public override int GetHashCode()
-        {
-            var hashCode = -5646795;
-            hashCode = hashCode * -1521134295 + _line.GetHashCode();
-            hashCode = hashCode * -1521134295 + _color.GetHashCode();
-            return hashCode;
-        }
-    }
-    internal struct TypedLine
-    {
-        public Line _line;
-        public Color _color;
-        public string _type;
-
-        public TypedLine(Line line, Color color, string type)
-        {
-            _line = line;
-            _color = color;
-            _type = type;
-        }
-
-        public override bool Equals(object obj)
-        {
-            var flipped = _line;
-            flipped.Flip();
-            return obj is TypedLine line &&
-                   (_line.Equals(line._line) || flipped.Equals(line._line)) &&
-                   EqualityComparer<Color>.Default.Equals(_color, line._color) &&
-                   _type == line._type;
-        }
-
-        public override int GetHashCode()
-        {
-            var hashCode = -551534709;
-            hashCode = hashCode * -1521134295 + _line.GetHashCode();
-            hashCode = hashCode * -1521134295 + _color.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(_type);
-            return hashCode;
-        }
-    }
-
-    // TODO: Make bake aware
-    public class ComponentPreviewRules : GH_Component, IGH_PreviewObject
+    public class ComponentPreviewRules : GH_Component, IGH_PreviewObject, IGH_BakeAwareObject
     {
         private IEnumerable<ExplicitLine> _explicitLines;
         private IEnumerable<TypedLine> _typedLines;
@@ -249,10 +189,7 @@ namespace WFCToolset
 
         public new bool Hidden => false;
 
-        public bool GetIsPreviewCapable()
-        {
-            return true;
-        }
+        public bool GetIsPreviewCapable() => true;
 
         public override void DrawViewportWires(IGH_PreviewArgs args)
         {
@@ -267,6 +204,48 @@ namespace WFCToolset
 
                 var middlePoint = (line._line.To + line._line.From) / 2;
                 args.Display.DrawDot(middlePoint, line._type, Configuration.POSITIVE_COLOR, line._color);
+            }
+        }
+
+        public override bool IsBakeCapable => true;
+
+        public override void BakeGeometry(RhinoDoc doc, List<Guid> obj_ids)
+        {
+            BakeGeometry(doc, new ObjectAttributes(), obj_ids);
+        }
+
+        public override void BakeGeometry(RhinoDoc doc, ObjectAttributes att, List<Guid> obj_ids)
+        {
+            if (att == null)
+            {
+                att = doc.CreateDefaultAttributes();
+            }
+            var layerIndex = doc.Layers.CurrentLayerIndex;
+
+            foreach (var line in _explicitLines)
+            {
+                var lineAttributes = att.Duplicate();
+                lineAttributes.ObjectColor = line._color;
+                lineAttributes.ColorSource = ObjectColorSource.ColorFromObject;
+                lineAttributes.LayerIndex = layerIndex;
+                obj_ids.Add(doc.Objects.AddLine(line._line, lineAttributes));
+            }
+
+            foreach (var line in _typedLines)
+            {
+                var lineAttributes = att.Duplicate();
+                lineAttributes.ObjectColor = line._color;
+                lineAttributes.ColorSource = ObjectColorSource.ColorFromObject;
+                lineAttributes.LayerIndex = layerIndex;
+                obj_ids.Add(doc.Objects.AddLine(line._line, lineAttributes));
+
+                var middlePoint = (line._line.To + line._line.From) / 2;
+
+                var dotAttributes = att.Duplicate();
+                dotAttributes.ObjectColor = line._color;
+                dotAttributes.ColorSource = ObjectColorSource.ColorFromObject;
+                dotAttributes.LayerIndex = layerIndex;
+                obj_ids.Add(doc.Objects.AddTextDot(line._type, middlePoint, dotAttributes));
             }
         }
 
@@ -293,5 +272,65 @@ namespace WFCToolset
         /// that use the old ID will partially fail during loading.
         /// </summary>
         public override Guid ComponentGuid => new Guid("CD5D3078-2F06-4BCD-9267-2B828177DFDB");
+    }
+    internal struct ExplicitLine
+    {
+        public Line _line;
+        public Color _color;
+
+        public ExplicitLine(Line line, Color color)
+        {
+            _line = line;
+            _color = color;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var flipped = _line;
+            flipped.Flip();
+            return obj is ExplicitLine line &&
+                   (_line.Equals(line._line) || flipped.Equals(line._line)) &&
+                   EqualityComparer<Color>.Default.Equals(_color, line._color);
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = -5646795;
+            hashCode = hashCode * -1521134295 + _line.GetHashCode();
+            hashCode = hashCode * -1521134295 + _color.GetHashCode();
+            return hashCode;
+        }
+    }
+    internal struct TypedLine
+    {
+        public Line _line;
+        public Color _color;
+        public string _type;
+
+        public TypedLine(Line line, Color color, string type)
+        {
+            _line = line;
+            _color = color;
+            _type = type;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var flipped = _line;
+            flipped.Flip();
+            return obj is TypedLine line &&
+                   (_line.Equals(line._line) || flipped.Equals(line._line)) &&
+                   EqualityComparer<Color>.Default.Equals(_color, line._color) &&
+                   _type == line._type;
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = -551534709;
+            hashCode = hashCode * -1521134295 + _line.GetHashCode();
+            hashCode = hashCode * -1521134295 + _color.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(_type);
+            return hashCode;
+        }
     }
 }

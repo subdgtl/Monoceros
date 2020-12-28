@@ -68,10 +68,10 @@ namespace WFCToolset
             foreach (var module in modules)
             {
                 startConnectors.AddRange(
-                    module.ExternalConnectorsContainingPoint(curve.PointAtStart)
+                    module.GetExternalConnectorsContainingPoint(curve.PointAtStart)
                    );
                 endConnectors.AddRange(
-                    module.ExternalConnectorsContainingPoint(curve.PointAtEnd)
+                    module.GetExternalConnectorsContainingPoint(curve.PointAtEnd)
                    );
             }
 

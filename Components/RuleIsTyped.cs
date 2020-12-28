@@ -49,7 +49,6 @@ namespace WFCToolset
             DA.SetData(0, rule.IsTyped());
         }
 
-
         /// <summary>
         /// The Exposure property controls where in the panel a component icon 
         /// will appear. There are seven possible locations (primary to septenary), 

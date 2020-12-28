@@ -11,7 +11,6 @@ using Rhino.Geometry;
 
 namespace WFCToolset
 {
-
     public class ComponentModuleFromGeometry : GH_Component
     {
         public ComponentModuleFromGeometry() : base("WFC Construct module from geometry", "WFCModuleGeo",
@@ -158,7 +157,6 @@ namespace WFCToolset
 
             DA.SetData(0, module);
         }
-
 
         /// <summary>
         /// The Exposure property controls where in the panel a component icon 
