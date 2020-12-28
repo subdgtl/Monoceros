@@ -26,8 +26,8 @@ namespace WFCToolset
             pManager.AddParameter(new ModuleParameter(), "Module", "M", "WFC module for indifferent rule generation", GH_ParamAccess.list);
             pManager.AddParameter(new RuleParameter(), "Rules Allowed", "RA", "All allowed WFC rules", GH_ParamAccess.list);
             pManager.AddParameter(new RuleParameter(), "Rules Disallowed", "RD", "All disallowed WFC rules (optional)", GH_ParamAccess.list);
-            pManager.AddBooleanParameter("Include Out module", "O", "Generate rules for the Out module. Set automatically to true if any rule involves the Out module.", GH_ParamAccess.item, true);
-            pManager.AddBooleanParameter("Include Empty module", "E", "Generate rules for the Empty module. Set automatically to true if any rule involves the Empty module.", GH_ParamAccess.item, false);
+            pManager.AddBooleanParameter("Include Out Module", "O", "Generate rules for the Out module. Set automatically to true if any rule involves the Out module.", GH_ParamAccess.item, true);
+            pManager.AddBooleanParameter("Include Empty Module", "E", "Generate rules for the Empty module. Set automatically to true if any rule involves the Empty module.", GH_ParamAccess.item, false);
             pManager[2].Optional = true;
             pManager[3].Optional = true;
             pManager[4].Optional = true;

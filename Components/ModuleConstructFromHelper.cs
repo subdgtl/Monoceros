@@ -12,10 +12,10 @@ using Rhino.Geometry;
 namespace WFCToolset
 {
 
-    public class ComponentModuleFromGeometry : GH_Component
+    public class ComponentModuleFromHelper : GH_Component
     {
-        public ComponentModuleFromGeometry() : base("WFC Create module from geometry", "WFCModuleGeo",
-            "Create a WFC Module from input geometry, which will be also used in WFC solver result. Prefer Mesh to BRep.",
+        public ComponentModuleFromHelper() : base("WFC Construct module from helper geometry", "WFCModuleHlp",
+            "Construct a WFC Module from helper geometry. The specified production geometry bill be used in WFC solver result. Prefer Mesh to BRep.",
             "WaveFunctionCollapse", "Module")
         {
         }
@@ -25,11 +25,13 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddGeometryParameter("Geometry", "G", "Geometry defining the module. Point, Curve, Brep, Mesh.", GH_ParamAccess.list);
             pManager.AddTextParameter("Name", "N",
                                       "Module name (except '" + Configuration.RESERVED_TO_STRING + "'). The Name will be converted to lowercase.",
                                       GH_ParamAccess.item);
-            pManager.AddPlaneParameter("Base plane", "B", "Grid space base plane", GH_ParamAccess.item, Plane.WorldXY);
+            pManager.AddGeometryParameter("Helper Geometry", "H", "Geometry defining the module. Point, Curve, Brep, Mesh. Prefer Mesh to BRep.", GH_ParamAccess.list);
+            pManager.AddGeometryParameter("Production Geometry", "G", "Geometry to be used in the result of the WFC solver. Production geometry does not have to fit into the generated slots and can be larger, smaller, different or none.", GH_ParamAccess.list);
+            pManager[2].Optional = true;
+            pManager.AddPlaneParameter("Base plane", "B", "Grid space base plane. Defines orientation of the grid.", GH_ParamAccess.item, Plane.WorldXY);
             pManager.AddVectorParameter(
                "Grid Slot Diagonal",
                "D",
@@ -55,33 +57,36 @@ namespace WFCToolset
         /// to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            var geometryRaw = new List<IGH_GeometricGoo>();
+            var helperGeometryRaw = new List<IGH_GeometricGoo>();
+            var productionGeometryRaw = new List<IGH_GeometricGoo>();
             var name = "";
             var basePlane = new Plane();
             var slotDiagonal = new Vector3d();
             var precision = 0.5;
 
-            if (!DA.GetDataList(0, geometryRaw))
+            if (!DA.GetData(0, ref name))
             {
                 return;
             }
 
-            if (!DA.GetData(1, ref name))
+            if (!DA.GetDataList(1, helperGeometryRaw))
             {
                 return;
             }
 
-            if (!DA.GetData(2, ref basePlane))
+            DA.GetDataList(2, productionGeometryRaw);
+
+            if (!DA.GetData(3, ref basePlane))
             {
                 return;
             }
 
-            if (!DA.GetData(3, ref slotDiagonal))
+            if (!DA.GetData(4, ref slotDiagonal))
             {
                 return;
             }
 
-            if (!DA.GetData(4, ref precision))
+            if (!DA.GetData(5, ref precision))
             {
                 return;
             }
@@ -98,7 +103,7 @@ namespace WFCToolset
                 return;
             }
 
-            var geometryClean = geometryRaw
+            var helpersClean = helperGeometryRaw
                .Where(goo => goo != null)
                .Select(ghGeo =>
                {
@@ -107,7 +112,7 @@ namespace WFCToolset
                }
                ).ToList();
 
-            if (geometryClean.Count == 0)
+            if (helpersClean.Count == 0)
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The input geometry is insufficient to define a module.");
                 return;
@@ -120,7 +125,7 @@ namespace WFCToolset
             // Slot dimension is for the sake of this calculation 1,1,1
             var divisionLength = precision;
             var submoduleCenters = new List<Point3i>();
-            foreach (var goo in geometryClean)
+            foreach (var goo in helpersClean)
             {
                 var geo = goo.Duplicate();
                 if (geo.Transform(normalizationTransform) && geo.Transform(worldAlignmentTransform))
@@ -145,13 +150,22 @@ namespace WFCToolset
                 }
             }
 
-            var module = new Module(name, geometryClean, basePlane, submoduleCenters, slotDiagonal);
+            var productionGeometryClean = productionGeometryRaw
+               .Where(goo => goo != null)
+               .Select(ghGeo =>
+               {
+                   var geo = ghGeo.Duplicate();
+                   return GH_Convert.ToGeometryBase(geo);
+               }
+               );
+
+            var module = new Module(name, productionGeometryClean, basePlane, submoduleCenters, slotDiagonal);
             if (!module.Continuous)
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The module is not continuous and therefore will not hold together.");
             }
 
-            if (module.Geometry.Count != geometryRaw.Count)
+            if (module.Geometry.Count != productionGeometryRaw.Count)
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Some geometry could not be used.");
             }
@@ -182,6 +196,6 @@ namespace WFCToolset
         /// It is vital this Guid doesn't change otherwise old ghx files 
         /// that use the old ID will partially fail during loading.
         /// </summary>
-        public override Guid ComponentGuid => new Guid("45B1FD73-5450-4DBE-87F0-2D5AED14159E");
+        public override Guid ComponentGuid => new Guid("7BE5F6EB-03CF-4EA3-9FD2-7831E996AB49");
     }
 }

@@ -25,8 +25,8 @@ namespace WFCToolset
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
             pManager.AddParameter(new ModuleParameter(), "Modules", "M", "All available WFC modules", GH_ParamAccess.list);
-            pManager.AddPointParameter("Point tag", "Pt", "Point marking a connector", GH_ParamAccess.item);
-            pManager.AddTextParameter("Connector type", "T", "Type to be assigned to the connector", GH_ParamAccess.item);
+            pManager.AddPointParameter("Point Tag", "Pt", "Point marking a connector", GH_ParamAccess.item);
+            pManager.AddTextParameter("Connector Type", "T", "Type to be assigned to the connector", GH_ParamAccess.item);
         }
 
         /// <summary>

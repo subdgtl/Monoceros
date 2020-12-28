@@ -132,40 +132,39 @@ namespace WFCToolset
 
         }
 
-        public bool ToVector(out Vector3d directionVector)
+        public Vector3d ToVector()
         {
             if (_axis == Axis.X && _orientation == Orientation.Positive)
             {
-                directionVector = Vector3d.XAxis;
-                return true;
+                return Vector3d.XAxis;
             }
             if (_axis == Axis.Y && _orientation == Orientation.Positive)
             {
-                directionVector = Vector3d.YAxis;
-                return true;
+                return Vector3d.YAxis;
             }
             if (_axis == Axis.Z && _orientation == Orientation.Positive)
             {
-                directionVector = Vector3d.ZAxis;
-                return true;
+                return Vector3d.ZAxis;
             }
             if (_axis == Axis.X && _orientation == Orientation.Negative)
             {
-                directionVector = Vector3d.XAxis;
-                return directionVector.Reverse();
+                var directionVector = Vector3d.XAxis;
+                directionVector.Reverse();
+                return directionVector;
             }
             if (_axis == Axis.Y && _orientation == Orientation.Negative)
             {
-                directionVector = Vector3d.YAxis;
-                return directionVector.Reverse();
+                var directionVector = Vector3d.YAxis;
+                directionVector.Reverse();
+                return directionVector;
             }
             if (_axis == Axis.Z && _orientation == Orientation.Negative)
             {
-                directionVector = Vector3d.ZAxis;
-                return directionVector.Reverse();
+                var directionVector = Vector3d.ZAxis;
+                directionVector.Reverse();
+                return directionVector;
             }
-            directionVector = Vector3d.Unset;
-            return false;
+            return Vector3d.Unset;
         }
 
         public int ToConnectorIndex()

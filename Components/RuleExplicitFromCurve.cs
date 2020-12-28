@@ -24,7 +24,7 @@ namespace WFCToolset
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
             pManager.AddParameter(new ModuleParameter(), "Modules", "M", "All available WFC modules", GH_ParamAccess.list);
-            pManager.AddCurveParameter("Connection curve", "C", "Curve connecting two opposite connectors", GH_ParamAccess.item);
+            pManager.AddCurveParameter("Connection Curve", "C", "Curve connecting two opposite connectors", GH_ParamAccess.item);
         }
 
         /// <summary>

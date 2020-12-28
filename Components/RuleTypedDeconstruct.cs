@@ -30,7 +30,7 @@ namespace WFCToolset
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
             pManager.AddTextParameter("Module", "M", "Module name", GH_ParamAccess.item);
-            pManager.AddIntegerParameter("Connector", "C", "Connector number", GH_ParamAccess.item);
+            pManager.AddIntegerParameter("Connector Index", "C", "Connector number", GH_ParamAccess.item);
             pManager.AddTextParameter("Type", "T", "Connector type", GH_ParamAccess.item);
         }
 

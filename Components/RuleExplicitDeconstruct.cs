@@ -29,10 +29,10 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddTextParameter("SModule", "SM", "Source module name", GH_ParamAccess.item);
-            pManager.AddIntegerParameter("SConnector", "SC", "Source connector number", GH_ParamAccess.item);
-            pManager.AddTextParameter("TModule", "TM", "Target module name", GH_ParamAccess.item);
-            pManager.AddIntegerParameter("TConnector", "TC", "Target connector number", GH_ParamAccess.item);
+            pManager.AddTextParameter("Source Module", "SM", "Source module name", GH_ParamAccess.item);
+            pManager.AddIntegerParameter("Source Connector Index", "SC", "Source connector number", GH_ParamAccess.item);
+            pManager.AddTextParameter("Target Module", "TM", "Target module name", GH_ParamAccess.item);
+            pManager.AddIntegerParameter("Target Connector Index", "TC", "Target connector number", GH_ParamAccess.item);
         }
 
         /// <summary>

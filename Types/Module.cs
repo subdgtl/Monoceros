@@ -33,6 +33,16 @@ namespace WFCToolset
         public readonly List<GeometryBase> Geometry;
 
         /// <summary>
+        /// Base plane of the module's coordinate system.
+        /// </summary>
+        public readonly Plane BasePlane;
+
+        /// <summary>
+        /// Centers of submodules for module reconstruction.
+        /// </summary>
+        public readonly List<Point3i> SubmoduleCenters;
+
+        /// <summary>
         /// Source plane for geometry placement. The Pivot is located in 
         /// the center of the first submodule and oriented so that 
         /// the geometry can be Oriented from the Pivot to the target 
@@ -89,7 +99,7 @@ namespace WFCToolset
         /// information about the module's dimensions and occupied submodules.</param>
         /// <param name="slotDiagonal">Dimension of a single world slot.</param>
         public Module(string name,
-                      List<GeometryBase> geometry,
+                      IEnumerable<GeometryBase> geometry,
                       Plane basePlane,
                       List<Point3i> submoduleCenters,
                       Vector3d slotDiagonal)
@@ -141,7 +151,10 @@ namespace WFCToolset
             }
 
             Name = name.ToLower() ?? throw new ArgumentNullException(nameof(name));
-            Geometry = geometry ?? throw new ArgumentNullException(nameof(geometry));
+            Geometry = geometry.ToList() ?? throw new ArgumentNullException(nameof(geometry));
+
+            BasePlane = basePlane.Clone();
+            SubmoduleCenters = submoduleCenters;
 
             // Place the pivot into the first submodule and orient is according to the base plane 
             Pivot = basePlane.Clone();
@@ -173,12 +186,12 @@ namespace WFCToolset
             var directionYNegative = new Direction { _axis = Axis.Y, _orientation = Orientation.Negative };
             var directionZNegative = new Direction { _axis = Axis.Z, _orientation = Orientation.Negative };
 
-            directionXPositive.ToVector(out var xPositiveVectorUnit);
-            directionYPositive.ToVector(out var yPositiveVectorUnit);
-            directionZPositive.ToVector(out var zPositiveVectorUnit);
-            directionXNegative.ToVector(out var xNegativeVectorUnit);
-            directionYNegative.ToVector(out var yNegativeVectorUnit);
-            directionZNegative.ToVector(out var zNegativeVectorUnit);
+            var xPositiveVectorUnit = directionXPositive.ToVector();
+            var yPositiveVectorUnit = directionYPositive.ToVector();
+            var zPositiveVectorUnit = directionZPositive.ToVector();
+            var xNegativeVectorUnit = directionXNegative.ToVector();
+            var yNegativeVectorUnit = directionYNegative.ToVector();
+            var zNegativeVectorUnit = directionZNegative.ToVector();
 
             // Orient to the base coordinate system
             var baseAlignmentTransform = Transform.PlaneToPlane(Plane.WorldXY, basePlane);

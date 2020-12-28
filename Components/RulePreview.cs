@@ -72,6 +72,7 @@ namespace WFCToolset
         }
     }
 
+    // TODO: Make bake aware
     public class ComponentPreviewRules : GH_Component, IGH_PreviewObject
     {
         private IEnumerable<ExplicitLine> _explicitLines;
