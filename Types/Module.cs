@@ -138,9 +138,9 @@ namespace WFCToolset
                 foreach (var current in submoduleCenters)
                 {
                     if (!submoduleCenters.Any(other =>
-                    (Math.Abs(current._x - other._x) == 1 && current._y == other._y && current._z == other._z) ||
-                    (Math.Abs(current._y - other._y) == 1 && current._x == other._x && current._z == other._z) ||
-                    (Math.Abs(current._z - other._z) == 1 && current._y == other._y && current._x == other._x)
+                    (Math.Abs(current.X - other.X) == 1 && current.Y == other.Y && current.Z == other.Z) ||
+                    (Math.Abs(current.Y - other.Y) == 1 && current.X == other.X && current.Z == other.Z) ||
+                    (Math.Abs(current.Z - other.Z) == 1 && current.Y == other.Y && current.X == other.X)
                     ))
                     {
                         Continuous = false;
@@ -157,9 +157,9 @@ namespace WFCToolset
 
             // Place the pivot into the first submodule and orient is according to the base plane 
             Pivot = basePlane.Clone();
-            Pivot.Origin = new Point3d(submoduleCenters[0]._x * slotDiagonal.X,
-                                       submoduleCenters[0]._y * slotDiagonal.Y,
-                                       submoduleCenters[0]._z * slotDiagonal.Z);
+            Pivot.Origin = new Point3d(submoduleCenters[0].X * slotDiagonal.X,
+                                       submoduleCenters[0].Y * slotDiagonal.Y,
+                                       submoduleCenters[0].Z * slotDiagonal.Z);
             // The name of the first submodule which should trigger the geometry placement
             PivotSubmoduleName = Name + 0;
 
@@ -213,7 +213,7 @@ namespace WFCToolset
                     planeXPositive,
                     new Interval(slotDiagonal.Y * (-0.5), slotDiagonal.Y * 0.5),
                     new Interval(slotDiagonal.Z * (-0.5), slotDiagonal.Z * 0.5));
-                var valenceXPositive = submoduleCenters.Any(o => center._x - o._x == -1 && center._y == o._y && center._z == o._z) ?
+                var valenceXPositive = submoduleCenters.Any(o => center.X - o.X == -1 && center.Y == o.Y && center.Z == o.Z) ?
                     ModuleConnectorValence.Internal :
                     ModuleConnectorValence.External;
                 var connectorXPositive = new ModuleConnector(
@@ -234,7 +234,7 @@ namespace WFCToolset
                     planeYPositive,
                     new Interval(slotDiagonal.X * (-0.5), slotDiagonal.X * 0.5),
                     new Interval(slotDiagonal.Z * (-0.5), slotDiagonal.Z * 0.5));
-                var valenceYPositive = submoduleCenters.Any(o => center._y - o._y == -1 && center._x == o._x && center._z == o._z) ?
+                var valenceYPositive = submoduleCenters.Any(o => center.Y - o.Y == -1 && center.X == o.X && center.Z == o.Z) ?
                     ModuleConnectorValence.Internal :
                     ModuleConnectorValence.External;
                 var connectorYPositive = new ModuleConnector(
@@ -255,7 +255,7 @@ namespace WFCToolset
                     planeZPositive,
                     new Interval(slotDiagonal.X * (-0.5), slotDiagonal.X * 0.5),
                     new Interval(slotDiagonal.Y * (-0.5), slotDiagonal.Y * 0.5));
-                var valenceZPositive = submoduleCenters.Any(o => center._z - o._z == -1 && center._x == o._x && center._y == o._y) ?
+                var valenceZPositive = submoduleCenters.Any(o => center.Z - o.Z == -1 && center.X == o.X && center.Y == o.Y) ?
                     ModuleConnectorValence.Internal :
                     ModuleConnectorValence.External;
                 var connectorZPositive = new ModuleConnector(
@@ -276,7 +276,7 @@ namespace WFCToolset
                     planeXNegative,
                     new Interval(slotDiagonal.Y * (-0.5), slotDiagonal.Y * 0.5),
                     new Interval(slotDiagonal.Z * (-0.5), slotDiagonal.Z * 0.5));
-                var valenceXNegative = submoduleCenters.Any(o => center._x - o._x == 1 && center._y == o._y && center._z == o._z) ?
+                var valenceXNegative = submoduleCenters.Any(o => center.X - o.X == 1 && center.Y == o.Y && center.Z == o.Z) ?
                     ModuleConnectorValence.Internal :
                     ModuleConnectorValence.External;
                 var connectorXNegative = new ModuleConnector(
@@ -297,7 +297,7 @@ namespace WFCToolset
                     planeYNegative,
                     new Interval(slotDiagonal.X * (-0.5), slotDiagonal.X * 0.5),
                     new Interval(slotDiagonal.Z * (-0.5), slotDiagonal.Z * 0.5));
-                var valenceYNegative = submoduleCenters.Any(o => center._y - o._y == 1 && center._x == o._x && center._z == o._z) ?
+                var valenceYNegative = submoduleCenters.Any(o => center.Y - o.Y == 1 && center.X == o.X && center.Z == o.Z) ?
                     ModuleConnectorValence.Internal :
                     ModuleConnectorValence.External;
                 var connectorYNegative = new ModuleConnector(
@@ -318,7 +318,7 @@ namespace WFCToolset
                     planeZNegative,
                     new Interval(slotDiagonal.X * (-0.5), slotDiagonal.X * 0.5),
                     new Interval(slotDiagonal.Y * (-0.5), slotDiagonal.Y * 0.5));
-                var valenceZNegative = submoduleCenters.Any(o => center._z - o._z == 1 && center._x == o._x && center._x == o._x) ?
+                var valenceZNegative = submoduleCenters.Any(o => center.Z - o.Z == 1 && center.X == o.X && center.X == o.X) ?
                     ModuleConnectorValence.Internal :
                     ModuleConnectorValence.External;
                 var connectorZNegative = new ModuleConnector(
@@ -344,21 +344,21 @@ namespace WFCToolset
                 var center = submoduleCenters[thisIndex];
 
                 // Connector numbering convention: (submoduleIndex * 6) + faceIndex, where faceIndex is X=0, Y=1, Z=2, -X=3, -Y=4, -Z=5
-                var otherIndexXPositive = submoduleCenters.FindIndex(o => center._x - o._x == -1 && center._y == o._y && center._z == o._z);
+                var otherIndexXPositive = submoduleCenters.FindIndex(o => center.X - o.X == -1 && center.Y == o.Y && center.Z == o.Z);
                 if (otherIndexXPositive != -1)
                 {
                     rulesInternal.Add(new RuleExplicit(Name, thisIndex * 6 + 0, Name, otherIndexXPositive * 6 + 3));
                     continue;
                 }
 
-                var otherIndexYPositive = submoduleCenters.FindIndex(o => center._y - o._y == -1 && center._x == o._x && center._z == o._z);
+                var otherIndexYPositive = submoduleCenters.FindIndex(o => center.Y - o.Y == -1 && center.X == o.X && center.Z == o.Z);
                 if (otherIndexYPositive != -1)
                 {
                     rulesInternal.Add(new RuleExplicit(Name, thisIndex * 6 + 1, Name, otherIndexYPositive * 6 + 4));
                     continue;
                 }
 
-                var otherIndexZPositive = submoduleCenters.FindIndex(o => center._z - o._z == -1 && center._x == o._x && center._y == o._y);
+                var otherIndexZPositive = submoduleCenters.FindIndex(o => center.Z - o.Z == -1 && center.X == o.X && center.Y == o.Y);
                 if (otherIndexZPositive != -1)
                 {
                     rulesInternal.Add(new RuleExplicit(Name, thisIndex * 6 + 2, Name, otherIndexZPositive * 6 + 5));
@@ -399,7 +399,7 @@ namespace WFCToolset
             }
         }
 
-        public string TypeName => "WFCModule";
+        public string TypeName => "WFC Module";
 
         public string TypeDescription => "WFC Module data.";
 

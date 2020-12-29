@@ -112,6 +112,12 @@ namespace WFCToolset
                 return;
             }
 
+            if (slotDiagonal.X <= 0 || slotDiagonal.Y <= 0 || slotDiagonal.Z <= 0)
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "One or more slot dimensions are not larger than 0.");
+                return;
+            }
+
             // Scale down to unit size
             var normalizationTransform = Transform.Scale(basePlane, 1 / slotDiagonal.X, 1 / slotDiagonal.Y, 1 / slotDiagonal.Z);
             // Orient to the world coordinate system
@@ -130,11 +136,7 @@ namespace WFCToolset
                     {
                         // Round point locations
                         // Slot dimension is for the sake of this calculation 1,1,1
-                        var slotCenterPoint = new Point3i(
-                            Convert.ToInt32(geometrypoint.X),
-                            Convert.ToInt32(geometrypoint.Y),
-                            Convert.ToInt32(geometrypoint.Z)
-                            );
+                        var slotCenterPoint = new Point3i(geometrypoint);
                         // Deduplicate
                         if (!submoduleCenters.Contains(slotCenterPoint))
                         {

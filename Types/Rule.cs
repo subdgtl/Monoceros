@@ -71,7 +71,7 @@ namespace WFCToolset
             }
         }
 
-        public string TypeName => "WFCRuleExplicit";
+        public string TypeName => "WFC Rule Explicit";
 
         public string TypeDescription => "WFC Connection rule explicit.";
 
@@ -244,7 +244,7 @@ namespace WFCToolset
             }
         }
 
-        public string TypeName => "WFCRuleTyped";
+        public string TypeName => "WFC Rule Typed";
 
         public string TypeDescription => "WFC Connection rule typed.";
 
@@ -419,7 +419,7 @@ namespace WFCToolset
             return false;
         }
 
-        public string TypeName => "WFCRule";
+        public string TypeName => "WFC Rule";
 
         public string TypeDescription => "WFC Connection rule.";
 
@@ -473,7 +473,6 @@ namespace WFCToolset
 
             target = default;
             return false;
-
         }
 
 
