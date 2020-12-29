@@ -17,6 +17,14 @@ namespace WFCToolset
 
         public static System.Drawing.Color CAGE_COLOR = System.Drawing.Color.FromArgb(128, 255, 255, 255);
 
+        public static System.Drawing.Color CAGE_UNKNOWN_COLOR = System.Drawing.Color.FromArgb(128, 0, 128, 255);
+        public static System.Drawing.Color CAGE_EVERYTHING_COLOR = System.Drawing.Color.FromArgb(128, 255, 255, 255);
+        public static System.Drawing.Color CAGE_TWO_COLOR = System.Drawing.Color.FromArgb(128, 0, 0, 0);
+        public static System.Drawing.Color CAGE_ONE_COLOR = System.Drawing.Color.FromArgb(128, 0, 255, 0);
+        public static System.Drawing.Color CAGE_NONE_COLOR = System.Drawing.Color.FromArgb(128, 255, 0, 0);
+
+
+
         public static System.Drawing.Color X_DOT_COLOR = System.Drawing.Color.FromArgb(32, 255, 0, 0);
         public static System.Drawing.Color Y_DOT_COLOR = System.Drawing.Color.FromArgb(32, 0, 255, 0);
         public static System.Drawing.Color Z_DOT_COLOR = System.Drawing.Color.FromArgb(32, 0, 0, 255);

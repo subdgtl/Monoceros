@@ -203,7 +203,7 @@ namespace WFCToolset
             {
                 var center = submoduleCenters[submoduleIndex];
                 var submoduleName = Name + submoduleIndex;
-                var submoduleCenter = new Point3d(center._x, center._y, center._z);
+                var submoduleCenter = center.ToPoint3d();
 
                 var faceCenterXPositive = submoduleCenter + xPositiveVectorUnit * 0.5;
                 faceCenterXPositive.Transform(baseAlignmentTransform);
@@ -604,44 +604,6 @@ namespace WFCToolset
             hashCode = hashCode * -1521134295 + _anchorPlane.GetHashCode();
             hashCode = hashCode * -1521134295 + _face.GetHashCode();
             return hashCode;
-        }
-    }
-
-    public struct Point3i
-    {
-        public int _x;
-        public int _y;
-        public int _z;
-
-        public Point3i(int item1, int item2, int item3)
-        {
-            _x = item1;
-            _y = item2;
-            _z = item3;
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is Point3i other &&
-                   _x == other._x &&
-                   _y == other._y &&
-                   _z == other._z;
-        }
-
-        public override int GetHashCode()
-        {
-            var hashCode = 341329424;
-            hashCode = hashCode * -1521134295 + _x.GetHashCode();
-            hashCode = hashCode * -1521134295 + _y.GetHashCode();
-            hashCode = hashCode * -1521134295 + _z.GetHashCode();
-            return hashCode;
-        }
-
-        public void Deconstruct(out int item1, out int item2, out int item3)
-        {
-            item1 = _x;
-            item2 = _y;
-            item3 = _z;
         }
     }
 }

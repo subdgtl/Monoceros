@@ -58,7 +58,7 @@ namespace WFCToolset
             var baseAlignmentTransform = Transform.PlaneToPlane(Plane.WorldXY, module.BasePlane);
             var scalingTransform = Transform.Scale(module.BasePlane, module.SlotDiagonal.X, module.SlotDiagonal.Y, module.SlotDiagonal.Z);
 
-            var submoduleCentersNormalized = module.SubmoduleCenters.Select(center => new Point3d(center._x, center._y, center._z));
+            var submoduleCentersNormalized = module.SubmoduleCenters.Select(center => center.ToPoint3d());
             var submoduleCenters = submoduleCentersNormalized.Select(center =>
             {
                 center.Transform(baseAlignmentTransform);
