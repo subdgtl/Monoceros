@@ -62,6 +62,60 @@ namespace WFCToolset
             return null;
         }
 
+        public static IEnumerable<Point3d> PopulateSurface(double distance, GeometryBase goo)
+        {
+            var type = goo.ObjectType;
+            switch (type)
+            {
+                case Rhino.DocObjects.ObjectType.Point:
+                    var point = (Point)goo;
+                    return Enumerable.Repeat(point.Location, 1);
+                case Rhino.DocObjects.ObjectType.Curve:
+                    var curve = (Curve)goo;
+                    return PopulateCurve(distance, curve);
+                case Rhino.DocObjects.ObjectType.Mesh:
+                    var mesh = (Mesh)goo;
+                    return PopulateMeshSurface(distance, mesh);
+            }
+            if (goo.HasBrepForm)
+            {
+                var meshingParameters = MeshingParameters.FastRenderMesh;
+                var meshes = Mesh.CreateFromBrep(Brep.TryConvertBrep(goo), meshingParameters);
+                var points = new List<Point3d>();
+                foreach (var mesh in meshes)
+                {
+                    var surfacePoints = PopulateMeshSurface(distance, mesh);
+                    points.AddRange(surfacePoints);
+                }
+                return points;
+            }
+            return null;
+        }
+
+        // TODO: Make this more precise - check slot corners for containment
+        public static IEnumerable<Point3d> PopulateVolume(double distance, GeometryBase goo)
+        {
+            var type = goo.ObjectType;
+            if (type == Rhino.DocObjects.ObjectType.Mesh)
+            {
+                var mesh = (Mesh)goo;
+                return PopulateMeshVolume(distance, mesh);
+            }
+            if (goo.HasBrepForm)
+            {
+                var meshingParameters = MeshingParameters.FastRenderMesh;
+                var meshes = Mesh.CreateFromBrep(Brep.TryConvertBrep(goo), meshingParameters);
+                var points = new List<Point3d>();
+                foreach (var mesh in meshes)
+                {
+                    var volumePoints = PopulateMeshVolume(distance, mesh);
+                    points.AddRange(volumePoints);
+                }
+                return points;
+            }
+            return null;
+        }
+
         // TODO: Try to avoid memory allocation
         /// <summary>
         /// Populate mesh surface with evenly distributed points in specified distances.

@@ -60,6 +60,7 @@
   <ItemGroup>
     <Compile Include="Components\ModuleConstructFromHelper.cs" />
     <Compile Include="Components\ModuleDeconstruct.cs" />
+    <Compile Include="Components\SlotPopulateGeometry.cs" />
     <Compile Include="Components\SlotDeconstruct.cs" />
     <Compile Include="Components\SlotConstructFromModules.cs" />
     <Compile Include="Components\SlotConstruct.cs" />
