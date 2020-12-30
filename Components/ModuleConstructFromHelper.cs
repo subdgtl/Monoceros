@@ -136,13 +136,14 @@ namespace WFCToolset
                 var geo = goo.Duplicate();
                 if (geo.Transform(normalizationTransform) && geo.Transform(worldAlignmentTransform))
                 {
+                    // TODO: Let user choose the method of populating the geometry, just like with slots
                     // Populate with points (many)
                     var populatePoints = Populate.PopulateGeometry(divisionLength, geo);
-                    foreach (var geometrypoint in populatePoints)
+                    foreach (var geometryPoint in populatePoints)
                     {
                         // Round point locations
                         // Slot dimension is for the sake of this calculation 1,1,1
-                        var slotCenterPoint = new Point3i(geometrypoint);
+                        var slotCenterPoint = new Point3i(geometryPoint);
                         // Deduplicate
                         if (!submoduleCenters.Contains(slotCenterPoint))
                         {

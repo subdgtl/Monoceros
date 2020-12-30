@@ -60,9 +60,9 @@
   <ItemGroup>
     <Compile Include="Components\ModuleConstructFromHelper.cs" />
     <Compile Include="Components\ModuleDeconstruct.cs" />
-    <Compile Include="Components\SlotPopulateGeometry.cs" />
+    <Compile Include="Components\SlotPopulateGeometryWithCenters.cs" />
     <Compile Include="Components\SlotDeconstruct.cs" />
-    <Compile Include="Components\SlotConstructFromModules.cs" />
+    <Compile Include="Components\SlotConstructWithModules.cs" />
     <Compile Include="Components\SlotConstruct.cs" />
     <Compile Include="Components\RuleIsExplicit.cs" />
     <Compile Include="Components\RuleIsTyped.cs" />

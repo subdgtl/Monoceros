@@ -10,10 +10,10 @@ using Rhino.Geometry;
 namespace WFCToolset
 {
 
-    public class ComponentConstructSlotFromModules : GH_Component
+    public class ComponentConstructSlotWithModules : GH_Component
     {
-        public ComponentConstructSlotFromModules() : base("WFC Construct Slot From Module Names", "WFCConstSlotModules",
-            "Construct a WFC Slot from allowed module names.",
+        public ComponentConstructSlotWithModules() : base("WFC Construct Slot With Module Names", "WFCConstSlotModules",
+            "Construct a WFC Slot with allowed module names.",
             "WaveFunctionCollapse", "Slot")
         {
         }

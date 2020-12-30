@@ -12,10 +12,10 @@ using Rhino.Geometry;
 namespace WFCToolset
 {
 
-    public class ComponentPopulateGeometryWithSlots : GH_Component
+    public class ComponentPopulateGeometryWithSlotCenters : GH_Component
     {
-        public ComponentPopulateGeometryWithSlots() : base("WFC Populate Geometry With Slots", "WFCPopSlots",
-            "Populate geometry with WFC Slots. Supports Point, Curve, Brep, Mesh. Prefer Mesh to BRep.",
+        public ComponentPopulateGeometryWithSlotCenters() : base("WFC Populate Geometry With Slot Centers", "WFCPopSlotCen",
+            "Populate geometry with points ready to be used as WFC Slot centers. Supports Point, Curve, Brep, Mesh. Prefer Mesh to BRep.",
             "WaveFunctionCollapse", "Slot")
         {
         }
@@ -25,7 +25,7 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddPointParameter("Geometry", "G", "Geometry to populate with slots", GH_ParamAccess.list);
+            pManager.AddGeometryParameter("Geometry", "G", "Geometry to populate with slots", GH_ParamAccess.list);
             pManager.AddPlaneParameter("Base plane",
                                        "B",
                                        "Grid space base plane. Defines orientation of the grid.",
@@ -38,13 +38,8 @@ namespace WFCToolset
                GH_ParamAccess.item,
                new Vector3d(1.0, 1.0, 1.0)
                );
-            pManager.AddBooleanParameter("Allow Everything",
-                                         "E",
-                                         "Initiate all slots with all modules allowed. False = Allow nothing, True = Allow everything.",
-                                         GH_ParamAccess.item,
-                                         true);
-            pManager.AddIntegerParameter("Processing Method",
-                                         "P",
+            pManager.AddIntegerParameter("Fill",
+                                         "F",
                                          "0 = only wrap geometry surface, 1 = only fill geometry volume, 2 = wrap surface and fill volume",
                                          GH_ParamAccess.item,
                                          2);
@@ -57,7 +52,7 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddParameter(new SlotParameter(), "Slots", "S", "WFC Slots", GH_ParamAccess.list);
+            pManager.AddPointParameter("Slot Centers", "C", "Points ready to be used as WFC Slot centers", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -70,7 +65,6 @@ namespace WFCToolset
             var geometryRaw = new List<IGH_GeometricGoo>();
             var basePlane = new Plane();
             var diagonal = new Vector3d();
-            var allowEverything = true;
             var method = 2;
             var precision = 0.5;
 
@@ -91,17 +85,12 @@ namespace WFCToolset
                 return;
             }
 
-            if (!DA.GetData(3, ref allowEverything))
+            if (!DA.GetData(3, ref method))
             {
                 return;
             }
 
-            if (!DA.GetData(4, ref method))
-            {
-                return;
-            }
-
-            if (!DA.GetData(5, ref precision))
+            if (!DA.GetData(4, ref precision))
             {
                 return;
             }
@@ -128,51 +117,63 @@ namespace WFCToolset
             var worldAlignmentTransform = Transform.PlaneToPlane(basePlane, Plane.WorldXY);
             // Slot dimension is for the sake of this calculation 1,1,1
             var divisionLength = precision;
-            var submoduleCenters = new List<Point3i>();
+            var submoduleCentersNormalized = new List<Point3i>();
             foreach (var goo in geometryClean)
             {
                 var geo = goo.Duplicate();
                 if (geo.Transform(normalizationTransform) && geo.Transform(worldAlignmentTransform))
                 {
-                    // Populate with points (many)
                     if (method == 0 || method == 2)
                     {
                         var populatePoints = Populate.PopulateSurface(divisionLength, geo);
-                        foreach (var geometrypoint in populatePoints)
+                        if (populatePoints != null)
                         {
-                            // Round point locations
-                            // Slot dimension is for the sake of this calculation 1,1,1
-                            var slotCenterPoint = new Point3i(geometrypoint);
-                            // Deduplicate
-                            if (!submoduleCenters.Contains(slotCenterPoint))
+                            foreach (var geometryPoint in populatePoints)
                             {
-                                submoduleCenters.Add(slotCenterPoint);
+                                // Round point locations
+                                // Slot dimension is for the sake of this calculation 1,1,1
+                                var slotCenterPoint = new Point3i(geometryPoint);
+                                // Deduplicate
+                                if (!submoduleCentersNormalized.Contains(slotCenterPoint))
+                                {
+                                    submoduleCentersNormalized.Add(slotCenterPoint);
+                                }
                             }
                         }
                     }
                     if (method == 1 || method == 2)
                     {
                         var populatePoints = Populate.PopulateVolume(divisionLength, geo);
-                        foreach (var geometrypoint in populatePoints)
+                        if (populatePoints != null)
                         {
-                            // Round point locations
-                            // Slot dimension is for the sake of this calculation 1,1,1
-                            var slotCenterPoint = new Point3i(geometrypoint);
-                            // Deduplicate
-                            if (!submoduleCenters.Contains(slotCenterPoint))
+                            foreach (var geometryPoint in populatePoints)
                             {
-                                submoduleCenters.Add(slotCenterPoint);
+                                // Round point locations
+                                // Slot dimension is for the sake of this calculation 1,1,1
+                                var slotCenterPoint = new Point3i(geometryPoint);
+                                // Deduplicate
+                                if (!submoduleCentersNormalized.Contains(slotCenterPoint))
+                                {
+                                    submoduleCentersNormalized.Add(slotCenterPoint);
+                                }
                             }
                         }
                     }
                 }
             }
 
-            var slots = submoduleCenters.Select(c =>
-                new Slot(basePlane, c, diagonal, allowEverything, false, new List<string>(), new List<string>(), 0)
-            );
+            var baseAlignmentTransform = Transform.PlaneToPlane(Plane.WorldXY, basePlane);
+            var scalingTransform = Transform.Scale(basePlane, diagonal.X, diagonal.Y, diagonal.Z);
 
-            DA.SetDataList(0, slots);
+            var submoduleCenters = submoduleCentersNormalized.Select(centerNormalized =>
+            {
+                var center = centerNormalized.ToPoint3d();
+                center.Transform(baseAlignmentTransform);
+                center.Transform(scalingTransform);
+                return center;
+            });
+
+            DA.SetDataList(0, submoduleCenters);
         }
 
 
