@@ -70,35 +70,10 @@ namespace WFCToolset
                 return;
             }
 
-            allowOut |= rulesInput.Any(rule =>
-            {
-                if (rule.IsExplicit())
-                {
-                    return rule._ruleExplicit._sourceModuleName == Configuration.OUTER_TAG ||
-                    rule._ruleExplicit._targetModuleName == Configuration.OUTER_TAG;
-                }
-                if (rule.IsTyped())
-                {
-                    return rule._ruleTyped._moduleName == Configuration.OUTER_TAG;
-                }
-                return false;
-            });
+            allowOut |= rulesInput.Any(rule => rule.RequiresModuleName(Configuration.OUTER_TAG));
+            allowEmpty |= rulesInput.Any(rule => rule.RequiresModuleName(Configuration.EMPTY_TAG));
 
-            allowEmpty |= rulesInput.Any(rule =>
-            {
-                if (rule.IsExplicit())
-                {
-                    return rule._ruleExplicit._sourceModuleName == Configuration.EMPTY_TAG ||
-                    rule._ruleExplicit._targetModuleName == Configuration.EMPTY_TAG;
-                }
-                if (rule.IsTyped())
-                {
-                    return rule._ruleTyped._moduleName == Configuration.EMPTY_TAG;
-                }
-                return false;
-            });
-
-            var rulesTyped = rulesInput.Where(rule => rule.IsTyped()).Select(rule => rule._ruleTyped);
+            var rulesTyped = rulesInput.Where(rule => rule.IsTyped()).Select(rule => rule.RuleTyped);
 
             if (allowOut)
             {
@@ -121,7 +96,6 @@ namespace WFCToolset
             var rulesTypedUnwrapped = rulesTyped
                 .SelectMany(ruleTyped => ruleTyped.ToRuleExplicit(rulesTyped, modules))
                 .Select(ruleExplicit => new Rule(ruleExplicit));
-
 
             var rulesExplicit = rulesInput.Where(rule => rule.IsExplicit());
 

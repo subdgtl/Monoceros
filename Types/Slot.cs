@@ -39,7 +39,7 @@ namespace WFCToolset
         public readonly bool AllowedEverything;
 
         public readonly List<string> AllowedModules;
-        public readonly List<string> AllowedSubModules;
+        public readonly List<string> AllowedSubmodules;
 
         private readonly int _allSubmodulesCount;
 
@@ -51,7 +51,6 @@ namespace WFCToolset
                     Point3i relativeCenter,
                     Vector3d diagonal,
                     bool allowedEverthing,
-                    bool cameFromSolver,
                     List<string> allowedModules,
                     List<string> allowedSubModules,
                     int allSubmodulesCount)
@@ -71,8 +70,47 @@ namespace WFCToolset
             RelativeCenter = relativeCenter;
             AllowedEverything = allowedEverthing;
             AllowedModules = allowedModules;
-            AllowedSubModules = allowedSubModules;
+            AllowedSubmodules = allowedSubModules;
             _allSubmodulesCount = allSubmodulesCount;
+        }
+
+        public Slot DuplicateWithModuleNames(List<string> moduleNames)
+        {
+            return new Slot(
+                        BasePlane,
+                        RelativeCenter,
+                        Diagonal,
+                        AllowedEverything,
+                        moduleNames,
+                        AllowedSubmodules,
+                        AllSubmodulesCount
+                        );
+        }
+
+        public Slot DuplicateWithSubmodulesCount(int allSubmodulesCount)
+        {
+            return new Slot(
+                        BasePlane,
+                        RelativeCenter,
+                        Diagonal,
+                        AllowedEverything,
+                        AllowedModules,
+                        AllowedSubmodules,
+                        allSubmodulesCount
+                        );
+        }
+
+        public Slot DuplicateWithSubmodulesCountAndSubmoduleNames(int allSubmodulesCount, List<string> submoduleNames)
+        {
+            return new Slot(
+                        BasePlane,
+                        RelativeCenter,
+                        Diagonal,
+                        false,
+                        AllowedModules,
+                        submoduleNames,
+                        allSubmodulesCount
+                        );
         }
 
         public Point3d AbsoluteCenter
@@ -146,16 +184,16 @@ namespace WFCToolset
                 color = Configuration.CAGE_NONE_COLOR;
             }
 
-            var submodulesCount = AllowedSubModules.Count;
+            var submodulesCount = AllowedSubmodules.Count;
 
-            if (submodulesCount == 1 && _allSubmodulesCount != 0)
+            if (submodulesCount == 1 && AllSubmodulesCount != 0)
             {
                 color = Configuration.CAGE_ONE_COLOR;
             }
 
-            if (submodulesCount > 1 && _allSubmodulesCount != 0)
+            if (submodulesCount > 1 && AllSubmodulesCount != 0)
             {
-                var t = (double)submodulesCount / _allSubmodulesCount;
+                var t = (double)submodulesCount / AllSubmodulesCount;
                 color = System.Drawing.Color.FromArgb(
                     Convert.ToByte(Configuration.CAGE_TWO_COLOR.A + (Configuration.CAGE_EVERYTHING_COLOR.A - Configuration.CAGE_TWO_COLOR.A) * t),
                     Convert.ToByte(Configuration.CAGE_TWO_COLOR.R + (Configuration.CAGE_EVERYTHING_COLOR.R - Configuration.CAGE_TWO_COLOR.R) * t),
@@ -237,16 +275,16 @@ namespace WFCToolset
                 color = Configuration.CAGE_NONE_COLOR;
             }
 
-            var submodulesCount = AllowedSubModules.Count;
+            var submodulesCount = AllowedSubmodules.Count;
 
-            if (submodulesCount == 1 && _allSubmodulesCount != 0)
+            if (submodulesCount == 1 && AllSubmodulesCount != 0)
             {
                 color = Configuration.CAGE_ONE_COLOR;
             }
 
-            if (submodulesCount != 1 && _allSubmodulesCount != 0)
+            if (submodulesCount != 1 && AllSubmodulesCount != 0)
             {
-                var t = (double)submodulesCount / _allSubmodulesCount;
+                var t = (double)submodulesCount / AllSubmodulesCount;
                 color = System.Drawing.Color.FromArgb(
                     Convert.ToByte(Configuration.CAGE_TWO_COLOR.A + (Configuration.CAGE_EVERYTHING_COLOR.A - Configuration.CAGE_TWO_COLOR.A) * t),
                     Convert.ToByte(Configuration.CAGE_TWO_COLOR.R + (Configuration.CAGE_EVERYTHING_COLOR.R - Configuration.CAGE_TWO_COLOR.R) * t),
@@ -275,5 +313,7 @@ namespace WFCToolset
                 return box;
             }
         }
+
+        public int AllSubmodulesCount => _allSubmodulesCount;
     }
 }

@@ -57,9 +57,9 @@ namespace WFCToolset
                 return;
             }
 
-            DA.SetData(0, rule._ruleTyped._moduleName);
-            DA.SetData(1, rule._ruleTyped._connectorIndex);
-            DA.SetData(2, rule._ruleTyped._connectorType);
+            DA.SetData(0, rule.RuleTyped.ModuleName);
+            DA.SetData(1, rule.RuleTyped.ConnectorIndex);
+            DA.SetData(2, rule.RuleTyped.ConnectorType);
         }
 
 

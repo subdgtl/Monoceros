@@ -60,30 +60,30 @@ namespace WFCToolset
             foreach (var existingRule in existingRules)
             {
                 if (existingRule.IsExplicit() &&
-                    existingRule._ruleExplicit._sourceModuleName == module.Name
+                    existingRule.RuleExplicit.SourceModuleName == module.Name
                     )
                 {
-                    thisModulesUsedConnectors.Add(existingRule._ruleExplicit._sourceConnectorIndex);
+                    thisModulesUsedConnectors.Add(existingRule.RuleExplicit.SourceConnectorIndex);
                 }
 
                 if (existingRule.IsExplicit() &&
-                    existingRule._ruleExplicit._targetModuleName == module.Name
+                    existingRule.RuleExplicit.TargetModuleName == module.Name
                     )
                 {
-                    thisModulesUsedConnectors.Add(existingRule._ruleExplicit._targetConnectorIndex);
+                    thisModulesUsedConnectors.Add(existingRule.RuleExplicit.TargetConnectorIndex);
                 }
 
                 if (existingRule.IsTyped() &&
-                    existingRule._ruleTyped._moduleName == module.Name
+                    existingRule.RuleTyped.ModuleName == module.Name
                     )
                 {
-                    thisModulesUsedConnectors.Add(existingRule._ruleTyped._connectorIndex);
+                    thisModulesUsedConnectors.Add(existingRule.RuleTyped.ConnectorIndex);
                 }
             }
 
             var rules = module.GetExternalConnectors()
-                .Where(connector => !thisModulesUsedConnectors.Contains(connector._connectorIndex))
-                .Select(connector => new Rule(connector._moduleName, connector._connectorIndex, type));
+                .Where(connector => !thisModulesUsedConnectors.Contains(connector.ConnectorIndex))
+                .Select(connector => new Rule(connector.ModuleName, connector.ConnectorIndex, type));
 
             DA.SetDataList(0, rules);
         }

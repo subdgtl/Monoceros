@@ -100,7 +100,13 @@ namespace WFCToolset
             // Slot dimension is for the sake of this calculation 1,1,1
             var slotCenterPoint = new Point3i(point);
 
-            var slot = new Slot(basePlane, slotCenterPoint, diagonal, allowEverything, false, new List<string>(), new List<string>(), 0);
+            var slot = new Slot(basePlane,
+                                slotCenterPoint,
+                                diagonal,
+                                allowEverything,
+                                new List<string>(),
+                                new List<string>(),
+                                0);
 
             DA.SetData(0, slot);
         }

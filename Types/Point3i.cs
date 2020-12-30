@@ -44,6 +44,12 @@ namespace WFCToolset
             return hashCode;
         }
 
+        public static Point3i operator +(Point3i a, Point3i b)
+        => new Point3i(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
+
+        public static Point3i operator -(Point3i a, Point3i b)
+        => new Point3i(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
+
         public Point3d ToPoint3d() => new Point3d(X, Y, Z);
     }
 }

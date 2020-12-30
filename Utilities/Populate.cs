@@ -15,6 +15,7 @@ namespace WFCToolset
     /// </summary>
     public class Populate
     {
+        // TODO: Stop using this, use PopulateSurface and PopulateVolume instead
         /// <summary>
         /// Populate geometry surface with evenly distributed points in specified distances.
         /// Supported geometry types: Point, Curve (incl. Line, Polyline, Arc, Circle), Mesh, BRep (incl. Surface).
@@ -230,6 +231,7 @@ namespace WFCToolset
             return pointsOnBrepSurfaces;
         }
 
+        // TODO: Completely rework or stop using and use PopulateMeshVolume instead
         public static IEnumerable<Point3d> PopulateBrepVolume(double distance, Brep bRep)
         {
             // TODO: Investigate the imprecise results
@@ -253,6 +255,7 @@ namespace WFCToolset
             return pointsInsideBrep;
         }
 
+        // TODO: Gives bad results, investigate and possibly rework
         public static IEnumerable<Point3d> PopulateMeshVolume(double distance, Mesh mesh)
         {
             var pointsInsideMesh = new List<Point3d>();

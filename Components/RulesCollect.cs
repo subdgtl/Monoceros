@@ -73,12 +73,12 @@ namespace WFCToolset
             {
                 if (rule.IsExplicit())
                 {
-                    return rule._ruleExplicit._sourceModuleName == Configuration.OUTER_TAG ||
-                    rule._ruleExplicit._targetModuleName == Configuration.OUTER_TAG;
+                    return rule.RuleExplicit.SourceModuleName == Configuration.OUTER_TAG ||
+                    rule.RuleExplicit.TargetModuleName == Configuration.OUTER_TAG;
                 }
                 if (rule.IsTyped())
                 {
-                    return rule._ruleTyped._moduleName == Configuration.OUTER_TAG;
+                    return rule.RuleTyped.ModuleName == Configuration.OUTER_TAG;
                 }
                 return false;
             });
@@ -87,18 +87,18 @@ namespace WFCToolset
             {
                 if (rule.IsExplicit())
                 {
-                    return rule._ruleExplicit._sourceModuleName == Configuration.EMPTY_TAG ||
-                    rule._ruleExplicit._targetModuleName == Configuration.EMPTY_TAG;
+                    return rule.RuleExplicit.SourceModuleName == Configuration.EMPTY_TAG ||
+                    rule.RuleExplicit.TargetModuleName == Configuration.EMPTY_TAG;
                 }
                 if (rule.IsTyped())
                 {
-                    return rule._ruleTyped._moduleName == Configuration.EMPTY_TAG;
+                    return rule.RuleTyped.ModuleName == Configuration.EMPTY_TAG;
                 }
                 return false;
             });
 
             var rulesDisallowedExplicit = rulesDisallowed.Where(rule => rule.IsExplicit());
-            var rulesDisallowedTyped = rulesDisallowed.Where(rule => rule.IsTyped()).Select(rule => rule._ruleTyped);
+            var rulesDisallowedTyped = rulesDisallowed.Where(rule => rule.IsTyped()).Select(rule => rule.RuleTyped);
             var rulesDisallowedTypedUnwrapped = rulesDisallowedTyped
                 .SelectMany(ruleTyped => ruleTyped.ToRuleExplicit(rulesDisallowedTyped, modules))
                 .Select(ruleExplicit => new Rule(ruleExplicit));
@@ -133,7 +133,7 @@ namespace WFCToolset
                 modules.Add(moduleEmpty);
             }
 
-            var rulesAllowedTyped = rulesAllowed.Where(rule => rule.IsTyped()).Select(rule => rule._ruleTyped);
+            var rulesAllowedTyped = rulesAllowed.Where(rule => rule.IsTyped()).Select(rule => rule.RuleTyped);
 
 
             foreach (var rule in rulesAllowed)
@@ -145,14 +145,14 @@ namespace WFCToolset
                 }
                 if (rule.IsTyped())
                 {
-                    var ruleTyped = rule._ruleTyped;
+                    var ruleTyped = rule.RuleTyped;
                     if (
                         rulesDisallowedProcessed.Any(ruleDisallowed =>
                             ruleDisallowed.IsExplicit() &&
-                            (ruleDisallowed._ruleExplicit._sourceModuleName == ruleTyped._moduleName &&
-                             ruleDisallowed._ruleExplicit._sourceConnectorIndex == ruleTyped._connectorIndex) ||
-                            (ruleDisallowed._ruleExplicit._targetModuleName == ruleTyped._moduleName &&
-                             ruleDisallowed._ruleExplicit._targetConnectorIndex == ruleTyped._connectorIndex)
+                            (ruleDisallowed.RuleExplicit.SourceModuleName == ruleTyped.ModuleName &&
+                             ruleDisallowed.RuleExplicit.SourceConnectorIndex == ruleTyped.ConnectorIndex) ||
+                            (ruleDisallowed.RuleExplicit.TargetModuleName == ruleTyped.ModuleName &&
+                             ruleDisallowed.RuleExplicit.TargetConnectorIndex == ruleTyped.ConnectorIndex)
                             )
                         )
                     {

@@ -93,14 +93,14 @@ namespace WFCToolset
 
             var typedLines = new List<TypedLine>();
 
-            var rulesExplicit = rules.Where(rule => rule.IsExplicit()).Select(rule => rule._ruleExplicit);
-            var rulesTyped = rules.Where(rule => rule.IsTyped()).Select(rule => rule._ruleTyped);
+            var rulesExplicit = rules.Where(rule => rule.IsExplicit()).Select(rule => rule.RuleExplicit);
+            var rulesTyped = rules.Where(rule => rule.IsTyped()).Select(rule => rule.RuleTyped);
 
             foreach (var ruleExplicit in rulesExplicit)
             {
                 // TODO: Consider displaying Empty and Out connections somehow too
-                if (!Configuration.RESERVED_NAMES.Contains(ruleExplicit._sourceModuleName) &&
-                    !Configuration.RESERVED_NAMES.Contains(ruleExplicit._targetModuleName))
+                if (!Configuration.RESERVED_NAMES.Contains(ruleExplicit.SourceModuleName) &&
+                    !Configuration.RESERVED_NAMES.Contains(ruleExplicit.TargetModuleName))
                 {
                     GetLinesFromExplicitRule(modules, ruleExplicit, out var linesX, out var linesY, out var linesZ);
 
@@ -123,18 +123,18 @@ namespace WFCToolset
                 foreach (var ruleExplicit in rulesExplicitComputed)
                 {
                     // TODO: Consider displaying Empty and Out connections somehow too
-                    if (!Configuration.RESERVED_NAMES.Contains(ruleExplicit._sourceModuleName) &&
-                        !Configuration.RESERVED_NAMES.Contains(ruleExplicit._targetModuleName))
+                    if (!Configuration.RESERVED_NAMES.Contains(ruleExplicit.SourceModuleName) &&
+                        !Configuration.RESERVED_NAMES.Contains(ruleExplicit.TargetModuleName))
                     {
                         GetLinesFromExplicitRule(modules, ruleExplicit, out var linesX, out var linesY, out var linesZ);
                         typedLines.AddRange(
-                            linesX.Select(line => new TypedLine(line, Configuration.X_COLOR, ruleTyped._connectorType))
+                            linesX.Select(line => new TypedLine(line, Configuration.X_COLOR, ruleTyped.ConnectorType))
                         );
                         typedLines.AddRange(
-                            linesY.Select(line => new TypedLine(line, Configuration.Y_COLOR, ruleTyped._connectorType))
+                            linesY.Select(line => new TypedLine(line, Configuration.Y_COLOR, ruleTyped.ConnectorType))
                         );
                         typedLines.AddRange(
-                            linesZ.Select(line => new TypedLine(line, Configuration.Z_COLOR, ruleTyped._connectorType))
+                            linesZ.Select(line => new TypedLine(line, Configuration.Z_COLOR, ruleTyped.ConnectorType))
                         );
                     }
                 }
@@ -155,31 +155,31 @@ namespace WFCToolset
             linesX = new List<Line>();
             linesY = new List<Line>();
             linesZ = new List<Line>();
-            var sourceModules = modules.Where(module => module.Name == ruleExplicit._sourceModuleName);
+            var sourceModules = modules.Where(module => module.Name == ruleExplicit.SourceModuleName);
             var sourceConnectors = sourceModules
                 .SelectMany(module => module.Connectors)
-                .Where(connector => connector._connectorIndex == ruleExplicit._sourceConnectorIndex);
-            var targetModules = modules.Where(module => module.Name == ruleExplicit._targetModuleName);
+                .Where(connector => connector.ConnectorIndex == ruleExplicit.SourceConnectorIndex);
+            var targetModules = modules.Where(module => module.Name == ruleExplicit.TargetModuleName);
             var targetConnectors = targetModules
                 .SelectMany(module => module.Connectors)
-                .Where(connector => connector._connectorIndex == ruleExplicit._targetConnectorIndex);
+                .Where(connector => connector.ConnectorIndex == ruleExplicit.TargetConnectorIndex);
 
             foreach (var sourceConnector in sourceConnectors)
             {
                 foreach (var targetConnector in targetConnectors)
                 {
-                    if (targetConnector._direction.IsOpposite(sourceConnector._direction))
+                    if (targetConnector.Direction.IsOpposite(sourceConnector.Direction))
                     {
-                        switch (sourceConnector._direction._axis)
+                        switch (sourceConnector.Direction._axis)
                         {
                             case Axis.X:
-                                linesX.Add(new Line(sourceConnector._anchorPlane.Origin, targetConnector._anchorPlane.Origin));
+                                linesX.Add(new Line(sourceConnector.AnchorPlane.Origin, targetConnector.AnchorPlane.Origin));
                                 break;
                             case Axis.Y:
-                                linesY.Add(new Line(sourceConnector._anchorPlane.Origin, targetConnector._anchorPlane.Origin));
+                                linesY.Add(new Line(sourceConnector.AnchorPlane.Origin, targetConnector.AnchorPlane.Origin));
                                 break;
                             case Axis.Z:
-                                linesZ.Add(new Line(sourceConnector._anchorPlane.Origin, targetConnector._anchorPlane.Origin));
+                                linesZ.Add(new Line(sourceConnector.AnchorPlane.Origin, targetConnector.AnchorPlane.Origin));
                                 break;
                         }
                     }

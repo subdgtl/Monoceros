@@ -62,7 +62,6 @@ namespace WFCToolset
             var diagonal = new Vector3d();
             var allowedModules = new List<string>();
 
-
             if (!DA.GetData(0, ref point))
             {
                 return;
@@ -99,11 +98,16 @@ namespace WFCToolset
             // Slot dimension is for the sake of this calculation 1,1,1
             var slotCenterPoint = new Point3i(point);
 
-            var slot = new Slot(basePlane, slotCenterPoint, diagonal, false, false, allowedModules, new List<string>(), 0);
+            var slot = new Slot(basePlane,
+                                slotCenterPoint,
+                                diagonal,
+                                false,
+                                allowedModules,
+                                new List<string>(),
+                                0);
 
             DA.SetData(0, slot);
         }
-
 
         /// <summary>
         /// The Exposure property controls where in the panel a component icon 
