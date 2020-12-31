@@ -11,7 +11,7 @@ namespace WFCToolset
 {
     public class ComponentRuleIndifferentUnused : GH_Component
     {
-        public ComponentRuleIndifferentUnused() : base("WFC Set unused connectors to Indifferent", "WFCRuleIndifferentUnused",
+        public ComponentRuleIndifferentUnused() : base("WFC Set Unused Connectors To Indifferent", "WFCRuleIndifferentUnused",
             "Allow unused connectors to connect to any opposite Indifferent connector.",
             "WaveFunctionCollapse", "Rule")
         {

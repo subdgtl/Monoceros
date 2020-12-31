@@ -12,7 +12,7 @@ namespace WFCToolset
 {
     public class ComponentModuleDeconstruct : GH_Component
     {
-        public ComponentModuleDeconstruct() : base("WFC Deconstruct module to its components", "WFCDeconModule",
+        public ComponentModuleDeconstruct() : base("WFC Deconstruct Module To Components", "WFCDeconModule",
             "Deconstruct WFC Module into name, base plane, connector planes, connector numbers and properties.",
             "WaveFunctionCollapse", "Module")
         {

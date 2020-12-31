@@ -10,7 +10,7 @@ namespace WFCToolset
 
     public class ComponentDeconstructRuleExplicit : GH_Component
     {
-        public ComponentDeconstructRuleExplicit() : base("WFC Deconstruct Explicit rule to components", "WFCDeconRuleExp",
+        public ComponentDeconstructRuleExplicit() : base("WFC Deconstruct Explicit Rule To Components", "WFCDeconRuleExp",
             "Deconstruct an Explicit WFC Rule (connector-to-connector) into module names and connector numbers.",
             "WaveFunctionCollapse", "Rule")
         {

@@ -12,7 +12,7 @@ namespace WFCToolset
 {
     public class ComponentCollectRules : GH_Component
     {
-        public ComponentCollectRules() : base("WFC Collect rules", "WFCCollectRules",
+        public ComponentCollectRules() : base("WFC Collect Rules", "WFCCollectRules",
             "Collect, convert to Explicit, deduplicate and remove disallowed rules.",
             "WaveFunctionCollapse", "Rule")
         {

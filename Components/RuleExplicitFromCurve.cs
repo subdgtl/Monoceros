@@ -12,7 +12,7 @@ namespace WFCToolset
 
     public class ComponentRuleExplicitFromCurve : GH_Component
     {
-        public ComponentRuleExplicitFromCurve() : base("WFC Create Explicit rule from curve", "WFCRuleExpCrv",
+        public ComponentRuleExplicitFromCurve() : base("WFC Create Explicit Rule From Curve", "WFCRuleExpCrv",
             "Create an Explicit WFC Rule (connector-to-connector) from a curve connecting two opposite connectors.",
             "WaveFunctionCollapse", "Rule")
         {

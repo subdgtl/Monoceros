@@ -12,7 +12,7 @@ namespace WFCToolset
 {
     public class ComponentRuleIndifferentFromPoint : GH_Component
     {
-        public ComponentRuleIndifferentFromPoint() : base("WFC Create Indifferent Type rule from point tag", "WFCRuleIndifferentPt",
+        public ComponentRuleIndifferentFromPoint() : base("WFC Create Indifferent Type Rule From Point Tag", "WFCRuleIndifferentPt",
             "Allow the connector to connect to any opposite indifferent connector.",
             "WaveFunctionCollapse", "Rule")
         {

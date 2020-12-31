@@ -12,7 +12,7 @@ namespace WFCToolset
 {
     public class ComponentRuleOuterFromPoint : GH_Component
     {
-        public ComponentRuleOuterFromPoint() : base("WFC Create Out-neighbor rule from point tag", "WFCRuleOutPt",
+        public ComponentRuleOuterFromPoint() : base("WFC Create Out-neighbor Rule From Point Tag", "WFCRuleOutPt",
             "Allow the connector to connect to an Out module. All Out module's connectors are Indifferent.",
             "WaveFunctionCollapse", "Rule")
         {

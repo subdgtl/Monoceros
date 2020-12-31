@@ -4,18 +4,21 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
 namespace WFCToolset
 {
-
-    public class ComponentRuleTypedFromPoint : GH_Component
+    // TODO: Find a better name
+    // TODO: Make bake aware and think about using blocks. Override baking output geometry.
+    // TODO: Think about how to bake empty and non-deterministic slots.
+    public class ComponentPostprocessor : GH_Component
     {
-        public ComponentRuleTypedFromPoint() : base("WFC Create Typed Rule From Point Tag", "WFCRuleTypPt",
-            "Create a Typed WFC Rule (connector-to-all-same-type-connectors) from a point tag. The connector Type will be converted to lowercase.",
-            "WaveFunctionCollapse", "Rule")
+        public ComponentPostprocessor() : base("WFC Postprocessor", "WFCPostprocessor",
+            "WFC Postprocessor.",
+            "WaveFunctionCollapse", "Postprocessor")
         {
         }
 
@@ -24,9 +27,8 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddParameter(new ModuleParameter(), "Modules", "M", "All available WFC modules", GH_ParamAccess.list);
-            pManager.AddPointParameter("Point Tag", "Pt", "Point marking a connector", GH_ParamAccess.item);
-            pManager.AddTextParameter("Connector Type", "T", "Type to be assigned to the connector", GH_ParamAccess.item);
+            pManager.AddParameter(new SlotParameter(), "Slot", "S", "WFC Slot", GH_ParamAccess.item);
+            pManager.AddParameter(new ModuleParameter(), "Modules", "M", "All WFC Modules", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -34,7 +36,7 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddParameter(new RuleParameter(), "Rules", "R", "WFC Rules", GH_ParamAccess.list);
+            pManager.AddGeometryParameter("Geometry", "G", "Geometry placed into WFC Slot", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -44,41 +46,41 @@ namespace WFCToolset
         /// to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
+            var slot = new Slot();
             var modules = new List<Module>();
-            var point = new Point3d();
-            var type = "";
 
-            if (!DA.GetDataList(0, modules))
+            if (!DA.GetData(0, ref slot))
             {
                 return;
             }
 
-            if (!DA.GetData(1, ref point))
+            if (!DA.GetDataList(1, modules))
             {
                 return;
             }
 
-            if (!DA.GetData(2, ref type))
+            var geometry = Enumerable.Empty<GeometryBase>();
+
+            // TODO: Think about what to do with empty and non-deterministic slots.
+            if (slot.AllowedSubmodules.Count == 1)
             {
-                return;
+                var slotSubmoduleName = slot.AllowedSubmodules.First();
+                var placedModule = modules.FirstOrDefault(module => module.PivotSubmoduleName == slotSubmoduleName);
+                if (placedModule != null)
+                {
+                    var slotPivot = slot.BasePlane.Clone();
+                    slotPivot.Origin = slot.AbsoluteCenter;
+                    geometry = placedModule.Geometry.Select(geo =>
+                    {
+                        var placedGeometry = geo.Duplicate();
+                        placedGeometry.Transform(Transform.PlaneToPlane(placedModule.Pivot, slotPivot));
+                        return placedGeometry;
+                    });
+                }
             }
 
-            var rules = new List<Rule>();
-
-            foreach (var module in modules)
-            {
-                var moduleRules = module
-                    .GetExternalConnectorsContainingPoint(point)
-                    .Select(connector => new Rule(connector.ModuleName, connector.ConnectorIndex, type));
-                rules.AddRange(moduleRules);
-            }
-
-            if (rules.Count == 0)
-            {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The point does not mark any module connector.");
-            }
-
-            DA.SetDataList(0, rules);
+            // Return placed geometry
+            DA.SetDataList(0, geometry);
         }
 
         /// <summary>
@@ -87,22 +89,22 @@ namespace WFCToolset
         /// each of which can be combined with the GH_Exposure.obscure flag, which 
         /// ensures the component will only be visible on panel dropdowns.
         /// </summary>
-        public override GH_Exposure Exposure => GH_Exposure.tertiary;
+        public override GH_Exposure Exposure => GH_Exposure.primary;
 
         /// <summary>
         /// Provides an Icon for every component that will be visible in the User Interface.
         /// Icons need to be 24x24 pixels.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon =>
+        protected override Bitmap Icon =>
                 // You can add image files to your project resources and access them like this:
                 //return Resources.IconForThisComponent;
-                Properties.Resources.C;
+                Properties.Resources.WFC;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it. 
         /// It is vital this Guid doesn't change otherwise old ghx files 
         /// that use the old ID will partially fail during loading.
         /// </summary>
-        public override Guid ComponentGuid => new Guid("6A94F17B-60DF-4CAF-B209-9ABE1068A3EC");
+        public override Guid ComponentGuid => new Guid("D32A9B20-4138-4C24-A11F-E139383776B2");
     }
 }

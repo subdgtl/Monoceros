@@ -10,7 +10,7 @@ namespace WFCToolset
 
     public class ComponentIsRuleExplicit : GH_Component
     {
-        public ComponentIsRuleExplicit() : base("WFC Is Rule explicit", "WFCIsRuleExp",
+        public ComponentIsRuleExplicit() : base("WFC Is Rule Explicit", "WFCIsRuleExp",
             "Returns true if the provided WFC Rule is explicit (connector-to-connector).",
             "WaveFunctionCollapse", "Rule")
         {

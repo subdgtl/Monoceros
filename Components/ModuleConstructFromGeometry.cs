@@ -13,7 +13,7 @@ namespace WFCToolset
 {
     public class ComponentModuleFromGeometry : GH_Component
     {
-        public ComponentModuleFromGeometry() : base("WFC Construct module from geometry", "WFCModuleGeo",
+        public ComponentModuleFromGeometry() : base("WFC Construct Module From Production Geometry", "WFCModuleGeo",
             "Construct a WFC Module from input geometry, which will be also used in WFC solver result. Prefer Mesh to BRep.",
             "WaveFunctionCollapse", "Module")
         {

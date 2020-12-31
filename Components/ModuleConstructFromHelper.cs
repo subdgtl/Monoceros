@@ -14,7 +14,7 @@ namespace WFCToolset
 
     public class ComponentModuleFromHelper : GH_Component
     {
-        public ComponentModuleFromHelper() : base("WFC Construct module from helper geometry", "WFCModuleHlp",
+        public ComponentModuleFromHelper() : base("WFC Construct Module From Helper Geometry", "WFCModuleHlp",
             "Construct a WFC Module from helper geometry. The specified production geometry bill be used in WFC solver result. Prefer Mesh to BRep.",
             "WaveFunctionCollapse", "Module")
         {

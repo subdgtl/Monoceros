@@ -12,7 +12,7 @@ namespace WFCToolset
 {
     public class ComponentRuleEmptyFromPoint : GH_Component
     {
-        public ComponentRuleEmptyFromPoint() : base("WFC Create Empty-neighbor rule from point tag", "WFCRuleEmptyPt",
+        public ComponentRuleEmptyFromPoint() : base("WFC Create Empty-neighbor Rule From Point Tag", "WFCRuleEmptyPt",
             "Allow the connector to connect to an Empty module. All Empty module's connectors are Indifferent.",
             "WaveFunctionCollapse", "Rule")
         {

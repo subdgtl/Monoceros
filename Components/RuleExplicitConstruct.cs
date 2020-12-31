@@ -10,7 +10,7 @@ namespace WFCToolset
 
     public class ComponentConstructRuleExplicit : GH_Component
     {
-        public ComponentConstructRuleExplicit() : base("WFC Construct Explicit rule from components", "WFCConstRuleExp",
+        public ComponentConstructRuleExplicit() : base("WFC Construct Explicit Rule From Components", "WFCConstRuleExp",
             "Construct an Explicit WFC Rule (connector-to-connector) from module name and connector number. The existence of the module and connector as well as whether the connectors are opposite is not being checked.",
             "WaveFunctionCollapse", "Rule")
         {

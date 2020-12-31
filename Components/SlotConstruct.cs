@@ -9,7 +9,9 @@ using Rhino.Geometry;
 
 namespace WFCToolset
 {
-
+    // TODO: Split into two components: one that constructs a slot that contains everything, 
+    //       the other one that contains an Empty module. Allowing creation of an invalid 
+    //       slot that cannot contain anything is meaningless.
     public class ComponentConstructSlot : GH_Component
     {
         public ComponentConstructSlot() : base("WFC Construct Slot", "WFCConstSlot",

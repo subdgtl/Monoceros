@@ -20,7 +20,7 @@ namespace WFCToolset
 
         private double _fontSize;
 
-        public ComponentPreviewRules() : base("WFC Preview rules", "WFCRulePreview",
+        public ComponentPreviewRules() : base("WFC Preview Rules", "WFCRulePreview",
             "Preview rules as lines connecting individual connectors. Does not display connections to reserved modules " + Configuration.RESERVED_TO_STRING + ".",
             "WaveFunctionCollapse", "Preview")
         {

@@ -10,7 +10,7 @@ namespace WFCToolset
 
     public class ComponentIsRuleTyped : GH_Component
     {
-        public ComponentIsRuleTyped() : base("WFC Is Rule typed", "WFCIsRuleTyp",
+        public ComponentIsRuleTyped() : base("WFC Is Rule Typed", "WFCIsRuleTyp",
             "Returns true if the provided WFC Rule is typed (connector-to-all-same-type-connectors).",
             "WaveFunctionCollapse", "Rule")
         {

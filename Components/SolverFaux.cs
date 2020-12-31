@@ -278,7 +278,8 @@ namespace WFCToolset
             // FAUX SOLVER
             // Scan all slots, pick one submodule for each
             // The solution may contain more than one value as an output: useful for Step Solver and for post-processor tuning
-            var fauxSolution = worldForSolver.Select(names => new List<string>() { names.First() }).ToList();
+            var random = new Random();
+            var fauxSolution = worldForSolver.Select(names => new List<string>() { names[random.Next(names.Count)] }).ToList();
 
 
             // Remember module name for each submodule name

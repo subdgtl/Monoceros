@@ -12,7 +12,7 @@ namespace WFCToolset
 {
     public class ComponentUnwrapRules : GH_Component
     {
-        public ComponentUnwrapRules() : base("WFC Unwrap typed rules", "WFCUnwrapRules",
+        public ComponentUnwrapRules() : base("WFC Unwrap Typed Rules", "WFCUnwrapRules",
             "Convert Typed rules into Explicit rules and deduplicate.",
             "WaveFunctionCollapse", "Rule")
         {

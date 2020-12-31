@@ -10,7 +10,7 @@ namespace WFCToolset
 
     public class ComponentConstructRuleTyped : GH_Component
     {
-        public ComponentConstructRuleTyped() : base("WFC Construct Typed rule from components", "WFCConstRuleTyp",
+        public ComponentConstructRuleTyped() : base("WFC Construct Typed Rule From Components", "WFCConstRuleTyp",
             "Construct a typed WFC Rule (connector-to-all-same-type-connectors) from module name, connector number and connector type. The existence of the module and connector is not being checked. The connector Type will be converted to lowercase.",
             "WaveFunctionCollapse", "Rule")
         {
