@@ -25,8 +25,6 @@ namespace WFCToolset
         {
             pManager.AddParameter(new ModuleParameter(), "Module", "M", "WFC module for indifferent rule generation", GH_ParamAccess.list);
             pManager.AddParameter(new RuleParameter(), "Rules", "R", "All WFC rules, including Explicit", GH_ParamAccess.list);
-            pManager.AddBooleanParameter("Include Out Module", "O", "Generate rules for the Out module", GH_ParamAccess.item, true);
-            pManager.AddBooleanParameter("Include Empty Module", "E", "Generate rules for the Empty module", GH_ParamAccess.item, false);
         }
 
         /// <summary>
@@ -47,9 +45,6 @@ namespace WFCToolset
             var modules = new List<Module>();
             var rulesInput = new List<Rule>();
 
-            var allowOut = false;
-            var allowEmpty = false;
-
             if (!DA.GetDataList(0, modules))
             {
                 return;
@@ -60,38 +55,17 @@ namespace WFCToolset
                 return;
             }
 
-            if (!DA.GetData(2, ref allowOut))
-            {
-                return;
-            }
+            var rulesTyped = rulesInput
+                .Where(rule => rule.IsTyped())
+                .Select(rule => rule.RuleTyped);
 
-            if (!DA.GetData(3, ref allowEmpty))
-            {
-                return;
-            }
-
-            allowOut |= rulesInput.Any(rule => rule.RequiresModuleName(Configuration.OUTER_TAG));
-            allowEmpty |= rulesInput.Any(rule => rule.RequiresModuleName(Configuration.EMPTY_TAG));
-
-            var rulesTyped = rulesInput.Where(rule => rule.IsTyped()).Select(rule => rule.RuleTyped);
-
-            if (allowOut)
-            {
-                Module.GenerateNamedEmptySingleModule(Configuration.OUTER_TAG, Configuration.INDIFFERENT_TAG,
-                                                      new Rhino.Geometry.Vector3d(1, 1, 1), out var moduleOut,
-                                                      out var rulesOut);
-                rulesTyped = rulesTyped.Concat(rulesOut);
-                modules.Add(moduleOut);
-            }
-
-            if (allowEmpty)
-            {
-                Module.GenerateNamedEmptySingleModule(Configuration.EMPTY_TAG, Configuration.INDIFFERENT_TAG,
-                                                      new Rhino.Geometry.Vector3d(1, 1, 1), out var moduleEmpty,
-                                                      out var rulesEmpty);
-                rulesTyped = rulesTyped.Concat(rulesEmpty);
-                modules.Add(moduleEmpty);
-            }
+            Module.GenerateNamedEmptySingleModule(Configuration.OUTER_TAG,
+                                                  Configuration.INDIFFERENT_TAG,
+                                                  new Rhino.Geometry.Vector3d(1, 1, 1),
+                                                  out var moduleOut,
+                                                  out var rulesOut);
+            rulesTyped = rulesTyped.Concat(rulesOut);
+            modules.Add(moduleOut);
 
             var rulesTypedUnwrapped = rulesTyped
                 .SelectMany(ruleTyped => ruleTyped.ToRuleExplicit(rulesTyped, modules))

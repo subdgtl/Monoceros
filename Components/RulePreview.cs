@@ -18,8 +18,6 @@ namespace WFCToolset
         private IEnumerable<ExplicitLine> _explicitLines;
         private IEnumerable<TypedLine> _typedLines;
 
-        private double _fontSize;
-
         public ComponentPreviewRules() : base("WFC Preview Rules", "WFCRulePreview",
             "Preview rules as lines connecting individual connectors. Does not display connections to reserved modules " + Configuration.RESERVED_TO_STRING + ".",
             "WaveFunctionCollapse", "Preview")
@@ -76,21 +74,8 @@ namespace WFCToolset
             }
 
             averageSlotDiagonal /= modules.Count;
-            _fontSize = minimumSlotDimension / 10.0;
-
-            Module.GenerateNamedEmptySingleModule(Configuration.OUTER_TAG, Configuration.INDIFFERENT_TAG,
-                                                      averageSlotDiagonal, out var moduleOut,
-                                                      out var _);
-            modules.Add(moduleOut);
-
-            Module.GenerateNamedEmptySingleModule(Configuration.EMPTY_TAG, Configuration.INDIFFERENT_TAG,
-                                                      averageSlotDiagonal, out var moduleEmpty,
-                                                      out var _);
-            modules.Add(moduleEmpty);
-
 
             var explicitLines = new List<ExplicitLine>();
-
             var typedLines = new List<TypedLine>();
 
             var rulesExplicit = rules.Where(rule => rule.IsExplicit()).Select(rule => rule.RuleExplicit);
@@ -98,7 +83,7 @@ namespace WFCToolset
 
             foreach (var ruleExplicit in rulesExplicit)
             {
-                // TODO: Consider displaying Empty and Out connections somehow too
+                // TODO: Consider displaying Out connections somehow too
                 if (!Configuration.RESERVED_NAMES.Contains(ruleExplicit.SourceModuleName) &&
                     !Configuration.RESERVED_NAMES.Contains(ruleExplicit.TargetModuleName))
                 {
@@ -122,7 +107,7 @@ namespace WFCToolset
 
                 foreach (var ruleExplicit in rulesExplicitComputed)
                 {
-                    // TODO: Consider displaying Empty and Out connections somehow too
+                    // TODO: Consider displaying Out connections somehow too
                     if (!Configuration.RESERVED_NAMES.Contains(ruleExplicit.SourceModuleName) &&
                         !Configuration.RESERVED_NAMES.Contains(ruleExplicit.TargetModuleName))
                     {

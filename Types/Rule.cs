@@ -135,63 +135,48 @@ namespace WFCToolset
             return hashCode;
         }
 
-        public RuleForSolver ToWFCRuleSolver(List<Module> modules)
+        public bool ToWFCRuleSolver(List<Module> modules, out RuleForSolver ruleForSolver)
         {
-            if (!IsValidWithModules(modules))
-            {
-                throw new Exception("Rule" + this + " is not valid with given modules");
-            }
-            var sourceModule = modules.Find(module => module.Name == SourceModuleName);
-            var sourceConnector = sourceModule.Connectors.Find(connector => connector.ConnectorIndex == SourceConnectorIndex);
-            var targetModule = modules.Find(module => module.Name == TargetModuleName);
-            var targetConnector = targetModule.Connectors[TargetConnectorIndex];
 
-            if (sourceConnector.Direction._orientation == Orientation.Positive)
+            var sourceModule = modules.FirstOrDefault(module => module.Name == SourceModuleName);
+            var targetModule = modules.FirstOrDefault(module => module.Name == TargetModuleName);
+            if (sourceModule == null || targetModule == null)
             {
-                return new RuleForSolver(sourceConnector.Direction._axis.ToString("g"),
-                                         sourceConnector.SubmoduleName,
-                                         targetConnector.SubmoduleName);
+                ruleForSolver = default;
+                return false;
             }
-            else
-            {
-                return new RuleForSolver(targetConnector.Direction._axis.ToString("g"),
-                                         targetConnector.SubmoduleName,
-                                         sourceConnector.SubmoduleName);
-            }
-        }
+            var sourceConnector = sourceModule.Connectors.FirstOrDefault(connector => connector.ConnectorIndex == SourceConnectorIndex);
+            var targetConnector = sourceModule.Connectors.FirstOrDefault(connector => connector.ConnectorIndex == TargetConnectorIndex);
 
-        public bool RequiresModuleName(string name)
-        {
-            return SourceModuleName == name ||
-            TargetModuleName == name;
+            if (sourceConnector.Equals(default(ModuleConnector)) || targetConnector.Equals(default(ModuleConnector)))
+            {
+                ruleForSolver = default;
+                return false;
+            }
+
+            ruleForSolver = sourceConnector.Direction._orientation == Orientation.Positive ?
+                            new RuleForSolver(sourceConnector.Direction._axis.ToString("g"),
+                                              sourceConnector.SubmoduleName,
+                                              targetConnector.SubmoduleName) :
+                            new RuleForSolver(targetConnector.Direction._axis.ToString("g"),
+                                              targetConnector.SubmoduleName,
+                                              sourceConnector.SubmoduleName);
+            return true;
         }
 
         public bool IsValidWithModules(List<Module> modules)
         {
-            // TODO: This may be redundant if Find returns null when it fails
-            if (
-                !modules.Any(module => module.Name == SourceModuleName) ||
-                !modules.Any(module => module.Name == TargetModuleName)
-                )
-            {
-                return false;
-            }
-            // TODO: Investigate what is the default value for Module type
-            var sourceModule = modules.Find(module => module.Name == SourceModuleName);
-            var targetModule = modules.Find(module => module.Name == TargetModuleName);
+            var sourceModule = modules.FirstOrDefault(module => module.Name == SourceModuleName);
+            var targetModule = modules.FirstOrDefault(module => module.Name == TargetModuleName);
+            var sourceConnector = sourceModule.Connectors.FirstOrDefault(connector => connector.ConnectorIndex == SourceConnectorIndex);
+            var targetConnector = targetModule.Connectors.FirstOrDefault(connector => connector.ConnectorIndex == TargetConnectorIndex);
 
-            // TODO: This may be redundant if Find returns null when it fails
-            if (
-                !sourceModule.Connectors.Any(connector => connector.ConnectorIndex == SourceConnectorIndex) ||
-                !targetModule.Connectors.Any(connector => connector.ConnectorIndex == TargetConnectorIndex)
-                )
-            {
-                return false;
-            }
-            // TODO: Investigate what is the default value for ModuleConnector type
-            var sourceConnector = sourceModule.Connectors.Find(connector => connector.ConnectorIndex == SourceConnectorIndex);
-            var targetConnector = targetModule.Connectors.Find(connector => connector.ConnectorIndex == TargetConnectorIndex);
-            if (!sourceConnector.Direction.IsOpposite(targetConnector.Direction))
+            // If such module does not exist or if the direction is not opposite
+            if (sourceModule == null ||
+                targetModule == null ||
+                sourceConnector.Equals(default(ModuleConnector)) ||
+                targetConnector.Equals(default(ModuleConnector)) ||
+                !sourceConnector.Direction.IsOpposite(targetConnector.Direction))
             {
                 return false;
             }
@@ -357,16 +342,11 @@ namespace WFCToolset
             return rulesExplicit;
         }
 
-        public bool RequiresModuleName(string name) => ModuleName == name;
-
         public bool IsValidWithModules(List<Module> modules)
         {
-            if (!modules.Any(module => module.Name == ModuleName))
-            {
-                return false;
-            }
-            var sourceModule = modules.Find(module => module.Name == ModuleName);
-            if (!sourceModule.Connectors.Any(connector => connector.ConnectorIndex == ConnectorIndex))
+            var sourceModule = modules.FirstOrDefault(module => module.Name == ModuleName);
+            if (sourceModule == null ||
+                !sourceModule.Connectors.Any(connector => connector.ConnectorIndex == ConnectorIndex))
             {
                 return false;
             }
@@ -527,19 +507,6 @@ namespace WFCToolset
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(TypeName);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(TypeDescription);
             return hashCode;
-        }
-
-        public bool RequiresModuleName(string name)
-        {
-            if (IsExplicit())
-            {
-                return RuleExplicit.RequiresModuleName(name);
-            }
-            if (IsTyped())
-            {
-                return RuleTyped.RequiresModuleName(name);
-            }
-            return false;
         }
 
         public bool IsValidWithModules(List<Module> modules)

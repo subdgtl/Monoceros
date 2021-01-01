@@ -26,7 +26,6 @@ namespace WFCToolset
             pManager.AddParameter(new SlotParameter(), "Slots", "S", "All WFC Slots", GH_ParamAccess.list);
             pManager.AddParameter(new ModuleParameter(), "Modules", "M", "All WFC Modules", GH_ParamAccess.list);
             pManager.AddParameter(new RuleParameter(), "Rules", "R", "All WFC rules", GH_ParamAccess.list);
-            pManager.AddBooleanParameter("Allow Empty Module", "E", "Allow Empty module", GH_ParamAccess.item, false);
             pManager.AddIntegerParameter("Random Seed", "S", "Random Seed", GH_ParamAccess.item, 42);
             pManager.AddIntegerParameter("Max Attempts", "A", "Maximum Number of Solver Attempts", GH_ParamAccess.item, 10);
         }
@@ -49,7 +48,6 @@ namespace WFCToolset
             var slotsRaw = new List<Slot>();
             var modules = new List<Module>();
             var rulesRaw = new List<Rule>();
-            var allowEmpty = false;
             var seed = 42;
             var attempts = 10;
 
@@ -68,17 +66,12 @@ namespace WFCToolset
                 return;
             }
 
-            if (!DA.GetData(3, ref allowEmpty))
+            if (!DA.GetData(3, ref seed))
             {
                 return;
             }
 
-            if (!DA.GetData(4, ref seed))
-            {
-                return;
-            }
-
-            if (!DA.GetData(5, ref attempts))
+            if (!DA.GetData(4, ref attempts))
             {
                 return;
             }
@@ -160,23 +153,6 @@ namespace WFCToolset
                 .Select(ruleExplicit => new Rule(ruleExplicit));
             rulesRaw.AddRange(allInternalRules);
 
-            // If rules contain empty module, then override the allow empty tag
-            allowEmpty |= rulesRaw.Any(rule => rule.RequiresModuleName(Configuration.EMPTY_TAG));
-
-            // Generate Empty module (optional)
-            if (allowEmpty)
-            {
-                Module.GenerateNamedEmptySingleModule(Configuration.EMPTY_TAG,
-                                                      Configuration.INDIFFERENT_TAG,
-                                                      new Rhino.Geometry.Vector3d(1, 1, 1),
-                                                      out var moduleEmpty,
-                                                      out var rulesEmptyTyped);
-                var rulesEmpty = rulesEmptyTyped.Select(ruleTyped => new Rule(ruleTyped));
-                rulesRaw.AddRange(rulesEmpty);
-                // Add Empty modules to collection (optional)
-                modules.Add(moduleEmpty);
-            }
-
             // Generate Out module
             Module.GenerateNamedEmptySingleModule(Configuration.OUTER_TAG,
                                                   Configuration.INDIFFERENT_TAG,
@@ -217,7 +193,15 @@ namespace WFCToolset
             var rulesValid = rulesUnwrappedExplicit.Where(rule => rule.IsValidWithModules(modules));
 
             // Convert rules to solver format
-            var rulesForSolver = rulesValid.Select(rule => rule.ToWFCRuleSolver(modules));
+            var rulesForSolver = new List<RuleForSolver>();
+            foreach (var rule in rulesValid)
+            {
+                if (rule.ToWFCRuleSolver(modules, out var ruleForSolver))
+                {
+                    rulesForSolver.Add(ruleForSolver);
+                }
+
+            }
 
             var slotOrder = new List<int>(slotsRaw.Count);
             // Define world space (slots bounding box + 1 layer padding)

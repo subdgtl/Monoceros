@@ -3,22 +3,16 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
 namespace WFCToolset
 {
-    // TODO: Find a better name
-    // TODO: Make bake aware and think about using blocks. Override baking output geometry.
-    // TODO: Think about how to bake contradictory and non-deterministic slots.
-    public class ComponentPostprocessor : GH_Component
+    public class ComponentModuleEmpty : GH_Component
     {
-        public ComponentPostprocessor() : base("WFC Postprocessor", "WFCPostprocessor",
-            "WFC Postprocessor.",
-            "WaveFunctionCollapse", "Postprocessor")
+        public ComponentModuleEmpty() : base("WFC Construct Empty Module", "WFCModuleEmpty",
+            "Construct an empty WFC Module.",
+            "WaveFunctionCollapse", "Module")
         {
         }
 
@@ -27,8 +21,14 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddParameter(new SlotParameter(), "Slot", "S", "WFC Slot", GH_ParamAccess.item);
-            pManager.AddParameter(new ModuleParameter(), "Modules", "M", "All WFC Modules", GH_ParamAccess.list);
+            pManager.AddPlaneParameter("Base plane", "B", "Grid space base plane. Defines orientation of the grid.", GH_ParamAccess.item, Plane.WorldXY);
+            pManager.AddVectorParameter(
+               "Grid Slot Diagonal",
+               "D",
+               "World grid slot diagonal vector specifying single grid slot dimension in base-plane-aligned XYZ axes",
+               GH_ParamAccess.item,
+               new Vector3d(1.0, 1.0, 1.0)
+               );
         }
 
         /// <summary>
@@ -36,7 +36,8 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddGeometryParameter("Geometry", "G", "Geometry placed into WFC Slot", GH_ParamAccess.list);
+            pManager.AddParameter(new ModuleParameter(), "Module", "M", "WFC Module", GH_ParamAccess.item);
+            pManager.AddParameter(new RuleParameter(), "Rules", "R", "WFC Rules", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -46,41 +47,34 @@ namespace WFCToolset
         /// to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            var slot = new Slot();
-            var modules = new List<Module>();
+            var basePlane = new Plane();
+            var slotDiagonal = new Vector3d();
 
-            if (!DA.GetData(0, ref slot))
+            if (!DA.GetData(0, ref basePlane))
             {
                 return;
             }
 
-            if (!DA.GetDataList(1, modules))
+            if (!DA.GetData(1, ref slotDiagonal))
             {
                 return;
             }
 
-            var geometry = Enumerable.Empty<GeometryBase>();
-
-            // TODO: Think about what to do with contradictory and non-deterministic slots.
-            if (slot.AllowedSubmodules.Count == 1)
+            if (slotDiagonal.X <= 0 || slotDiagonal.Y <= 0 || slotDiagonal.Z <= 0)
             {
-                var slotSubmoduleName = slot.AllowedSubmodules.First();
-                var placedModule = modules.FirstOrDefault(module => module.PivotSubmoduleName == slotSubmoduleName);
-                if (placedModule != null)
-                {
-                    var slotPivot = slot.BasePlane.Clone();
-                    slotPivot.Origin = slot.AbsoluteCenter;
-                    geometry = placedModule.Geometry.Select(geo =>
-                    {
-                        var placedGeometry = geo.Duplicate();
-                        placedGeometry.Transform(Transform.PlaneToPlane(placedModule.Pivot, slotPivot));
-                        return placedGeometry;
-                    });
-                }
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "One or more slot dimensions are not larger than 0.");
+                return;
             }
 
-            // Return placed geometry
-            DA.SetDataList(0, geometry);
+            Module.GenerateNamedEmptySingleModuleWithBasePlane(Configuration.EMPTY_TAG,
+                                                               Configuration.INDIFFERENT_TAG,
+                                                               basePlane,
+                                                               slotDiagonal,
+                                                               out var moduleEmpty,
+                                                               out var rulesExternal);
+
+            DA.SetData(0, moduleEmpty);
+            DA.SetDataList(1, rulesExternal);
         }
 
         /// <summary>
@@ -95,16 +89,16 @@ namespace WFCToolset
         /// Provides an Icon for every component that will be visible in the User Interface.
         /// Icons need to be 24x24 pixels.
         /// </summary>
-        protected override Bitmap Icon =>
+        protected override System.Drawing.Bitmap Icon =>
                 // You can add image files to your project resources and access them like this:
                 //return Resources.IconForThisComponent;
-                Properties.Resources.WFC;
+                Properties.Resources.M;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it. 
         /// It is vital this Guid doesn't change otherwise old ghx files 
         /// that use the old ID will partially fail during loading.
         /// </summary>
-        public override Guid ComponentGuid => new Guid("D32A9B20-4138-4C24-A11F-E139383776B2");
+        public override Guid ComponentGuid => new Guid("3473FD2C-D314-44C7-A5B6-EE30B008B04C");
     }
 }

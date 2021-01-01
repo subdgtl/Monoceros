@@ -13,7 +13,7 @@ namespace WFCToolset
     public class ComponentCollectRules : GH_Component
     {
         public ComponentCollectRules() : base("WFC Collect Rules", "WFCCollectRules",
-            "Collect, convert to Explicit, deduplicate and remove disallowed rules.",
+            "Collect, convert to Explicit, deduplicate and remove disallowed rules. Automatically generates an Out module and its rules.",
             "WaveFunctionCollapse", "Rule")
         {
         }
@@ -26,11 +26,7 @@ namespace WFCToolset
             pManager.AddParameter(new ModuleParameter(), "Module", "M", "WFC module for indifferent rule generation", GH_ParamAccess.list);
             pManager.AddParameter(new RuleParameter(), "Rules Allowed", "RA", "All allowed WFC rules", GH_ParamAccess.list);
             pManager.AddParameter(new RuleParameter(), "Rules Disallowed", "RD", "All disallowed WFC rules (optional)", GH_ParamAccess.list);
-            pManager.AddBooleanParameter("Include Out Module", "O", "Generate rules for the Out module. Set automatically to true if any rule involves the Out module.", GH_ParamAccess.item, true);
-            pManager.AddBooleanParameter("Include Empty Module", "E", "Generate rules for the Empty module. Set automatically to true if any rule involves the Empty module.", GH_ParamAccess.item, false);
             pManager[2].Optional = true;
-            pManager[3].Optional = true;
-            pManager[4].Optional = true;
         }
 
         /// <summary>
@@ -52,9 +48,6 @@ namespace WFCToolset
             var rulesAllowed = new List<Rule>();
             var rulesDisallowed = new List<Rule>();
 
-            var allowOut = false;
-            var allowEmpty = false;
-
             if (!DA.GetDataList(0, modules))
             {
                 return;
@@ -66,36 +59,6 @@ namespace WFCToolset
             }
 
             DA.GetDataList(2, rulesDisallowed);
-            DA.GetData(3, ref allowOut);
-            DA.GetData(4, ref allowEmpty);
-
-            allowOut |= rulesAllowed.Concat(rulesDisallowed).Any(rule =>
-            {
-                if (rule.IsExplicit())
-                {
-                    return rule.RuleExplicit.SourceModuleName == Configuration.OUTER_TAG ||
-                    rule.RuleExplicit.TargetModuleName == Configuration.OUTER_TAG;
-                }
-                if (rule.IsTyped())
-                {
-                    return rule.RuleTyped.ModuleName == Configuration.OUTER_TAG;
-                }
-                return false;
-            });
-
-            allowEmpty |= rulesAllowed.Concat(rulesDisallowed).Any(rule =>
-            {
-                if (rule.IsExplicit())
-                {
-                    return rule.RuleExplicit.SourceModuleName == Configuration.EMPTY_TAG ||
-                    rule.RuleExplicit.TargetModuleName == Configuration.EMPTY_TAG;
-                }
-                if (rule.IsTyped())
-                {
-                    return rule.RuleTyped.ModuleName == Configuration.EMPTY_TAG;
-                }
-                return false;
-            });
 
             var rulesDisallowedExplicit = rulesDisallowed.Where(rule => rule.IsExplicit());
             var rulesDisallowedTyped = rulesDisallowed.Where(rule => rule.IsTyped()).Select(rule => rule.RuleTyped);
@@ -111,30 +74,15 @@ namespace WFCToolset
             var rulesAllowedTypedWrapped = new List<Rule>();
 
 
-            if (allowOut)
-            {
-                Module.GenerateNamedEmptySingleModule(Configuration.OUTER_TAG, Configuration.INDIFFERENT_TAG,
-                                                      new Rhino.Geometry.Vector3d(1, 1, 1), out var moduleOut,
-                                                      out var rulesOut);
-                rulesAllowed.AddRange(
-                    rulesOut.Select(ruleExplicit => new Rule(ruleExplicit))
-                    );
-                modules.Add(moduleOut);
-            }
-
-            if (allowEmpty)
-            {
-                Module.GenerateNamedEmptySingleModule(Configuration.EMPTY_TAG, Configuration.INDIFFERENT_TAG,
-                                                      new Rhino.Geometry.Vector3d(1, 1, 1), out var moduleEmpty,
-                                                      out var rulesEmpty);
-                rulesAllowed.AddRange(
-                    rulesEmpty.Select(ruleExplicit => new Rule(ruleExplicit))
-                    );
-                modules.Add(moduleEmpty);
-            }
+            Module.GenerateNamedEmptySingleModule(Configuration.OUTER_TAG, Configuration.INDIFFERENT_TAG,
+                                                  new Rhino.Geometry.Vector3d(1, 1, 1), out var moduleOut,
+                                                  out var rulesOut);
+            rulesAllowed.AddRange(
+                rulesOut.Select(ruleExplicit => new Rule(ruleExplicit))
+                );
+            modules.Add(moduleOut);
 
             var rulesAllowedTyped = rulesAllowed.Where(rule => rule.IsTyped()).Select(rule => rule.RuleTyped);
-
 
             foreach (var rule in rulesAllowed)
             {

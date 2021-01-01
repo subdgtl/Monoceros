@@ -467,10 +467,25 @@ namespace WFCToolset
                                                           out Module module,
                                                           out List<RuleTyped> rulesExternal)
         {
+            GenerateNamedEmptySingleModuleWithBasePlane(name,
+                                                        connectorType,
+                                                        Plane.WorldXY,
+                                                        slotDiagonal,
+                                                        out module,
+                                                        out rulesExternal);
+        }
+
+        public static void GenerateNamedEmptySingleModuleWithBasePlane(string name,
+                                                                       string connectorType,
+                                                                       Plane basePlane,
+                                                                       Vector3d slotDiagonal,
+                                                                       out Module module,
+                                                                       out List<RuleTyped> rulesExternal)
+        {
             module = new Module(
                 name,
                 new List<GeometryBase>(),
-                Plane.WorldXY,
+                basePlane,
                 new List<Point3i> { new Point3i(0, 0, 0) },
                 slotDiagonal
                 );

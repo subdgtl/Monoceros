@@ -9,12 +9,9 @@ using Rhino.Geometry;
 
 namespace WFCToolset
 {
-    // TODO: Split into two components: one that constructs a slot that contains everything, 
-    //       the other one that contains an Empty module. Allowing creation of an invalid 
-    //       slot that cannot contain anything is meaningless.
-    public class ComponentConstructSlot : GH_Component
+    public class ComponentConstructSlotWithAll : GH_Component
     {
-        public ComponentConstructSlot() : base("WFC Construct Slot", "WFCConstSlot",
+        public ComponentConstructSlotWithAll() : base("WFC Construct Slot With All Modules Allowed", "WFCConstSlotAll",
             "Construct a WFC Slot.",
             "WaveFunctionCollapse", "Slot")
         {
@@ -38,11 +35,6 @@ namespace WFCToolset
                GH_ParamAccess.item,
                new Vector3d(1.0, 1.0, 1.0)
                );
-            pManager.AddBooleanParameter("Allows Everything",
-                                         "E",
-                                         "Initiate the slot with all modules allowed. False = Allow nothing, True = Allow everything.",
-                                         GH_ParamAccess.item,
-                                         true);
         }
 
         /// <summary>
@@ -63,8 +55,6 @@ namespace WFCToolset
             var point = new Point3d();
             var basePlane = new Plane();
             var diagonal = new Vector3d();
-            var allowEverything = true;
-
 
             if (!DA.GetData(0, ref point))
             {
@@ -77,11 +67,6 @@ namespace WFCToolset
             }
 
             if (!DA.GetData(2, ref diagonal))
-            {
-                return;
-            }
-
-            if (!DA.GetData(3, ref allowEverything))
             {
                 return;
             }
@@ -105,7 +90,7 @@ namespace WFCToolset
             var slot = new Slot(basePlane,
                                 slotCenterPoint,
                                 diagonal,
-                                allowEverything,
+                                true,
                                 new List<string>(),
                                 new List<string>(),
                                 0);
