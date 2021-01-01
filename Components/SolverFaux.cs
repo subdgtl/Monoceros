@@ -154,7 +154,7 @@ namespace WFCToolset
             rulesRaw.AddRange(allInternalRules);
 
             // Generate Out module
-            Module.GenerateNamedEmptySingleModule(Configuration.OUTER_TAG,
+            Module.GenerateNamedEmptySingleModule(Configuration.OUTER_MODULE_NAME,
                                                   Configuration.INDIFFERENT_TAG,
                                                   new Rhino.Geometry.Vector3d(1, 1, 1),
                                                   out var moduleOut,
@@ -165,7 +165,7 @@ namespace WFCToolset
             // Convert AllowEverything slots into an explicit list of allowed modules (except Out)
             var allModuleNames = modules.Select(module => module.Name).ToList();
             var slotsUnwrapped = slotsRaw.Select(slotRaw =>
-                slotRaw.AllowedEverything ?
+                slotRaw.AllowAnyModule ?
                     slotRaw.DuplicateWithModuleNames(allModuleNames) :
                     slotRaw
             );
@@ -178,19 +178,19 @@ namespace WFCToolset
             var rulesDistinct = rulesRaw.Distinct();
 
             // Unwrap typed rules
-            var rulesTyped = rulesDistinct.Where(rule => rule.IsTyped()).Select(rule => rule.RuleTyped);
+            var rulesTyped = rulesDistinct.Where(rule => rule.IsTyped()).Select(rule => rule.Typed);
             var rulesTypedUnwrappedToExplicit = rulesTyped
                 .SelectMany(ruleTyped => ruleTyped.ToRuleExplicit(rulesTyped, modules));
 
             var rulesExplicit = rulesDistinct
                 .Where(rule => rule.IsExplicit())
-                .Select(rule => rule.RuleExplicit);
+                .Select(rule => rule.Explicit);
 
             // Deduplicate rules again
             var rulesUnwrappedExplicit = rulesExplicit.Concat(rulesTypedUnwrappedToExplicit).Distinct();
 
             // Filter out invalid rules (not connecting the same connectors && connecting opposing connectors)
-            var rulesValid = rulesUnwrappedExplicit.Where(rule => rule.IsValidWithModules(modules));
+            var rulesValid = rulesUnwrappedExplicit.Where(rule => rule.IsValidWithGivenModules(modules));
 
             // Convert rules to solver format
             var rulesForSolver = new List<RuleForSolver>();
@@ -238,13 +238,13 @@ namespace WFCToolset
             // Unwrap module names to submodule names for all slots
             var worldPreprocessed = worldSlots.Select(slotRaw =>
             {
-                if (slotRaw.AllowedSubmodules.Count != 0 && !slotRaw.AllowedEverything)
+                if (slotRaw.AllowedSubmoduleNames.Count != 0 && !slotRaw.AllowAnyModule)
                 {
                     return slotRaw.DuplicateWithSubmodulesCount(allSubmodulesCount);
                 }
 
                 var submoduleNames = new List<string>();
-                foreach (var moduleName in slotRaw.AllowedModules)
+                foreach (var moduleName in slotRaw.AllowedModuleNames)
                 {
                     var module = modules.Find(m => m.Name == moduleName);
                     submoduleNames.AddRange(module.SubmoduleNames);
@@ -257,7 +257,7 @@ namespace WFCToolset
             });
 
             // Convert slots into the solver world format
-            var worldForSolver = worldPreprocessed.Select(slot => slot.AllowedSubmodules);
+            var worldForSolver = worldPreprocessed.Select(slot => slot.AllowedSubmoduleNames);
 
             // FAUX SOLVER
             // Scan all slots, pick one submodule for each

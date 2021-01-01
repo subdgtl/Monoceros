@@ -24,6 +24,7 @@ namespace WFCToolset
         {
             pManager.AddParameter(new ModuleParameter(), "Module", "M", "WFC module for indifferent rule generation", GH_ParamAccess.item);
             pManager.AddParameter(new RuleParameter(), "Rules", "R", "All existing WFC rules", GH_ParamAccess.list);
+            pManager[1].Optional = true;
         }
 
         /// <summary>
@@ -50,38 +51,35 @@ namespace WFCToolset
                 return;
             }
 
-            if (!DA.GetDataList(1, existingRules))
-            {
-                return;
-            }
+            DA.GetDataList(1, existingRules);
 
             var thisModulesUsedConnectors = new List<int>();
 
             foreach (var existingRule in existingRules)
             {
                 if (existingRule.IsExplicit() &&
-                    existingRule.RuleExplicit.SourceModuleName == module.Name
+                    existingRule.Explicit.SourceModuleName == module.Name
                     )
                 {
-                    thisModulesUsedConnectors.Add(existingRule.RuleExplicit.SourceConnectorIndex);
+                    thisModulesUsedConnectors.Add(existingRule.Explicit.SourceConnectorIndex);
                 }
 
                 if (existingRule.IsExplicit() &&
-                    existingRule.RuleExplicit.TargetModuleName == module.Name
+                    existingRule.Explicit.TargetModuleName == module.Name
                     )
                 {
-                    thisModulesUsedConnectors.Add(existingRule.RuleExplicit.TargetConnectorIndex);
+                    thisModulesUsedConnectors.Add(existingRule.Explicit.TargetConnectorIndex);
                 }
 
                 if (existingRule.IsTyped() &&
-                    existingRule.RuleTyped.ModuleName == module.Name
+                    existingRule.Typed.ModuleName == module.Name
                     )
                 {
-                    thisModulesUsedConnectors.Add(existingRule.RuleTyped.ConnectorIndex);
+                    thisModulesUsedConnectors.Add(existingRule.Typed.ConnectorIndex);
                 }
             }
 
-            var rules = module.GetExternalConnectors()
+            var rules = module.ExternalConnectors
                 .Where(connector => !thisModulesUsedConnectors.Contains(connector.ConnectorIndex))
                 .Select(connector => new Rule(connector.ModuleName, connector.ConnectorIndex, type));
 

@@ -10,6 +10,16 @@ using Rhino.Geometry;
 
 namespace WFCToolset
 {
+    /// <summary>
+    /// <para>
+    /// Grasshopper component: WFC Deconstruct Module To Components
+    /// </para>
+    /// <para>
+    /// Outputs the internal fields and properties of the <see cref="Module"/> in the same
+    /// fashion and order of the inputs of <see cref="Module"/> constructors. This way a 
+    /// <see cref="Module"/> can be deconstructed and directly reconstructed.
+    /// </para>
+    /// </summary>
     public class ComponentModuleDeconstruct : GH_Component
     {
         public ComponentModuleDeconstruct() : base("WFC Deconstruct Module To Components", "WFCDeconModule",
@@ -71,7 +81,7 @@ namespace WFCToolset
             DA.SetDataList(2, module.Geometry);
             DA.SetDataList(3, new List<Plane> { module.BasePlane });
             DA.SetDataList(4, new List<Vector3d> { module.SlotDiagonal });
-            var connectors = module.GetExternalConnectors();
+            var connectors = module.ExternalConnectors;
             DA.SetDataList(5, connectors.Select(connector => connector.AnchorPlane));
             DA.SetDataList(6, connectors.Select(connector => connector.ConnectorIndex));
             DA.SetDataList(7, connectors.Select(connector => connector.Direction.ToVector()));
@@ -90,8 +100,6 @@ namespace WFCToolset
         /// Icons need to be 24x24 pixels.
         /// </summary>
         protected override System.Drawing.Bitmap Icon =>
-                // You can add image files to your project resources and access them like this:
-                //return Resources.IconForThisComponent;
                 Properties.Resources.M;
 
         /// <summary>

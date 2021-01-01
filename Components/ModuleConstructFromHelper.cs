@@ -11,7 +11,93 @@ using Rhino.Geometry;
 
 namespace WFCToolset
 {
-
+    /// <summary>
+    /// <para>
+    /// Grasshopper component: WFC Construct Module From Helper Geometry
+    /// </para>
+    /// <para>
+    /// Construct a WFC <see cref="Module"/> from input helper <see cref="GeometryBase"/>. 
+    /// This geometry will not become part of the <see cref="Module"/>. Instead, a different
+    /// production <see cref="GeometryBase"/> will be used by the <see cref="ComponentPostprocessor"/>
+    /// to materialize the result of the  WFC <see cref="ComponentFauxSolver"/>.
+    /// The production <see cref="GeometryBase"/> is unrelated to the <see cref="Module"/> cage and 
+    /// <see cref="Slot"/>s it may occupy. 
+    /// </para>
+    /// <para>
+    /// Grasshopper inputs:
+    /// <list type="bullet">
+    /// <item>
+    /// <term><see cref="ModuleName"/> Name</term>
+    /// <description>
+    /// <see cref="Module"/> name to be used as its unique identifier.
+    /// Disallowed names are listed in <see cref="Configuration.RESERVED_NAMES"/>. 
+    /// The Name will be converted to lowercase.
+    /// Item access.
+    /// No default.
+    /// </description>
+    /// </item>
+    /// <item>
+    /// <term><see cref="GeometryBase"/> Helper Geometry</term>
+    /// <description>
+    /// <see cref="GeometryBase"/> defining the <see cref="Module"/> cage. The Helper Geometry
+    /// will be lost after the <see cref="Module"/> will have been created.
+    /// Supports <see cref="Point3d"/>, <see cref="Curve"/>, <see cref="Brep"/> and <see cref="Mesh"/>.
+    /// For better and faster results prefer <see cref="Mesh"/> to <see cref="Brep"/> .
+    /// List access.
+    /// No default.
+    /// </description>
+    /// </item>
+    /// <item>
+    /// <term><see cref="GeometryBase"/> Production Geometry</term>
+    /// <description>
+    /// <see cref="GeometryBase"/> used by the <see cref="ComponentPostprocessor"/> to materialize the result of 
+    /// the WFC <see cref="ComponentFauxSolver"/>. Production Geometry does not have to 
+    /// fit into the generated <see cref="Module"/> cages and can be larger, smaller, different or none. 
+    /// Supports any geometry.
+    /// List access.
+    /// No default.
+    /// Optional.
+    /// </description>
+    /// </item>
+    /// <item>
+    /// <term><see cref="Plane"/> Base Plane</term>
+    /// <description>
+    /// Grid space base plane. Defines orientation of the grid.
+    /// Item access.
+    /// Default <see cref="Plane.WorldXY"/>.
+    /// </description>
+    /// </item>
+    /// <item>
+    /// <term><see cref="Vector3d"/> Grid Slot Diagonal</term>
+    /// <description>
+    /// World grid <see cref="Slot"/> diagonal <see cref="Vector3d"/> specifying single grid cell dimension in base-plane-aligned XYZ axes.
+    /// Item access.
+    /// Default <c>Vector3d(1.0, 1.0, 1.0)</c>.
+    /// </description>
+    /// </item>
+    /// <item>
+    /// <term><see cref="double"/> Precision</term>
+    /// <description>
+    /// Module slicer precision (lower is more precise but slower).
+    /// Item access.
+    /// Default <c>0.5</c>.
+    /// </description>
+    /// </item>
+    /// </list>
+    /// </para>
+    /// <para>
+    /// Grasshopper outputs:
+    /// <list type="bullet">
+    /// <item>
+    /// <term><see cref="Module"/> Module</term>
+    /// <description>
+    /// WFC Module encapsulating the input geometry and containing the same input geometry.
+    /// Item access.
+    /// </description>
+    /// </item>
+    /// </list>
+    /// </para>
+    /// </summary>
     public class ComponentModuleFromHelper : GH_Component
     {
         public ComponentModuleFromHelper() : base("WFC Construct Module From Helper Geometry", "WFCModuleHlp",
@@ -30,8 +116,8 @@ namespace WFCToolset
                                   "N",
                                   "Module name (except '" + Configuration.RESERVED_TO_STRING + "'). The Name will be converted to lowercase.",
                                   GH_ParamAccess.item);
-            pManager.AddGeometryParameter("Helper Geometry", "H", "Geometry defining the module. Point, Curve, Brep, Mesh. Prefer Mesh to BRep.", GH_ParamAccess.list);
-            pManager.AddGeometryParameter("Production Geometry", "G", "Geometry to be used in the result of the WFC solver. Production geometry does not have to fit into the generated slots and can be larger, smaller, different or none.", GH_ParamAccess.list);
+            pManager.AddGeometryParameter("Helper Geometry", "H", "Geometry defining the module cage. Point, Curve, Brep, Mesh. Prefer Mesh to BRep.", GH_ParamAccess.list);
+            pManager.AddGeometryParameter("Production Geometry", "G", "Geometry used to materialize the result of the WFC Solver. Production geometry does not have to fit into the generated module cage and can be larger, smaller, different or none.", GH_ParamAccess.list);
             pManager[2].Optional = true;
             pManager.AddPlaneParameter("Base plane", "B", "Grid space base plane. Defines orientation of the grid.", GH_ParamAccess.item, Plane.WorldXY);
             pManager.AddVectorParameter(
@@ -93,7 +179,7 @@ namespace WFCToolset
                 return;
             }
 
-            var name = nameRaw.Name;
+            var name = nameRaw.Name.ToLower();
 
             if (name.Length == 0)
             {
@@ -194,8 +280,6 @@ namespace WFCToolset
         /// Icons need to be 24x24 pixels.
         /// </summary>
         protected override System.Drawing.Bitmap Icon =>
-                // You can add image files to your project resources and access them like this:
-                //return Resources.IconForThisComponent;
                 Properties.Resources.M;
 
         /// <summary>

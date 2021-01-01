@@ -12,6 +12,9 @@ using Rhino.Geometry;
 namespace WFCToolset
 {
 
+    /// <summary>
+    /// Wraps <see cref="Module"/> type so that it can be used in Grasshopper as an input, output or a floating parameter.
+    /// </summary>
     public class ModuleParameter : GH_PersistentParam<Module>, IGH_PreviewObject, IGH_BakeAwareObject
     {
         public ModuleParameter()

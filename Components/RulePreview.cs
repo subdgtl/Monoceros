@@ -78,8 +78,8 @@ namespace WFCToolset
             var explicitLines = new List<ExplicitLine>();
             var typedLines = new List<TypedLine>();
 
-            var rulesExplicit = rules.Where(rule => rule.IsExplicit()).Select(rule => rule.RuleExplicit);
-            var rulesTyped = rules.Where(rule => rule.IsTyped()).Select(rule => rule.RuleTyped);
+            var rulesExplicit = rules.Where(rule => rule.IsExplicit()).Select(rule => rule.Explicit);
+            var rulesTyped = rules.Where(rule => rule.IsTyped()).Select(rule => rule.Typed);
 
             foreach (var ruleExplicit in rulesExplicit)
             {

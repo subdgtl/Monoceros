@@ -9,8 +9,9 @@ using Rhino.Geometry;
 
 namespace WFCToolset
 {
-
+    // TODO: Very buggy!!! Check the logic, optimize and make sure it returns valid results.
     /// <summary>
+    /// Various methods populating various geometries with points in a discrete grid.
     /// Supplemental static methods for the WFC Tools. 
     /// </summary>
     public class Populate
@@ -63,6 +64,13 @@ namespace WFCToolset
             return null;
         }
 
+        // TODO: Check the logic, optimize and make sure it returns valid results.
+        /// <summary>
+        /// Populates the surface of various geometries with points.
+        /// </summary>
+        /// <param name="distance">The distance.</param>
+        /// <param name="goo">The goo.</param>
+        /// <returns>A list of Point3ds.</returns>
         public static IEnumerable<Point3d> PopulateSurface(double distance, GeometryBase goo)
         {
             var type = goo.ObjectType;
@@ -93,7 +101,14 @@ namespace WFCToolset
             return null;
         }
 
-        // TODO: Make this more precise - check slot corners for containment
+        // TODO: Check the logic, optimize and make sure it returns valid results.
+        // TODO: Make this more precise - check slot corners for containment.
+        /// <summary>
+        /// Populates the volume with points.
+        /// </summary>
+        /// <param name="distance">The distance.</param>
+        /// <param name="goo">The goo.</param>
+        /// <returns>A list of Point3ds.</returns>
         public static IEnumerable<Point3d> PopulateVolume(double distance, GeometryBase goo)
         {
             var type = goo.ObjectType;
@@ -117,6 +132,7 @@ namespace WFCToolset
             return null;
         }
 
+        // TODO: Check the logic, optimize and make sure it returns valid results.
         // TODO: Try to avoid memory allocation
         /// <summary>
         /// Populate mesh surface with evenly distributed points in specified distances.
@@ -157,6 +173,7 @@ namespace WFCToolset
             return pointsOnMesh;
         }
 
+        // TODO: Check the logic, optimize and make sure it returns valid results.
         /// <summary>
         /// Populate curve with evenly distributed points in specified distances.
         /// </summary>
@@ -183,6 +200,7 @@ namespace WFCToolset
             }
         }
 
+        // TODO: Check the logic, optimize and make sure it returns valid results.
         // TODO: Try to avoid memory allocation
         /// <summary>
         /// Populate Brep surface with evenly distributed points in specified distances.
@@ -231,7 +249,7 @@ namespace WFCToolset
             return pointsOnBrepSurfaces;
         }
 
-        // TODO: Completely rework or stop using and use PopulateMeshVolume instead
+        // TODO: Completely rework or stop using and consider the use of PopulateMeshVolume instead
         public static IEnumerable<Point3d> PopulateBrepVolume(double distance, Brep bRep)
         {
             // TODO: Investigate the imprecise results

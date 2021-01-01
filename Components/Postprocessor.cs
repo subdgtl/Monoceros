@@ -62,18 +62,16 @@ namespace WFCToolset
             var geometry = Enumerable.Empty<GeometryBase>();
 
             // TODO: Think about what to do with contradictory and non-deterministic slots.
-            if (slot.AllowedSubmodules.Count == 1)
+            if (slot.AllowedSubmoduleNames.Count == 1)
             {
-                var slotSubmoduleName = slot.AllowedSubmodules.First();
+                var slotSubmoduleName = slot.AllowedSubmoduleNames.First();
                 var placedModule = modules.FirstOrDefault(module => module.PivotSubmoduleName == slotSubmoduleName);
                 if (placedModule != null)
                 {
-                    var slotPivot = slot.BasePlane.Clone();
-                    slotPivot.Origin = slot.AbsoluteCenter;
                     geometry = placedModule.Geometry.Select(geo =>
                     {
                         var placedGeometry = geo.Duplicate();
-                        placedGeometry.Transform(Transform.PlaneToPlane(placedModule.Pivot, slotPivot));
+                        placedGeometry.Transform(Transform.PlaneToPlane(placedModule.Pivot, slot.Pivot));
                         return placedGeometry;
                     });
                 }

@@ -3,11 +3,63 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Linq;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
 namespace WFCToolset
 {
+    /// <summary>
+    /// <para>
+    /// Grasshopper component: WFC Construct Empty Module
+    /// </para>
+    /// <para>
+    /// Construct the "Empty" module. "Empty" is a system reserved module, 
+    /// which consists of a single submodule, has no geometry and all its 
+    /// connectors are assigned a <see cref="RuleTyped"/> with "Indifferent"
+    /// connector type.
+    /// </para>
+    /// <para>
+    /// Grasshopper inputs:
+    /// <list type="bullet">
+    /// <item>
+    /// <term><see cref="Plane"/> Base Plane</term>
+    /// <description>
+    /// Grid space base plane. Defines orientation of the grid.
+    /// Item access.
+    /// Default: <see cref="Plane.WorldXY"/>
+    /// </description>
+    /// </item>
+    /// <item>
+    /// <term><see cref="Vector3d"/> Grid Slot Diagonal</term>
+    /// <description>
+    /// World grid slot diagonal vector specifying single grid slot dimension in base-plane-aligned XYZ axes.
+    /// Item access.
+    /// Default: <c>Vector3d(1.0, 1.0, 1.0).</c>
+    /// </description>
+    /// </item>
+    /// </list>
+    /// </para>
+    /// <para>
+    /// Grasshopper outputs:
+    /// <list type="bullet">
+    /// <item>
+    /// <term><see cref="Module"/> Module</term>
+    /// <description>
+    /// WFC Module.
+    /// Item access.
+    /// </description>
+    /// </item>
+    /// <item>
+    /// <term><see cref="Rule"/> Rules</term>
+    /// <description>
+    /// WFC Rules making the Empty rule Indifferent.
+    /// List access.
+    /// </description>
+    /// </item>
+    /// </list>
+    /// </para>
+    /// </summary>
     public class ComponentModuleEmpty : GH_Component
     {
         public ComponentModuleEmpty() : base("WFC Construct Empty Module", "WFCModuleEmpty",
@@ -21,7 +73,7 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddPlaneParameter("Base plane", "B", "Grid space base plane. Defines orientation of the grid.", GH_ParamAccess.item, Plane.WorldXY);
+            pManager.AddPlaneParameter("Base Plane", "B", "Grid space base plane. Defines orientation of the grid.", GH_ParamAccess.item, Plane.WorldXY);
             pManager.AddVectorParameter(
                "Grid Slot Diagonal",
                "D",
@@ -36,8 +88,8 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddParameter(new ModuleParameter(), "Module", "M", "WFC Module", GH_ParamAccess.item);
-            pManager.AddParameter(new RuleParameter(), "Rules", "R", "WFC Rules", GH_ParamAccess.list);
+            pManager.AddParameter(new ModuleParameter(), "Module", "M", "Empty WFC Module", GH_ParamAccess.item);
+            pManager.AddParameter(new RuleParameter(), "Rules", "R", "WFC Rules making the Empty rule Indifferent", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -66,7 +118,7 @@ namespace WFCToolset
                 return;
             }
 
-            Module.GenerateNamedEmptySingleModuleWithBasePlane(Configuration.EMPTY_TAG,
+            Module.GenerateNamedEmptySingleModuleWithBasePlane(Configuration.EMPTY_MODULE_NAME,
                                                                Configuration.INDIFFERENT_TAG,
                                                                basePlane,
                                                                slotDiagonal,
@@ -74,7 +126,7 @@ namespace WFCToolset
                                                                out var rulesExternal);
 
             DA.SetData(0, moduleEmpty);
-            DA.SetDataList(1, rulesExternal);
+            DA.SetDataList(1, rulesExternal.Select(ruleTyped => new Rule(ruleTyped)));
         }
 
         /// <summary>
@@ -90,8 +142,6 @@ namespace WFCToolset
         /// Icons need to be 24x24 pixels.
         /// </summary>
         protected override System.Drawing.Bitmap Icon =>
-                // You can add image files to your project resources and access them like this:
-                //return Resources.IconForThisComponent;
                 Properties.Resources.M;
 
         /// <summary>

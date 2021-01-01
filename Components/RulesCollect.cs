@@ -61,7 +61,7 @@ namespace WFCToolset
             DA.GetDataList(2, rulesDisallowed);
 
             var rulesDisallowedExplicit = rulesDisallowed.Where(rule => rule.IsExplicit());
-            var rulesDisallowedTyped = rulesDisallowed.Where(rule => rule.IsTyped()).Select(rule => rule.RuleTyped);
+            var rulesDisallowedTyped = rulesDisallowed.Where(rule => rule.IsTyped()).Select(rule => rule.Typed);
             var rulesDisallowedTypedUnwrapped = rulesDisallowedTyped
                 .SelectMany(ruleTyped => ruleTyped.ToRuleExplicit(rulesDisallowedTyped, modules))
                 .Select(ruleExplicit => new Rule(ruleExplicit));
@@ -74,7 +74,7 @@ namespace WFCToolset
             var rulesAllowedTypedWrapped = new List<Rule>();
 
 
-            Module.GenerateNamedEmptySingleModule(Configuration.OUTER_TAG, Configuration.INDIFFERENT_TAG,
+            Module.GenerateNamedEmptySingleModule(Configuration.OUTER_MODULE_NAME, Configuration.INDIFFERENT_TAG,
                                                   new Rhino.Geometry.Vector3d(1, 1, 1), out var moduleOut,
                                                   out var rulesOut);
             rulesAllowed.AddRange(
@@ -82,7 +82,7 @@ namespace WFCToolset
                 );
             modules.Add(moduleOut);
 
-            var rulesAllowedTyped = rulesAllowed.Where(rule => rule.IsTyped()).Select(rule => rule.RuleTyped);
+            var rulesAllowedTyped = rulesAllowed.Where(rule => rule.IsTyped()).Select(rule => rule.Typed);
 
             foreach (var rule in rulesAllowed)
             {
@@ -93,14 +93,14 @@ namespace WFCToolset
                 }
                 if (rule.IsTyped())
                 {
-                    var ruleTyped = rule.RuleTyped;
+                    var ruleTyped = rule.Typed;
                     if (
                         rulesDisallowedProcessed.Any(ruleDisallowed =>
                             ruleDisallowed.IsExplicit() &&
-                            (ruleDisallowed.RuleExplicit.SourceModuleName == ruleTyped.ModuleName &&
-                             ruleDisallowed.RuleExplicit.SourceConnectorIndex == ruleTyped.ConnectorIndex) ||
-                            (ruleDisallowed.RuleExplicit.TargetModuleName == ruleTyped.ModuleName &&
-                             ruleDisallowed.RuleExplicit.TargetConnectorIndex == ruleTyped.ConnectorIndex)
+                            (ruleDisallowed.Explicit.SourceModuleName == ruleTyped.ModuleName &&
+                             ruleDisallowed.Explicit.SourceConnectorIndex == ruleTyped.ConnectorIndex) ||
+                            (ruleDisallowed.Explicit.TargetModuleName == ruleTyped.ModuleName &&
+                             ruleDisallowed.Explicit.TargetConnectorIndex == ruleTyped.ConnectorIndex)
                             )
                         )
                     {

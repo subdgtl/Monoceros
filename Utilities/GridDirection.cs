@@ -2,13 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using Rhino.Geometry;
 
 namespace WFCToolset
 {
     /// <summary>
-    /// Submodule face direction within a grid. 
+    /// Submodule face axis within a grid: <c>X</c> or <c>Y</c> or <c>Z</c>.
     /// </summary>
     public enum Axis
     {
@@ -16,23 +15,40 @@ namespace WFCToolset
         Y,
         Z
     }
+
+    /// <summary>
+    /// Submodule face orientation within a grid: <c>Positive</c> or <c>Negative</c>.
+    /// </summary>
     public enum Orientation
     {
         Positive,
         Negative
     }
 
+    /// <summary>
+    /// Submodule face direction consisting of <see cref="Axis"/> and <see cref="Orientation"/>.
+    /// </summary>
     public struct Direction
     {
         public Axis _axis;
         public Orientation _orientation;
 
+        /// <summary>
+        /// Determines whether the other <see cref="Direction"/> is opposite to the current.
+        /// A <see cref="Direction"/> is opposite when the <see cref="Axis"/> equals and <see cref="Orientation"/> does not.
+        /// </summary>
+        /// <param name="other">The other.</param>
+        /// <returns>True if opposite.</returns>
         public bool IsOpposite(Direction other)
         {
             return _axis == other._axis &&
                 _orientation != other._orientation;
         }
 
+        /// <summary>
+        /// Returns flipped <see cref="Direction"/> - the <see cref="Axis"/> remains the same, the <see cref="Orientation"/> flips.
+        /// </summary>
+        /// <returns>A flipped Direction.</returns>
         public Direction ToFlipped()
         {
             var flipped = new Direction()
@@ -43,95 +59,11 @@ namespace WFCToolset
             return flipped;
         }
 
-        public override string ToString()
-        {
-            return _orientation.ToString("g") + _axis.ToString("g");
-        }
 
         /// <summary>
-        /// Detect orthogonal direction of a vector relative to the base plane. 
+        /// Converts the <see cref="Direction"/> to a <see cref="Vector3d"/> in Cartesian coordinate system.
         /// </summary>
-        /// <param name="vector">
-        /// Vector to be checked.
-        /// </param>
-        /// <param name="basePlane">
-        /// Base plane defining XYZ and inverted XYZ directions.
-        /// </param>
-        public static Direction FromDirectionVector(Vector3d vector, Plane basePlane)
-        {
-            const double EPSILON = Rhino.RhinoMath.SqrtEpsilon;
-            vector.Unitize();
-            var x = basePlane.XAxis;
-            x.Unitize();
-            if (vector.EpsilonEquals(x, EPSILON))
-            {
-                return new Direction
-                {
-                    _axis = Axis.X,
-                    _orientation = Orientation.Positive
-                };
-            };
-            var y = basePlane.YAxis;
-            y.Unitize();
-            if (vector.EpsilonEquals(y, EPSILON))
-            {
-                return new Direction
-                {
-                    _axis = Axis.Y,
-                    _orientation = Orientation.Positive
-                };
-            }
-            var z = basePlane.ZAxis;
-            z.Unitize();
-            if (vector.EpsilonEquals(z, EPSILON))
-            {
-                return new Direction
-                {
-                    _axis = Axis.Z,
-                    _orientation = Orientation.Positive
-                };
-            }
-            var ix = basePlane.XAxis;
-            ix.Unitize();
-            ix.Reverse();
-            if (vector.EpsilonEquals(ix, EPSILON))
-            {
-                return new Direction
-                {
-                    _axis = Axis.X,
-                    _orientation = Orientation.Negative
-                };
-            }
-            var iy = basePlane.YAxis;
-            iy.Unitize();
-            iy.Reverse();
-            if (vector.EpsilonEquals(iy, EPSILON))
-            {
-                return new Direction
-                {
-                    _axis = Axis.Y,
-                    _orientation = Orientation.Negative
-                };
-            }
-            var iz = basePlane.ZAxis;
-            iz.Unitize();
-            iz.Reverse();
-            if (vector.EpsilonEquals(iz, EPSILON))
-            {
-                return new Direction
-                {
-                    _axis = Axis.Z,
-                    _orientation = Orientation.Negative
-                };
-
-            }
-            else
-            {
-                throw new Exception("The axis cannot be determined from the vector");
-            }
-
-        }
-
+        /// <returns>A Vector3d.</returns>
         public Vector3d ToVector()
         {
             if (_axis == Axis.X && _orientation == Orientation.Positive)
@@ -167,6 +99,12 @@ namespace WFCToolset
             return Vector3d.Unset;
         }
 
+        /// <summary>
+        /// Converts the <see cref="Direction"/> to a submodule connector index, according to the convention:
+        /// (submoduleIndex * 6) + faceIndex, where faceIndex is X=0, Y=1, Z=2, -X=3, -Y=4, -Z=5.
+        /// This method is the source of truth.
+        /// </summary>
+        /// <returns>Submodule connector index.</returns>
         public int ToConnectorIndex()
         {
             // Connector numbering convention: (submoduleIndex * 6) + faceIndex, where faceIndex is X=0, Y=1, Z=2, -X=3, -Y=4, -Z=5
@@ -194,6 +132,7 @@ namespace WFCToolset
             {
                 return 5;
             }
+            // Never
             return -1;
         }
 

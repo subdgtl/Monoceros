@@ -11,6 +11,76 @@ using Rhino.Geometry;
 
 namespace WFCToolset
 {
+    /// <summary>
+    /// <para>
+    /// Grasshopper component: WFC Construct Module From Production Geometry
+    /// </para>
+    /// <para>
+    /// Construct a WFC <see cref="Module"/> from input <see cref="GeometryBase"/>, which will be also used 
+    /// by the <see cref="ComponentPostprocessor"/> to materialize the result of the WFC <see cref="ComponentFauxSolver"/>.
+    /// </para>
+    /// <para>
+    /// Grasshopper inputs:
+    /// <list type="bullet">
+    /// <item>
+    /// <term><see cref="ModuleName"/> Name</term>
+    /// <description>
+    /// <see cref="Module"/> name to be used as its unique identifier.
+    /// Disallowed names are listed in <see cref="Configuration.RESERVED_NAMES"/>. 
+    /// The Name will be converted to lowercase.
+    /// Item access.
+    /// No default.
+    /// </description>
+    /// </item>
+    /// <item>
+    /// <term><see cref="GeometryBase"/> Geometry</term>
+    /// <description>
+    /// Geometry defining the <see cref="Module"/>. 
+    /// Supports <see cref="Point3d"/>, <see cref="Curve"/>, <see cref="Brep"/> and <see cref="Mesh"/>.
+    /// For better and faster results prefer <see cref="Mesh"/> to <see cref="Brep"/> .
+    /// List access.
+    /// No default.
+    /// </description>
+    /// </item>
+    /// <item>
+    /// <term><see cref="Plane"/> Base Plane</term>
+    /// <description>
+    /// Grid space base plane. Defines orientation of the grid.
+    /// Item access.
+    /// Default <see cref="Plane.WorldXY"/>.
+    /// </description>
+    /// </item>
+    /// <item>
+    /// <term><see cref="Vector3d"/> Grid Slot Diagonal</term>
+    /// <description>
+    /// World grid <see cref="Slot"/> diagonal <see cref="Vector3d"/> specifying single grid cell dimension in base-plane-aligned XYZ axes.
+    /// Item access.
+    /// Default <c>Vector3d(1.0, 1.0, 1.0)</c>.
+    /// </description>
+    /// </item>
+    /// <item>
+    /// <term><see cref="double"/> Precision</term>
+    /// <description>
+    /// Module slicer precision (lower is more precise but slower).
+    /// Item access.
+    /// Default <c>0.5</c>.
+    /// </description>
+    /// </item>
+    /// </list>
+    /// </para>
+    /// <para>
+    /// Grasshopper outputs:
+    /// <list type="bullet">
+    /// <item>
+    /// <term><see cref="Module"/> Module</term>
+    /// <description>
+    /// WFC Module encapsulating the input geometry and containing the same input geometry.
+    /// Item access.
+    /// </description>
+    /// </item>
+    /// </list>
+    /// </para>
+    /// </summary>
     public class ComponentModuleFromGeometry : GH_Component
     {
         public ComponentModuleFromGeometry() : base("WFC Construct Module From Production Geometry", "WFCModuleGeo",
@@ -30,7 +100,7 @@ namespace WFCToolset
                                   "Module name (except '" + Configuration.RESERVED_TO_STRING + "'). The Name will be converted to lowercase.",
                                   GH_ParamAccess.item);
             pManager.AddGeometryParameter("Geometry", "G", "Geometry defining the module. Point, Curve, Brep, Mesh. Prefer Mesh to BRep.", GH_ParamAccess.list);
-            pManager.AddPlaneParameter("Base plane", "B", "Grid space base plane. Defines orientation of the grid.", GH_ParamAccess.item, Plane.WorldXY);
+            pManager.AddPlaneParameter("Base Plane", "B", "Grid space base plane. Defines orientation of the grid.", GH_ParamAccess.item, Plane.WorldXY);
             pManager.AddVectorParameter(
                "Grid Slot Diagonal",
                "D",
@@ -87,7 +157,7 @@ namespace WFCToolset
                 return;
             }
 
-            var name = nameRaw.Name;
+            var name = nameRaw.Name.ToLower();
 
             if (name.Length == 0)
             {
@@ -101,6 +171,7 @@ namespace WFCToolset
                 return;
             }
 
+            // Remove invalid geometry and unwrap the rest from the Grasshopper type wrapper
             var geometryClean = geometryRaw
                .Where(goo => goo != null)
                .Select(ghGeo =>
@@ -122,6 +193,10 @@ namespace WFCToolset
                 return;
             }
 
+            // Orient so that the module axes match the Cartesian space
+            // Scale to make the slot diagonal (1, 1, 1)
+            // This way it is easier to populate the geometry with points and determine slot cages
+
             // Scale down to unit size
             var normalizationTransform = Transform.Scale(basePlane, 1 / slotDiagonal.X, 1 / slotDiagonal.Y, 1 / slotDiagonal.Z);
             // Orient to the world coordinate system
@@ -129,13 +204,14 @@ namespace WFCToolset
             // Slot dimension is for the sake of this calculation 1,1,1
             var divisionLength = precision;
             var submoduleCenters = new List<Point3i>();
+
             foreach (var goo in geometryClean)
             {
                 var geo = goo.Duplicate();
                 if (geo.Transform(normalizationTransform) && geo.Transform(worldAlignmentTransform))
                 {
                     // TODO: Let user choose the method of populating the geometry, just like with slots
-                    // Populate with points (many)
+                    // Populate with points (more than necessary)
                     var populatePoints = Populate.PopulateGeometry(divisionLength, geo);
                     foreach (var geometryPoint in populatePoints)
                     {
@@ -178,8 +254,6 @@ namespace WFCToolset
         /// Icons need to be 24x24 pixels.
         /// </summary>
         protected override System.Drawing.Bitmap Icon =>
-                // You can add image files to your project resources and access them like this:
-                //return Resources.IconForThisComponent;
                 Properties.Resources.M;
 
         /// <summary>

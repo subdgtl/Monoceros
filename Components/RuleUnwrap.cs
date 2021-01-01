@@ -57,9 +57,9 @@ namespace WFCToolset
 
             var rulesTyped = rulesInput
                 .Where(rule => rule.IsTyped())
-                .Select(rule => rule.RuleTyped);
+                .Select(rule => rule.Typed);
 
-            Module.GenerateNamedEmptySingleModule(Configuration.OUTER_TAG,
+            Module.GenerateNamedEmptySingleModule(Configuration.OUTER_MODULE_NAME,
                                                   Configuration.INDIFFERENT_TAG,
                                                   new Rhino.Geometry.Vector3d(1, 1, 1),
                                                   out var moduleOut,

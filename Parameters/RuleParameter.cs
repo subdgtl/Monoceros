@@ -8,7 +8,9 @@ using Grasshopper.Kernel;
 
 namespace WFCToolset
 {
-
+    /// <summary>
+    /// Wraps <see cref="Rule"/> type so that it can be used in Grasshopper as an input, output or a floating parameter.
+    /// </summary>
     public class RuleParameter : GH_PersistentParam<Rule>
     {
         public RuleParameter()

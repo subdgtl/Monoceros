@@ -44,7 +44,7 @@ namespace WFCToolset
         {
             var modules = new List<Module>();
             var point = new Point3d();
-            var targetName = Configuration.OUTER_TAG;
+            var targetName = Configuration.OUTER_MODULE_NAME;
 
             if (!DA.GetDataList(0, modules))
             {
