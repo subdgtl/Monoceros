@@ -430,11 +430,10 @@ namespace WFCToolset
 
         public bool CastTo<T>(out T target)
         {
-            // TODO: This is overridden by ToString. Not sure this could ever work
-            if (IsValid && typeof(T) == typeof(string))
+            if (IsValid && typeof(T) == typeof(ModuleName))
             {
-                var obj = Name.Clone();
-                target = (T)obj;
+                var moduleName = new ModuleName(Name);
+                target = (T)moduleName.Duplicate();
                 return true;
             }
             target = default;

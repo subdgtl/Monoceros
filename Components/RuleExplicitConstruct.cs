@@ -21,9 +21,9 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddTextParameter("Source Module", "SM", "Source module name", GH_ParamAccess.item);
+            pManager.AddParameter(new ModuleNameParameter(), "Source Module", "SM", "Source module name", GH_ParamAccess.item);
             pManager.AddIntegerParameter("Source Connector Index", "SC", "Source connector number", GH_ParamAccess.item);
-            pManager.AddTextParameter("Target Module", "TM", "Target module name", GH_ParamAccess.item);
+            pManager.AddParameter(new ModuleNameParameter(), "Target Module", "TM", "Target module name", GH_ParamAccess.item);
             pManager.AddIntegerParameter("Target Connector Index", "TC", "Target connector number", GH_ParamAccess.item);
         }
 
@@ -42,12 +42,12 @@ namespace WFCToolset
         /// to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            var sourceName = "";
+            var sourceNameRaw = new ModuleName();
             var sourceConnector = 0;
-            var targetName = "";
+            var targetNameRaw = new ModuleName();
             var targetConnector = 0;
 
-            if (!DA.GetData(0, ref sourceName))
+            if (!DA.GetData(0, ref sourceNameRaw))
             {
                 return;
             }
@@ -57,7 +57,7 @@ namespace WFCToolset
                 return;
             }
 
-            if (!DA.GetData(2, ref targetName))
+            if (!DA.GetData(2, ref targetNameRaw))
             {
                 return;
             }
@@ -66,6 +66,9 @@ namespace WFCToolset
             {
                 return;
             }
+
+            var sourceName = sourceNameRaw.Name;
+            var targetName = targetNameRaw.Name;
 
             if (sourceName == targetName && sourceConnector == targetConnector)
             {

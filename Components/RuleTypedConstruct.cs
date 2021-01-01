@@ -21,7 +21,7 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddTextParameter("Module", "M", "Module name", GH_ParamAccess.item);
+            pManager.AddParameter(new ModuleNameParameter(), "Module", "M", "Module name", GH_ParamAccess.item);
             pManager.AddIntegerParameter("Connector", "C", "Connector number", GH_ParamAccess.item);
             pManager.AddTextParameter("Type", "T", "Connector type", GH_ParamAccess.item);
         }
@@ -41,12 +41,11 @@ namespace WFCToolset
         /// to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            var moduleName = "";
+            var moduleNameRaw = new ModuleName();
             var connector = 0;
             var type = "";
 
-
-            if (!DA.GetData(0, ref moduleName))
+            if (!DA.GetData(0, ref moduleNameRaw))
             {
                 return;
             }
@@ -60,6 +59,8 @@ namespace WFCToolset
             {
                 return;
             }
+
+            var moduleName = moduleNameRaw.Name;
 
             var rule = new Rule(moduleName, connector, type);
 

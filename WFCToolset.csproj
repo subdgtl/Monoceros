@@ -79,8 +79,10 @@
     <Compile Include="Components\RuleIndifferentFromPoint.cs" />
     <Compile Include="Components\RuleTypedFromPoint.cs" />
     <Compile Include="Components\RuleExplicitFromCurve.cs" />
+    <Compile Include="Parameters\ModuleNameParameter.cs" />
     <Compile Include="Parameters\SlotParameter.cs" />
     <Compile Include="Types\Point3i.cs" />
+    <Compile Include="Types\ModuleName.cs" />
     <Compile Include="Types\Slot.cs" />
     <Compile Include="Utilities\GridDirection.cs">
       <LastGenOutput>GridDirection1.cs</LastGenOutput>

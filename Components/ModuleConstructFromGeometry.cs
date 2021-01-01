@@ -24,9 +24,11 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddTextParameter("Name", "N",
-                                      "Module name (except '" + Configuration.RESERVED_TO_STRING + "'). The Name will be converted to lowercase.",
-                                      GH_ParamAccess.item);
+            pManager.AddParameter(new ModuleNameParameter(),
+                                  "Name",
+                                  "N",
+                                  "Module name (except '" + Configuration.RESERVED_TO_STRING + "'). The Name will be converted to lowercase.",
+                                  GH_ParamAccess.item);
             pManager.AddGeometryParameter("Geometry", "G", "Geometry defining the module. Point, Curve, Brep, Mesh. Prefer Mesh to BRep.", GH_ParamAccess.list);
             pManager.AddPlaneParameter("Base plane", "B", "Grid space base plane. Defines orientation of the grid.", GH_ParamAccess.item, Plane.WorldXY);
             pManager.AddVectorParameter(
@@ -55,12 +57,12 @@ namespace WFCToolset
         protected override void SolveInstance(IGH_DataAccess DA)
         {
             var geometryRaw = new List<IGH_GeometricGoo>();
-            var name = "";
+            var nameRaw = new ModuleName();
             var basePlane = new Plane();
             var slotDiagonal = new Vector3d();
             var precision = 0.5;
 
-            if (!DA.GetData(0, ref name))
+            if (!DA.GetData(0, ref nameRaw))
             {
                 return;
             }
@@ -84,6 +86,8 @@ namespace WFCToolset
             {
                 return;
             }
+
+            var name = nameRaw.Name;
 
             if (name.Length == 0)
             {

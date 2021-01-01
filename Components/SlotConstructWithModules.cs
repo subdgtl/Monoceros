@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
@@ -36,10 +37,11 @@ namespace WFCToolset
                GH_ParamAccess.item,
                new Vector3d(1.0, 1.0, 1.0)
                );
-            pManager.AddTextParameter("Allowed Module Names",
-                                         "M",
-                                         "Initiate the slot with specified module names allowed.",
-                                         GH_ParamAccess.list);
+            pManager.AddParameter(new ModuleNameParameter(),
+                                  "Allowed Module Names",
+                                  "M",
+                                  "Initiate the slot with specified module names allowed.",
+                                  GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -60,7 +62,7 @@ namespace WFCToolset
             var point = new Point3d();
             var basePlane = new Plane();
             var diagonal = new Vector3d();
-            var allowedModules = new List<string>();
+            var allowedModulesRaw = new List<ModuleName>();
 
             if (!DA.GetData(0, ref point))
             {
@@ -77,10 +79,12 @@ namespace WFCToolset
                 return;
             }
 
-            if (!DA.GetDataList(3, allowedModules))
+            if (!DA.GetDataList(3, allowedModulesRaw))
             {
                 return;
             }
+
+            var allowedModules = allowedModulesRaw.Select(name => name.Name).ToList();
 
             if (diagonal.X <= 0 || diagonal.Y <= 0 || diagonal.Z <= 0)
             {

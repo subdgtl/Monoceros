@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
@@ -52,10 +53,11 @@ namespace WFCToolset
                                          "The slot allows no module to be placed in it if true.",
                                          GH_ParamAccess.list
                                          );
-            pManager.AddTextParameter("Allowed Module Names",
-                                         "M",
-                                         "Initiate the slot with specified module names allowed.",
-                                         GH_ParamAccess.list);
+            pManager.AddParameter(new ModuleNameParameter(),
+                                  "Allowed Module Names",
+                                  "M",
+                                  "Initiate the slot with specified module names allowed.",
+                                  GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -77,7 +79,7 @@ namespace WFCToolset
             DA.SetDataList(2, new List<Vector3d>() { slot.Diagonal });
             DA.SetDataList(3, new List<bool>() { slot.AllowedEverything });
             DA.SetDataList(4, new List<bool>() { slot.AllowedNothing });
-            DA.SetDataList(5, slot.AllowedModules);
+            DA.SetDataList(5, slot.AllowedModules.Select(name => new ModuleName(name)));
         }
 
 

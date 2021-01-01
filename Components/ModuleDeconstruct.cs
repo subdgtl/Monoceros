@@ -31,7 +31,7 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddTextParameter("Name", "N", "Module name (converted to lowercase).", GH_ParamAccess.list);
+            pManager.AddParameter(new ModuleNameParameter(), "Name", "N", "Module name (converted to lowercase).", GH_ParamAccess.list);
             pManager.AddPointParameter("Slot Centers", "SC", "Used slots centers to be used for module reconstruction.", GH_ParamAccess.list);
             pManager.AddGeometryParameter("Geometry", "G", "Geometry contained in the module.", GH_ParamAccess.list);
             pManager.AddPlaneParameter("Base Plane", "B", "Grid space base plane. Defines orientation of the grid.", GH_ParamAccess.list);
@@ -66,7 +66,7 @@ namespace WFCToolset
                 return center;
             });
 
-            DA.SetDataList(0, new List<string> { module.Name });
+            DA.SetDataList(0, new List<ModuleName> { new ModuleName(module.Name) });
             DA.SetDataList(1, submoduleCenters);
             DA.SetDataList(2, module.Geometry);
             DA.SetDataList(3, new List<Plane> { module.BasePlane });

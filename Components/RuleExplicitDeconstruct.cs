@@ -29,9 +29,9 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddTextParameter("Source Module", "SM", "Source module name", GH_ParamAccess.item);
+            pManager.AddParameter(new ModuleNameParameter(), "Source Module", "SM", "Source module name", GH_ParamAccess.item);
             pManager.AddIntegerParameter("Source Connector Index", "SC", "Source connector number", GH_ParamAccess.item);
-            pManager.AddTextParameter("Target Module", "TM", "Target module name", GH_ParamAccess.item);
+            pManager.AddParameter(new ModuleNameParameter(), "Target Module", "TM", "Target module name", GH_ParamAccess.item);
             pManager.AddIntegerParameter("Target Connector Index", "TC", "Target connector number", GH_ParamAccess.item);
         }
 
@@ -52,16 +52,12 @@ namespace WFCToolset
             if (!rule.IsExplicit())
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The provided rule is not explicit.");
-                DA.SetData(0, null);
-                DA.SetData(1, null);
-                DA.SetData(2, null);
-                DA.SetData(3, null);
                 return;
             }
 
-            DA.SetData(0, rule.RuleExplicit.SourceModuleName);
+            DA.SetData(0, new ModuleName(rule.RuleExplicit.SourceModuleName));
             DA.SetData(1, rule.RuleExplicit.SourceConnectorIndex);
-            DA.SetData(2, rule.RuleExplicit.TargetModuleName);
+            DA.SetData(2, new ModuleName(rule.RuleExplicit.TargetModuleName));
             DA.SetData(3, rule.RuleExplicit.TargetConnectorIndex);
         }
 
