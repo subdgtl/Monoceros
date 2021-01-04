@@ -59,11 +59,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Components\ModuleConstructEmpty.cs" />
-    <Compile Include="Components\ModuleConstructFromHelper.cs" />
+    <Compile Include="Components\ModuleConstruct.cs" />
     <Compile Include="Components\ModuleDeconstruct.cs" />
     <Compile Include="Components\Postprocessor.cs" />
     <Compile Include="Components\SolverFaux.cs" />
-    <Compile Include="Components\SlotPopulateGeometryWithCenters.cs" />
+    <Compile Include="Components\PopulateGeometryWithSlotCenters.cs" />
     <Compile Include="Components\SlotDeconstruct.cs" />
     <Compile Include="Components\SlotConstructWithModules.cs" />
     <Compile Include="Components\SlotConstructWithAll.cs" />
@@ -94,7 +94,6 @@
     </Compile>
     <Compile Include="Components\RuleTypedConstruct.cs" />
     <Compile Include="Components\RuleExplicitConstruct.cs" />
-    <Compile Include="Components\ModuleConstructFromGeometry.cs" />
     <Compile Include="Parameters\RuleParameter.cs" />
     <Compile Include="Parameters\ModuleParameter.cs" />
     <Compile Include="Types\Module.cs" />

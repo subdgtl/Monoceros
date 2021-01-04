@@ -20,7 +20,7 @@ namespace WFCToolset
                                                                  "used as WFC Slot centers. Supports Point, Curve, " +
                                                                  "Brep, Mesh. Prefer Mesh to BRep.",
                                                                  "WaveFunctionCollapse",
-                                                                 "Slot")
+                                                                 "World")
         {
         }
 
@@ -226,7 +226,7 @@ namespace WFCToolset
         protected override System.Drawing.Bitmap Icon =>
                 // You can add image files to your project resources and access them like this:
                 //return Resources.IconForThisComponent;
-                Properties.Resources.S;
+                Properties.Resources.W;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it. 
