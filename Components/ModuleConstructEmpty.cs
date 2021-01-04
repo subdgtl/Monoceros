@@ -62,9 +62,11 @@ namespace WFCToolset
     /// </summary>
     public class ComponentModuleEmpty : GH_Component
     {
-        public ComponentModuleEmpty() : base("WFC Construct Empty Module", "WFCModuleEmpty",
-            "Construct an empty WFC Module.",
-            "WaveFunctionCollapse", "Module")
+        public ComponentModuleEmpty() : base("WFC Construct Empty Module",
+                                             "WFCModuleEmpty",
+                                             "Construct an empty WFC Module.",
+                                             "WaveFunctionCollapse",
+                                             "Module")
         {
         }
 

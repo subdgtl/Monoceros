@@ -10,9 +10,14 @@ namespace WFCToolset
 
     public class ComponentConstructRuleExplicit : GH_Component
     {
-        public ComponentConstructRuleExplicit() : base("WFC Construct Explicit Rule From Components", "WFCConstRuleExp",
-            "Construct an Explicit WFC Rule (connector-to-connector) from module name and connector number. The existence of the module and connector as well as whether the connectors are opposite is not being checked.",
-            "WaveFunctionCollapse", "Rule")
+        public ComponentConstructRuleExplicit() : base("WFC Construct Explicit Rule From Components",
+                                                       "WFCConstRuleExp",
+                                                       "Construct an Explicit WFC Rule (connector-to-connector) " +
+                                                       "from module name and connector number. " +
+                                                       "The existence of the module and connector as well as whether " +
+                                                       "the connectors are opposite is not being checked.",
+                                                       "WaveFunctionCollapse",
+                                                       "Rule")
         {
         }
 
@@ -21,10 +26,24 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddParameter(new ModuleNameParameter(), "Source Module", "SM", "Source module name", GH_ParamAccess.item);
-            pManager.AddIntegerParameter("Source Connector Index", "SC", "Source connector number", GH_ParamAccess.item);
-            pManager.AddParameter(new ModuleNameParameter(), "Target Module", "TM", "Target module name", GH_ParamAccess.item);
-            pManager.AddIntegerParameter("Target Connector Index", "TC", "Target connector number", GH_ParamAccess.item);
+            pManager.AddParameter(new ModuleNameParameter(),
+                                  "Source Module",
+                                  "SM",
+                                  "Source module name",
+                                  GH_ParamAccess.item);
+            pManager.AddIntegerParameter("Source Connector Index",
+                                         "SC",
+                                         "Source connector number",
+                                         GH_ParamAccess.item);
+            pManager.AddParameter(new ModuleNameParameter(),
+                                  "Target Module",
+                                  "TM",
+                                  "Target module name",
+                                  GH_ParamAccess.item);
+            pManager.AddIntegerParameter("Target Connector Index",
+                                         "TC",
+                                         "Target connector number",
+                                         GH_ParamAccess.item);
         }
 
         /// <summary>

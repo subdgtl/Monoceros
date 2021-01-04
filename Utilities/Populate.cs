@@ -9,62 +9,12 @@ using Rhino.Geometry;
 
 namespace WFCToolset
 {
-    // TODO: Very buggy!!! Check the logic, optimize and make sure it returns valid results.
     /// <summary>
     /// Various methods populating various geometries with points in a discrete grid.
     /// Supplemental static methods for the WFC Tools. 
     /// </summary>
     public class Populate
     {
-        // TODO: Stop using this, use PopulateSurface and PopulateVolume instead
-        /// <summary>
-        /// Populate geometry surface with evenly distributed points in specified distances.
-        /// Supported geometry types: Point, Curve (incl. Line, Polyline, Arc, Circle), Mesh, BRep (incl. Surface).
-        /// </summary>
-        /// <param name="distance">
-        /// Rough maximum distance between the points. 
-        /// This behaves differently for various geometry type and for various circumstances. 
-        /// The distance is never higher and often is significantly lower (mainly for Mesh geometry). 
-        /// </param>
-        /// <param name="goo">
-        /// Geometry, which surface should to be populated with points. 
-        /// </param>
-        public static IEnumerable<Point3d> PopulateGeometry(double distance, GeometryBase goo)
-        {
-            var type = goo.ObjectType;
-            switch (type)
-            {
-                case Rhino.DocObjects.ObjectType.Point:
-                    var point = (Point)goo;
-                    return Enumerable.Repeat(point.Location, 1);
-                case Rhino.DocObjects.ObjectType.Curve:
-                    var curve = (Curve)goo;
-                    return PopulateCurve(distance, curve);
-                case Rhino.DocObjects.ObjectType.Mesh:
-                    var mesh = (Mesh)goo;
-                    var surfacePoints = PopulateMeshSurface(distance, mesh);
-                    var volumePoints = PopulateMeshVolume(distance, mesh);
-                    var points = surfacePoints.Concat(volumePoints);
-                    return points;
-            }
-            if (goo.HasBrepForm)
-            {
-                var meshingParameters = MeshingParameters.FastRenderMesh;
-                var meshes = Mesh.CreateFromBrep(Brep.TryConvertBrep(goo), meshingParameters);
-                var points = new List<Point3d>();
-                foreach (var mesh in meshes)
-                {
-                    var surfacePoints = PopulateMeshSurface(distance, mesh);
-                    var volumePoints = PopulateMeshVolume(distance, mesh);
-                    points.AddRange(surfacePoints);
-                    points.AddRange(volumePoints);
-                }
-                return points;
-            }
-            return null;
-        }
-
-        // TODO: Check the logic, optimize and make sure it returns valid results.
         /// <summary>
         /// Populates the surface of various geometries with points.
         /// </summary>
@@ -85,55 +35,11 @@ namespace WFCToolset
                 case Rhino.DocObjects.ObjectType.Mesh:
                     var mesh = (Mesh)goo;
                     return PopulateMeshSurface(distance, mesh);
+                default:
+                    return Enumerable.Empty<Point3d>();
             }
-            if (goo.HasBrepForm)
-            {
-                var meshingParameters = MeshingParameters.FastRenderMesh;
-                var meshes = Mesh.CreateFromBrep(Brep.TryConvertBrep(goo), meshingParameters);
-                var points = new List<Point3d>();
-                foreach (var mesh in meshes)
-                {
-                    var surfacePoints = PopulateMeshSurface(distance, mesh);
-                    points.AddRange(surfacePoints);
-                }
-                return points;
-            }
-            return null;
         }
 
-        // TODO: Check the logic, optimize and make sure it returns valid results.
-        // TODO: Make this more precise - check slot corners for containment.
-        /// <summary>
-        /// Populates the volume with points.
-        /// </summary>
-        /// <param name="distance">The distance.</param>
-        /// <param name="goo">The goo.</param>
-        /// <returns>A list of Point3ds.</returns>
-        public static IEnumerable<Point3d> PopulateVolume(double distance, GeometryBase goo)
-        {
-            var type = goo.ObjectType;
-            if (type == Rhino.DocObjects.ObjectType.Mesh)
-            {
-                var mesh = (Mesh)goo;
-                return PopulateMeshVolume(distance, mesh);
-            }
-            if (goo.HasBrepForm)
-            {
-                var meshingParameters = MeshingParameters.FastRenderMesh;
-                var meshes = Mesh.CreateFromBrep(Brep.TryConvertBrep(goo), meshingParameters);
-                var points = new List<Point3d>();
-                foreach (var mesh in meshes)
-                {
-                    var volumePoints = PopulateMeshVolume(distance, mesh);
-                    points.AddRange(volumePoints);
-                }
-                return points;
-            }
-            return null;
-        }
-
-        // TODO: Check the logic, optimize and make sure it returns valid results.
-        // TODO: Try to avoid memory allocation
         /// <summary>
         /// Populate mesh surface with evenly distributed points in specified distances.
         /// </summary>
@@ -147,30 +53,21 @@ namespace WFCToolset
         /// </param>
         public static IEnumerable<Point3d> PopulateMeshSurface(double distance, Mesh mesh)
         {
-            var pointsOnMesh = new List<Point3d>();
-            foreach (var face in mesh.Faces)
+            return mesh.Faces.SelectMany(face =>
             {
-                pointsOnMesh.AddRange(
-                    PopulateTriangle(
-                        distance,
-                        mesh.Vertices[face.A],
-                        mesh.Vertices[face.B],
-                        mesh.Vertices[face.C]
-                    )
-                );
                 if (!face.IsTriangle)
                 {
-                    pointsOnMesh.AddRange(
-                        PopulateTriangle(
-                            distance,
-                            mesh.Vertices[face.A],
-                            mesh.Vertices[face.B],
-                            mesh.Vertices[face.D]
-                        )
-                    );
+                    return PopulateTriangle(distance, mesh.Vertices[face.A], mesh.Vertices[face.B], mesh.Vertices[face.C]);
+
                 }
-            }
-            return pointsOnMesh;
+                else
+                {
+                    return PopulateTriangle(distance, mesh.Vertices[face.A], mesh.Vertices[face.B], mesh.Vertices[face.C])
+                    .Concat(
+                        PopulateTriangle(distance, mesh.Vertices[face.A], mesh.Vertices[face.C], mesh.Vertices[face.D])
+                        );
+                }
+            });
         }
 
         // TODO: Check the logic, optimize and make sure it returns valid results.
@@ -200,81 +97,13 @@ namespace WFCToolset
             }
         }
 
-        // TODO: Check the logic, optimize and make sure it returns valid results.
-        // TODO: Try to avoid memory allocation
         /// <summary>
-        /// Populate Brep surface with evenly distributed points in specified distances.
+        /// Populates the mesh volume.
         /// </summary>
-        /// <param name="distance">
-        /// Rough maximum distance between the points. 
-        /// This behaves differently for various geometry type and for various circumstances. 
-        /// The distance is never higher and often is significantly lower. 
-        /// </param>
-        /// <param name="bRep">
-        /// BRep geometry (incl. Surface), which surface should to be populated with points. 
-        /// </param>
-        public static IEnumerable<Point3d> PopulateBrepSurface(double distance, Brep bRep)
-        {
-            // TODO: Investigate the imprecise results
-            var pointsOnBrepSurfaces = new List<Point3d>();
-            var faces = bRep.Faces;
-            foreach (var face in faces)
-            {
-                face.GetSurfaceSize(out var width, out var height);
-                var divisions = (int)Math.Ceiling(Math.Max(width, height) / distance);
-                var domainU = face.Domain(0);
-                var domainV = face.Domain(1);
-                for (var vCounter = 0; vCounter <= divisions; vCounter++)
-                {
-                    for (var uCounter = 0; uCounter <= divisions; uCounter++)
-                    {
-                        var u = domainU.Length * uCounter / divisions + domainU.Min;
-                        var v = domainV.Length * vCounter / divisions + domainV.Min;
-                        if (face.IsSurface)
-                        {
-                            pointsOnBrepSurfaces.Add(face.PointAt(u, v));
-                        }
-                        else
-                        {
-                            // If the face is a trimmed surface, then check if the generated point is inside.
-                            var pointFaceRelation = face.IsPointOnFace(u, v);
-                            if (pointFaceRelation == PointFaceRelation.Interior || pointFaceRelation == PointFaceRelation.Boundary)
-                            {
-                                pointsOnBrepSurfaces.Add(face.PointAt(u, v));
-                            }
-                        }
-                    }
-                }
-            }
-            return pointsOnBrepSurfaces;
-        }
-
-        // TODO: Completely rework or stop using and consider the use of PopulateMeshVolume instead
-        public static IEnumerable<Point3d> PopulateBrepVolume(double distance, Brep bRep)
-        {
-            // TODO: Investigate the imprecise results
-            var pointsInsideBrep = new List<Point3d>();
-            var boundingBox = bRep.GetBoundingBox(false);
-            for (var z = boundingBox.Min.Z - distance; z < boundingBox.Max.Z + distance; z += distance)
-            {
-                for (var y = boundingBox.Min.Y - distance; y < boundingBox.Max.Y + distance; y += distance)
-                {
-                    for (var x = boundingBox.Min.X - distance; x < boundingBox.Max.X + distance; x += distance)
-                    {
-                        var testPoint = new Point3d(x, y, z);
-                        if (bRep.IsPointInside(testPoint, Rhino.RhinoMath.SqrtEpsilon, true))
-                        {
-                            pointsInsideBrep.Add(testPoint);
-                        }
-                    }
-
-                }
-            }
-            return pointsInsideBrep;
-        }
-
-        // TODO: Gives bad results, investigate and possibly rework
-        public static IEnumerable<Point3d> PopulateMeshVolume(double distance, Mesh mesh)
+        /// <param name="distance">The distance - precision.</param>
+        /// <param name="mesh">The mesh.</param>
+        /// <returns>A list of Point3ds.</returns>
+        public static List<Point3d> PopulateMeshVolume(double distance, Mesh mesh)
         {
             var pointsInsideMesh = new List<Point3d>();
             var boundingBox = mesh.GetBoundingBox(false);
@@ -296,7 +125,6 @@ namespace WFCToolset
             return pointsInsideMesh;
         }
 
-        // TODO: Try to avoid memory allocation
         /// <summary>
         /// Evenly populate a triangle with points.
         /// </summary>
@@ -314,7 +142,7 @@ namespace WFCToolset
         /// This behaves differently for various geometry type and for various circumstances. 
         /// The distance is never higher and often is significantly lower. 
         /// </param>
-        private static IEnumerable<Point3d> PopulateTriangle(double distance, Point3d aPoint, Point3d bPoint, Point3d cPoint)
+        private static List<Point3d> PopulateTriangle(double distance, Point3d aPoint, Point3d bPoint, Point3d cPoint)
         {
             // Compute the density of points on the respective face.
             var abDistanceSq = aPoint.DistanceToSquared(bPoint);
@@ -325,7 +153,7 @@ namespace WFCToolset
             // Number of face divisions (points) in each direction.
             var divisions = Math.Ceiling(longestEdgeLen / distance);
 
-            var points = new List<Point3d>((int)Math.Sqrt(divisions + 1));
+            var points = new List<Point3d>(Convert.ToInt32(Math.Pow((divisions + 1), 2)));
 
             for (var ui = 0; ui < divisions; ui++)
             {

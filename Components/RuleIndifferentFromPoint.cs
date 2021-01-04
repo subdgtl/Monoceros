@@ -12,9 +12,11 @@ namespace WFCToolset
 {
     public class ComponentRuleIndifferentFromPoint : GH_Component
     {
-        public ComponentRuleIndifferentFromPoint() : base("WFC Create Indifferent Type Rule From Point Tag", "WFCRuleIndifferentPt",
-            "Allow the connector to connect to any opposite indifferent connector.",
-            "WaveFunctionCollapse", "Rule")
+        public ComponentRuleIndifferentFromPoint() : base("WFC Create Indifferent Type Rule From Point Tag",
+                                                          "WFCRuleIndifferentPt",
+                                                          "Allow the connector to connect to any opposite indifferent connector.",
+                                                          "WaveFunctionCollapse",
+                                                          "Rule")
         {
         }
 
@@ -23,8 +25,15 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddParameter(new ModuleParameter(), "Modules", "M", "All available WFC modules", GH_ParamAccess.list);
-            pManager.AddPointParameter("Point Tag", "PT", "Point marking a connector", GH_ParamAccess.item);
+            pManager.AddParameter(new ModuleParameter(),
+                                  "Modules",
+                                  "M",
+                                  "All available WFC modules",
+                                  GH_ParamAccess.list);
+            pManager.AddPointParameter("Point Tag",
+                                       "PT",
+                                       "Point marking a connector",
+                                       GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -68,7 +77,8 @@ namespace WFCToolset
 
             if (rules.Count == 0)
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The point does not mark any module connector.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                                  "The point does not mark any module connector.");
             }
 
             DA.SetDataList(0, rules);

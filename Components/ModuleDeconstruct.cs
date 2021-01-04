@@ -22,9 +22,12 @@ namespace WFCToolset
     /// </summary>
     public class ComponentModuleDeconstruct : GH_Component
     {
-        public ComponentModuleDeconstruct() : base("WFC Deconstruct Module To Components", "WFCDeconModule",
-            "Deconstruct WFC Module into name, base plane, connector planes, connector numbers and properties.",
-            "WaveFunctionCollapse", "Module")
+        public ComponentModuleDeconstruct() : base("WFC Deconstruct Module To Components",
+                                                   "WFCDeconModule",
+                                                   "Deconstruct WFC Module into name, base plane, " +
+                                                   "connector planes, connector numbers and properties.",
+                                                   "WaveFunctionCollapse",
+                                                   "Module")
         {
         }
 
@@ -41,14 +44,39 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddParameter(new ModuleNameParameter(), "Name", "N", "Module name (converted to lowercase).", GH_ParamAccess.list);
-            pManager.AddPointParameter("Slot Centers", "SC", "Used slots centers to be used for module reconstruction.", GH_ParamAccess.list);
-            pManager.AddGeometryParameter("Geometry", "G", "Geometry contained in the module.", GH_ParamAccess.list);
-            pManager.AddPlaneParameter("Base Plane", "B", "Grid space base plane. Defines orientation of the grid.", GH_ParamAccess.list);
-            pManager.AddVectorParameter("Grid Slot Diagonal", "D", "Grid slot diagonal vector specifying slot dimension in base-plane-aligned axes", GH_ParamAccess.list);
-            pManager.AddPlaneParameter("Connectors", "C", "Connector planes", GH_ParamAccess.list);
-            pManager.AddIntegerParameter("Connector Indices", "I", "Connector indices - a list parallel to C", GH_ParamAccess.list);
-            pManager.AddVectorParameter("Connector Direction", "D", "Connector direction base-plane-aligned axis vector - a list parallel to C", GH_ParamAccess.list);
+            pManager.AddParameter(new ModuleNameParameter(),
+                                  "Name",
+                                  "N",
+                                  "Module name (converted to lowercase).",
+                                  GH_ParamAccess.list);
+            pManager.AddPointParameter("Slot Centers",
+                                       "SC",
+                                       "Used slots centers to be used for module reconstruction.",
+                                       GH_ParamAccess.list);
+            pManager.AddGeometryParameter("Geometry",
+                                          "G",
+                                          "Geometry contained in the module.",
+                                          GH_ParamAccess.list);
+            pManager.AddPlaneParameter("Base Plane",
+                                       "B",
+                                       "Grid space base plane. Defines orientation of the grid.",
+                                       GH_ParamAccess.list);
+            pManager.AddVectorParameter("Grid Slot Diagonal",
+                                        "D",
+                                        "Grid slot diagonal vector specifying slot dimension in base-plane-aligned axes.",
+                                        GH_ParamAccess.list);
+            pManager.AddPlaneParameter("Connectors",
+                                       "C",
+                                       "Connector planes",
+                                       GH_ParamAccess.list);
+            pManager.AddIntegerParameter("Connector Indices",
+                                         "I",
+                                         "Connector indices - a list parallel to C",
+                                         GH_ParamAccess.list);
+            pManager.AddVectorParameter("Connector Direction",
+                                        "D",
+                                        "Connector direction base-plane-aligned axis vector - a list parallel to C.",
+                                        GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -66,7 +94,10 @@ namespace WFCToolset
             }
 
             var baseAlignmentTransform = Transform.PlaneToPlane(Plane.WorldXY, module.BasePlane);
-            var scalingTransform = Transform.Scale(module.BasePlane, module.SlotDiagonal.X, module.SlotDiagonal.Y, module.SlotDiagonal.Z);
+            var scalingTransform = Transform.Scale(module.BasePlane,
+                                                   module.SlotDiagonal.X,
+                                                   module.SlotDiagonal.Y,
+                                                   module.SlotDiagonal.Z);
 
             var submoduleCentersNormalized = module.SubmoduleCenters.Select(center => center.ToPoint3d());
             var submoduleCenters = submoduleCentersNormalized.Select(center =>

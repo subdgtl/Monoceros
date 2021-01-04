@@ -12,9 +12,12 @@ namespace WFCToolset
 {
     public class ComponentRuleOuterFromPoint : GH_Component
     {
-        public ComponentRuleOuterFromPoint() : base("WFC Create Out-neighbor Rule From Point Tag", "WFCRuleOutPt",
-            "Allow the connector to connect to an Out module. All Out module's connectors are Indifferent.",
-            "WaveFunctionCollapse", "Rule")
+        public ComponentRuleOuterFromPoint() : base("WFC Create Out-neighbor Rule From Point Tag",
+                                                    "WFCRuleOutPt",
+                                                    "Allow the connector to connect to an Out module. " +
+                                                    "All Out module's connectors are Indifferent.",
+                                                    "WaveFunctionCollapse",
+                                                    "Rule")
         {
         }
 
@@ -23,8 +26,15 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddParameter(new ModuleParameter(), "Modules", "M", "All available WFC modules", GH_ParamAccess.list);
-            pManager.AddPointParameter("Point Tag", "PT", "Point marking a connector", GH_ParamAccess.item);
+            pManager.AddParameter(new ModuleParameter(),
+                                  "Modules",
+                                  "M",
+                                  "All available WFC modules",
+                                  GH_ParamAccess.list);
+            pManager.AddPointParameter("Point Tag",
+                                       "PT",
+                                       "Point marking a connector",
+                                       GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -74,7 +84,8 @@ namespace WFCToolset
 
             if (rules.Count == 0)
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The point does not mark any module connector.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                                  "The point does not mark any module connector.");
             }
 
             DA.SetDataList(0, rules);

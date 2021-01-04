@@ -12,9 +12,11 @@ namespace WFCToolset
 {
     public class ComponentUnwrapRules : GH_Component
     {
-        public ComponentUnwrapRules() : base("WFC Unwrap Typed Rules", "WFCUnwrapRules",
-            "Convert Typed rules into Explicit rules and deduplicate.",
-            "WaveFunctionCollapse", "Rule")
+        public ComponentUnwrapRules() : base("WFC Unwrap Typed Rules",
+                                             "WFCUnwrapRules",
+                                             "Convert Typed rules into Explicit rules and deduplicate.",
+                                             "WaveFunctionCollapse",
+                                             "Rule")
         {
         }
 
@@ -23,8 +25,16 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddParameter(new ModuleParameter(), "Module", "M", "WFC module for indifferent rule generation", GH_ParamAccess.list);
-            pManager.AddParameter(new RuleParameter(), "Rules", "R", "All WFC rules, including Explicit", GH_ParamAccess.list);
+            pManager.AddParameter(new ModuleParameter(),
+                                  "Module",
+                                  "M",
+                                  "WFC module for indifferent rule generation",
+                                  GH_ParamAccess.list);
+            pManager.AddParameter(new RuleParameter(),
+                                  "Rules",
+                                  "R",
+                                  "All WFC rules, including Explicit",
+                                  GH_ParamAccess.list);
         }
 
         /// <summary>

@@ -16,9 +16,11 @@ namespace WFCToolset
     // TODO: Think about how to bake contradictory and non-deterministic slots.
     public class ComponentPostprocessor : GH_Component
     {
-        public ComponentPostprocessor() : base("WFC Postprocessor", "WFCPostprocessor",
-            "WFC Postprocessor.",
-            "WaveFunctionCollapse", "Postprocessor")
+        public ComponentPostprocessor() : base("WFC Postprocessor",
+                                               "WFCPostprocessor",
+                                               "WFC Postprocessor.",
+                                               "WaveFunctionCollapse",
+                                               "Postprocessor")
         {
         }
 

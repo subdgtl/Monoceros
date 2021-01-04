@@ -12,9 +12,11 @@ namespace WFCToolset
 {
     public class ComponentFauxSolver : GH_Component
     {
-        public ComponentFauxSolver() : base("WFC Faux Solver", "WFCFauxSolver",
-            "Faux WFC Solver.",
-            "WaveFunctionCollapse", "Solver")
+        public ComponentFauxSolver() : base("WFC Faux Solver",
+                                            "WFCFauxSolver",
+                                            "Faux WFC Solver.",
+                                            "WaveFunctionCollapse",
+                                            "Solver")
         {
         }
 
@@ -143,7 +145,8 @@ namespace WFCToolset
             // Check if slots and modules have the same slot diagonal
             if (moduleDiagonal != diagonal)
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Modules and slots are not defined with the same diagonal.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  "Modules and slots are not defined with the same diagonal.");
                 return;
             }
 
@@ -261,9 +264,12 @@ namespace WFCToolset
 
             // FAUX SOLVER
             // Scan all slots, pick one submodule for each
-            // The solution may contain more than one value as an output: useful for Step Solver and for post-processor tuning
+            // The solution may contain more than one value as an output: 
+            // useful for Step Solver and for post-processor tuning
             var random = new Random();
-            var fauxSolution = worldForSolver.Select(names => new List<string>() { names[random.Next(names.Count)] }).ToList();
+            var fauxSolution = worldForSolver
+                .Select(names => new List<string>() { names[random.Next(names.Count)] })
+                .ToList();
 
 
             // Remember module name for each submodule name

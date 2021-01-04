@@ -11,9 +11,11 @@ namespace WFCToolset
 {
     public class ComponentRuleIndifferentUnused : GH_Component
     {
-        public ComponentRuleIndifferentUnused() : base("WFC Set Unused Connectors To Indifferent", "WFCRuleIndifferentUnused",
-            "Allow unused connectors to connect to any opposite Indifferent connector.",
-            "WaveFunctionCollapse", "Rule")
+        public ComponentRuleIndifferentUnused() : base("WFC Set Unused Connectors To Indifferent",
+                                                       "WFCRuleIndifferentUnused",
+                                                       "Allow unused connectors to connect to any opposite Indifferent connector.",
+                                                       "WaveFunctionCollapse",
+                                                       "Rule")
         {
         }
 
@@ -22,8 +24,16 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddParameter(new ModuleParameter(), "Module", "M", "WFC module for indifferent rule generation", GH_ParamAccess.item);
-            pManager.AddParameter(new RuleParameter(), "Rules", "R", "All existing WFC rules", GH_ParamAccess.list);
+            pManager.AddParameter(new ModuleParameter(),
+                                  "Module",
+                                  "M",
+                                  "WFC module for indifferent rule generation",
+                                  GH_ParamAccess.item);
+            pManager.AddParameter(new RuleParameter(),
+                                  "Rules",
+                                  "R",
+                                  "All existing WFC rules",
+                                  GH_ParamAccess.list);
             pManager[1].Optional = true;
         }
 
