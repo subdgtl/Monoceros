@@ -10,9 +10,12 @@ namespace WFCToolset
 
     public class ComponentDeconstructRuleExplicit : GH_Component
     {
-        public ComponentDeconstructRuleExplicit() : base("WFC Deconstruct Explicit Rule To Components", "WFCDeconRuleExp",
-            "Deconstruct an Explicit WFC Rule (connector-to-connector) into module names and connector numbers.",
-            "WaveFunctionCollapse", "Rule")
+        public ComponentDeconstructRuleExplicit() : base("WFC Deconstruct Explicit Rule To Components",
+                                                         "WFCDeconRuleExp",
+                                                         "Deconstruct an Explicit WFC Rule (connector-to-connector) " +
+                                                         "into module names and connector numbers.",
+                                                         "WaveFunctionCollapse",
+                                                         "Rule")
         {
         }
 
@@ -29,10 +32,24 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddParameter(new ModuleNameParameter(), "Source Module", "SM", "Source module name", GH_ParamAccess.item);
-            pManager.AddIntegerParameter("Source Connector Index", "SC", "Source connector number", GH_ParamAccess.item);
-            pManager.AddParameter(new ModuleNameParameter(), "Target Module", "TM", "Target module name", GH_ParamAccess.item);
-            pManager.AddIntegerParameter("Target Connector Index", "TC", "Target connector number", GH_ParamAccess.item);
+            pManager.AddParameter(new ModuleNameParameter(),
+                                  "Source Module",
+                                  "SM",
+                                  "Source module name",
+                                  GH_ParamAccess.item);
+            pManager.AddIntegerParameter("Source Connector Index",
+                                         "SC",
+                                         "Source connector number",
+                                         GH_ParamAccess.item);
+            pManager.AddParameter(new ModuleNameParameter(),
+                                  "Target Module",
+                                  "TM",
+                                  "Target module name",
+                                  GH_ParamAccess.item);
+            pManager.AddIntegerParameter("Target Connector Index",
+                                         "TC",
+                                         "Target connector number",
+                                         GH_ParamAccess.item);
         }
 
         /// <summary>

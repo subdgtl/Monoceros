@@ -18,9 +18,13 @@ namespace WFCToolset
         private IEnumerable<ExplicitLine> _explicitLines;
         private IEnumerable<TypedLine> _typedLines;
 
-        public ComponentPreviewRules() : base("WFC Preview Rules", "WFCRulePreview",
-            "Preview rules as lines connecting individual connectors. Does not display connections to reserved modules " + Configuration.RESERVED_TO_STRING + ".",
-            "WaveFunctionCollapse", "Preview")
+        public ComponentPreviewRules() : base("WFC Preview Rules",
+                                              "WFCRulePreview",
+                                              "Preview rules as lines connecting individual connectors. " +
+                                              "Does not display connections to reserved modules " +
+                                              Configuration.RESERVED_TO_STRING + ".",
+                                              "WaveFunctionCollapse",
+                                              "Preview")
         {
         }
 
@@ -29,8 +33,16 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddParameter(new ModuleParameter(), "Module", "M", "WFC module for indifferent rule generation", GH_ParamAccess.list);
-            pManager.AddParameter(new RuleParameter(), "Rules", "R", "All existing WFC rules", GH_ParamAccess.list);
+            pManager.AddParameter(new ModuleParameter(),
+                                  "Module",
+                                  "M",
+                                  "WFC module for indifferent rule generation",
+                                  GH_ParamAccess.list);
+            pManager.AddParameter(new RuleParameter(),
+                                  "Rules",
+                                  "R",
+                                  "All existing WFC rules",
+                                  GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -158,13 +170,16 @@ namespace WFCToolset
                         switch (sourceConnector.Direction._axis)
                         {
                             case Axis.X:
-                                linesX.Add(new Line(sourceConnector.AnchorPlane.Origin, targetConnector.AnchorPlane.Origin));
+                                linesX.Add(new Line(sourceConnector.AnchorPlane.Origin,
+                                                    targetConnector.AnchorPlane.Origin));
                                 break;
                             case Axis.Y:
-                                linesY.Add(new Line(sourceConnector.AnchorPlane.Origin, targetConnector.AnchorPlane.Origin));
+                                linesY.Add(new Line(sourceConnector.AnchorPlane.Origin,
+                                                    targetConnector.AnchorPlane.Origin));
                                 break;
                             case Axis.Z:
-                                linesZ.Add(new Line(sourceConnector.AnchorPlane.Origin, targetConnector.AnchorPlane.Origin));
+                                linesZ.Add(new Line(sourceConnector.AnchorPlane.Origin,
+                                                    targetConnector.AnchorPlane.Origin));
                                 break;
                         }
                     }

@@ -29,7 +29,10 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddBooleanParameter("Typed Pattern", "P", "True if the WFC Rule is typed", GH_ParamAccess.item);
+            pManager.AddBooleanParameter("Typed Pattern",
+                                         "P",
+                                         "True if the WFC Rule is typed",
+                                         GH_ParamAccess.item);
         }
 
         /// <summary>

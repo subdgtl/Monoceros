@@ -13,9 +13,11 @@ namespace WFCToolset
 
     public class ComponentConstructSlotWithModules : GH_Component
     {
-        public ComponentConstructSlotWithModules() : base("WFC Construct Slot With Module Names", "WFCConstSlotModules",
-            "Construct a WFC Slot with allowed module names.",
-            "WaveFunctionCollapse", "Slot")
+        public ComponentConstructSlotWithModules() : base("WFC Construct Slot With Module Names",
+                                                          "WFCConstSlotModules",
+                                                          "Construct a WFC Slot with allowed module names.",
+                                                          "WaveFunctionCollapse",
+                                                          "Slot")
         {
         }
 

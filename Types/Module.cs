@@ -654,7 +654,7 @@ namespace WFCToolset
         /// the same time.</remarks>
         /// <returns>A string description of the module.</returns>
         public override string ToString() =>
-            "Module " + Name + " occupies " +
+            "Module '" + Name + "' occupies " +
             Connectors.Count / 6 + " slots and has " +
             // TODO: Consider precomputing this number
             ExternalConnectors.ToList().Count + " connectors. " +

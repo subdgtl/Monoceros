@@ -13,9 +13,13 @@ namespace WFCToolset
 
     public class ComponentRuleTypedFromPoint : GH_Component
     {
-        public ComponentRuleTypedFromPoint() : base("WFC Create Typed Rule From Point Tag", "WFCRuleTypPt",
-            "Create a Typed WFC Rule (connector-to-all-same-type-connectors) from a point tag. The connector Type will be converted to lowercase.",
-            "WaveFunctionCollapse", "Rule")
+        public ComponentRuleTypedFromPoint() : base("WFC Create Typed Rule From Point Tag",
+                                                    "WFCRuleTypPt",
+                                                    "Create a Typed WFC Rule " +
+                                                    "(connector-to-all-same-type-connectors) from a " +
+                                                    "point tag. The connector Type will be converted to lowercase.",
+                                                    "WaveFunctionCollapse",
+                                                    "Rule")
         {
         }
 
@@ -24,9 +28,19 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddParameter(new ModuleParameter(), "Modules", "M", "All available WFC modules", GH_ParamAccess.list);
-            pManager.AddPointParameter("Point Tag", "Pt", "Point marking a connector", GH_ParamAccess.item);
-            pManager.AddTextParameter("Connector Type", "T", "Type to be assigned to the connector", GH_ParamAccess.item);
+            pManager.AddParameter(new ModuleParameter(),
+                                  "Modules",
+                                  "M",
+                                  "All available WFC modules",
+                                  GH_ParamAccess.list);
+            pManager.AddPointParameter("Point Tag",
+                                       "Pt",
+                                       "Point marking a connector",
+                                       GH_ParamAccess.item);
+            pManager.AddTextParameter("Connector Type",
+                                      "T",
+                                      "Type to be assigned to the connector",
+                                      GH_ParamAccess.item);
         }
 
         /// <summary>

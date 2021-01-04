@@ -13,9 +13,12 @@ namespace WFCToolset
 
     public class ComponentDeconstructSlot : GH_Component
     {
-        public ComponentDeconstructSlot() : base("WFC Deconstruct Slot", "WFCDeconSlot",
-            "Deconstruct a WFC Slot into its cente point, base plane, diagonal and list of allowed modules.",
-            "WaveFunctionCollapse", "Slot")
+        public ComponentDeconstructSlot() : base("WFC Deconstruct Slot",
+                                                 "WFCDeconSlot",
+                                                 "Deconstruct a WFC Slot into its center point, " +
+                                                 "base plane, diagonal and list of allowed modules.",
+                                                 "WaveFunctionCollapse",
+                                                 "Slot")
         {
         }
 

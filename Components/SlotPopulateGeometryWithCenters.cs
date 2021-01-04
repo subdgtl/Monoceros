@@ -14,9 +14,13 @@ namespace WFCToolset
 
     public class ComponentPopulateGeometryWithSlotCenters : GH_Component
     {
-        public ComponentPopulateGeometryWithSlotCenters() : base("WFC Populate Geometry With Slot Centers", "WFCPopSlotCen",
-            "Populate geometry with points ready to be used as WFC Slot centers. Supports Point, Curve, Brep, Mesh. Prefer Mesh to BRep.",
-            "WaveFunctionCollapse", "Slot")
+        public ComponentPopulateGeometryWithSlotCenters() : base("WFC Populate Geometry With Slot Centers",
+                                                                 "WFCPopSlotCen",
+                                                                 "Populate geometry with points ready to be " +
+                                                                 "used as WFC Slot centers. Supports Point, Curve, " +
+                                                                 "Brep, Mesh. Prefer Mesh to BRep.",
+                                                                 "WaveFunctionCollapse",
+                                                                 "Slot")
         {
         }
 
@@ -40,10 +44,15 @@ namespace WFCToolset
                );
             pManager.AddIntegerParameter("Fill",
                                          "F",
-                                         "0 = only wrap geometry surface, 1 = only fill geometry volume, 2 = wrap surface and fill volume",
+                                         "0 = only wrap geometry surface, 1 = only fill geometry volume, " +
+                                         "2 = wrap surface and fill volume",
                                          GH_ParamAccess.item,
                                          2);
-            pManager.AddNumberParameter("Precision", "P", "Module slicer precision (lower = more precise & slower)", GH_ParamAccess.item, 0.5);
+            pManager.AddNumberParameter("Precision",
+                                        "P",
+                                        "Module slicer precision (lower = more precise & slower)",
+                                        GH_ParamAccess.item,
+                                        0.5);
 
         }
 
@@ -52,7 +61,10 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddPointParameter("Slot Centers", "C", "Points ready to be used as WFC Slot centers", GH_ParamAccess.list);
+            pManager.AddPointParameter("Slot Centers",
+                                       "C",
+                                       "Points ready to be used as WFC Slot centers",
+                                       GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -67,8 +79,6 @@ namespace WFCToolset
             var diagonal = new Vector3d();
             var method = 2;
             var precision = 0.5;
-
-
 
             if (!DA.GetDataList(0, geometryRaw))
             {
@@ -104,12 +114,32 @@ namespace WFCToolset
 
             var geometryClean = geometryRaw
                .Where(goo => goo != null)
-               .Select(ghGeo =>
+               .Select(goo =>
                {
-                   var geo = ghGeo.Duplicate();
-                   return GH_Convert.ToGeometryBase(geo);
+                   var geo = goo.Duplicate();
+                   var geometry = GH_Convert.ToGeometryBase(geo);
+                   // Transformation of BReps sometimes does not work as expected
+                   // For example non uniform scaling of a sphere results in a sphere
+                   // Mesh scaling is safe and populating is fast(er)
+                   if (geometry.HasBrepForm)
+                   {
+                       var meshingParameters = MeshingParameters.FastRenderMesh;
+                       var brep = Brep.TryConvertBrep(geometry);
+                       var meshes = Mesh.CreateFromBrep(brep, meshingParameters);
+                       var mesh = new Mesh();
+                       foreach (var meshFace in meshes)
+                       {
+                           mesh.Append(meshFace);
+                       }
+                       mesh.Weld(Math.PI / 8);
+                       return mesh;
+                   }
+                   else
+                   {
+                       return geometry;
+                   }
                }
-               ).ToList();
+               );
 
             // Scale down to unit size
             var normalizationTransform = Transform.Scale(basePlane, 1 / diagonal.X, 1 / diagonal.Y, 1 / diagonal.Z);
@@ -118,44 +148,47 @@ namespace WFCToolset
             // Slot dimension is for the sake of this calculation 1,1,1
             var divisionLength = precision;
             var submoduleCentersNormalized = new List<Point3i>();
-            foreach (var goo in geometryClean)
+            var geometryTransformed = geometryClean.Select(goo =>
             {
                 var geo = goo.Duplicate();
-                if (geo.Transform(normalizationTransform) && geo.Transform(worldAlignmentTransform))
+                geo.Transform(normalizationTransform);
+                geo.Transform(worldAlignmentTransform);
+                return geo;
+            });
+
+            foreach (var goo in geometryClean)
+            {
+                var geometry = goo.Duplicate();
+                if (geometry.Transform(normalizationTransform) && geometry.Transform(worldAlignmentTransform))
                 {
                     if (method == 0 || method == 2)
                     {
-                        var populatePoints = Populate.PopulateSurface(divisionLength, geo);
-                        if (populatePoints != null)
+                        var populatePoints = Populate.PopulateSurface(divisionLength, geometry);
+                        foreach (var geometryPoint in populatePoints)
                         {
-                            foreach (var geometryPoint in populatePoints)
+                            // Round point locations
+                            // Slot dimension is for the sake of this calculation 1,1,1
+                            var slotCenterPoint = new Point3i(geometryPoint);
+                            // Deduplicate
+                            if (!submoduleCentersNormalized.Contains(slotCenterPoint))
                             {
-                                // Round point locations
-                                // Slot dimension is for the sake of this calculation 1,1,1
-                                var slotCenterPoint = new Point3i(geometryPoint);
-                                // Deduplicate
-                                if (!submoduleCentersNormalized.Contains(slotCenterPoint))
-                                {
-                                    submoduleCentersNormalized.Add(slotCenterPoint);
-                                }
+                                submoduleCentersNormalized.Add(slotCenterPoint);
                             }
                         }
                     }
-                    if (method == 1 || method == 2)
+                    if ((method == 1 || method == 2) && goo.ObjectType == Rhino.DocObjects.ObjectType.Mesh)
                     {
-                        var populatePoints = Populate.PopulateVolume(divisionLength, geo);
-                        if (populatePoints != null)
+                        var mesh = (Mesh)geometry;
+                        var populatePoints = Populate.PopulateMeshVolume(divisionLength, mesh);
+                        foreach (var geometryPoint in populatePoints)
                         {
-                            foreach (var geometryPoint in populatePoints)
+                            // Round point locations
+                            // Slot dimension is for the sake of this calculation 1,1,1
+                            var slotCenterPoint = new Point3i(geometryPoint);
+                            // Deduplicate
+                            if (!submoduleCentersNormalized.Contains(slotCenterPoint))
                             {
-                                // Round point locations
-                                // Slot dimension is for the sake of this calculation 1,1,1
-                                var slotCenterPoint = new Point3i(geometryPoint);
-                                // Deduplicate
-                                if (!submoduleCentersNormalized.Contains(slotCenterPoint))
-                                {
-                                    submoduleCentersNormalized.Add(slotCenterPoint);
-                                }
+                                submoduleCentersNormalized.Add(slotCenterPoint);
                             }
                         }
                     }
@@ -165,13 +198,14 @@ namespace WFCToolset
             var baseAlignmentTransform = Transform.PlaneToPlane(Plane.WorldXY, basePlane);
             var scalingTransform = Transform.Scale(basePlane, diagonal.X, diagonal.Y, diagonal.Z);
 
-            var submoduleCenters = submoduleCentersNormalized.Select(centerNormalized =>
-            {
-                var center = centerNormalized.ToPoint3d();
-                center.Transform(baseAlignmentTransform);
-                center.Transform(scalingTransform);
-                return center;
-            });
+            var submoduleCenters = submoduleCentersNormalized
+                .Select(centerNormalized =>
+                {
+                    var center = centerNormalized.ToPoint3d();
+                    center.Transform(baseAlignmentTransform);
+                    center.Transform(scalingTransform);
+                    return center;
+                });
 
             DA.SetDataList(0, submoduleCenters);
         }

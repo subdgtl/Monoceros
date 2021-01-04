@@ -12,9 +12,12 @@ namespace WFCToolset
 
     public class ComponentRuleExplicitFromCurve : GH_Component
     {
-        public ComponentRuleExplicitFromCurve() : base("WFC Create Explicit Rule From Curve", "WFCRuleExpCrv",
-            "Create an Explicit WFC Rule (connector-to-connector) from a curve connecting two opposite connectors.",
-            "WaveFunctionCollapse", "Rule")
+        public ComponentRuleExplicitFromCurve() : base("WFC Create Explicit Rule From Curve",
+                                                       "WFCRuleExpCrv",
+                                                       "Create an Explicit WFC Rule (connector-to-connector) " +
+                                                       "from a curve connecting two opposite connectors.",
+                                                       "WaveFunctionCollapse",
+                                                       "Rule")
         {
         }
 
@@ -23,8 +26,15 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddParameter(new ModuleParameter(), "Modules", "M", "All available WFC modules", GH_ParamAccess.list);
-            pManager.AddCurveParameter("Connection Curve", "C", "Curve connecting two opposite connectors", GH_ParamAccess.item);
+            pManager.AddParameter(new ModuleParameter(),
+                                  "Modules",
+                                  "M",
+                                  "All available WFC modules",
+                                  GH_ParamAccess.list);
+            pManager.AddCurveParameter("Connection Curve",
+                                       "C",
+                                       "Curve connecting two opposite connectors",
+                                       GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -59,7 +69,8 @@ namespace WFCToolset
 
             if (curve.IsPeriodic)
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The connecting curve is periodic.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  "The connecting curve is periodic.");
                 return;
             }
 
@@ -77,12 +88,14 @@ namespace WFCToolset
 
             if (startConnectors.Count == 0)
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The curve does not start at any module connector.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                                  "The curve does not start at any module connector.");
             }
 
             if (endConnectors.Count == 0)
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The curve does not end at any module connector.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                                  "The curve does not end at any module connector.");
             }
 
             foreach (var startConnector in startConnectors)
@@ -102,7 +115,8 @@ namespace WFCToolset
                     }
                     else
                     {
-                        AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The curve connects non-opposing connectors.");
+                        AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                                          "The curve connects non-opposing connectors.");
                     }
                 }
             }

@@ -83,9 +83,12 @@ namespace WFCToolset
     /// </summary>
     public class ComponentModuleFromGeometry : GH_Component
     {
-        public ComponentModuleFromGeometry() : base("WFC Construct Module From Production Geometry", "WFCModuleGeo",
-            "Construct a WFC Module from input geometry, which will be also used in WFC solver result. Prefer Mesh to BRep.",
-            "WaveFunctionCollapse", "Module")
+        public ComponentModuleFromGeometry() : base("WFC Construct Module From Production Geometry",
+                                                    "WFCModuleGeo",
+                                                    "Construct a WFC Module from input geometry, which " +
+                                                    "will be also used in WFC solver result. Prefer Mesh to BRep.",
+                                                    "WaveFunctionCollapse",
+                                                    "Module")
         {
         }
 
@@ -97,18 +100,29 @@ namespace WFCToolset
             pManager.AddParameter(new ModuleNameParameter(),
                                   "Name",
                                   "N",
-                                  "Module name (except '" + Configuration.RESERVED_TO_STRING + "'). The Name will be converted to lowercase.",
+                                  "Module name (except '" + Configuration.RESERVED_TO_STRING + "'). " +
+                                  "The Name will be converted to lowercase.",
                                   GH_ParamAccess.item);
-            pManager.AddGeometryParameter("Geometry", "G", "Geometry defining the module. Point, Curve, Brep, Mesh. Prefer Mesh to BRep.", GH_ParamAccess.list);
-            pManager.AddPlaneParameter("Base Plane", "B", "Grid space base plane. Defines orientation of the grid.", GH_ParamAccess.item, Plane.WorldXY);
-            pManager.AddVectorParameter(
-               "Grid Slot Diagonal",
-               "D",
-               "World grid slot diagonal vector specifying single grid slot dimension in base-plane-aligned XYZ axes",
-               GH_ParamAccess.item,
-               new Vector3d(1.0, 1.0, 1.0)
-               );
-            pManager.AddNumberParameter("Precision", "P", "Module slicer precision (lower = more precise & slower)", GH_ParamAccess.item, 0.5);
+            pManager.AddGeometryParameter("Geometry",
+                                          "G",
+                                          "Geometry defining the module. Point, Curve, Brep, Mesh. Prefer Mesh to BRep.",
+                                          GH_ParamAccess.list);
+            pManager.AddPlaneParameter("Base Plane",
+                                       "B",
+                                       "Grid space base plane. Defines orientation of the grid.",
+                                       GH_ParamAccess.item,
+                                       Plane.WorldXY);
+            pManager.AddVectorParameter("Grid Slot Diagonal",
+                                        "D",
+                                        "World grid slot diagonal vector specifying single grid slot dimension in " +
+                                        "base-plane-aligned XYZ axes.",
+                                        GH_ParamAccess.item,
+                                        new Vector3d(1.0, 1.0, 1.0));
+            pManager.AddNumberParameter("Precision",
+                                        "P",
+                                        "Module slicer precision (lower = more precise & slower)",
+                                        GH_ParamAccess.item,
+                                        0.5);
         }
 
         /// <summary>
@@ -230,7 +244,8 @@ namespace WFCToolset
             var module = new Module(name, geometryClean, basePlane, submoduleCenters, slotDiagonal);
             if (!module.Continuous)
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The module is not continuous and therefore will not hold together.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                                  "The module is not continuous and therefore will not hold together.");
             }
 
             if (module.Geometry.Count != geometryRaw.Count)

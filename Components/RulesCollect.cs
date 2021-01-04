@@ -12,9 +12,13 @@ namespace WFCToolset
 {
     public class ComponentCollectRules : GH_Component
     {
-        public ComponentCollectRules() : base("WFC Collect Rules", "WFCCollectRules",
-            "Collect, convert to Explicit, deduplicate and remove disallowed rules. Automatically generates an Out module and its rules.",
-            "WaveFunctionCollapse", "Rule")
+        public ComponentCollectRules() : base("WFC Collect Rules",
+                                              "WFCCollectRules",
+                                              "Collect, convert to Explicit, deduplicate and " +
+                                              "remove disallowed rules. Automatically generates " +
+                                              "an Out module and its rules.",
+                                              "WaveFunctionCollapse",
+                                              "Rule")
         {
         }
 
@@ -23,9 +27,21 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddParameter(new ModuleParameter(), "Module", "M", "WFC module for indifferent rule generation", GH_ParamAccess.list);
-            pManager.AddParameter(new RuleParameter(), "Rules Allowed", "RA", "All allowed WFC rules", GH_ParamAccess.list);
-            pManager.AddParameter(new RuleParameter(), "Rules Disallowed", "RD", "All disallowed WFC rules (optional)", GH_ParamAccess.list);
+            pManager.AddParameter(new ModuleParameter(),
+                                  "Module",
+                                  "M",
+                                  "WFC module for indifferent rule generation",
+                                  GH_ParamAccess.list);
+            pManager.AddParameter(new RuleParameter(),
+                                  "Rules Allowed",
+                                  "RA",
+                                  "All allowed WFC rules",
+                                  GH_ParamAccess.list);
+            pManager.AddParameter(new RuleParameter(),
+                                  "Rules Disallowed",
+                                  "RD",
+                                  "All disallowed WFC rules (optional)",
+                                  GH_ParamAccess.list);
             pManager[2].Optional = true;
         }
 
@@ -61,12 +77,16 @@ namespace WFCToolset
             DA.GetDataList(2, rulesDisallowed);
 
             var rulesDisallowedExplicit = rulesDisallowed.Where(rule => rule.IsExplicit());
-            var rulesDisallowedTyped = rulesDisallowed.Where(rule => rule.IsTyped()).Select(rule => rule.Typed);
+            var rulesDisallowedTyped = rulesDisallowed
+                .Where(rule => rule.IsTyped())
+                .Select(rule => rule.Typed);
             var rulesDisallowedTypedUnwrapped = rulesDisallowedTyped
                 .SelectMany(ruleTyped => ruleTyped.ToRuleExplicit(rulesDisallowedTyped, modules))
                 .Select(ruleExplicit => new Rule(ruleExplicit));
 
-            var rulesDisallowedProcessed = rulesDisallowedExplicit.Concat(rulesDisallowedTypedUnwrapped).Distinct();
+            var rulesDisallowedProcessed = rulesDisallowedExplicit
+                .Concat(rulesDisallowedTypedUnwrapped)
+                .Distinct();
 
 
             var rulesAllowedExplicit = new List<Rule>();
@@ -74,8 +94,10 @@ namespace WFCToolset
             var rulesAllowedTypedWrapped = new List<Rule>();
 
 
-            Module.GenerateNamedEmptySingleModule(Configuration.OUTER_MODULE_NAME, Configuration.INDIFFERENT_TAG,
-                                                  new Rhino.Geometry.Vector3d(1, 1, 1), out var moduleOut,
+            Module.GenerateNamedEmptySingleModule(Configuration.OUTER_MODULE_NAME,
+                                                  Configuration.INDIFFERENT_TAG,
+                                                  new Rhino.Geometry.Vector3d(1, 1, 1),
+                                                  out var moduleOut,
                                                   out var rulesOut);
             rulesAllowed.AddRange(
                 rulesOut.Select(ruleExplicit => new Rule(ruleExplicit))

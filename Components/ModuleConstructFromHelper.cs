@@ -100,9 +100,12 @@ namespace WFCToolset
     /// </summary>
     public class ComponentModuleFromHelper : GH_Component
     {
-        public ComponentModuleFromHelper() : base("WFC Construct Module From Helper Geometry", "WFCModuleHlp",
-            "Construct a WFC Module from helper geometry. The specified production geometry bill be used in WFC solver result. Prefer Mesh to BRep.",
-            "WaveFunctionCollapse", "Module")
+        public ComponentModuleFromHelper() : base("WFC Construct Module From Helper Geometry",
+                                                  "WFCModuleHlp",
+                                                  "Construct a WFC Module from helper geometry. " +
+                                                  "The specified production geometry bill be used in " +
+                                                  "WFC solver result. Prefer Mesh to BRep.",
+                                                  "WaveFunctionCollapse", "Module")
         {
         }
 
@@ -114,20 +117,36 @@ namespace WFCToolset
             pManager.AddParameter(new ModuleNameParameter(),
                                   "Name",
                                   "N",
-                                  "Module name (except '" + Configuration.RESERVED_TO_STRING + "'). The Name will be converted to lowercase.",
+                                  "Module name (except '" + Configuration.RESERVED_TO_STRING + "'). " +
+                                  "The Name will be converted to lowercase.",
                                   GH_ParamAccess.item);
-            pManager.AddGeometryParameter("Helper Geometry", "H", "Geometry defining the module cage. Point, Curve, Brep, Mesh. Prefer Mesh to BRep.", GH_ParamAccess.list);
-            pManager.AddGeometryParameter("Production Geometry", "G", "Geometry used to materialize the result of the WFC Solver. Production geometry does not have to fit into the generated module cage and can be larger, smaller, different or none.", GH_ParamAccess.list);
+            pManager.AddGeometryParameter("Helper Geometry",
+                                          "H",
+                                          "Geometry defining the module cage. Point, Curve, Brep, Mesh. Prefer Mesh to BRep.",
+                                          GH_ParamAccess.list);
+            pManager.AddGeometryParameter("Production Geometry",
+                                          "G",
+                                          "Geometry used to materialize the result of the WFC Solver. " +
+                                          "Production geometry does not have to fit into the generated " +
+                                          "module cage and can be larger, smaller, different or none.",
+                                          GH_ParamAccess.list);
             pManager[2].Optional = true;
-            pManager.AddPlaneParameter("Base plane", "B", "Grid space base plane. Defines orientation of the grid.", GH_ParamAccess.item, Plane.WorldXY);
-            pManager.AddVectorParameter(
-               "Grid Slot Diagonal",
-               "D",
-               "World grid slot diagonal vector specifying single grid slot dimension in base-plane-aligned XYZ axes",
-               GH_ParamAccess.item,
-               new Vector3d(1.0, 1.0, 1.0)
-               );
-            pManager.AddNumberParameter("Precision", "P", "Module slicer precision (lower = more precise & slower)", GH_ParamAccess.item, 0.5);
+            pManager.AddPlaneParameter("Base plane",
+                                       "B",
+                                       "Grid space base plane. Defines orientation of the grid.",
+                                       GH_ParamAccess.item,
+                                       Plane.WorldXY);
+            pManager.AddVectorParameter("Grid Slot Diagonal",
+                                        "D",
+                                        "World grid slot diagonal vector specifying single grid slot dimension " +
+                                        "in base-plane-aligned XYZ axes.",
+                                        GH_ParamAccess.item,
+                                        new Vector3d(1.0, 1.0, 1.0));
+            pManager.AddNumberParameter("Precision",
+                                        "P",
+                                        "Module slicer precision (lower = more precise & slower)",
+                                        GH_ParamAccess.item,
+                                        0.5);
         }
 
         /// <summary>
@@ -189,7 +208,8 @@ namespace WFCToolset
 
             if (Configuration.RESERVED_NAMES.Contains(name))
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The module name cannot be '" + name + "' because it is reserved by WFC.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  "The module name cannot be '" + name + "' because it is reserved by WFC.");
                 return;
             }
 
@@ -204,18 +224,23 @@ namespace WFCToolset
 
             if (helpersClean.Count == 0)
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The input geometry is insufficient to define a module.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  "The input geometry is insufficient to define a module.");
                 return;
             }
 
             if (slotDiagonal.X <= 0 || slotDiagonal.Y <= 0 || slotDiagonal.Z <= 0)
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "One or more slot dimensions are not larger than 0.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  "One or more slot dimensions are not larger than 0.");
                 return;
             }
 
             // Scale down to unit size
-            var normalizationTransform = Transform.Scale(basePlane, 1 / slotDiagonal.X, 1 / slotDiagonal.Y, 1 / slotDiagonal.Z);
+            var normalizationTransform = Transform.Scale(basePlane,
+                                                         1 / slotDiagonal.X,
+                                                         1 / slotDiagonal.Y,
+                                                         1 / slotDiagonal.Z);
             // Orient to the world coordinate system
             var worldAlignmentTransform = Transform.PlaneToPlane(basePlane, Plane.WorldXY);
             // Slot dimension is for the sake of this calculation 1,1,1
@@ -255,7 +280,8 @@ namespace WFCToolset
             var module = new Module(name, productionGeometryClean, basePlane, submoduleCenters, slotDiagonal);
             if (!module.Continuous)
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The module is not continuous and therefore will not hold together.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                                  "The module is not continuous and therefore will not hold together.");
             }
 
             if (module.Geometry.Count != productionGeometryRaw.Count)
