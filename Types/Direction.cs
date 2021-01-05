@@ -4,27 +4,8 @@
 
 using Rhino.Geometry;
 
-namespace WFCToolset
+namespace WFCPlugin
 {
-    /// <summary>
-    /// Submodule face axis within a grid: <c>X</c> or <c>Y</c> or <c>Z</c>.
-    /// </summary>
-    public enum Axis
-    {
-        X,
-        Y,
-        Z
-    }
-
-    /// <summary>
-    /// Submodule face orientation within a grid: <c>Positive</c> or <c>Negative</c>.
-    /// </summary>
-    public enum Orientation
-    {
-        Positive,
-        Negative
-    }
-
     /// <summary>
     /// Submodule face direction consisting of <see cref="Axis"/> and <see cref="Orientation"/>.
     /// </summary>
@@ -135,6 +116,24 @@ namespace WFCToolset
             // Never
             return -1;
         }
+    }
 
+    /// <summary>
+    /// Submodule face axis within a grid: <c>X</c> or <c>Y</c> or <c>Z</c>.
+    /// </summary>
+    public enum Axis
+    {
+        X,
+        Y,
+        Z
+    }
+
+    /// <summary>
+    /// Submodule face orientation within a grid: <c>Positive</c> or <c>Negative</c>.
+    /// </summary>
+    public enum Orientation
+    {
+        Positive,
+        Negative
     }
 }

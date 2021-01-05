@@ -8,7 +8,7 @@ using System.Linq;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
-namespace WFCToolset
+namespace WFCPlugin
 {
 
     public class ComponentConstructSlotWithModules : GH_Component

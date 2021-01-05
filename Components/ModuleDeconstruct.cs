@@ -8,7 +8,7 @@ using System.Linq;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
-namespace WFCToolset
+namespace WFCPlugin
 {
     /// <summary>
     /// <para>
@@ -112,7 +112,7 @@ namespace WFCToolset
             DA.SetDataList(2, module.Geometry);
             DA.SetDataList(3, new List<Plane> { module.BasePlane });
             DA.SetDataList(4, new List<Vector3d> { module.SlotDiagonal });
-            var connectors = module.ExternalConnectors;
+            var connectors = module.Connectors;
             DA.SetDataList(5, connectors.Select(connector => connector.AnchorPlane));
             DA.SetDataList(6, connectors.Select(connector => connector.ConnectorIndex));
             DA.SetDataList(7, connectors.Select(connector => connector.Direction.ToVector()));

@@ -4,7 +4,7 @@
 
 using System.Linq;
 
-namespace WFCToolset
+namespace WFCPlugin
 {
     /// <summary>
     /// The WFC configuration and constants.

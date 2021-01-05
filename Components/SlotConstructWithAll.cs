@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
-namespace WFCToolset
+namespace WFCPlugin
 {
     public class ComponentConstructSlotWithAll : GH_Component
     {

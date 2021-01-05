@@ -9,7 +9,7 @@ using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
 using Rhino.Geometry;
 
-namespace WFCToolset
+namespace WFCPlugin
 {
     /// <summary>
     /// <para>

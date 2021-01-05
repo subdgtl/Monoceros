@@ -5,7 +5,7 @@
 using System;
 using Grasshopper.Kernel;
 
-namespace WFCToolset
+namespace WFCPlugin
 {
 
     public class ComponentDeconstructRuleTyped : GH_Component

@@ -7,19 +7,13 @@ using System.Collections.Generic;
 using GH_IO.Serialization;
 using Grasshopper.Kernel.Types;
 
-namespace WFCToolset
+namespace WFCPlugin
 {
     // TODO: Consider this to be a wrapper around an UID instead of an arbitrary string name
     /// <summary>
     /// <para>
     /// The class is a wrapper around a string name of a module, which serves as its unique identifier.
     /// </para>
-    /// <list type="bullet">
-    /// <item>
-    /// <term><see cref="Name"/></term>
-    /// <description>Module name, used as a unique module identifier or a <see cref="Module"/></description>
-    /// </item>
-    /// </list>
     /// </summary>
     /// <remarks>In Grasshopper, any custom type is cast into a string, which is used for 
     /// its description in data peeking. For the <see cref="Module"/> type, however, 

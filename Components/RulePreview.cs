@@ -11,7 +11,7 @@ using Rhino;
 using Rhino.DocObjects;
 using Rhino.Geometry;
 
-namespace WFCToolset
+namespace WFCPlugin
 {
     public class ComponentPreviewRules : GH_Component, IGH_PreviewObject, IGH_BakeAwareObject
     {

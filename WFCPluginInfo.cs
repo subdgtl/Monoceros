@@ -6,15 +6,15 @@ using System;
 using System.Drawing;
 using Grasshopper.Kernel;
 
-namespace WFCToolset
+namespace WFCPlugin
 {
-    public class WFCToolsInfo : GH_AssemblyInfo
+    public class WFCPluginInfo : GH_AssemblyInfo
     {
         public override string Name
         {
             get
             {
-                return "WFC Toolset";
+                return "WFC Plugin";
             }
         }
         public override Bitmap Icon
@@ -22,7 +22,7 @@ namespace WFCToolset
             get
             {
                 //Return a 24x24 pixel bitmap to represent this GHA library.
-                return WFCToolset.Properties.Resources.WFC;
+                return WFCPlugin.Properties.Resources.WFC;
             }
         }
         public override string Description
@@ -30,7 +30,7 @@ namespace WFCToolset
             get
             {
                 //Return a short string describing the purpose of this GHA library.
-                return "Subdigital: Wave Function Collapse toolset.";
+                return "Subdigital: Wave Function Collapse plug-in for Grasshopper.";
             }
         }
         public override Guid Id

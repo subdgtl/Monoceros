@@ -8,7 +8,7 @@ using System.Drawing;
 using System.Linq;
 using Grasshopper.Kernel;
 
-namespace WFCToolset
+namespace WFCPlugin
 {
     public class ComponentCollectRules : GH_Component
     {

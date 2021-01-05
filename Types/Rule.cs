@@ -8,7 +8,7 @@ using System.Linq;
 using GH_IO.Serialization;
 using Grasshopper.Kernel.Types;
 
-namespace WFCToolset
+namespace WFCPlugin
 {
     /// <summary>
     /// <para>

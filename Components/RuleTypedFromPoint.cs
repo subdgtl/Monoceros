@@ -8,7 +8,7 @@ using System.Linq;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
-namespace WFCToolset
+namespace WFCPlugin
 {
 
     public class ComponentRuleTypedFromPoint : GH_Component
@@ -82,7 +82,7 @@ namespace WFCToolset
             foreach (var module in modules)
             {
                 var moduleRules = module
-                    .GetExternalConnectorsContainingPoint(point)
+                    .GetConnectorsContainingPoint(point)
                     .Select(connector => new Rule(connector.ModuleName, connector.ConnectorIndex, type));
                 rules.AddRange(moduleRules);
             }

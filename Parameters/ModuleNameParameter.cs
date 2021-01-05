@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using Grasshopper.Kernel;
 
-namespace WFCToolset
+namespace WFCPlugin
 {
     /// <summary>
     /// Wraps <see cref="ModuleName"/> type so that it can be used in Grasshopper as an input, output or a floating parameter.

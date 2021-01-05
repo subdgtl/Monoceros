@@ -9,7 +9,7 @@ using Rhino;
 using Rhino.DocObjects;
 using Rhino.Geometry;
 
-namespace WFCToolset
+namespace WFCPlugin
 {
     /// <summary>
     /// Wraps <see cref="Slot"/> type so that it can be used in Grasshopper as an input, output or a floating parameter.

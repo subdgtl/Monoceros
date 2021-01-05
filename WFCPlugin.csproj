@@ -8,8 +8,8 @@
     <ProjectGuid>{DE286F48-ABDD-4474-B49A-CFB55D4F4947}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WFCTools</RootNamespace>
-    <AssemblyName>WFCTools</AssemblyName>
+    <RootNamespace>WFCPlugin</RootNamespace>
+    <AssemblyName>WFCPlugin</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <IsWebBootstrapper>false</IsWebBootstrapper>
@@ -32,7 +32,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -82,7 +81,7 @@
     <Compile Include="Types\Point3i.cs" />
     <Compile Include="Types\ModuleName.cs" />
     <Compile Include="Types\Slot.cs" />
-    <Compile Include="Utilities\GridDirection.cs">
+    <Compile Include="Types\Direction.cs">
       <LastGenOutput>GridDirection1.cs</LastGenOutput>
     </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
@@ -96,9 +95,8 @@
     <Compile Include="Parameters\ModuleParameter.cs" />
     <Compile Include="Types\Module.cs" />
     <Compile Include="Types\Rule.cs" />
-    <Compile Include="Utilities\Populate.cs" />
     <Compile Include="Configuration.cs" />
-    <Compile Include="WFCToolsetInfo.cs" />
+    <Compile Include="WFCPluginInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

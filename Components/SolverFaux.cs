@@ -8,7 +8,7 @@ using System.Drawing;
 using System.Linq;
 using Grasshopper.Kernel;
 
-namespace WFCToolset
+namespace WFCPlugin
 {
     public class ComponentFauxSolver : GH_Component
     {
@@ -150,12 +150,6 @@ namespace WFCToolset
                 return;
             }
 
-            // Add internal rules to the main rule set
-            var allInternalRules = modules
-                .SelectMany(module => module.InternalRules)
-                .Select(ruleExplicit => new Rule(ruleExplicit));
-            rulesRaw.AddRange(allInternalRules);
-
             // Generate Out module
             Module.GenerateNamedEmptySingleModule(Configuration.OUTER_MODULE_NAME,
                                                   Configuration.INDIFFERENT_TAG,
@@ -203,7 +197,12 @@ namespace WFCToolset
                 {
                     rulesForSolver.Add(ruleForSolver);
                 }
+            }
 
+            // Add internal rules to the main rule set
+            foreach (var module in modules)
+            {
+                rulesForSolver.AddRange(module.InternalRules);
             }
 
             var slotOrder = new List<int>(slotsRaw.Count);

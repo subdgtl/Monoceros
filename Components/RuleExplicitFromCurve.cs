@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
-namespace WFCToolset
+namespace WFCPlugin
 {
 
     public class ComponentRuleExplicitFromCurve : GH_Component
@@ -79,10 +79,10 @@ namespace WFCToolset
             foreach (var module in modules)
             {
                 startConnectors.AddRange(
-                    module.GetExternalConnectorsContainingPoint(curve.PointAtStart)
+                    module.GetConnectorsContainingPoint(curve.PointAtStart)
                    );
                 endConnectors.AddRange(
-                    module.GetExternalConnectorsContainingPoint(curve.PointAtEnd)
+                    module.GetConnectorsContainingPoint(curve.PointAtEnd)
                    );
             }
 

@@ -9,7 +9,7 @@ using System.Linq;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
-namespace WFCToolset
+namespace WFCPlugin
 {
     // TODO: Find a better name
     // TODO: Make bake aware and think about using blocks. Override baking output geometry.

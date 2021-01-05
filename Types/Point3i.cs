@@ -5,7 +5,7 @@
 using System;
 using Rhino.Geometry;
 
-namespace WFCToolset
+namespace WFCPlugin
 {
     /// <summary>
     /// Used as a relative discrete coordinate of a slot or a submodule center 
