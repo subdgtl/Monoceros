@@ -1,30 +1,26 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
-
+﻿using Grasshopper.Kernel;
+using Rhino;
+using Rhino.DocObjects;
+using Rhino.Geometry;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using Grasshopper.Kernel;
-using Rhino;
-using Rhino.DocObjects;
-using Rhino.Geometry;
 
-namespace WFCToolset
+namespace WFCPlugin
 {
     public class ComponentPreviewRules : GH_Component, IGH_PreviewObject, IGH_BakeAwareObject
     {
         private IEnumerable<ExplicitLine> _explicitLines;
         private IEnumerable<TypedLine> _typedLines;
 
-        public ComponentPreviewRules() : base("WFC Preview Rules",
-                                              "WFCRulePreview",
-                                              "Preview rules as lines connecting individual connectors. " +
-                                              "Does not display connections to reserved modules " +
-                                              Configuration.RESERVED_TO_STRING + ".",
-                                              "WaveFunctionCollapse",
-                                              "Preview")
+        public ComponentPreviewRules()
+            : base("WFC Preview Rules",
+                   "WFCRulePreview",
+                   "Preview rules as lines connecting individual connectors. Does not display " +
+                  "connections to reserved modules " + Config.RESERVED_TO_STRING + ".",
+                   "WaveFunctionCollapse",
+                   "Preview")
         {
         }
 
@@ -55,12 +51,12 @@ namespace WFCToolset
         /// <summary>
         /// Wrap input geometry into module cages.
         /// </summary>
-        /// <param name="DA">The DA object can be used to retrieve data from input parameters and 
-        /// to store data in output parameters.</param>
+        /// <param name="DA">The DA object can be used to retrieve data from
+        ///     input parameters and to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            var modules = new List<Module>();
-            var rules = new List<Rule>();
+            List<Module> modules = new List<Module>();
+            List<Rule> rules = new List<Rule>();
 
             if (!DA.GetDataList(0, modules))
             {
@@ -72,12 +68,12 @@ namespace WFCToolset
                 return;
             }
 
-            var minimumSlotDimension = 1.0;
-            var averageSlotDiagonal = new Vector3d();
+            double minimumSlotDimension = 1.0;
+            Vector3d averageSlotDiagonal = new Vector3d();
 
-            foreach (var module in modules)
+            foreach (Module module in modules)
             {
-                var minSize = module.SlotDiagonal.MinimumCoordinate;
+                double minSize = module.SlotDiagonal.MinimumCoordinate;
                 if (minSize < minimumSlotDimension)
                 {
                     minimumSlotDimension = minSize;
@@ -87,51 +83,65 @@ namespace WFCToolset
 
             averageSlotDiagonal /= modules.Count;
 
-            var explicitLines = new List<ExplicitLine>();
-            var typedLines = new List<TypedLine>();
+            List<ExplicitLine> explicitLines = new List<ExplicitLine>();
+            List<TypedLine> typedLines = new List<TypedLine>();
 
-            var rulesExplicit = rules.Where(rule => rule.IsExplicit()).Select(rule => rule.Explicit);
-            var rulesTyped = rules.Where(rule => rule.IsTyped()).Select(rule => rule.Typed);
+            IEnumerable<RuleExplicit> rulesExplicit = rules.Where(rule => rule.IsExplicit()).Select(rule => rule.Explicit);
+            IEnumerable<RuleTyped> rulesTyped = rules.Where(rule => rule.IsTyped()).Select(rule => rule.Typed);
 
-            foreach (var ruleExplicit in rulesExplicit)
+            foreach (RuleExplicit ruleExplicit in rulesExplicit)
             {
                 // TODO: Consider displaying Out connections somehow too
-                if (!Configuration.RESERVED_NAMES.Contains(ruleExplicit.SourceModuleName) &&
-                    !Configuration.RESERVED_NAMES.Contains(ruleExplicit.TargetModuleName))
+                if (!Config.RESERVED_NAMES.Contains(ruleExplicit.SourceModuleName) &&
+                    !Config.RESERVED_NAMES.Contains(ruleExplicit.TargetModuleName))
                 {
-                    GetLinesFromExplicitRule(modules, ruleExplicit, out var linesX, out var linesY, out var linesZ);
+                    GetLinesFromExplicitRule(modules,
+                                             ruleExplicit,
+                                             out List<Line> linesX,
+                                             out List<Line> linesY,
+                                             out List<Line> linesZ);
 
                     explicitLines.AddRange(
-                        linesX.Select(line => new ExplicitLine(line, Configuration.X_COLOR))
+                        linesX.Select(line => new ExplicitLine(line, Config.X_COLOR))
                         );
                     explicitLines.AddRange(
-                        linesY.Select(line => new ExplicitLine(line, Configuration.Y_COLOR))
+                        linesY.Select(line => new ExplicitLine(line, Config.Y_COLOR))
                         );
                     explicitLines.AddRange(
-                        linesZ.Select(line => new ExplicitLine(line, Configuration.Z_COLOR))
+                        linesZ.Select(line => new ExplicitLine(line, Config.Z_COLOR))
                         );
                 }
             }
 
-            foreach (var ruleTyped in rulesTyped)
+            foreach (RuleTyped ruleTyped in rulesTyped)
             {
-                var rulesExplicitComputed = ruleTyped.ToRuleExplicit(rulesTyped, modules);
+                List<RuleExplicit> rulesExplicitComputed = ruleTyped.ToRuleExplicit(rulesTyped, modules);
 
-                foreach (var ruleExplicit in rulesExplicitComputed)
+                foreach (RuleExplicit ruleExplicit in rulesExplicitComputed)
                 {
                     // TODO: Consider displaying Out connections somehow too
-                    if (!Configuration.RESERVED_NAMES.Contains(ruleExplicit.SourceModuleName) &&
-                        !Configuration.RESERVED_NAMES.Contains(ruleExplicit.TargetModuleName))
+                    if (!Config.RESERVED_NAMES.Contains(ruleExplicit.SourceModuleName) &&
+                        !Config.RESERVED_NAMES.Contains(ruleExplicit.TargetModuleName))
                     {
-                        GetLinesFromExplicitRule(modules, ruleExplicit, out var linesX, out var linesY, out var linesZ);
+                        GetLinesFromExplicitRule(modules,
+                                                 ruleExplicit,
+                                                 out List<Line> linesX,
+                                                 out List<Line> linesY,
+                                                 out List<Line> linesZ);
                         typedLines.AddRange(
-                            linesX.Select(line => new TypedLine(line, Configuration.X_COLOR, ruleTyped.ConnectorType))
+                            linesX.Select(line => new TypedLine(line,
+                                                                Config.X_COLOR,
+                                                                ruleTyped.ConnectorType))
                         );
                         typedLines.AddRange(
-                            linesY.Select(line => new TypedLine(line, Configuration.Y_COLOR, ruleTyped.ConnectorType))
+                            linesY.Select(line => new TypedLine(line,
+                                                                Config.Y_COLOR,
+                                                                ruleTyped.ConnectorType))
                         );
                         typedLines.AddRange(
-                            linesZ.Select(line => new TypedLine(line, Configuration.Z_COLOR, ruleTyped.ConnectorType))
+                            linesZ.Select(line => new TypedLine(line,
+                                                                Config.Z_COLOR,
+                                                                ruleTyped.ConnectorType))
                         );
                     }
                 }
@@ -152,18 +162,20 @@ namespace WFCToolset
             linesX = new List<Line>();
             linesY = new List<Line>();
             linesZ = new List<Line>();
-            var sourceModules = modules.Where(module => module.Name == ruleExplicit.SourceModuleName);
-            var sourceConnectors = sourceModules
+            IEnumerable<Module> sourceModules = modules
+                .Where(module => module.Name == ruleExplicit.SourceModuleName);
+            IEnumerable<ModuleConnector> sourceConnectors = sourceModules
                 .SelectMany(module => module.Connectors)
                 .Where(connector => connector.ConnectorIndex == ruleExplicit.SourceConnectorIndex);
-            var targetModules = modules.Where(module => module.Name == ruleExplicit.TargetModuleName);
-            var targetConnectors = targetModules
+            IEnumerable<Module> targetModules = modules
+                .Where(module => module.Name == ruleExplicit.TargetModuleName);
+            IEnumerable<ModuleConnector> targetConnectors = targetModules
                 .SelectMany(module => module.Connectors)
                 .Where(connector => connector.ConnectorIndex == ruleExplicit.TargetConnectorIndex);
 
-            foreach (var sourceConnector in sourceConnectors)
+            foreach (ModuleConnector sourceConnector in sourceConnectors)
             {
-                foreach (var targetConnector in targetConnectors)
+                foreach (ModuleConnector targetConnector in targetConnectors)
                 {
                     if (targetConnector.Direction.IsOpposite(sourceConnector.Direction))
                     {
@@ -189,21 +201,24 @@ namespace WFCToolset
 
         public new bool Hidden => false;
 
-        public bool GetIsPreviewCapable() => true;
+        public bool GetIsPreviewCapable()
+        {
+            return true;
+        }
 
         public override void DrawViewportWires(IGH_PreviewArgs args)
         {
-            foreach (var line in _explicitLines)
+            foreach (ExplicitLine line in _explicitLines)
             {
-                args.Display.DrawLine(line._line, line._color, 2);
+                args.Display.DrawLine(line.Line, line.Color, 2);
             }
 
-            foreach (var line in _typedLines)
+            foreach (TypedLine line in _typedLines)
             {
-                args.Display.DrawLine(line._line, line._color, 2);
+                args.Display.DrawLine(line.Line, line.Color, 2);
 
-                var middlePoint = (line._line.To + line._line.From) / 2;
-                args.Display.DrawDot(middlePoint, line._type, Configuration.POSITIVE_COLOR, line._color);
+                Point3d middlePoint = (line.Line.To + line.Line.From) / 2;
+                args.Display.DrawDot(middlePoint, line.Type, Config.POSITIVE_COLOR, line.Color);
             }
         }
 
@@ -220,116 +235,114 @@ namespace WFCToolset
             {
                 att = doc.CreateDefaultAttributes();
             }
-            var layerIndex = doc.Layers.CurrentLayerIndex;
+            int layerIndex = doc.Layers.CurrentLayerIndex;
 
-            foreach (var line in _explicitLines)
+            foreach (ExplicitLine line in _explicitLines)
             {
-                var lineAttributes = att.Duplicate();
-                lineAttributes.ObjectColor = line._color;
+                ObjectAttributes lineAttributes = att.Duplicate();
+                lineAttributes.ObjectColor = line.Color;
                 lineAttributes.ColorSource = ObjectColorSource.ColorFromObject;
                 lineAttributes.LayerIndex = layerIndex;
-                obj_ids.Add(doc.Objects.AddLine(line._line, lineAttributes));
+                obj_ids.Add(doc.Objects.AddLine(line.Line, lineAttributes));
             }
 
-            foreach (var line in _typedLines)
+            foreach (TypedLine line in _typedLines)
             {
-                var lineAttributes = att.Duplicate();
-                lineAttributes.ObjectColor = line._color;
+                ObjectAttributes lineAttributes = att.Duplicate();
+                lineAttributes.ObjectColor = line.Color;
                 lineAttributes.ColorSource = ObjectColorSource.ColorFromObject;
                 lineAttributes.LayerIndex = layerIndex;
-                obj_ids.Add(doc.Objects.AddLine(line._line, lineAttributes));
+                obj_ids.Add(doc.Objects.AddLine(line.Line, lineAttributes));
 
-                var middlePoint = (line._line.To + line._line.From) / 2;
+                Point3d middlePoint = (line.Line.To + line.Line.From) / 2;
 
-                var dotAttributes = att.Duplicate();
-                dotAttributes.ObjectColor = line._color;
+                ObjectAttributes dotAttributes = att.Duplicate();
+                dotAttributes.ObjectColor = line.Color;
                 dotAttributes.ColorSource = ObjectColorSource.ColorFromObject;
                 dotAttributes.LayerIndex = layerIndex;
-                obj_ids.Add(doc.Objects.AddTextDot(line._type, middlePoint, dotAttributes));
+                obj_ids.Add(doc.Objects.AddTextDot(line.Type, middlePoint, dotAttributes));
             }
         }
 
         /// <summary>
-        /// The Exposure property controls where in the panel a component icon 
-        /// will appear. There are seven possible locations (primary to septenary), 
-        /// each of which can be combined with the GH_Exposure.obscure flag, which 
-        /// ensures the component will only be visible on panel dropdowns.
+        /// The Exposure property controls where in the panel a component icon
+        /// will appear. There are seven possible locations (primary to
+        /// septenary), each of which can be combined with the
+        /// GH_Exposure.obscure flag, which ensures the component will only be
+        /// visible on panel dropdowns.
         /// </summary>
         public override GH_Exposure Exposure => GH_Exposure.primary;
 
         /// <summary>
-        /// Provides an Icon for every component that will be visible in the User Interface.
-        /// Icons need to be 24x24 pixels.
+        /// Provides an Icon for every component that will be visible in the
+        /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override Bitmap Icon =>
-                // You can add image files to your project resources and access them like this:
-                //return Resources.IconForThisComponent;
-                Properties.Resources.W;
+        protected override Bitmap Icon => Properties.Resources.W;
 
         /// <summary>
-        /// Each component must have a unique Guid to identify it. 
-        /// It is vital this Guid doesn't change otherwise old ghx files 
-        /// that use the old ID will partially fail during loading.
+        /// Each component must have a unique Guid to identify it.  It is vital
+        /// this Guid doesn't change otherwise old ghx files that use the old ID
+        /// will partially fail during loading.
         /// </summary>
         public override Guid ComponentGuid => new Guid("CD5D3078-2F06-4BCD-9267-2B828177DFDB");
     }
     internal struct ExplicitLine
     {
-        public Line _line;
-        public Color _color;
+        public readonly Line Line;
+        public readonly Color Color;
 
         public ExplicitLine(Line line, Color color)
         {
-            _line = line;
-            _color = color;
+            Line = line;
+            Color = color;
         }
 
         public override bool Equals(object obj)
         {
-            var flipped = _line;
+            Line flipped = Line;
             flipped.Flip();
             return obj is ExplicitLine line &&
-                   (_line.Equals(line._line) || flipped.Equals(line._line)) &&
-                   EqualityComparer<Color>.Default.Equals(_color, line._color);
+                   (Line.Equals(line.Line) || flipped.Equals(line.Line)) &&
+                   EqualityComparer<Color>.Default.Equals(Color, line.Color);
         }
 
         public override int GetHashCode()
         {
-            var hashCode = -5646795;
-            hashCode = hashCode * -1521134295 + _line.GetHashCode();
-            hashCode = hashCode * -1521134295 + _color.GetHashCode();
+            int hashCode = -5646795;
+            hashCode = hashCode * -1521134295 + Line.GetHashCode();
+            hashCode = hashCode * -1521134295 + Color.GetHashCode();
             return hashCode;
         }
     }
     internal struct TypedLine
     {
-        public Line _line;
-        public Color _color;
-        public string _type;
+        public readonly Line Line;
+        public readonly Color Color;
+        public readonly string Type;
 
         public TypedLine(Line line, Color color, string type)
         {
-            _line = line;
-            _color = color;
-            _type = type;
+            Line = line;
+            Color = color;
+            Type = type;
         }
 
         public override bool Equals(object obj)
         {
-            var flipped = _line;
+            Line flipped = Line;
             flipped.Flip();
             return obj is TypedLine line &&
-                   (_line.Equals(line._line) || flipped.Equals(line._line)) &&
-                   EqualityComparer<Color>.Default.Equals(_color, line._color) &&
-                   _type == line._type;
+                   (Line.Equals(line.Line) || flipped.Equals(line.Line)) &&
+                   EqualityComparer<Color>.Default.Equals(Color, line.Color) &&
+                   Type == line.Type;
         }
 
         public override int GetHashCode()
         {
-            var hashCode = -551534709;
-            hashCode = hashCode * -1521134295 + _line.GetHashCode();
-            hashCode = hashCode * -1521134295 + _color.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(_type);
+            int hashCode = -551534709;
+            hashCode = hashCode * -1521134295 + Line.GetHashCode();
+            hashCode = hashCode * -1521134295 + Color.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Type);
             return hashCode;
         }
     }

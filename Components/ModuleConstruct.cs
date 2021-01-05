@@ -1,96 +1,84 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
-
+﻿using Grasshopper.Kernel;
+using Grasshopper.Kernel.Types;
+using Rhino.Geometry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Grasshopper.Kernel;
-using Grasshopper.Kernel.Types;
-using Rhino.Geometry;
 
-namespace WFCToolset
+namespace WFCPlugin
 {
     /// <summary>
     /// <para>
     /// Grasshopper component: WFC Construct Module
     /// </para>
     /// <para>
-    /// Construct a WFC <see cref="Module"/> from <see cref="Point3d"/>s inside World grid cells 
-    /// marking those that should become submodules of the created <see cref="Module"/>. 
-    /// The <see cref="Point3d"/>s can be generated independently in Grasshopper or using 
-    /// <see cref="ComponentPopulateGeometryWithSlotCenters"/>. Redundant <see cref="Point3d"/>s 
-    /// will be removed.
-    /// Production <see cref="GeometryBase"/> will be used by the <see cref="ComponentPostprocessor"/>
-    /// to materialize the result of the  WFC <see cref="ComponentFauxSolver"/>.
-    /// The production <see cref="GeometryBase"/> is unrelated to the <see cref="Module"/> cage and 
-    /// <see cref="Slot"/>s it may occupy. 
+    /// Construct a WFC <see cref="Module"/> from <see cref="Point3d"/>s inside
+    /// World grid cells marking those that should become submodules of the
+    /// created <see cref="Module"/>.  The <see cref="Point3d"/>s can be
+    /// generated independently in Grasshopper or using
+    /// <see cref="ComponentPopulateGeometryWithSlotCenters"/>. Redundant
+    /// <see cref="Point3d"/>s will be removed. Production
+    /// <see cref="GeometryBase"/> will be used by the
+    /// <see cref="ComponentMaterialize"/> to materialize the result of the
+    /// WFC <see cref="ComponentFauxSolver"/>. The production
+    /// <see cref="GeometryBase"/> is unrelated to the <see cref="Module"/> cage
+    /// and <see cref="Slot"/>s it may occupy. 
     /// </para>
     /// <para>
     /// Grasshopper inputs:
     /// <list type="bullet">
-    /// <item>
-    /// <term><see cref="ModuleName"/> Name</term>
-    /// <description>
-    /// <see cref="Module"/> name to be used as its unique identifier.
-    /// Disallowed names are listed in <see cref="Configuration.RESERVED_NAMES"/>. 
-    /// The Name will be converted to lowercase.
-    /// Item access.
-    /// No default.
-    /// </description>
-    /// </item>
-    /// <item>
-    /// <term><see cref="Point3d"/> Submodule Points</term>
-    /// <description>
-    /// <see cref="Point3d"/>s inside World grid cells marking those
-    /// that should become submodules of the created <see cref="Module"/>.
-    /// The <see cref="Point3d"/>s can be generated independently in Grasshopper or using 
-    /// <see cref="ComponentPopulateGeometryWithSlotCenters"/>. Redundant <see cref="Point3d"/>s 
-    /// will be removed.
-    /// List access.
-    /// No default.
-    /// </description>
-    /// </item>
-    /// <item>
-    /// <term><see cref="GeometryBase"/> Production Geometry</term>
-    /// <description>
-    /// <see cref="GeometryBase"/> used by the <see cref="ComponentPostprocessor"/> to materialize the result of 
-    /// the WFC <see cref="ComponentFauxSolver"/>. Production Geometry does not have to 
-    /// fit into the generated <see cref="Module"/> cages and can be larger, smaller, different or none. 
-    /// Supports any geometry.
-    /// List access.
-    /// No default.
-    /// Optional.
-    /// </description>
-    /// </item>
-    /// <item>
-    /// <term><see cref="Plane"/> Base Plane</term>
-    /// <description>
-    /// Grid space base plane. Defines orientation of the grid.
-    /// Item access.
-    /// Default <see cref="Plane.WorldXY"/>.
-    /// </description>
-    /// </item>
-    /// <item>
-    /// <term><see cref="Vector3d"/> Grid Slot Diagonal</term>
-    /// <description>
-    /// World grid <see cref="Slot"/> diagonal <see cref="Vector3d"/> specifying single grid cell dimension in base-plane-aligned XYZ axes.
-    /// Item access.
-    /// Default <c>Vector3d(1.0, 1.0, 1.0)</c>.
-    /// </description>
-    /// </item>
+    ///     <item>
+    ///         <term><see cref="ModuleName"/> Name</term>
+    ///         <description><see cref="Module"/> name to be used as its unique
+    ///             identifier. Disallowed names are listed in
+    ///             <see cref="Config.RESERVED_NAMES"/>.  The Name will be
+    ///             converted to lowercase. Item access. No default.
+    ///             </description>
+    ///     </item>
+    ///     <item>
+    ///         <term><see cref="Point3d"/> Submodule Points</term>
+    ///         <description><see cref="Point3d"/>s inside World grid cells
+    ///             marking those that should become submodules of the created
+    ///             <see cref="Module"/>. The <see cref="Point3d"/>s can be
+    ///             generated independently in Grasshopper or using
+    ///             <see cref="ComponentPopulateGeometryWithSlotCenters"/>.
+    ///             Redundant <see cref="Point3d"/>s will be removed. List
+    ///             access. No default.</description>
+    ///     </item>
+    ///     <item>
+    ///         <term><see cref="GeometryBase"/> Production Geometry</term>
+    ///         <description><see cref="GeometryBase"/> used by the
+    ///             <see cref="ComponentMaterialize"/> to materialize the
+    ///             result of the WFC <see cref="ComponentFauxSolver"/>.
+    ///             Production Geometry does not have to fit into the generated
+    ///             <see cref="Module"/> cages and can be larger, smaller,
+    ///             different or none.  Supports any geometry. List access. No
+    ///             default. Optional.</description>
+    ///     </item>
+    ///     <item>
+    ///         <term><see cref="Plane"/> Base Plane</term>
+    ///         <description>Grid space base plane. Defines orientation of the
+    ///             grid. Item access. Default <see cref="Plane.WorldXY"/>.
+    ///             </description>
+    ///     </item>
+    ///     <item>
+    ///         <term><see cref="Vector3d"/> Grid Slot Diagonal</term>
+    ///         <description>World grid <see cref="Slot"/> diagonal
+    ///             <see cref="Vector3d"/> specifying single grid cell dimension
+    ///             in base-plane-aligned XYZ axes. Item access. Default
+    ///             <c>Vector3d(1.0, 1.0, 1.0)</c>.</description>
+    ///     </item>
     /// </list>
     /// </para>
     /// <para>
     /// Grasshopper outputs:
     /// <list type="bullet">
-    /// <item>
-    /// <term><see cref="Module"/> Module</term>
-    /// <description>
-    /// WFC Module encapsulating the input geometry and containing the same input geometry.
-    /// Item access.
-    /// </description>
-    /// </item>
+    ///     <item>
+    ///         <term><see cref="Module"/> Module</term>
+    ///         <description>WFC Module encapsulating the input geometry and
+    ///             containing the same input geometry. Item access.
+    ///             </description>
+    ///     </item>
     /// </list>
     /// </para>
     /// </summary>
@@ -99,8 +87,8 @@ namespace WFCToolset
         public ComponentConstructModule() : base("WFC Construct Module",
                                                   "WFCConstModule",
                                                   "Construct a WFC Module from slot centers. " +
-                                                  "The specified production geometry will be used in " +
-                                                  "WFC solver result.",
+                                                  "The specified production geometry will be " +
+                                                  "used in WFC solver result.",
                                                   "WaveFunctionCollapse", "Module")
         {
         }
@@ -113,7 +101,7 @@ namespace WFCToolset
             pManager.AddParameter(new ModuleNameParameter(),
                                   "Name",
                                   "N",
-                                  "Module name (except '" + Configuration.RESERVED_TO_STRING + "'). " +
+                                  "Module name (except '" + Config.RESERVED_TO_STRING + "'). " +
                                   "The Name will be converted to lowercase.",
                                   GH_ParamAccess.item);
             pManager.AddPointParameter("Slot Points",
@@ -122,9 +110,10 @@ namespace WFCToolset
                                        GH_ParamAccess.list);
             pManager.AddGeometryParameter("Production Geometry",
                                           "G",
-                                          "Geometry used to materialize the result of the WFC Solver. " +
-                                          "Production geometry does not have to fit into the generated " +
-                                          "module cage and can be larger, smaller, different or none.",
+                                          "Geometry used to materialize the result of the " +
+                                          "WFC Solver. Production geometry does not have to fit " +
+                                          "into the generated module cage and can be larger, " +
+                                          "smaller, different or none.",
                                           GH_ParamAccess.list);
             pManager[2].Optional = true;
             pManager.AddPlaneParameter("Base plane",
@@ -134,8 +123,8 @@ namespace WFCToolset
                                        Plane.WorldXY);
             pManager.AddVectorParameter("Grid Slot Diagonal",
                                         "D",
-                                        "World grid slot diagonal vector specifying single grid slot dimension " +
-                                        "in base-plane-aligned XYZ axes.",
+                                        "World grid slot diagonal vector specifying single grid " +
+                                        "slot dimension in base-plane-aligned XYZ axes.",
                                         GH_ParamAccess.item,
                                         new Vector3d(1.0, 1.0, 1.0));
         }
@@ -145,21 +134,25 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddParameter(new ModuleParameter(), "Module", "M", "WFC Module", GH_ParamAccess.item);
+            pManager.AddParameter(new ModuleParameter(),
+                                  "Module",
+                                  "M",
+                                  "WFC Module",
+                                  GH_ParamAccess.item);
         }
 
         /// <summary>
         /// Wrap input geometry into module cages.
         /// </summary>
-        /// <param name="DA">The DA object can be used to retrieve data from input parameters and 
-        /// to store data in output parameters.</param>
+        /// <param name="DA">The DA object can be used to retrieve data from
+        ///     input parameters and to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            var slotCenters = new List<Point3d>();
-            var productionGeometryRaw = new List<IGH_GeometricGoo>();
-            var nameRaw = new ModuleName();
-            var basePlane = new Plane();
-            var slotDiagonal = new Vector3d();
+            List<Point3d> slotCenters = new List<Point3d>();
+            List<IGH_GeometricGoo> productionGeometryRaw = new List<IGH_GeometricGoo>();
+            ModuleName nameRaw = new ModuleName();
+            Plane basePlane = new Plane();
+            Vector3d slotDiagonal = new Vector3d();
 
             if (!DA.GetData(0, ref nameRaw))
             {
@@ -183,8 +176,7 @@ namespace WFCToolset
                 return;
             }
 
-
-            var name = nameRaw.Name.ToLower();
+            string name = nameRaw.Name.ToLower();
 
             if (name.Length == 0)
             {
@@ -192,10 +184,11 @@ namespace WFCToolset
                 return;
             }
 
-            if (Configuration.RESERVED_NAMES.Contains(name))
+            if (Config.RESERVED_NAMES.Contains(name))
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  "The module name cannot be '" + name + "' because it is reserved by WFC.");
+                                  "The module name cannot be '" + name +
+                                  "' because it is reserved by WFC.");
                 return;
             }
 
@@ -207,14 +200,14 @@ namespace WFCToolset
             }
 
             // Scale down to unit size
-            var normalizationTransform = Transform.Scale(basePlane,
+            Transform normalizationTransform = Transform.Scale(basePlane,
                                                          1 / slotDiagonal.X,
                                                          1 / slotDiagonal.Y,
                                                          1 / slotDiagonal.Z);
             // Orient to the world coordinate system
-            var worldAlignmentTransform = Transform.PlaneToPlane(basePlane, Plane.WorldXY);
+            Transform worldAlignmentTransform = Transform.PlaneToPlane(basePlane, Plane.WorldXY);
             // Slot dimension is for the sake of this calculation 1,1,1
-            var submoduleCenters = slotCenters.Select(center =>
+            List<Point3i> submoduleCenters = slotCenters.Select(center =>
             {
                 center.Transform(normalizationTransform);
                 center.Transform(worldAlignmentTransform);
@@ -222,24 +215,28 @@ namespace WFCToolset
             }).Distinct()
               .ToList();
 
-            var productionGeometryClean = productionGeometryRaw
+            IEnumerable<GeometryBase> productionGeometryClean = productionGeometryRaw
                .Where(goo => goo != null)
                .Select(ghGeo =>
                {
-                   var geo = ghGeo.Duplicate();
+                   IGH_Goo geo = ghGeo.Duplicate();
                    return GH_Convert.ToGeometryBase(geo);
                });
 
-            var module = new Module(name, productionGeometryClean, basePlane, submoduleCenters, slotDiagonal);
+            Module module = new Module(name,
+                                    productionGeometryClean,
+                                    basePlane,
+                                    submoduleCenters,
+                                    slotDiagonal);
             if (!module.Continuous)
             {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                                  "The module is not continuous and therefore will not hold together.");
+                                  "The module is not continuous and will not hold together.");
             }
 
             if (module.Geometry.Count != productionGeometryRaw.Count)
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Some geometry could not be used.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Some geometry was not used.");
             }
 
             DA.SetData(0, module);
@@ -247,24 +244,24 @@ namespace WFCToolset
 
 
         /// <summary>
-        /// The Exposure property controls where in the panel a component icon 
-        /// will appear. There are seven possible locations (primary to septenary), 
-        /// each of which can be combined with the GH_Exposure.obscure flag, which 
-        /// ensures the component will only be visible on panel dropdowns.
+        /// The Exposure property controls where in the panel a component icon
+        /// will appear. There are seven possible locations (primary to
+        /// septenary), each of which can be combined with the
+        /// GH_Exposure.obscure flag, which ensures the component will only be
+        /// visible on panel dropdowns.
         /// </summary>
         public override GH_Exposure Exposure => GH_Exposure.primary;
 
         /// <summary>
-        /// Provides an Icon for every component that will be visible in the User Interface.
-        /// Icons need to be 24x24 pixels.
+        /// Provides an Icon for every component that will be visible in the
+        /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon =>
-                Properties.Resources.M;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.M;
 
         /// <summary>
-        /// Each component must have a unique Guid to identify it. 
-        /// It is vital this Guid doesn't change otherwise old ghx files 
-        /// that use the old ID will partially fail during loading.
+        /// Each component must have a unique Guid to identify it.  It is vital
+        /// this Guid doesn't change otherwise old ghx files that use the old ID
+        /// will partially fail during loading.
         /// </summary>
         public override Guid ComponentGuid => new Guid("2A632429-44EF-4970-ABAC-27E948858689");
     }

@@ -2,14 +2,14 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
-using System.Collections.Generic;
 using Grasshopper.Kernel;
 using Rhino;
 using Rhino.DocObjects;
 using Rhino.Geometry;
+using System;
+using System.Collections.Generic;
 
-namespace WFCToolset
+namespace WFCPlugin
 {
     /// <summary>
     /// Wraps <see cref="Slot"/> type so that it can be used in Grasshopper as an input, output or a floating parameter.
@@ -80,7 +80,7 @@ namespace WFCToolset
             {
                 if (item != null)
                 {
-                    var idsOut = new List<Guid>();
+                    List<Guid> idsOut = new List<Guid>();
                     item.BakeGeometry(doc, att, idsOut);
                     obj_ids.AddRange(idsOut);
                 }

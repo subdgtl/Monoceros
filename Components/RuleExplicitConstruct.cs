@@ -1,23 +1,19 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
-
+﻿using Grasshopper.Kernel;
 using System;
-using Grasshopper.Kernel;
 
-namespace WFCToolset
+namespace WFCPlugin
 {
 
     public class ComponentConstructRuleExplicit : GH_Component
     {
-        public ComponentConstructRuleExplicit() : base("WFC Construct Explicit Rule From Components",
-                                                       "WFCConstRuleExp",
-                                                       "Construct an Explicit WFC Rule (connector-to-connector) " +
-                                                       "from module name and connector number. " +
-                                                       "The existence of the module and connector as well as whether " +
-                                                       "the connectors are opposite is not being checked.",
-                                                       "WaveFunctionCollapse",
-                                                       "Rule")
+        public ComponentConstructRuleExplicit()
+            : base("WFC Construct Explicit",
+                   "WFCConstRuleExp",
+                   "Construct an Explicit WFC Rule (connector-to-connector) from module " +
+                   "name and connector number. The existence of the module and connector as " +
+                   "well as whether the connectors are opposite is not being checked.",
+                   "WaveFunctionCollapse",
+                   "Rule")
         {
         }
 
@@ -51,20 +47,24 @@ namespace WFCToolset
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddParameter(new RuleParameter(), "Rule", "R", "WFC Rule", GH_ParamAccess.item);
+            pManager.AddParameter(new RuleParameter(),
+                                  "Rule",
+                                  "R",
+                                  "WFC Rule",
+                                  GH_ParamAccess.item);
         }
 
         /// <summary>
         /// Wrap input geometry into module cages.
         /// </summary>
-        /// <param name="DA">The DA object can be used to retrieve data from input parameters and 
-        /// to store data in output parameters.</param>
+        /// <param name="DA">The DA object can be used to retrieve data from
+        ///     input parameters and to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            var sourceNameRaw = new ModuleName();
-            var sourceConnector = 0;
-            var targetNameRaw = new ModuleName();
-            var targetConnector = 0;
+            ModuleName sourceNameRaw = new ModuleName();
+            int sourceConnector = 0;
+            ModuleName targetNameRaw = new ModuleName();
+            int targetConnector = 0;
 
             if (!DA.GetData(0, ref sourceNameRaw))
             {
@@ -86,41 +86,40 @@ namespace WFCToolset
                 return;
             }
 
-            var sourceName = sourceNameRaw.Name;
-            var targetName = targetNameRaw.Name;
+            string sourceName = sourceNameRaw.Name;
+            string targetName = targetNameRaw.Name;
 
             if (sourceName == targetName && sourceConnector == targetConnector)
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The connector connects to itself.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                                  "The connector connects to itself.");
             }
 
-            var rule = new Rule(sourceName, sourceConnector, targetName, targetConnector);
+            Rule rule = new Rule(sourceName, sourceConnector, targetName, targetConnector);
 
             DA.SetData(0, rule);
         }
 
 
         /// <summary>
-        /// The Exposure property controls where in the panel a component icon 
-        /// will appear. There are seven possible locations (primary to septenary), 
-        /// each of which can be combined with the GH_Exposure.obscure flag, which 
-        /// ensures the component will only be visible on panel dropdowns.
+        /// The Exposure property controls where in the panel a component icon
+        /// will appear. There are seven possible locations (primary to
+        /// septenary), each of which can be combined with the
+        /// GH_Exposure.obscure flag, which ensures the component will only be
+        /// visible on panel dropdowns.
         /// </summary>
         public override GH_Exposure Exposure => GH_Exposure.secondary;
 
         /// <summary>
-        /// Provides an Icon for every component that will be visible in the User Interface.
-        /// Icons need to be 24x24 pixels.
+        /// Provides an Icon for every component that will be visible in the
+        /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon =>
-                // You can add image files to your project resources and access them like this:
-                //return Resources.IconForThisComponent;
-                Properties.Resources.C;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.C;
 
         /// <summary>
-        /// Each component must have a unique Guid to identify it. 
-        /// It is vital this Guid doesn't change otherwise old ghx files 
-        /// that use the old ID will partially fail during loading.
+        /// Each component must have a unique Guid to identify it.  It is vital
+        /// this Guid doesn't change otherwise old ghx files that use the old ID
+        /// will partially fail during loading.
         /// </summary>
         public override Guid ComponentGuid => new Guid("6274094F-6084-4B1B-9CAA-4CBA2C7836FF");
     }
