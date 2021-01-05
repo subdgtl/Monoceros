@@ -2,12 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
-using System.Collections.Generic;
 using Grasshopper.Kernel;
 using Rhino;
 using Rhino.DocObjects;
 using Rhino.Geometry;
+using System;
+using System.Collections.Generic;
 
 namespace WFCPlugin
 {
@@ -80,7 +80,7 @@ namespace WFCPlugin
             {
                 if (item != null)
                 {
-                    var idsOut = new List<Guid>();
+                    List<Guid> idsOut = new List<Guid>();
                     item.BakeGeometry(doc, att, idsOut);
                     obj_ids.AddRange(idsOut);
                 }

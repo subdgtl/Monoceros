@@ -1,22 +1,20 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
-
+﻿using GH_IO.Serialization;
+using Grasshopper.Kernel.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using GH_IO.Serialization;
-using Grasshopper.Kernel.Types;
 
 namespace WFCPlugin
 {
     /// <summary>
     /// <para>
     /// The wrapper class for <see cref="Explicit"/> and <see cref="Typed"/>. 
-    /// <see cref="Rule"/> complies with the interface for a custom Grasshopper data type.
+    /// <see cref="Rule"/> complies with the interface for a custom Grasshopper
+    /// data type.
     /// </para>
     /// <para>
-    /// May only contain one of the <see cref="Explicit"/> or <see cref="Typed"/> properties. The other one is <c>null</c>.
+    /// May only contain one of the <see cref="Explicit"/> or
+    /// <see cref="Typed"/> properties. The other one is <c>null</c>.
     /// </para>
     /// </summary>
     public class Rule : IGH_Goo
@@ -25,20 +23,23 @@ namespace WFCPlugin
         private RuleTyped _ruleTyped;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Rule"/> class. The object will be invalid.
-        /// Required by Grasshopper.
+        /// Initializes a new instance of the <see cref="Rule"/> class. The
+        /// object will be invalid. Required by Grasshopper.
         /// </summary>
         public Rule()
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Rule"/> class. It will contain only <see cref="Explicit"/>.
+        /// Initializes a new instance of the <see cref="Rule"/> class. It will
+        /// contain only <see cref="Explicit"/>.
         /// </summary>
         /// <param name="sourceModuleName">The source module name.</param>
-        /// <param name="sourceConnectorIndex">The source connector index.</param>
+        /// <param name="sourceConnectorIndex">The source connector index.
+        ///     </param>
         /// <param name="targetModuleName">The target module name.</param>
-        /// <param name="targetConnectorIndex">The target connector index.</param>
+        /// <param name="targetConnectorIndex">The target connector index.
+        ///     </param>
         public Rule(
             string sourceModuleName,
             int sourceConnectorIndex,
@@ -46,13 +47,18 @@ namespace WFCPlugin
             int targetConnectorIndex
         )
         {
-            Explicit = new RuleExplicit(sourceModuleName, sourceConnectorIndex, targetModuleName, targetConnectorIndex);
+            Explicit = new RuleExplicit(sourceModuleName,
+                                        sourceConnectorIndex,
+                                        targetModuleName,
+                                        targetConnectorIndex);
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Rule"/> class. It will contain only <see cref="Explicit"/>.
+        /// Initializes a new instance of the <see cref="Rule"/> class. It will
+        /// contain only <see cref="Explicit"/>.
         /// </summary>
-        /// <param name="ruleExplicit">The <see cref="RuleExplicit"/> to be wrapped into the <see cref="Rule"/>.</param>
+        /// <param name="ruleExplicit">The <see cref="RuleExplicit"/> to be
+        ///     wrapped into the <see cref="Rule"/>.</param>
         public Rule(
             RuleExplicit ruleExplicit
         )
@@ -61,7 +67,8 @@ namespace WFCPlugin
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Rule"/> class. It will contain only <see cref="Typed"/>.
+        /// Initializes a new instance of the <see cref="Rule"/> class. It will
+        /// contain only <see cref="Typed"/>.
         /// </summary>
         /// <param name="moduleName">The module name.</param>
         /// <param name="connectorIndex">The connector index.</param>
@@ -76,9 +83,11 @@ namespace WFCPlugin
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Rule"/> class.It will contain only <see cref="Typed"/>.
+        /// Initializes a new instance of the <see cref="Rule"/> class.It will
+        /// contain only <see cref="Typed"/>.
         /// </summary>
-        /// <param name="ruleTyped">The <see cref="RuleTyped"/> to be wrapped into the <see cref="Rule"/>.</param>
+        /// <param name="ruleTyped">The <see cref="RuleTyped"/> to be wrapped
+        ///     into the <see cref="Rule"/>.</param>
         public Rule(
             RuleTyped ruleTyped
         )
@@ -87,15 +96,12 @@ namespace WFCPlugin
         }
 
         /// <summary>
-        /// Gets or sets the <see cref="Explicit"/> property. 
-        /// The <see cref="Typed"/> property will be set to <c>null</c>.
+        /// Gets or sets the <see cref="Explicit"/> property.  The
+        /// <see cref="Typed"/> property will be set to <c>null</c>.
         /// </summary>
         public RuleExplicit Explicit
         {
-            get
-            {
-                return _ruleExplicit;
-            }
+            get => _ruleExplicit;
             set
             {
                 _ruleExplicit = value;
@@ -104,15 +110,12 @@ namespace WFCPlugin
         }
 
         /// <summary>
-        /// Gets or sets the <see cref="Typed"/> property. 
-        /// The <see cref="Explicit"/> property will be set to <c>null</c>.
+        /// Gets or sets the <see cref="Typed"/> property.  The
+        /// <see cref="Explicit"/> property will be set to <c>null</c>.
         /// </summary>
         public RuleTyped Typed
         {
-            get
-            {
-                return _ruleTyped;
-            }
+            get => _ruleTyped;
             set
             {
                 _ruleTyped = value;
@@ -123,17 +126,26 @@ namespace WFCPlugin
         /// <summary>
         /// Checks if the <see cref="Rule"/> wraps a <see cref="RuleExplicit"/>.
         /// </summary>
-        /// <returns>True if contains <see cref="RuleExplicit"/> and does not contain <see cref="RuleTyped"/>.</returns>
-        public bool IsExplicit() => Explicit != null && Typed == null;
+        /// <returns>True if contains <see cref="RuleExplicit"/> and does not
+        ///     contain <see cref="RuleTyped"/>.</returns>
+        public bool IsExplicit()
+        {
+            return Explicit != null && Typed == null;
+        }
 
         /// <summary>
         /// Checks if the <see cref="Rule"/> wraps a <see cref="RuleTyped"/>.
         /// </summary>
-        /// <returns>True if contains <see cref="RuleTyped"/> and does not contain <see cref="RuleExplicit"/>.</returns>
-        public bool IsTyped() => Explicit == null && Typed != null;
+        /// <returns>True if contains <see cref="RuleTyped"/> and does not
+        ///     contain <see cref="RuleExplicit"/>.</returns>
+        public bool IsTyped()
+        {
+            return Explicit == null && Typed != null;
+        }
 
         /// <summary>
-        /// Checks whether the other object is identical with the current <see cref="Rule"/>.
+        /// Checks whether the other object is identical with the current
+        /// <see cref="Rule"/>.
         /// </summary>
         /// <param name="obj">The other object.</param>
         /// <returns>True if equal.</returns>
@@ -151,21 +163,19 @@ namespace WFCPlugin
         }
 
         /// <summary>
-        /// Type name.
-        /// Required by Grasshopper.
+        /// Type name. Required by Grasshopper.
         /// </summary>
         public string TypeName => "WFC Rule";
 
         /// <summary>
-        /// Type description.
-        /// Required by Grasshopper.
+        /// Type description. Required by Grasshopper.
         /// </summary>
         public string TypeDescription => "WFC Connection rule.";
 
 
         /// <summary>
-        /// Checks if the <see cref="Rule"/> is valid, 
-        /// including the validity of the wrapped <see cref="RuleExplicit"/> or <see cref="RuleTyped"/>.
+        /// Checks if the <see cref="Rule"/> is valid, including the validity of
+        /// the wrapped <see cref="RuleExplicit"/> or <see cref="RuleTyped"/>.
         /// </summary>
         bool IGH_Goo.IsValid
         {
@@ -205,18 +215,19 @@ namespace WFCPlugin
         // TODO: Consider allowing to cast from a string in the format defined by ToString 
         // or even in the original X,mod1,mod2
         /// <summary>
-        /// The <see cref="Rule"/> cannot be automatically cast 
-        /// from another type exposed in Grasshopper.
-        /// Required by Grasshopper. 
+        /// The <see cref="Rule"/> cannot be automatically cast from another
+        /// type exposed in Grasshopper. Required by Grasshopper. 
         /// </summary>
         /// <param name="rule"></param>
         /// <returns>False</returns>
-        public bool CastFrom(object rule) => false;
+        public bool CastFrom(object rule)
+        {
+            return false;
+        }
 
         /// <summary>
-        /// The <see cref="Rule"/> cannot be automatically cast 
-        /// to another type exposed in Grasshopper.
-        /// Required by Grasshopper. 
+        /// The <see cref="Rule"/> cannot be automatically cast to another type
+        /// exposed in Grasshopper. Required by Grasshopper. 
         /// </summary>
         /// <param name="rule"></param>
         /// <returns>False</returns>
@@ -228,45 +239,60 @@ namespace WFCPlugin
 
 
         /// <summary>
-        /// Duplicates the <see cref="Rule"/>.
-        /// Required by Grasshopper.
+        /// Duplicates the <see cref="Rule"/>. Required by Grasshopper.
         /// </summary>
         /// <returns>An IGH_Goo.</returns>
-        public IGH_Goo Duplicate() => (IGH_Goo)MemberwiseClone();
+        public IGH_Goo Duplicate()
+        {
+            return (IGH_Goo)MemberwiseClone();
+        }
 
         /// <summary>
         /// Required by Grasshopper.
         /// </summary>
         /// <returns>An IGH_Goo.</returns>
-        public IGH_GooProxy EmitProxy() => null;
+        public IGH_GooProxy EmitProxy()
+        {
+            return null;
+        }
 
         // TODO: Do this for real
         /// <summary>
-        /// De-serialization.
-        /// Required by Grasshopper for data internalization.
+        /// De-serialization. Required by Grasshopper for data internalization.
         /// </summary>
-        /// <remarks>Not implemented yet.</remarks>
+        /// <remarks>
+        /// Not implemented yet.
+        /// </remarks>
         /// <param name="reader">The reader.</param>
         /// <returns>A bool when successful.</returns>
-        public bool Read(GH_IReader reader) => true;
+        public bool Read(GH_IReader reader)
+        {
+            return true;
+        }
 
         // TODO: Do this for real
         /// <summary>
-        /// Serialization.
-        /// Required by Grasshopper for data internalization.
+        /// Serialization. Required by Grasshopper for data internalization.
         /// </summary>
-        /// <remarks>Not implemented yet.</remarks>
+        /// <remarks>
+        /// Not implemented yet.
+        /// </remarks>
         /// <param name="writer">The writer.</param>
         /// <returns>A bool when successful.</returns>
-        public bool Write(GH_IWriter writer) => true;
+        public bool Write(GH_IWriter writer)
+        {
+            return true;
+        }
 
         // TODO: Find out what this is and what should be done here
         /// <summary>
-        /// Returns the script variable.
-        /// Required by Grasshopper.
+        /// Returns the script variable. Required by Grasshopper.
         /// </summary>
         /// <returns>An object.</returns>
-        public object ScriptVariable() => this;
+        public object ScriptVariable()
+        {
+            return this;
+        }
 
         /// <summary>
         /// Returns a user-friendly description of the <see cref="Rule"/>.
@@ -300,15 +326,16 @@ namespace WFCPlugin
                 return Typed.GetHashCode();
             }
             // The rule is invalid, the hash code is not unique
-            var hashCode = -1934280001;
+            int hashCode = -1934280001;
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(TypeName);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(TypeDescription);
             return hashCode;
         }
 
         /// <summary>
-        /// Checks whether the wrapped <see cref="RuleExplicit"/> or <see cref="RuleTyped"/> is valid with 
-        /// the given <see cref="Module"/>s.
+        /// Checks whether the wrapped <see cref="RuleExplicit"/> or
+        /// <see cref="RuleTyped"/> is valid with the given
+        /// <see cref="Module"/>s.
         /// </summary>
         /// <param name="modules">The modules.</param>
         /// <returns>True if valid.</returns>
@@ -331,12 +358,13 @@ namespace WFCPlugin
     /// Explicit rule for WFC <see cref="ComponentFauxSolver"/>.
     /// </para>
     /// <para>
-    /// <see cref="RuleExplicit"/> describes an allowed neighborhood of two instances of 
-    /// <see cref="Module"/> (same or different), touching with one <see cref="ModuleConnector"/> each. 
-    /// The first module is identified by <see cref="SourceModuleName"/> and 
-    /// its connector is identified by <see cref="SourceConnectorIndex"/>.
-    /// The second module is identified by <see cref="TargetModuleName"/> and 
-    /// its connector is identified by <see cref="TargetConnectorIndex"/>.
+    /// <see cref="RuleExplicit"/> describes an allowed neighborhood of two
+    /// instances of <see cref="Module"/> (same or different), touching with one
+    /// <see cref="ModuleConnector"/> each.  The first module is identified by
+    /// <see cref="SourceModuleName"/> and its connector is identified by
+    /// <see cref="SourceConnectorIndex"/>. The second module is identified by
+    /// <see cref="TargetModuleName"/> and its connector is identified by
+    /// <see cref="TargetConnectorIndex"/>.
     /// </para>
     /// </summary>
     /// <remarks>
@@ -344,53 +372,70 @@ namespace WFCPlugin
     /// The module names are converted to lowercase.
     /// </para>
     /// <para>
-    /// Neither the constructor nor <see cref="IsValid"/> check if the two connectors are opposite. 
-    /// It is only possible when all modules are provided and can be done with 
+    /// Neither the constructor nor <see cref="IsValid"/> check if the two
+    /// connectors are opposite.  It is only possible when all modules are
+    /// provided and can be done with
     /// <see cref="IsValidWithGivenModules(List{Module})"/>
     /// </para>
     /// <para>
-    /// The <see cref="Direction"/> of the connection does not have to be lower-to-higher order (positive direction).
+    /// The <see cref="Direction"/> of the connection does not have to be
+    /// lower-to-higher order (positive direction).
     /// </para>
     /// <para>
-    /// Providing a list of <see cref="Module"/>s, the <see cref="RuleExplicit"/> can be converted 
-    /// to <see cref="RuleForSolver"/> with <see cref="ToWFCRuleSolver(List{Module}, out RuleForSolver)"/>, 
-    /// which is checked for validity and converted to lower-to-higher  order (positive direction). 
+    /// Providing a list of <see cref="Module"/>s, the
+    /// <see cref="RuleExplicit"/> can be converted to
+    /// <see cref="RuleForSolver"/> with
+    /// <see cref="ToWFCRuleSolver(List{Module}, out RuleForSolver)"/>, which is
+    /// checked for validity and converted to lower-to-higher order (positive
+    /// direction). 
     /// </para>
     /// <para>
-    /// The <see cref="RuleExplicit"/> describes also <see cref="Module.InternalRules"/>, in which case the rule
-    /// allows connection of two submodules of the same <see cref="Module"/>. This is, however, hidden from the
-    /// Grasshopper API and is used only internally by the <see cref="ComponentFauxSolver"/>.
+    /// The <see cref="RuleExplicit"/> describes also
+    /// <see cref="Module.InternalRules"/>, in which case the rule allows
+    /// connection of two submodules of the same <see cref="Module"/>. This is,
+    /// however, hidden from the Grasshopper API and is used only internally by
+    /// the <see cref="ComponentFauxSolver"/>.
     /// </para>
     /// </remarks>
     public class RuleExplicit
     {
         /// <summary>
-        /// Name (unique identifier) of the first module, which is allowed to touch the second module.
+        /// Name (unique identifier) of the first module, which is allowed to
+        /// touch the second module.
         /// </summary>
         public readonly string SourceModuleName;
         /// <summary>
-        /// The index (unique identifier) of the first module's connector, which is allowed to 
-        /// touch the second module's connector.
+        /// The index (unique identifier) of the first module's connector, which
+        /// is allowed to touch the second module's connector.
         /// </summary>
         public readonly int SourceConnectorIndex;
 
         /// <summary>
-        /// Name (unique identifier) of the second module, which is allowed to touch the first module.
+        /// Name (unique identifier) of the second module, which is allowed to
+        /// touch the first module.
         /// </summary>
         public readonly string TargetModuleName;
         /// <summary>
-        /// The index (unique identifier) of the second module's connector, which is allowed to 
-        /// touch the first module's connector.
+        /// The index (unique identifier) of the second module's connector,
+        /// which is allowed to touch the first module's connector.
         /// </summary>
         public readonly int TargetConnectorIndex;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RuleExplicit"/> class.
         /// </summary>
-        /// <param name="sourceModuleName">The source (first) <see cref="Module"/> name - will be converted to lowercase.</param>
-        /// <param name="sourceConnectorIndex">The source (first) <see cref="Module"/>'s <see cref="ModuleConnector"/> index.</param>
-        /// <param name="targetModuleName">The target (second) <see cref="Module"/> name - will be converted to lowercase.</param>
-        /// <param name="targetConnectorIndex">The target (second) <see cref="Module"/>'s <see cref="ModuleConnector"/> index.</param>
+        /// <param name="sourceModuleName">The source (first)
+        ///     <see cref="Module"/> name - will be converted to lowercase.
+        ///     </param>
+        /// <param name="sourceConnectorIndex">The source (first)
+        ///     <see cref="Module"/>'s <see cref="ModuleConnector"/> index.
+        ///     </param>
+        /// <param name="targetModuleName">The target (second)
+        ///     <see cref="Module"/> name - will be converted to lowercase.
+        ///     </param>
+        /// <param name="targetConnectorIndex">The target (second)
+        ///     <see cref="Module"/>'s <see cref="ModuleConnector"/> index.
+        ///     </param>
         public RuleExplicit(string sourceModuleName,
                             int sourceConnectorIndex,
                             string targetModuleName,
@@ -419,8 +464,9 @@ namespace WFCPlugin
         }
 
         /// <summary>
-        /// Checks if the provided object is equal to the current <see cref="RuleExplicit"/>. 
-        /// The check is bi-directional, so an opposite rule is considered to be equal.
+        /// Checks if the provided object is equal to the current
+        /// <see cref="RuleExplicit"/>.  The check is bi-directional, so an
+        /// opposite rule is considered to be equal.
         /// </summary>
         /// <param name="obj">The other object.</param>
         /// <returns>True if equal.</returns>
@@ -444,12 +490,13 @@ namespace WFCPlugin
         }
 
         /// <summary>
-        /// Checks if the rule does not describe a connector connecting to itself.
-        /// Does not check if the two connectors are opposite. 
-        /// It is only possible when all modules are provided and can be done with 
+        /// Checks if the rule does not describe a connector connecting to
+        /// itself. Does not check if the two connectors are opposite.  It is
+        /// only possible when all modules are provided and can be done with
         /// <see cref="IsValidWithGivenModules(List{Module})"/>
         /// </summary>
-        public bool IsValid => SourceModuleName == TargetModuleName ^ SourceConnectorIndex == TargetConnectorIndex;
+        public bool IsValid => SourceModuleName == TargetModuleName ^
+                               SourceConnectorIndex == TargetConnectorIndex;
 
         /// <summary>
         /// Returns a message why is the rule invalid.
@@ -458,8 +505,8 @@ namespace WFCPlugin
 
 
         /// <summary>
-        /// Provides a user-friendly description of the rule.
-        /// Required by Grasshopper for data peeking.
+        /// Provides a user-friendly description of the rule. Required by
+        /// Grasshopper for data peeking.
         /// </summary>
         /// <returns>A string.</returns>
         public override string ToString()
@@ -476,7 +523,7 @@ namespace WFCPlugin
         /// <returns>An int.</returns>
         public override int GetHashCode()
         {
-            var hashCode = -1103775584;
+            int hashCode = -1103775584;
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(SourceModuleName);
             hashCode = hashCode * -1521134295 + SourceConnectorIndex.GetHashCode();
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(TargetModuleName);
@@ -485,27 +532,35 @@ namespace WFCPlugin
         }
 
         /// <summary>
-        /// Converts the <see cref="RuleExplicit"/> to <see cref="RuleForSolver"/>, which is a format ready 
-        /// to be processed by the <see cref="ComponentFauxSolver"/>. The conversion checks the validity 
-        /// of the rule and converts it to lower-to-higher order (positive direction).
+        /// Converts the <see cref="RuleExplicit"/> to
+        /// <see cref="RuleForSolver"/>, which is a format ready to be processed
+        /// by the <see cref="ComponentFauxSolver"/>. The conversion checks the
+        /// validity of the rule and converts it to lower-to-higher order
+        /// (positive direction).
         /// </summary>
         /// <param name="modules">All (related) modules.</param>
-        /// <param name="ruleForSolver">Output rule for <see cref="ComponentFauxSolver"/>.</param>
+        /// <param name="ruleForSolver">Output rule for
+        ///     <see cref="ComponentFauxSolver"/>.</param>
         /// <returns>True if the conversion was successful.</returns>
         public bool ToWFCRuleSolver(List<Module> modules, out RuleForSolver ruleForSolver)
         {
             // Check if such modules and their connectors exist
-            var sourceModule = modules.FirstOrDefault(module => module.Name == SourceModuleName);
-            var targetModule = modules.FirstOrDefault(module => module.Name == TargetModuleName);
+            Module sourceModule = modules.FirstOrDefault(module => module.Name == SourceModuleName);
+            Module targetModule = modules.FirstOrDefault(module => module.Name == TargetModuleName);
             if (sourceModule == null || targetModule == null)
             {
                 ruleForSolver = default;
                 return false;
             }
-            var sourceConnector = sourceModule.Connectors.FirstOrDefault(connector => connector.ConnectorIndex == SourceConnectorIndex);
-            var targetConnector = sourceModule.Connectors.FirstOrDefault(connector => connector.ConnectorIndex == TargetConnectorIndex);
+            ModuleConnector sourceConnector = sourceModule
+                .Connectors
+                .FirstOrDefault(connector => connector.ConnectorIndex == SourceConnectorIndex);
+            ModuleConnector targetConnector = sourceModule
+                .Connectors
+                .FirstOrDefault(connector => connector.ConnectorIndex == TargetConnectorIndex);
 
-            if (sourceConnector.Equals(default(ModuleConnector)) || targetConnector.Equals(default(ModuleConnector)))
+            if (sourceConnector.Equals(default(ModuleConnector)) ||
+                targetConnector.Equals(default(ModuleConnector)))
             {
                 ruleForSolver = default;
                 return false;
@@ -523,19 +578,24 @@ namespace WFCPlugin
         }
 
         /// <summary>
-        /// Checks whether the <see cref="RuleExplicit"/> is valid with the given <see cref="Module"/>s.
-        /// The rule is invalid if such modules do not exist or if the direction of the connectors is not opposite.
+        /// Checks whether the <see cref="RuleExplicit"/> is valid with the
+        /// given <see cref="Module"/>s. The rule is invalid if such modules do
+        /// not exist or if the direction of the connectors is not opposite.
         /// </summary>
         /// <param name="modules">The modules.</param>
         /// <returns>True if valid.</returns>
         public bool IsValidWithGivenModules(IEnumerable<Module> modules)
         {
-            var sourceModule = modules.FirstOrDefault(module => module.Name == SourceModuleName);
-            var targetModule = modules.FirstOrDefault(module => module.Name == TargetModuleName);
-            var sourceConnector = sourceModule.Connectors.FirstOrDefault(connector => connector.ConnectorIndex == SourceConnectorIndex);
-            var targetConnector = targetModule.Connectors.FirstOrDefault(connector => connector.ConnectorIndex == TargetConnectorIndex);
+            Module sourceModule = modules.FirstOrDefault(module => module.Name == SourceModuleName);
+            Module targetModule = modules.FirstOrDefault(module => module.Name == TargetModuleName);
+            ModuleConnector sourceConnector = sourceModule
+                .Connectors
+                .FirstOrDefault(connector => connector.ConnectorIndex == SourceConnectorIndex);
+            ModuleConnector targetConnector = targetModule
+                .Connectors
+                .FirstOrDefault(connector => connector.ConnectorIndex == TargetConnectorIndex);
 
-            // Invalid if such modules do not exist or if the direction of the connectors is not opposite
+            // Invalid if modules do not exist or if the direction of the connectors is not opposite
             if (sourceModule == null ||
                 targetModule == null ||
                 sourceConnector.Equals(default(ModuleConnector)) ||
@@ -553,59 +613,68 @@ namespace WFCPlugin
     /// Typed rule for WFC Solver.
     /// </para>
     /// <para>
-    /// <see cref="RuleTyped"/> describes an allowed neighborhood of the current 
-    /// <see cref="Module"/>'s <see cref="ModuleConnector"/> with another connector
-    /// of the same or different <see cref="Module"/>, which has the same 
-    /// <see cref="ConnectorType"/>. 
-    /// The module is identified by <see cref="ModuleName"/> and 
-    /// its connector is identified by <see cref="ConnectorIndex"/>.
-    /// The type of the connector is identified by <see cref="ConnectorType"/>, 
-    /// which is an arbitrary string.
+    /// <see cref="RuleTyped"/> describes an allowed neighborhood of the current
+    /// <see cref="Module"/>'s <see cref="ModuleConnector"/> with another
+    /// connector of the same or different <see cref="Module"/>, which has the
+    /// same <see cref="ConnectorType"/>.  The module is identified by
+    /// <see cref="ModuleName"/> and its connector is identified by
+    /// <see cref="ConnectorIndex"/>. The type of the connector is identified by
+    /// <see cref="ConnectorType"/>, which is an arbitrary string.
     /// </para>
     /// </summary>
     /// <remarks>
     /// <para>
-    /// The <see cref="ModuleName"/> and <see cref="ConnectorType"/> are converted to lowercase.
+    /// The <see cref="ModuleName"/> and <see cref="ConnectorType"/> are
+    /// converted to lowercase.
     /// </para>
     /// <para>
-    /// The same <see cref="ConnectorType"/> can be assigned to connectors in different directions. 
+    /// The same <see cref="ConnectorType"/> can be assigned to connectors in
+    /// different directions. 
     /// </para>
     /// <para>
-    /// Neither the constructor nor <see cref="IsValid"/> check if the connector 
-    /// refers to existing <see cref="Module"/> and <see cref="ModuleConnector"/>. 
-    /// It is only possible when all modules are provided and can be done with 
+    /// Neither the constructor nor <see cref="IsValid"/> check if the connector
+    /// refers to existing <see cref="Module"/> and
+    /// <see cref="ModuleConnector"/>.  It is only possible when all modules are
+    /// provided and can be done with
     /// <see cref="IsValidWithGivenModules(List{Module})"/>
     /// </para>
     /// <para>
-    /// The <see cref="RuleTyped"/> needs to be unwrapped to <see cref="RuleExplicit"/> before 
-    /// it can be converted to <see cref="RuleForSolver"/>.
+    /// The <see cref="RuleTyped"/> needs to be unwrapped to
+    /// <see cref="RuleExplicit"/> before it can be converted to
+    /// <see cref="RuleForSolver"/>.
     /// </para>
     /// </remarks>
     public class RuleTyped
     {
         /// <summary>
-        /// Name (unique identifier) of a <see cref="Module"/>, which is allowed to touch another 
-        /// <see cref="Module"/> with a <see cref="ModuleConnector"/> of 
-        /// the same <see cref="ConnectorType"/>.
+        /// Name (unique identifier) of a <see cref="Module"/>, which is allowed
+        /// to touch another <see cref="Module"/> with a
+        /// <see cref="ModuleConnector"/> of the same
+        /// <see cref="ConnectorType"/>.
         /// </summary>
         public readonly string ModuleName;
         /// <summary>
-        /// Index of a <see cref="ModuleConnector"/>, which is allowed to touch another 
-        /// <see cref="ModuleConnector"/> of the same <see cref="ConnectorType"/>.
+        /// Index of a <see cref="ModuleConnector"/>, which is allowed to touch
+        /// another <see cref="ModuleConnector"/> of the same
+        /// <see cref="ConnectorType"/>.
         /// </summary>
         public readonly int ConnectorIndex;
         /// <summary>
-        /// Any two opposite <see cref="ModuleConnector"/>s of the same <see cref="ConnectorType"/> 
-        /// can touch. <see cref="ConnectorType"/> is an arbitrary string.
+        /// Any two opposite <see cref="ModuleConnector"/>s of the same
+        /// <see cref="ConnectorType"/> can touch. <see cref="ConnectorType"/>
+        /// is an arbitrary string.
         /// </summary>
         public readonly string ConnectorType;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RuleTyped"/> class.
         /// </summary>
-        /// <param name="moduleName">The <see cref="Module"/> name - will be converted to lowercase.</param>
-        /// <param name="connectorIndex">The <see cref="Module"/>'s <see cref="ModuleConnector"/> index.</param>
-        /// <param name="connectorType">The connector type - will be converted to lowercase.</param>
+        /// <param name="moduleName">The <see cref="Module"/> name - will be
+        ///     converted to lowercase.</param>
+        /// <param name="connectorIndex">The <see cref="Module"/>'s
+        ///     <see cref="ModuleConnector"/> index.</param>
+        /// <param name="connectorType">The connector type - will be converted
+        ///     to lowercase.</param>
         public RuleTyped(string moduleName, int connectorIndex, string connectorType)
         {
             if (moduleName.Length == 0)
@@ -629,7 +698,8 @@ namespace WFCPlugin
         }
 
         /// <summary>
-        /// Check if the provided object is an identical <see cref="RuleTyped"/>.
+        /// Check if the provided object is an identical
+        /// <see cref="RuleTyped"/>.
         /// </summary>
         /// <param name="obj">The other object.</param>
         /// <returns>True if equal.</returns>
@@ -644,7 +714,8 @@ namespace WFCPlugin
         }
 
         /// <summary>
-        /// Checks if the rule is initiated properly. Always valid due to the checks in the constructor.
+        /// Checks if the rule is initiated properly. Always valid due to the
+        /// checks in the constructor.
         /// </summary>
         public bool IsValid => true;
 
@@ -654,8 +725,8 @@ namespace WFCPlugin
         public string IsValidWhyNot => "Unknown reason";
 
         /// <summary>
-        /// Provides a user-friendly description of the rule.
-        /// Required by Grasshopper for data peeking.
+        /// Provides a user-friendly description of the rule. Required by
+        /// Grasshopper for data peeking.
         /// </summary>
         /// <returns>A string.</returns>
         public override string ToString()
@@ -672,7 +743,7 @@ namespace WFCPlugin
         /// <returns>An int.</returns>
         public override int GetHashCode()
         {
-            var hashCode = 145665365;
+            int hashCode = 145665365;
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(ModuleName);
             hashCode = hashCode * -1521134295 + ConnectorIndex.GetHashCode();
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(ConnectorType);
@@ -685,35 +756,43 @@ namespace WFCPlugin
         /// Convert to <see cref="RuleExplicit"/>.
         /// </para>
         /// <para>
-        /// Checks all other <see cref="RuleTyped"/> for the same <see cref="ConnectorType"/> and if 
-        /// this and the other rules are valid (refer to existing <see cref="Module"/> and its 
-        /// <see cref="ModuleConnector"/>) and the two <see cref="ModuleConnector"/>s have opposite
-        /// <see cref="Direction"/>s, then construct a <see cref="RuleExplicit"/> describing a connection
-        /// of the two <see cref="Module"/>s through the respective <see cref="ModuleConnector"/>s.
+        /// Checks all other <see cref="RuleTyped"/> for the same
+        /// <see cref="ConnectorType"/> and if this and the other rules are
+        /// valid (refer to existing <see cref="Module"/> and its
+        /// <see cref="ModuleConnector"/>) and the two
+        /// <see cref="ModuleConnector"/>s have opposite
+        /// <see cref="Direction"/>s, then construct a
+        /// <see cref="RuleExplicit"/> describing a connection of the two
+        /// <see cref="Module"/>s through the respective
+        /// <see cref="ModuleConnector"/>s.
         /// </para>
         /// </summary>
         /// <param name="otherRules">The other rules.</param>
         /// <param name="modules">The modules.</param>
-        /// <returns>A list of <see cref="RuleExplicit"/>. The list may be empty.</returns>
-        public List<RuleExplicit> ToRuleExplicit(IEnumerable<RuleTyped> otherRules, List<Module> modules)
+        /// <returns>A list of <see cref="RuleExplicit"/>. The list may be
+        ///     empty.</returns>
+        public List<RuleExplicit> ToRuleExplicit(IEnumerable<RuleTyped> otherRules,
+                                                 List<Module> modules)
         {
-            var rulesExplicit = new List<RuleExplicit>();
+            List<RuleExplicit> rulesExplicit = new List<RuleExplicit>();
 
             // If the source module and connector exist
-            var sourceModule = modules.FirstOrDefault(module => module.Name == ModuleName);
+            Module sourceModule = modules.FirstOrDefault(module => module.Name == ModuleName);
             if (sourceModule == null)
             {
                 return rulesExplicit;
             }
 
-            var sourceConnector = sourceModule.Connectors.FirstOrDefault(connector => connector.ConnectorIndex == ConnectorIndex);
+            ModuleConnector sourceConnector = sourceModule
+                .Connectors
+                .FirstOrDefault(connector => connector.ConnectorIndex == ConnectorIndex);
             if (sourceConnector.Equals(default(ModuleConnector)))
             {
                 return rulesExplicit;
             }
 
             // Find all other rules assigning the same connector type
-            foreach (var other in otherRules)
+            foreach (RuleTyped other in otherRules)
             {
                 if (other.ConnectorType != ConnectorType)
                 {
@@ -721,13 +800,16 @@ namespace WFCPlugin
                 }
 
                 // Checked if the other rule refers to an existing module and connector
-                var targetModule = modules.FirstOrDefault(module => module.Name == other.ModuleName);
+                Module targetModule = modules
+                    .FirstOrDefault(module => module.Name == other.ModuleName);
                 if (targetModule == null)
                 {
                     continue;
                 }
 
-                var targetConnector = targetModule.Connectors.FirstOrDefault(connector => connector.ConnectorIndex == other.ConnectorIndex);
+                ModuleConnector targetConnector = targetModule
+                    .Connectors
+                    .FirstOrDefault(connector => connector.ConnectorIndex == other.ConnectorIndex);
                 if (targetConnector.Equals(default(ModuleConnector)))
                 {
                     continue;
@@ -748,14 +830,14 @@ namespace WFCPlugin
         }
 
         /// <summary>
-        /// Checks whether the <see cref="RuleTyped"/> refers to an existing 
+        /// Checks whether the <see cref="RuleTyped"/> refers to an existing
         /// <see cref="Module"/> and its <see cref="ModuleConnector"/>.
         /// </summary>
         /// <param name="modules">All <see cref="Module"/>s.</param>
         /// <returns>True if valid.</returns>
         public bool IsValidWithModules(List<Module> modules)
         {
-            var sourceModule = modules.FirstOrDefault(module => module.Name == ModuleName);
+            Module sourceModule = modules.FirstOrDefault(module => module.Name == ModuleName);
             if (sourceModule == null ||
                 !sourceModule.Connectors.Any(connector => connector.ConnectorIndex == ConnectorIndex))
             {
@@ -766,22 +848,27 @@ namespace WFCPlugin
     }
 
     /// <summary>
-    /// An <see cref="RuleExplicit"/> formated to be ready to be processed by the Solver.
+    /// An <see cref="RuleExplicit"/> formated to be ready to be processed by
+    /// the Solver.
     /// <list type="bullet">
-    /// <item>
-    /// <term><see cref="AxialDirection"/></term>
-    /// <description>String: <c>x</c> or <c>y</c> or <c>z</c>.</description>
-    /// </item>
-    /// <item>
-    /// <term><see cref="LowerSubmoduleName"/></term>
-    /// <description>Unique string identifier of a source (lower X or Y or Z coordinate) 
-    /// submodule (size of a single <see cref="Slot"/>).</description>
-    /// </item>
-    /// /// <item>
-    /// <term><see cref="HigherSubmoduleName"/></term>
-    /// <description>Unique string identifier of a target (higher X or Y or Z coordinate) 
-    /// submodule (size of a single <see cref="Slot"/>).</description>
-    /// </item>
+    ///     <item>
+    ///         <term><see cref="AxialDirection"/></term>
+    ///         <description>String: <c>x</c> or <c>y</c> or <c>z</c>.
+    ///             </description>
+    ///     </item>
+    ///     <item>
+    ///         <term><see cref="LowerSubmoduleName"/></term>
+    ///         <description>Unique string identifier of a source (lower X or Y
+    ///             or Z coordinate) submodule (size of a single
+    ///             <see cref="Slot"/>).</description>
+    ///     </item>
+    ///     ///
+    ///     <item>
+    ///         <term><see cref="HigherSubmoduleName"/></term>
+    ///         <description>Unique string identifier of a target (higher X or Y
+    ///             or Z coordinate) submodule (size of a single
+    ///             <see cref="Slot"/>).</description>
+    ///     </item>
     /// </list>
     /// </summary>
     public struct RuleForSolver
@@ -791,12 +878,12 @@ namespace WFCPlugin
         /// </summary>
         public readonly string AxialDirection;
         /// <summary>
-        /// Unique string identifier of a source (lower X or Y or Z coordinate) 
+        /// Unique string identifier of a source (lower X or Y or Z coordinate)
         /// submodule (size of a single <see cref="Slot"/>).
         /// </summary>
         public readonly string LowerSubmoduleName;
         /// <summary>
-        /// Unique string identifier of a target (higher X or Y or Z coordinate) 
+        /// Unique string identifier of a target (higher X or Y or Z coordinate)
         /// submodule (size of a single <see cref="Slot"/>).
         /// </summary>
         public readonly string HigherSubmoduleName;
@@ -804,10 +891,13 @@ namespace WFCPlugin
         /// <summary>
         /// Initializes a new instance of the <see cref="RuleForSolver"/> class.
         /// </summary>
-        /// <param name="axialDirection">The axial direction: "<c>x</c>" or "<c>y</c>" or "<c>z</c>".</param>
+        /// <param name="axialDirection">The axial direction: "<c>x</c>" or
+        ///     "<c>y</c>" or "<c>z</c>".</param>
         /// <param name="lowerSubmoduleName">The lower submodule name.</param>
         /// <param name="higherSubmoduleName">The higher submodule name.</param>
-        public RuleForSolver(string axialDirection, string lowerSubmoduleName, string higherSubmoduleName)
+        public RuleForSolver(string axialDirection,
+                             string lowerSubmoduleName,
+                             string higherSubmoduleName)
         {
             AxialDirection = axialDirection.ToLower();
             if (AxialDirection != "x" && AxialDirection != "y" && AxialDirection != "z")
@@ -819,7 +909,8 @@ namespace WFCPlugin
         }
 
         /// <summary>
-        /// Check whether the other object is an identical <see cref="RuleForSolver"/>.
+        /// Check whether the other object is an identical
+        /// <see cref="RuleForSolver"/>.
         /// </summary>
         /// <param name="obj">The other object.</param>
         /// <returns>True if equal.</returns>
@@ -837,7 +928,7 @@ namespace WFCPlugin
         /// <returns>An int.</returns>
         public override int GetHashCode()
         {
-            var hashCode = -733970503;
+            int hashCode = -733970503;
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(AxialDirection);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(LowerSubmoduleName);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(HigherSubmoduleName);

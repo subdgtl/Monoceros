@@ -58,7 +58,7 @@
     <Compile Include="Components\ModuleConstructEmpty.cs" />
     <Compile Include="Components\ModuleConstruct.cs" />
     <Compile Include="Components\ModuleDeconstruct.cs" />
-    <Compile Include="Components\Postprocessor.cs" />
+    <Compile Include="Components\Materialize.cs" />
     <Compile Include="Components\SolverFaux.cs" />
     <Compile Include="Components\PopulateGeometryWithSlotCenters.cs" />
     <Compile Include="Components\SlotDeconstruct.cs" />
@@ -95,7 +95,7 @@
     <Compile Include="Parameters\ModuleParameter.cs" />
     <Compile Include="Types\Module.cs" />
     <Compile Include="Types\Rule.cs" />
-    <Compile Include="Configuration.cs" />
+    <Compile Include="Config.cs" />
     <Compile Include="WFCPluginInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

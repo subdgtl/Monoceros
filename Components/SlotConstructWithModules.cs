@@ -1,23 +1,20 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
-
+﻿using Grasshopper.Kernel;
+using Rhino.Geometry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Grasshopper.Kernel;
-using Rhino.Geometry;
 
 namespace WFCPlugin
 {
 
     public class ComponentConstructSlotWithModules : GH_Component
     {
-        public ComponentConstructSlotWithModules() : base("WFC Construct Slot With Module Names",
-                                                          "WFCConstSlotModules",
-                                                          "Construct a WFC Slot with allowed module names.",
-                                                          "WaveFunctionCollapse",
-                                                          "Slot")
+        public ComponentConstructSlotWithModules()
+            : base("WFC Construct Slot With Module Names",
+                   "WFCConstSlotModules",
+                   "Construct a WFC Slot with allowed module names.",
+                   "WaveFunctionCollapse",
+                   "Slot")
         {
         }
 
@@ -26,7 +23,10 @@ namespace WFCPlugin
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddPointParameter("Slot Point", "P", "Point inside the slot", GH_ParamAccess.item);
+            pManager.AddPointParameter("Slot Point",
+                                       "P",
+                                       "Point inside the slot",
+                                       GH_ParamAccess.item);
             pManager.AddPlaneParameter("Base plane",
                                        "B",
                                        "Grid space base plane. Defines orientation of the grid.",
@@ -35,7 +35,8 @@ namespace WFCPlugin
             pManager.AddVectorParameter(
                "Grid Slot Diagonal",
                "D",
-               "World grid slot diagonal vector specifying single grid slot dimension in base-plane-aligned XYZ axes",
+               "World grid slot diagonal vector specifying single grid slot dimension " +
+               "in base-plane-aligned XYZ axes",
                GH_ParamAccess.item,
                new Vector3d(1.0, 1.0, 1.0)
                );
@@ -57,14 +58,14 @@ namespace WFCPlugin
         /// <summary>
         /// Wrap input geometry into module cages.
         /// </summary>
-        /// <param name="DA">The DA object can be used to retrieve data from input parameters and 
-        /// to store data in output parameters.</param>
+        /// <param name="DA">The DA object can be used to retrieve data from
+        ///     input parameters and to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            var point = new Point3d();
-            var basePlane = new Plane();
-            var diagonal = new Vector3d();
-            var allowedModulesRaw = new List<ModuleName>();
+            Point3d point = new Point3d();
+            Plane basePlane = new Plane();
+            Vector3d diagonal = new Vector3d();
+            List<ModuleName> allowedModulesRaw = new List<ModuleName>();
 
             if (!DA.GetData(0, ref point))
             {
@@ -86,25 +87,29 @@ namespace WFCPlugin
                 return;
             }
 
-            var allowedModules = allowedModulesRaw.Select(name => name.Name).ToList();
+            List<string> allowedModules = allowedModulesRaw.Select(name => name.Name).ToList();
 
             if (diagonal.X <= 0 || diagonal.Y <= 0 || diagonal.Z <= 0)
             {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "One or more slot dimensions are not larger than 0.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  "One or more slot dimensions are not larger than 0.");
                 return;
             }
 
             // Scale down to unit size
-            var normalizationTransform = Transform.Scale(basePlane, 1 / diagonal.X, 1 / diagonal.Y, 1 / diagonal.Z);
+            Transform normalizationTransform = Transform.Scale(basePlane,
+                                                         1 / diagonal.X,
+                                                         1 / diagonal.Y,
+                                                         1 / diagonal.Z);
             // Orient to the world coordinate system
-            var worldAlignmentTransform = Transform.PlaneToPlane(basePlane, Plane.WorldXY);
+            Transform worldAlignmentTransform = Transform.PlaneToPlane(basePlane, Plane.WorldXY);
             point.Transform(normalizationTransform);
             point.Transform(worldAlignmentTransform);
             // Round point location
             // Slot dimension is for the sake of this calculation 1,1,1
-            var slotCenterPoint = new Point3i(point);
+            Point3i slotCenterPoint = new Point3i(point);
 
-            var slot = new Slot(basePlane,
+            Slot slot = new Slot(basePlane,
                                 slotCenterPoint,
                                 diagonal,
                                 false,
@@ -116,26 +121,24 @@ namespace WFCPlugin
         }
 
         /// <summary>
-        /// The Exposure property controls where in the panel a component icon 
-        /// will appear. There are seven possible locations (primary to septenary), 
-        /// each of which can be combined with the GH_Exposure.obscure flag, which 
-        /// ensures the component will only be visible on panel dropdowns.
+        /// The Exposure property controls where in the panel a component icon
+        /// will appear. There are seven possible locations (primary to
+        /// septenary), each of which can be combined with the
+        /// GH_Exposure.obscure flag, which ensures the component will only be
+        /// visible on panel dropdowns.
         /// </summary>
         public override GH_Exposure Exposure => GH_Exposure.primary;
 
         /// <summary>
-        /// Provides an Icon for every component that will be visible in the User Interface.
-        /// Icons need to be 24x24 pixels.
+        /// Provides an Icon for every component that will be visible in the
+        /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon =>
-                // You can add image files to your project resources and access them like this:
-                //return Resources.IconForThisComponent;
-                Properties.Resources.S;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.S;
 
         /// <summary>
-        /// Each component must have a unique Guid to identify it. 
-        /// It is vital this Guid doesn't change otherwise old ghx files 
-        /// that use the old ID will partially fail during loading.
+        /// Each component must have a unique Guid to identify it.  It is vital
+        /// this Guid doesn't change otherwise old ghx files that use the old ID
+        /// will partially fail during loading.
         /// </summary>
         public override Guid ComponentGuid => new Guid("3CC63A96-F075-4C39-9725-D5547959BE55");
     }

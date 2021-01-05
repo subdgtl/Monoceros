@@ -1,22 +1,26 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
-
-using Rhino.Geometry;
+﻿using Rhino.Geometry;
 
 namespace WFCPlugin
 {
     /// <summary>
-    /// Submodule face direction consisting of <see cref="Axis"/> and <see cref="Orientation"/>.
+    /// Submodule face direction consisting of <see cref="Axis"/> and
+    /// <see cref="Orientation"/>.
     /// </summary>
     public struct Direction
     {
-        public Axis _axis;
-        public Orientation _orientation;
+        public readonly Axis _axis;
+        public readonly Orientation _orientation;
+
+        public Direction(Axis axis, Orientation orientation)
+        {
+            _axis = axis;
+            _orientation = orientation;
+        }
 
         /// <summary>
-        /// Determines whether the other <see cref="Direction"/> is opposite to the current.
-        /// A <see cref="Direction"/> is opposite when the <see cref="Axis"/> equals and <see cref="Orientation"/> does not.
+        /// Determines whether the other <see cref="Direction"/> is opposite to
+        /// the current. A <see cref="Direction"/> is opposite when the
+        /// <see cref="Axis"/> equals and <see cref="Orientation"/> does not.
         /// </summary>
         /// <param name="other">The other.</param>
         /// <returns>True if opposite.</returns>
@@ -27,22 +31,22 @@ namespace WFCPlugin
         }
 
         /// <summary>
-        /// Returns flipped <see cref="Direction"/> - the <see cref="Axis"/> remains the same, the <see cref="Orientation"/> flips.
+        /// Returns flipped <see cref="Direction"/> - the <see cref="Axis"/>
+        /// remains the same, the <see cref="Orientation"/> flips.
         /// </summary>
         /// <returns>A flipped Direction.</returns>
         public Direction ToFlipped()
         {
-            var flipped = new Direction()
-            {
-                _axis = _axis,
-                _orientation = _orientation == Orientation.Positive ? Orientation.Negative : Orientation.Positive
-            };
+            Direction flipped = new Direction(_axis,
+                                              _orientation == Orientation.Positive ?
+                                              Orientation.Negative :
+                                              Orientation.Positive);
             return flipped;
         }
 
-
         /// <summary>
-        /// Converts the <see cref="Direction"/> to a <see cref="Vector3d"/> in Cartesian coordinate system.
+        /// Converts the <see cref="Direction"/> to a <see cref="Vector3d"/> in
+        /// Cartesian coordinate system.
         /// </summary>
         /// <returns>A Vector3d.</returns>
         public Vector3d ToVector()
@@ -61,19 +65,19 @@ namespace WFCPlugin
             }
             if (_axis == Axis.X && _orientation == Orientation.Negative)
             {
-                var directionVector = Vector3d.XAxis;
+                Vector3d directionVector = Vector3d.XAxis;
                 directionVector.Reverse();
                 return directionVector;
             }
             if (_axis == Axis.Y && _orientation == Orientation.Negative)
             {
-                var directionVector = Vector3d.YAxis;
+                Vector3d directionVector = Vector3d.YAxis;
                 directionVector.Reverse();
                 return directionVector;
             }
             if (_axis == Axis.Z && _orientation == Orientation.Negative)
             {
-                var directionVector = Vector3d.ZAxis;
+                Vector3d directionVector = Vector3d.ZAxis;
                 directionVector.Reverse();
                 return directionVector;
             }
@@ -81,14 +85,16 @@ namespace WFCPlugin
         }
 
         /// <summary>
-        /// Converts the <see cref="Direction"/> to a submodule connector index, according to the convention:
-        /// (submoduleIndex * 6) + faceIndex, where faceIndex is X=0, Y=1, Z=2, -X=3, -Y=4, -Z=5.
-        /// This method is the source of truth.
+        /// Converts the <see cref="Direction"/> to a submodule connector index,
+        /// according to the convention: (submoduleIndex * 6) + faceIndex, where
+        /// faceIndex is X=0, Y=1, Z=2, -X=3, -Y=4, -Z=5. This method is the
+        /// source of truth.
         /// </summary>
         /// <returns>Submodule connector index.</returns>
         public int ToConnectorIndex()
         {
-            // Connector numbering convention: (submoduleIndex * 6) + faceIndex, where faceIndex is X=0, Y=1, Z=2, -X=3, -Y=4, -Z=5
+            // Connector numbering convention: 
+            // (submoduleIndex * 6) + faceIndex, where faceIndex is X=0, Y=1, Z=2, -X=3, -Y=4, -Z=5
             if (_axis == Axis.X && _orientation == Orientation.Positive)
             {
                 return 0;
@@ -129,7 +135,8 @@ namespace WFCPlugin
     }
 
     /// <summary>
-    /// Submodule face orientation within a grid: <c>Positive</c> or <c>Negative</c>.
+    /// Submodule face orientation within a grid: <c>Positive</c> or
+    /// <c>Negative</c>.
     /// </summary>
     public enum Orientation
     {
