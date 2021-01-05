@@ -1,11 +1,9 @@
-﻿using Grasshopper.Kernel;
-using Rhino.Geometry;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
+using Grasshopper.Kernel;
+using Rhino.Geometry;
 
-namespace WFCPlugin
-{
+namespace WFCPlugin {
     /// <summary>
     /// <para>
     /// Grasshopper component: WFC Construct Empty Module
@@ -49,21 +47,18 @@ namespace WFCPlugin
     /// </list>
     /// </para>
     /// </summary>
-    public class ComponentModuleEmpty : GH_Component
-    {
-        public ComponentModuleEmpty() : base("WFC Construct Empty Module",
+    public class ComponentModuleEmpty : GH_Component {
+        public ComponentModuleEmpty( ) : base("WFC Construct Empty Module",
                                              "WFCModuleEmpty",
                                              "Construct an empty WFC Module.",
                                              "WaveFunctionCollapse",
-                                             "Module")
-        {
+                                             "Module") {
         }
 
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
-        {
+        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddPlaneParameter("Base Plane",
                                        "B",
                                        "Grid space base plane. Defines orientation of the grid.",
@@ -82,8 +77,7 @@ namespace WFCPlugin
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
-        {
+        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddParameter(new ModuleParameter(),
                                   "Module",
                                   "M",
@@ -101,23 +95,19 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="DA">The DA object can be used to retrieve data from
         ///     input parameters and to store data in output parameters.</param>
-        protected override void SolveInstance(IGH_DataAccess DA)
-        {
-            Plane basePlane = new Plane();
-            Vector3d slotDiagonal = new Vector3d();
+        protected override void SolveInstance(IGH_DataAccess DA) {
+            var basePlane = new Plane();
+            var slotDiagonal = new Vector3d();
 
-            if (!DA.GetData(0, ref basePlane))
-            {
+            if (!DA.GetData(0, ref basePlane)) {
                 return;
             }
 
-            if (!DA.GetData(1, ref slotDiagonal))
-            {
+            if (!DA.GetData(1, ref slotDiagonal)) {
                 return;
             }
 
-            if (slotDiagonal.X <= 0 || slotDiagonal.Y <= 0 || slotDiagonal.Z <= 0)
-            {
+            if (slotDiagonal.X <= 0 || slotDiagonal.Y <= 0 || slotDiagonal.Z <= 0) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "One or more slot dimensions are not larger than 0.");
                 return;
@@ -127,8 +117,8 @@ namespace WFCPlugin
                                                           Config.INDIFFERENT_TAG,
                                                           basePlane,
                                                           slotDiagonal,
-                                                          out Module moduleEmpty,
-                                                          out List<RuleTyped> rulesExternal);
+                                                          out var moduleEmpty,
+                                                          out var rulesExternal);
 
             DA.SetData(0, moduleEmpty);
             DA.SetDataList(1, rulesExternal.Select(ruleTyped => new Rule(ruleTyped)));

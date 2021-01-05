@@ -1,28 +1,24 @@
-﻿using Grasshopper.Kernel;
-using Rhino.Geometry;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Grasshopper.Kernel;
+using Rhino.Geometry;
 
-namespace WFCPlugin
-{
+namespace WFCPlugin {
 
-    public class ComponentConstructSlotWithModules : GH_Component
-    {
-        public ComponentConstructSlotWithModules()
+    public class ComponentConstructSlotWithModules : GH_Component {
+        public ComponentConstructSlotWithModules( )
             : base("WFC Construct Slot With Module Names",
                    "WFCConstSlotModules",
                    "Construct a WFC Slot with allowed module names.",
                    "WaveFunctionCollapse",
-                   "Slot")
-        {
+                   "Slot") {
         }
 
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
-        {
+        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddPointParameter("Slot Point",
                                        "P",
                                        "Point inside the slot",
@@ -50,8 +46,7 @@ namespace WFCPlugin
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
-        {
+        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddParameter(new SlotParameter(), "Slot", "S", "WFC Slot", GH_ParamAccess.item);
         }
 
@@ -60,56 +55,50 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="DA">The DA object can be used to retrieve data from
         ///     input parameters and to store data in output parameters.</param>
-        protected override void SolveInstance(IGH_DataAccess DA)
-        {
-            Point3d point = new Point3d();
-            Plane basePlane = new Plane();
-            Vector3d diagonal = new Vector3d();
-            List<ModuleName> allowedModulesRaw = new List<ModuleName>();
+        protected override void SolveInstance(IGH_DataAccess DA) {
+            var point = new Point3d();
+            var basePlane = new Plane();
+            var diagonal = new Vector3d();
+            var allowedModulesRaw = new List<ModuleName>();
 
-            if (!DA.GetData(0, ref point))
-            {
+            if (!DA.GetData(0, ref point)) {
                 return;
             }
 
-            if (!DA.GetData(1, ref basePlane))
-            {
+            if (!DA.GetData(1, ref basePlane)) {
                 return;
             }
 
-            if (!DA.GetData(2, ref diagonal))
-            {
+            if (!DA.GetData(2, ref diagonal)) {
                 return;
             }
 
-            if (!DA.GetDataList(3, allowedModulesRaw))
-            {
+            if (!DA.GetDataList(3, allowedModulesRaw)) {
                 return;
             }
 
-            List<string> allowedModules = allowedModulesRaw.Select(name => name.Name).ToList();
+            var allowedModules = allowedModulesRaw.Select(name => name.Name).ToList();
 
-            if (diagonal.X <= 0 || diagonal.Y <= 0 || diagonal.Z <= 0)
-            {
+            if (diagonal.X <= 0 || diagonal.Y <= 0 || diagonal.Z <= 0) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "One or more slot dimensions are not larger than 0.");
                 return;
             }
 
             // Scale down to unit size
-            Transform normalizationTransform = Transform.Scale(basePlane,
+            var normalizationTransform = Transform.Scale(basePlane,
                                                          1 / diagonal.X,
                                                          1 / diagonal.Y,
                                                          1 / diagonal.Z);
             // Orient to the world coordinate system
-            Transform worldAlignmentTransform = Transform.PlaneToPlane(basePlane, Plane.WorldXY);
+            var worldAlignmentTransform = Transform.PlaneToPlane(basePlane, Plane.WorldXY);
             point.Transform(normalizationTransform);
             point.Transform(worldAlignmentTransform);
             // Round point location
             // Slot dimension is for the sake of this calculation 1,1,1
-            Point3i slotCenterPoint = new Point3i(point);
+            var slotCenterPoint = new Point3i(point);
 
-            Slot slot = new Slot(basePlane,
+            var slot = new Slot(basePlane,
                                 slotCenterPoint,
                                 diagonal,
                                 false,

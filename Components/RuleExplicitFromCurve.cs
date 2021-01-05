@@ -1,28 +1,24 @@
-﻿using Grasshopper.Kernel;
-using Rhino.Geometry;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Grasshopper.Kernel;
+using Rhino.Geometry;
 
-namespace WFCPlugin
-{
+namespace WFCPlugin {
 
-    public class ComponentRuleExplicitFromCurve : GH_Component
-    {
-        public ComponentRuleExplicitFromCurve()
+    public class ComponentRuleExplicitFromCurve : GH_Component {
+        public ComponentRuleExplicitFromCurve( )
             : base("WFC Create Explicit Rule From Curve",
                    "WFCRuleExpCrv",
                    "Create an Explicit WFC Rule (connector-to-connector) " +
                    "from a curve connecting two opposite connectors.",
                    "WaveFunctionCollapse",
-                   "Rule")
-        {
+                   "Rule") {
         }
 
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
-        {
+        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddParameter(new ModuleParameter(),
                                   "Modules",
                                   "M",
@@ -37,8 +33,7 @@ namespace WFCPlugin
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
-        {
+        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddParameter(new RuleParameter(),
                                   "Rules",
                                   "R",
@@ -51,33 +46,28 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="DA">The DA object can be used to retrieve data from
         ///     input parameters and to store data in output parameters.</param>
-        protected override void SolveInstance(IGH_DataAccess DA)
-        {
-            List<Module> modules = new List<Module>();
-            Curve curve = new Curve();
+        protected override void SolveInstance(IGH_DataAccess DA) {
+            var modules = new List<Module>();
+            Curve curve = null;
 
-            if (!DA.GetDataList(0, modules))
-            {
+            if (!DA.GetDataList(0, modules)) {
                 return;
             }
 
-            if (!DA.GetData(1, ref curve))
-            {
+            if (!DA.GetData(1, ref curve)) {
                 return;
             }
 
-            List<Rule> rules = new List<Rule>();
+            var rules = new List<Rule>();
 
-            if (curve.IsPeriodic)
-            {
+            if (curve.IsPeriodic) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The connecting curve is periodic.");
                 return;
             }
 
-            List<ModuleConnector> startConnectors = new List<ModuleConnector>();
-            List<ModuleConnector> endConnectors = new List<ModuleConnector>();
-            foreach (Module module in modules)
-            {
+            var startConnectors = new List<ModuleConnector>();
+            var endConnectors = new List<ModuleConnector>();
+            foreach (var module in modules) {
                 startConnectors.AddRange(
                     module.GetConnectorsContainingPoint(curve.PointAtStart)
                    );
@@ -86,24 +76,19 @@ namespace WFCPlugin
                    );
             }
 
-            if (startConnectors.Count == 0)
-            {
+            if (startConnectors.Count == 0) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
                                   "The curve does not start at any module connector.");
             }
 
-            if (endConnectors.Count == 0)
-            {
+            if (endConnectors.Count == 0) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
                                   "The curve does not end at any module connector.");
             }
 
-            foreach (ModuleConnector startConnector in startConnectors)
-            {
-                foreach (ModuleConnector endConnector in endConnectors)
-                {
-                    if (endConnector.Direction.IsOpposite(startConnector.Direction))
-                    {
+            foreach (var startConnector in startConnectors) {
+                foreach (var endConnector in endConnectors) {
+                    if (endConnector.Direction.IsOpposite(startConnector.Direction)) {
                         rules.Add(
                             new Rule(
                                 startConnector.ModuleName,
@@ -112,9 +97,7 @@ namespace WFCPlugin
                                 endConnector.ConnectorIndex
                                 )
                             );
-                    }
-                    else
-                    {
+                    } else {
                         AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
                                           "The curve connects non-opposing connectors.");
                     }

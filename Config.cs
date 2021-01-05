@@ -1,13 +1,11 @@
 ﻿using System.Drawing;
 using System.Linq;
 
-namespace WFCPlugin
-{
+namespace WFCPlugin {
     /// <summary>
     /// The WFC configuration and constants.
     /// </summary>
-    public class Config
-    {
+    public class Config {
         /// <summary>
         /// Reserved name for the "Empty" module.
         /// </summary>
@@ -125,18 +123,14 @@ namespace WFCPlugin
         /// <param name="dir">The <see cref="Direction"/> to convert.</param>
         /// <returns>Dot background <see cref="Color"/>.
         ///     </returns>
-        public static Color BackgroundFromDirection(Direction dir)
-        {
-            if (dir._axis == Axis.X)
-            {
+        public static Color BackgroundFromDirection(Direction dir) {
+            if (dir._axis == Axis.X) {
                 return X_DOT_COLOR;
             }
-            if (dir._axis == Axis.Y)
-            {
+            if (dir._axis == Axis.Y) {
                 return Y_DOT_COLOR;
             }
-            if (dir._axis == Axis.Z)
-            {
+            if (dir._axis == Axis.Z) {
                 return Z_DOT_COLOR;
             }
             return Color.Red;
@@ -148,14 +142,11 @@ namespace WFCPlugin
         /// <param name="dir">The <see cref="Direction"/> to convert.</param>
         /// <returns>Dot foreground <see cref="Color"/>.
         ///     </returns>
-        public static Color ForegroundFromDirection(Direction dir)
-        {
-            if (dir._orientation == Orientation.Positive)
-            {
+        public static Color ForegroundFromDirection(Direction dir) {
+            if (dir._orientation == Orientation.Positive) {
                 return POSITIVE_COLOR;
             }
-            if (dir._orientation == Orientation.Negative)
-            {
+            if (dir._orientation == Orientation.Negative) {
                 return NEGATIVE_COLOR;
             }
             return Color.Blue;

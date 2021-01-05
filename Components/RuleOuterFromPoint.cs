@@ -1,28 +1,24 @@
-﻿using Grasshopper.Kernel;
-using Rhino.Geometry;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Grasshopper.Kernel;
+using Rhino.Geometry;
 
-namespace WFCPlugin
-{
-    public class ComponentRuleOuterFromPoint : GH_Component
-    {
-        public ComponentRuleOuterFromPoint()
+namespace WFCPlugin {
+    public class ComponentRuleOuterFromPoint : GH_Component {
+        public ComponentRuleOuterFromPoint( )
             : base("WFC Create Out-neighbor Rule From Point Tag",
                    "WFCRuleOutPt",
                    "Allow the connector to connect to an Out module. " +
                    "All Out module's connectors are Indifferent.",
                    "WaveFunctionCollapse",
-                   "Rule")
-        {
+                   "Rule") {
         }
 
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
-        {
+        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddParameter(new ModuleParameter(),
                                   "Modules",
                                   "M",
@@ -37,8 +33,7 @@ namespace WFCPlugin
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
-        {
+        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddParameter(new RuleParameter(),
                                   "Rules",
                                   "R",
@@ -51,27 +46,23 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="DA">The DA object can be used to retrieve data from
         ///     input parameters and to store data in output parameters.</param>
-        protected override void SolveInstance(IGH_DataAccess DA)
-        {
-            List<Module> modules = new List<Module>();
-            Point3d point = new Point3d();
-            string targetName = Config.OUTER_MODULE_NAME;
+        protected override void SolveInstance(IGH_DataAccess DA) {
+            var modules = new List<Module>();
+            var point = new Point3d();
+            var targetName = Config.OUTER_MODULE_NAME;
 
-            if (!DA.GetDataList(0, modules))
-            {
+            if (!DA.GetDataList(0, modules)) {
                 return;
             }
 
-            if (!DA.GetData(1, ref point))
-            {
+            if (!DA.GetData(1, ref point)) {
                 return;
             }
 
-            List<Rule> rules = new List<Rule>();
+            var rules = new List<Rule>();
 
-            foreach (Module module in modules)
-            {
-                IEnumerable<Rule> moduleRules = module
+            foreach (var module in modules) {
+                var moduleRules = module
                     .GetConnectorsContainingPoint(point)
                     .Select(connector => new Rule(
                                 connector.ModuleName,
@@ -83,8 +74,7 @@ namespace WFCPlugin
                 rules.AddRange(moduleRules);
             }
 
-            if (rules.Count == 0)
-            {
+            if (rules.Count == 0) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
                                   "The point does not mark any module connector.");
             }

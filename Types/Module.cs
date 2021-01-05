@@ -1,15 +1,14 @@
-﻿using GH_IO.Serialization;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using GH_IO.Serialization;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
 using Rhino;
 using Rhino.DocObjects;
 using Rhino.Geometry;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
-namespace WFCPlugin
-{
+namespace WFCPlugin {
     /// <summary>
     /// <para>
     /// WFC Module type.
@@ -35,8 +34,7 @@ namespace WFCPlugin
     /// <remarks>
     /// The class is designed as immutable, therefore all fields are read only. 
     /// </remarks>
-    public class Module : IGH_Goo, IGH_PreviewData, IGH_BakeAwareObject
-    {
+    public class Module : IGH_Goo, IGH_PreviewData, IGH_BakeAwareObject {
         /// <summary>
         /// Module name, used as a unique module identifier.
         /// </summary>
@@ -122,8 +120,7 @@ namespace WFCPlugin
         /// <remarks>
         /// Required by Grasshopper; generates an invalid instance.
         /// </remarks>
-        public Module()
-        {
+        public Module( ) {
         }
 
         /// <summary>
@@ -148,23 +145,19 @@ namespace WFCPlugin
                       IEnumerable<GeometryBase> geometry,
                       Plane basePlane,
                       List<Point3i> submoduleCenters,
-                      Vector3d slotDiagonal)
-        {
+                      Vector3d slotDiagonal) {
             // Check if any submodule centers are defined
-            if (submoduleCenters.Count == 0)
-            {
+            if (submoduleCenters.Count == 0) {
                 throw new Exception("Submodule centers list is empty");
             }
 
             // Check if all the submodules are unique
-            if (submoduleCenters.Count != submoduleCenters.Distinct().ToList().Count)
-            {
+            if (submoduleCenters.Count != submoduleCenters.Distinct().ToList().Count) {
                 throw new Exception("Submodule centers are repetitive");
             }
 
             // Check if the slot diagonal is valid for the purposes of WFC
-            if (slotDiagonal.X <= 0 || slotDiagonal.Y <= 0 || slotDiagonal.Z <= 0)
-            {
+            if (slotDiagonal.X <= 0 || slotDiagonal.Y <= 0 || slotDiagonal.Z <= 0) {
                 throw new Exception("One or more slot dimensions are not larger than 0");
             }
 
@@ -180,8 +173,7 @@ namespace WFCPlugin
 
             // Generate submodule names to be used as module names by the WFC solver
             SubmoduleNames = new List<string>();
-            for (int i = 0; i < submoduleCenters.Count; i++)
-            {
+            for (var i = 0; i < submoduleCenters.Count; i++) {
                 SubmoduleNames.Add(name + i);
             }
 
@@ -219,30 +211,29 @@ namespace WFCPlugin
                                                               List<string> submoduleNames,
                                                               string moduleName,
                                                               Vector3d slotDiagonal,
-                                                              Plane basePlane)
-        {
-            List<ModuleConnector> moduleConnectors = new List<ModuleConnector>(submoduleCenters.Count * 6);
+                                                              Plane basePlane) {
+            var moduleConnectors = new List<ModuleConnector>(submoduleCenters.Count * 6);
 
             // Precompute reusable values
-            Direction directionXPositive = new Direction(Axis.X, Orientation.Positive);
-            Direction directionYPositive = new Direction(Axis.Y, Orientation.Positive);
-            Direction directionZPositive = new Direction(Axis.Z, Orientation.Positive);
-            Direction directionXNegative = new Direction(Axis.X, Orientation.Negative);
-            Direction directionYNegative = new Direction(Axis.Y, Orientation.Negative);
-            Direction directionZNegative = new Direction(Axis.Z, Orientation.Negative);
+            var directionXPositive = new Direction(Axis.X, Orientation.Positive);
+            var directionYPositive = new Direction(Axis.Y, Orientation.Positive);
+            var directionZPositive = new Direction(Axis.Z, Orientation.Positive);
+            var directionXNegative = new Direction(Axis.X, Orientation.Negative);
+            var directionYNegative = new Direction(Axis.Y, Orientation.Negative);
+            var directionZNegative = new Direction(Axis.Z, Orientation.Negative);
 
             // Precompute reusable values
-            Vector3d xPositiveVectorUnit = directionXPositive.ToVector();
-            Vector3d yPositiveVectorUnit = directionYPositive.ToVector();
-            Vector3d zPositiveVectorUnit = directionZPositive.ToVector();
-            Vector3d xNegativeVectorUnit = directionXNegative.ToVector();
-            Vector3d yNegativeVectorUnit = directionYNegative.ToVector();
-            Vector3d zNegativeVectorUnit = directionZNegative.ToVector();
+            var xPositiveVectorUnit = directionXPositive.ToVector();
+            var yPositiveVectorUnit = directionYPositive.ToVector();
+            var zPositiveVectorUnit = directionZPositive.ToVector();
+            var xNegativeVectorUnit = directionXNegative.ToVector();
+            var yNegativeVectorUnit = directionYNegative.ToVector();
+            var zNegativeVectorUnit = directionZNegative.ToVector();
 
             // Orient to the base coordinate system
-            Transform baseAlignmentTransform = Transform.PlaneToPlane(Plane.WorldXY, basePlane);
+            var baseAlignmentTransform = Transform.PlaneToPlane(Plane.WorldXY, basePlane);
             // Scale up to slot size
-            Transform scalingTransform = Transform.Scale(basePlane,
+            var scalingTransform = Transform.Scale(basePlane,
                                                          slotDiagonal.X,
                                                          slotDiagonal.Y,
                                                          slotDiagonal.Z);
@@ -250,11 +241,10 @@ namespace WFCPlugin
             // Connector numbering convention: 
             // (submoduleIndex * 6) + faceIndex, where faceIndex is X=0, Y=1, Z=2, -X=3, -Y=4, -Z=5
             // For each of the 6 submodule faces manually assign values
-            for (int submoduleIndex = 0; submoduleIndex < submoduleCenters.Count; submoduleIndex++)
-            {
-                Point3i center = submoduleCenters[submoduleIndex];
-                string submoduleName = submoduleNames[submoduleIndex];
-                Point3d submoduleCenter = center.ToPoint3d();
+            for (var submoduleIndex = 0; submoduleIndex < submoduleCenters.Count; submoduleIndex++) {
+                var center = submoduleCenters[submoduleIndex];
+                var submoduleName = submoduleNames[submoduleIndex];
+                var submoduleCenter = center.ToPoint3d();
 
                 // Compute values for submodule face in the positive X direction
 
@@ -262,25 +252,24 @@ namespace WFCPlugin
                 // the same module) or external (ready to touch a different instance of the same 
                 // or different module).
                 // Only store if external.
-                bool isInternalXPositive = submoduleCenters
+                var isInternalXPositive = submoduleCenters
                     .Any(o => center.X - o.X == -1 && center.Y == o.Y && center.Z == o.Z);
-                if (!isInternalXPositive)
-                {
-                    Point3d faceCenterXPositive = submoduleCenter + xPositiveVectorUnit * 0.5;
+                if (!isInternalXPositive) {
+                    var faceCenterXPositive = submoduleCenter + xPositiveVectorUnit * 0.5;
                     faceCenterXPositive.Transform(baseAlignmentTransform);
                     faceCenterXPositive.Transform(scalingTransform);
                     // A plane oriented as the submodule face, placed in the face center
-                    Plane planeXPositive = new Plane(faceCenterXPositive,
+                    var planeXPositive = new Plane(faceCenterXPositive,
                                                      basePlane.YAxis,
                                                      basePlane.ZAxis);
                     // Rectangle around the submodule face. 
                     // To be used for point tag detection and to be displayed in the viewport.
-                    Rectangle3d faceXPositive = new Rectangle3d(
+                    var faceXPositive = new Rectangle3d(
                         planeXPositive,
                         new Interval(slotDiagonal.Y * (-0.5), slotDiagonal.Y * 0.5),
                         new Interval(slotDiagonal.Z * (-0.5), slotDiagonal.Z * 0.5));
                     // Construct the actual connector
-                    ModuleConnector connectorXPositive = new ModuleConnector(
+                    var connectorXPositive = new ModuleConnector(
                         moduleName,
                         submoduleName,
                         submoduleIndex * 6 + directionXPositive.ToConnectorIndex(),
@@ -292,21 +281,20 @@ namespace WFCPlugin
                 }
 
                 // Continue with the remaining 5 connectors
-                bool isInternalYPositive = submoduleCenters
+                var isInternalYPositive = submoduleCenters
                     .Any(o => center.Y - o.Y == -1 && center.X == o.X && center.Z == o.Z);
-                if (!isInternalYPositive)
-                {
-                    Point3d faceCenterYPositive = submoduleCenter + yPositiveVectorUnit * 0.5;
+                if (!isInternalYPositive) {
+                    var faceCenterYPositive = submoduleCenter + yPositiveVectorUnit * 0.5;
                     faceCenterYPositive.Transform(baseAlignmentTransform);
                     faceCenterYPositive.Transform(scalingTransform);
-                    Plane planeYPositive = new Plane(faceCenterYPositive,
+                    var planeYPositive = new Plane(faceCenterYPositive,
                                                      basePlane.XAxis * (-1),
                                                      basePlane.ZAxis);
-                    Rectangle3d faceYPositive = new Rectangle3d(
+                    var faceYPositive = new Rectangle3d(
                         planeYPositive,
                         new Interval(slotDiagonal.X * (-0.5), slotDiagonal.X * 0.5),
                         new Interval(slotDiagonal.Z * (-0.5), slotDiagonal.Z * 0.5));
-                    ModuleConnector connectorYPositive = new ModuleConnector(
+                    var connectorYPositive = new ModuleConnector(
                         moduleName,
                         submoduleName,
                         submoduleIndex * 6 + directionYPositive.ToConnectorIndex(),
@@ -317,21 +305,20 @@ namespace WFCPlugin
                 }
 
 
-                bool isInternalZPositive = submoduleCenters
+                var isInternalZPositive = submoduleCenters
                     .Any(o => center.Z - o.Z == -1 && center.X == o.X && center.Y == o.Y);
-                if (!isInternalZPositive)
-                {
-                    Point3d faceCenterZPositive = submoduleCenter + zPositiveVectorUnit * 0.5;
+                if (!isInternalZPositive) {
+                    var faceCenterZPositive = submoduleCenter + zPositiveVectorUnit * 0.5;
                     faceCenterZPositive.Transform(baseAlignmentTransform);
                     faceCenterZPositive.Transform(scalingTransform);
-                    Plane planeZPositive = new Plane(faceCenterZPositive,
+                    var planeZPositive = new Plane(faceCenterZPositive,
                                                      basePlane.XAxis,
                                                      basePlane.YAxis);
-                    Rectangle3d faceZPositive = new Rectangle3d(
+                    var faceZPositive = new Rectangle3d(
                         planeZPositive,
                         new Interval(slotDiagonal.X * (-0.5), slotDiagonal.X * 0.5),
                         new Interval(slotDiagonal.Y * (-0.5), slotDiagonal.Y * 0.5));
-                    ModuleConnector connectorZPositive = new ModuleConnector(
+                    var connectorZPositive = new ModuleConnector(
                         moduleName,
                         submoduleName,
                         submoduleIndex * 6 + directionZPositive.ToConnectorIndex(),
@@ -342,21 +329,20 @@ namespace WFCPlugin
                 }
 
 
-                bool isInternalXNegative = submoduleCenters
+                var isInternalXNegative = submoduleCenters
                     .Any(o => center.X - o.X == 1 && center.Y == o.Y && center.Z == o.Z);
-                if (!isInternalXNegative)
-                {
-                    Point3d faceCenterXNegative = submoduleCenter + xNegativeVectorUnit * 0.5;
+                if (!isInternalXNegative) {
+                    var faceCenterXNegative = submoduleCenter + xNegativeVectorUnit * 0.5;
                     faceCenterXNegative.Transform(baseAlignmentTransform);
                     faceCenterXNegative.Transform(scalingTransform);
-                    Plane planeXNegative = new Plane(faceCenterXNegative,
+                    var planeXNegative = new Plane(faceCenterXNegative,
                                                      basePlane.YAxis * (-1),
                                                      basePlane.ZAxis);
-                    Rectangle3d faceXNegative = new Rectangle3d(
+                    var faceXNegative = new Rectangle3d(
                         planeXNegative,
                         new Interval(slotDiagonal.Y * (-0.5), slotDiagonal.Y * 0.5),
                         new Interval(slotDiagonal.Z * (-0.5), slotDiagonal.Z * 0.5));
-                    ModuleConnector connectorXNegative = new ModuleConnector(
+                    var connectorXNegative = new ModuleConnector(
                         moduleName,
                         submoduleName,
                         submoduleIndex * 6 + directionXNegative.ToConnectorIndex(),
@@ -367,21 +353,20 @@ namespace WFCPlugin
                 }
 
 
-                bool isInternalYNegative = submoduleCenters
+                var isInternalYNegative = submoduleCenters
                     .Any(o => center.Y - o.Y == 1 && center.X == o.X && center.Z == o.Z);
-                if (!isInternalYNegative)
-                {
-                    Point3d faceCenterYNegative = submoduleCenter + yNegativeVectorUnit * 0.5;
+                if (!isInternalYNegative) {
+                    var faceCenterYNegative = submoduleCenter + yNegativeVectorUnit * 0.5;
                     faceCenterYNegative.Transform(baseAlignmentTransform);
                     faceCenterYNegative.Transform(scalingTransform);
-                    Plane planeYNegative = new Plane(faceCenterYNegative,
+                    var planeYNegative = new Plane(faceCenterYNegative,
                                                      basePlane.XAxis,
                                                      basePlane.ZAxis);
-                    Rectangle3d faceYNegative = new Rectangle3d(
+                    var faceYNegative = new Rectangle3d(
                         planeYNegative,
                         new Interval(slotDiagonal.X * (-0.5), slotDiagonal.X * 0.5),
                         new Interval(slotDiagonal.Z * (-0.5), slotDiagonal.Z * 0.5));
-                    ModuleConnector connectorYNegative = new ModuleConnector(
+                    var connectorYNegative = new ModuleConnector(
                         moduleName,
                         submoduleName,
                         submoduleIndex * 6 + directionYNegative.ToConnectorIndex(),
@@ -391,21 +376,20 @@ namespace WFCPlugin
                     moduleConnectors.Add(connectorYNegative);
                 }
 
-                bool isInternalZNegative = submoduleCenters
+                var isInternalZNegative = submoduleCenters
                     .Any(o => center.Z - o.Z == 1 && center.X == o.X && center.X == o.X);
-                if (!isInternalZNegative)
-                {
-                    Point3d faceCenterZNegative = submoduleCenter + zNegativeVectorUnit * 0.5;
+                if (!isInternalZNegative) {
+                    var faceCenterZNegative = submoduleCenter + zNegativeVectorUnit * 0.5;
                     faceCenterZNegative.Transform(baseAlignmentTransform);
                     faceCenterZNegative.Transform(scalingTransform);
-                    Plane planeZNegative = new Plane(faceCenterZNegative,
+                    var planeZNegative = new Plane(faceCenterZNegative,
                                                      basePlane.XAxis * (-1),
                                                      basePlane.YAxis);
-                    Rectangle3d faceZNegative = new Rectangle3d(
+                    var faceZNegative = new Rectangle3d(
                         planeZNegative,
                         new Interval(slotDiagonal.X * (-0.5), slotDiagonal.X * 0.5),
                         new Interval(slotDiagonal.Y * (-0.5), slotDiagonal.Y * 0.5));
-                    ModuleConnector connectorZNegative = new ModuleConnector(
+                    var connectorZNegative = new ModuleConnector(
                         moduleName,
                         submoduleName,
                         submoduleIndex * 6 + directionZNegative.ToConnectorIndex(),
@@ -427,22 +411,19 @@ namespace WFCPlugin
         /// <returns>A list of RuleExplicits to be used only in the
         ///     <see cref="ComponentFauxSolver"/>.</returns>
         private List<RuleForSolver> ComputeInternalRules(List<Point3i> submoduleCenters,
-                                                         List<string> submoduleNames)
-        {
-            List<RuleForSolver> rulesInternal = new List<RuleForSolver>();
+                                                         List<string> submoduleNames) {
+            var rulesInternal = new List<RuleForSolver>();
 
             // For each submodule
-            for (int thisIndex = 0; thisIndex < submoduleCenters.Count; thisIndex++)
-            {
-                Point3i center = submoduleCenters[thisIndex];
+            for (var thisIndex = 0; thisIndex < submoduleCenters.Count; thisIndex++) {
+                var center = submoduleCenters[thisIndex];
 
                 // Positive X neighbor
                 // Check if there is a submodule in the positive X direction from the current submodule
-                int otherIndexXPositive = submoduleCenters
+                var otherIndexXPositive = submoduleCenters
                     .FindIndex(o => center.X - o.X == -1 && center.Y == o.Y && center.Z == o.Z);
                 // Ff there is, then the current connector is internal
-                if (otherIndexXPositive != -1)
-                {
+                if (otherIndexXPositive != -1) {
                     // Add internal rule, that the current submodule connects to the neighbor 
                     // through its positive X connector (face)
                     rulesInternal.Add(new RuleForSolver(Axis.X.ToString("g"),
@@ -451,20 +432,18 @@ namespace WFCPlugin
                 }
 
                 // Positive Y neighbor
-                int otherIndexYPositive = submoduleCenters
+                var otherIndexYPositive = submoduleCenters
                     .FindIndex(o => center.Y - o.Y == -1 && center.X == o.X && center.Z == o.Z);
-                if (otherIndexYPositive != -1)
-                {
+                if (otherIndexYPositive != -1) {
                     rulesInternal.Add(new RuleForSolver(Axis.Y.ToString("g"),
                                                         submoduleNames[thisIndex],
                                                         submoduleNames[otherIndexXPositive]));
                 }
 
                 // Positive Z neighbor
-                int otherIndexZPositive = submoduleCenters
+                var otherIndexZPositive = submoduleCenters
                     .FindIndex(o => center.Z - o.Z == -1 && center.X == o.X && center.Y == o.Y);
-                if (otherIndexZPositive != -1)
-                {
+                if (otherIndexZPositive != -1) {
                     rulesInternal.Add(new RuleForSolver(Axis.Z.ToString("g"),
                                                         submoduleNames[thisIndex],
                                                         submoduleNames[otherIndexXPositive]));
@@ -481,8 +460,7 @@ namespace WFCPlugin
         /// <param name="point">The point to check.</param>
         /// <returns>A list of ModuleConnectors encompassing the point.
         ///     </returns>
-        public IEnumerable<ModuleConnector> GetConnectorsContainingPoint(Point3d point)
-        {
+        public IEnumerable<ModuleConnector> GetConnectorsContainingPoint(Point3d point) {
             return Connectors.Where(connector =>
                                 connector.AnchorPlane.DistanceTo(point) < RhinoMath.SqrtEpsilon &&
                                 connector.Face.Contains(point) == PointContainment.Inside);
@@ -506,12 +484,9 @@ namespace WFCPlugin
         /// <summary>
         /// Indicates why is the module not valid. Required by Grasshopper.
         /// </summary>
-        public string IsValidWhyNot
-        {
-            get
-            {
-                if (!Continuous)
-                {
+        public string IsValidWhyNot {
+            get {
+                if (!Continuous) {
                     return "The module is not continuous and therefore will not hold together.";
                 }
                 return "Some of the fields are null.";
@@ -532,13 +507,10 @@ namespace WFCPlugin
         /// Gets the clipping box for the module. Required by Grasshopper for
         /// viewport display and baking.
         /// </summary>
-        BoundingBox IGH_PreviewData.ClippingBox
-        {
-            get
-            {
-                BoundingBox unionBox = BoundingBox.Empty;
-                foreach (ModuleConnector connector in Connectors)
-                {
+        BoundingBox IGH_PreviewData.ClippingBox {
+            get {
+                var unionBox = BoundingBox.Empty;
+                foreach (var connector in Connectors) {
                     unionBox.Union(connector.Face.BoundingBox);
                 }
                 return unionBox;
@@ -550,8 +522,7 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="source">The source object.</param>
         /// <returns>A bool if the cast was successful.</returns>
-        public bool CastFrom(object source)
-        {
+        public bool CastFrom(object source) {
             return false;
         }
 
@@ -563,11 +534,9 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="target">The target.</param>
         /// <returns>A bool if the cast was successful.</returns>
-        public bool CastTo<T>(out T target)
-        {
-            if (IsValid && typeof(T) == typeof(ModuleName))
-            {
-                ModuleName moduleName = new ModuleName(Name);
+        public bool CastTo<T>(out T target) {
+            if (IsValid && typeof(T) == typeof(ModuleName)) {
+                var moduleName = new ModuleName(Name);
                 target = (T)moduleName.Duplicate();
                 return true;
             }
@@ -579,8 +548,7 @@ namespace WFCPlugin
         /// Duplicates the module. Required by Grasshopper.
         /// </summary>
         /// <returns>An IGH_Goo.</returns>
-        public IGH_Goo Duplicate()
-        {
+        public IGH_Goo Duplicate( ) {
             return (IGH_Goo)MemberwiseClone();
         }
 
@@ -589,8 +557,7 @@ namespace WFCPlugin
         /// Emits the proxy. Required by Grasshopper.
         /// </summary>
         /// <returns>An IGH_GooProxy.</returns>
-        public IGH_GooProxy EmitProxy()
-        {
+        public IGH_GooProxy EmitProxy( ) {
             return null;
         }
 
@@ -603,8 +570,7 @@ namespace WFCPlugin
         /// </remarks>
         /// <param name="reader">The reader.</param>
         /// <returns>A bool when successful.</returns>
-        public bool Read(GH_IReader reader)
-        {
+        public bool Read(GH_IReader reader) {
             return true;
         }
 
@@ -617,8 +583,7 @@ namespace WFCPlugin
         /// </remarks>
         /// <param name="writer">The writer.</param>
         /// <returns>A bool when successful.</returns>
-        public bool Write(GH_IWriter writer)
-        {
+        public bool Write(GH_IWriter writer) {
             return true;
         }
 
@@ -627,8 +592,7 @@ namespace WFCPlugin
         /// Returns the script variable. Required by Grasshopper.
         /// </summary>
         /// <returns>An object.</returns>
-        public object ScriptVariable()
-        {
+        public object ScriptVariable( ) {
             return this;
         }
 
@@ -648,8 +612,7 @@ namespace WFCPlugin
         /// description at the same time.
         /// </remarks>
         /// <returns>A string description of the module.</returns>
-        public override string ToString()
-        {
+        public override string ToString( ) {
             return "Module '" + Name + "' occupies " +
 Connectors.Count / 6 + " slots and has " +
 // TODO: Consider precomputing this number
@@ -674,8 +637,7 @@ Connectors.ToList().Count + " connectors. " +
                                                      string connectorType,
                                                      Vector3d slotDiagonal,
                                                      out Module module,
-                                                     out List<RuleTyped> rulesExternal)
-        {
+                                                     out List<RuleTyped> rulesExternal) {
             GenerateEmptySingleModuleWithBasePlane(name,
                                                    connectorType,
                                                    Plane.WorldXY,
@@ -701,8 +663,7 @@ Connectors.ToList().Count + " connectors. " +
                                                                   Plane basePlane,
                                                                   Vector3d slotDiagonal,
                                                                   out Module module,
-                                                                  out List<RuleTyped> rulesExternal)
-        {
+                                                                  out List<RuleTyped> rulesExternal) {
             module = new Module(
                 name,
                 new List<GeometryBase>(),
@@ -711,8 +672,7 @@ Connectors.ToList().Count + " connectors. " +
                 slotDiagonal
                 );
             rulesExternal = new List<RuleTyped>(6);
-            for (int i = 0; i < 6; i++)
-            {
+            for (var i = 0; i < 6; i++) {
                 rulesExternal.Add(new RuleTyped(name, i, connectorType));
             }
         }
@@ -722,29 +682,24 @@ Connectors.ToList().Count + " connectors. " +
         /// Required by Grasshopper for data preview.
         /// </summary>
         /// <param name="args">Viewport arguments.</param>
-        public void DrawViewportWires(GH_PreviewWireArgs args)
-        {
-            foreach (GeometryBase geo in Geometry)
-            {
-                if (geo.ObjectType == ObjectType.Point)
-                {
+        public void DrawViewportWires(GH_PreviewWireArgs args) {
+            foreach (var geo in Geometry) {
+                if (geo.ObjectType == ObjectType.Point) {
                     // Draw those geometries of the module that are a point
                     args.Pipeline.DrawPoint(((Point)geo).Location, args.Color);
                 }
-                if (geo.ObjectType == ObjectType.Curve)
-                {
+                if (geo.ObjectType == ObjectType.Curve) {
                     // Draw those geometries of the module that are a curve
                     args.Pipeline.DrawCurve((Curve)geo, args.Color);
                 }
             }
-            foreach (ModuleConnector connector in Connectors)
-            {
+            foreach (var connector in Connectors) {
                 // Draw connectors (together they look like a cage around the module)
                 args.Pipeline.DrawPolyline(connector.Face.ToPolyline(),
                                            Config.CAGE_COLOR);
-                Point3d anchorPosition = connector.AnchorPlane.Origin;
-                System.Drawing.Color dotColor = Config.BackgroundFromDirection(connector.Direction);
-                System.Drawing.Color textColor = Config.ForegroundFromDirection(connector.Direction);
+                var anchorPosition = connector.AnchorPlane.Origin;
+                var dotColor = Config.BackgroundFromDirection(connector.Direction);
+                var textColor = Config.ForegroundFromDirection(connector.Direction);
                 // Display connector index in the viewport
                 args.Pipeline.DrawDot(anchorPosition,
                                       connector.ConnectorIndex.ToString(),
@@ -758,16 +713,12 @@ Connectors.ToList().Count + " connectors. " +
         /// viewport. Required by Grasshopper for data preview.
         /// </summary>
         /// <param name="args">Viewport arguments.</param>
-        public void DrawViewportMeshes(GH_PreviewMeshArgs args)
-        {
-            foreach (GeometryBase geo in Geometry)
-            {
-                if (geo.ObjectType == ObjectType.Brep)
-                {
+        public void DrawViewportMeshes(GH_PreviewMeshArgs args) {
+            foreach (var geo in Geometry) {
+                if (geo.ObjectType == ObjectType.Brep) {
                     args.Pipeline.DrawBrepShaded((Brep)geo, args.Material);
                 }
-                if (geo.ObjectType == ObjectType.Mesh)
-                {
+                if (geo.ObjectType == ObjectType.Mesh) {
                     args.Pipeline.DrawMeshShaded((Mesh)geo, args.Material);
                 }
             }
@@ -785,8 +736,7 @@ Connectors.ToList().Count + " connectors. " +
         /// </summary>
         /// <param name="doc">The Rhino doc.</param>
         /// <param name="obj_ids">The Guids of the baked objects.</param>
-        public void BakeGeometry(RhinoDoc doc, List<Guid> obj_ids)
-        {
+        public void BakeGeometry(RhinoDoc doc, List<Guid> obj_ids) {
             BakeGeometry(doc, new ObjectAttributes(), obj_ids);
         }
 
@@ -797,32 +747,29 @@ Connectors.ToList().Count + " connectors. " +
         /// <param name="doc">The Rhino doc.</param>
         /// <param name="att">Attributes of the baked objects.</param>
         /// <param name="obj_ids">The Guids of the baked objects.</param>
-        public void BakeGeometry(RhinoDoc doc, ObjectAttributes att, List<Guid> obj_ids)
-        {
-            if (att == null)
-            {
+        public void BakeGeometry(RhinoDoc doc, ObjectAttributes att, List<Guid> obj_ids) {
+            if (att == null) {
                 att = doc.CreateDefaultAttributes();
             }
 
             // Put all cages into a Rhino group
-            int groupCagesId = doc.Groups.Add(Name + "-cages");
+            var groupCagesId = doc.Groups.Add(Name + "-cages");
             // Put all connector anchors into a Rhino group
-            int groupConnectorsId = doc.Groups.Add(Name + "-connectors");
+            var groupConnectorsId = doc.Groups.Add(Name + "-connectors");
 
-            foreach (ModuleConnector connector in Connectors)
-            {
-                ObjectAttributes cageAttributes = att.Duplicate();
+            foreach (var connector in Connectors) {
+                var cageAttributes = att.Duplicate();
                 cageAttributes.ObjectColor = Config.CAGE_COLOR;
                 cageAttributes.ColorSource = ObjectColorSource.ColorFromObject;
-                Guid faceId = doc.Objects.AddRectangle(connector.Face, cageAttributes);
+                var faceId = doc.Objects.AddRectangle(connector.Face, cageAttributes);
                 doc.Groups.AddToGroup(groupCagesId, faceId);
                 obj_ids.Add(faceId);
-                ObjectAttributes dotAttributes = att.Duplicate();
+                var dotAttributes = att.Duplicate();
                 // Following the 3D modeling convention, the connectors in 
                 // direction X are Red, in Y are Green, in Z are Blue
                 dotAttributes.ObjectColor = Config.BackgroundFromDirection(connector.Direction);
                 dotAttributes.ColorSource = ObjectColorSource.ColorFromObject;
-                Guid connectorId = doc.Objects.AddTextDot(connector.ConnectorIndex.ToString(),
+                var connectorId = doc.Objects.AddTextDot(connector.ConnectorIndex.ToString(),
                                                           connector.AnchorPlane.Origin,
                                                           dotAttributes);
                 doc.Groups.AddToGroup(groupConnectorsId, connectorId);
@@ -878,8 +825,7 @@ Connectors.ToList().Count + " connectors. " +
     ///     </item>
     /// </list>
     /// </summary>
-    public struct ModuleConnector
-    {
+    public struct ModuleConnector {
         /// <summary>
         /// Name of the parent module containing the connector
         /// </summary>
@@ -926,8 +872,7 @@ Connectors.ToList().Count + " connectors. " +
                                int connectorIndex,
                                Direction direction,
                                Plane anchorPlane,
-                               Rectangle3d face)
-        {
+                               Rectangle3d face) {
             ModuleName = moduleName;
             SubmoduleName = submoduleName;
             ConnectorIndex = connectorIndex;
@@ -941,8 +886,7 @@ Connectors.ToList().Count + " connectors. " +
         /// </summary>
         /// <param name="obj">The obj.</param>
         /// <returns>True if equal.</returns>
-        public override bool Equals(object obj)
-        {
+        public override bool Equals(object obj) {
             return obj is ModuleConnector connector &&
                    SubmoduleName == connector.SubmoduleName &&
                    ConnectorIndex == connector.ConnectorIndex &&
@@ -955,9 +899,8 @@ Connectors.ToList().Count + " connectors. " +
         /// Gets the hash code.
         /// </summary>
         /// <returns>An int.</returns>
-        public override int GetHashCode()
-        {
-            int hashCode = -855668167;
+        public override int GetHashCode( ) {
+            var hashCode = -855668167;
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(SubmoduleName);
             hashCode = hashCode * -1521134295 + ConnectorIndex.GetHashCode();
             hashCode = hashCode * -1521134295 + Direction.GetHashCode();

@@ -1,11 +1,10 @@
-﻿using GH_IO.Serialization;
-using Grasshopper.Kernel.Types;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using GH_IO.Serialization;
+using Grasshopper.Kernel.Types;
 
-namespace WFCPlugin
-{
+namespace WFCPlugin {
     /// <summary>
     /// <para>
     /// The wrapper class for <see cref="Explicit"/> and <see cref="Typed"/>. 
@@ -17,8 +16,7 @@ namespace WFCPlugin
     /// <see cref="Typed"/> properties. The other one is <c>null</c>.
     /// </para>
     /// </summary>
-    public class Rule : IGH_Goo
-    {
+    public class Rule : IGH_Goo {
         private RuleExplicit _ruleExplicit;
         private RuleTyped _ruleTyped;
 
@@ -26,8 +24,7 @@ namespace WFCPlugin
         /// Initializes a new instance of the <see cref="Rule"/> class. The
         /// object will be invalid. Required by Grasshopper.
         /// </summary>
-        public Rule()
-        {
+        public Rule( ) {
         }
 
         /// <summary>
@@ -45,8 +42,7 @@ namespace WFCPlugin
             int sourceConnectorIndex,
             string targetModuleName,
             int targetConnectorIndex
-        )
-        {
+        ) {
             Explicit = new RuleExplicit(sourceModuleName,
                                         sourceConnectorIndex,
                                         targetModuleName,
@@ -61,8 +57,7 @@ namespace WFCPlugin
         ///     wrapped into the <see cref="Rule"/>.</param>
         public Rule(
             RuleExplicit ruleExplicit
-        )
-        {
+        ) {
             Explicit = ruleExplicit;
         }
 
@@ -77,8 +72,7 @@ namespace WFCPlugin
             string moduleName,
             int connectorIndex,
             string connectorType
-        )
-        {
+        ) {
             Typed = new RuleTyped(moduleName, connectorIndex, connectorType);
         }
 
@@ -90,8 +84,7 @@ namespace WFCPlugin
         ///     into the <see cref="Rule"/>.</param>
         public Rule(
             RuleTyped ruleTyped
-        )
-        {
+        ) {
             Typed = ruleTyped;
         }
 
@@ -99,11 +92,9 @@ namespace WFCPlugin
         /// Gets or sets the <see cref="Explicit"/> property.  The
         /// <see cref="Typed"/> property will be set to <c>null</c>.
         /// </summary>
-        public RuleExplicit Explicit
-        {
+        public RuleExplicit Explicit {
             get => _ruleExplicit;
-            set
-            {
+            set {
                 _ruleExplicit = value;
                 _ruleTyped = null;
             }
@@ -113,11 +104,9 @@ namespace WFCPlugin
         /// Gets or sets the <see cref="Typed"/> property.  The
         /// <see cref="Explicit"/> property will be set to <c>null</c>.
         /// </summary>
-        public RuleTyped Typed
-        {
+        public RuleTyped Typed {
             get => _ruleTyped;
-            set
-            {
+            set {
                 _ruleTyped = value;
                 _ruleExplicit = null;
             }
@@ -128,8 +117,7 @@ namespace WFCPlugin
         /// </summary>
         /// <returns>True if contains <see cref="RuleExplicit"/> and does not
         ///     contain <see cref="RuleTyped"/>.</returns>
-        public bool IsExplicit()
-        {
+        public bool IsExplicit( ) {
             return Explicit != null && Typed == null;
         }
 
@@ -138,8 +126,7 @@ namespace WFCPlugin
         /// </summary>
         /// <returns>True if contains <see cref="RuleTyped"/> and does not
         ///     contain <see cref="RuleExplicit"/>.</returns>
-        public bool IsTyped()
-        {
+        public bool IsTyped( ) {
             return Explicit == null && Typed != null;
         }
 
@@ -149,14 +136,11 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="obj">The other object.</param>
         /// <returns>True if equal.</returns>
-        public override bool Equals(object obj)
-        {
-            if (IsExplicit())
-            {
+        public override bool Equals(object obj) {
+            if (IsExplicit()) {
                 return Explicit.Equals(obj);
             }
-            if (IsTyped())
-            {
+            if (IsTyped()) {
                 return Typed.Equals(obj);
             }
             return false;
@@ -177,16 +161,12 @@ namespace WFCPlugin
         /// Checks if the <see cref="Rule"/> is valid, including the validity of
         /// the wrapped <see cref="RuleExplicit"/> or <see cref="RuleTyped"/>.
         /// </summary>
-        bool IGH_Goo.IsValid
-        {
-            get
-            {
-                if (IsExplicit())
-                {
+        bool IGH_Goo.IsValid {
+            get {
+                if (IsExplicit()) {
                     return Explicit.IsValid;
                 }
-                if (IsTyped())
-                {
+                if (IsTyped()) {
                     return Typed.IsValid;
                 }
                 return false;
@@ -196,16 +176,12 @@ namespace WFCPlugin
         /// <summary>
         /// Provides an explanation why is the <see cref="Rule"/> invalid.
         /// </summary>
-        string IGH_Goo.IsValidWhyNot
-        {
-            get
-            {
-                if (IsExplicit())
-                {
+        string IGH_Goo.IsValidWhyNot {
+            get {
+                if (IsExplicit()) {
                     return Explicit.IsValidWhyNot;
                 }
-                if (IsTyped())
-                {
+                if (IsTyped()) {
                     return Typed.IsValidWhyNot;
                 }
                 return "The rule is neither explicit, nor typed.";
@@ -220,8 +196,7 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="rule"></param>
         /// <returns>False</returns>
-        public bool CastFrom(object rule)
-        {
+        public bool CastFrom(object rule) {
             return false;
         }
 
@@ -231,8 +206,7 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="rule"></param>
         /// <returns>False</returns>
-        public bool CastTo<T>(out T target)
-        {
+        public bool CastTo<T>(out T target) {
             target = default;
             return false;
         }
@@ -242,8 +216,7 @@ namespace WFCPlugin
         /// Duplicates the <see cref="Rule"/>. Required by Grasshopper.
         /// </summary>
         /// <returns>An IGH_Goo.</returns>
-        public IGH_Goo Duplicate()
-        {
+        public IGH_Goo Duplicate( ) {
             return (IGH_Goo)MemberwiseClone();
         }
 
@@ -251,8 +224,7 @@ namespace WFCPlugin
         /// Required by Grasshopper.
         /// </summary>
         /// <returns>An IGH_Goo.</returns>
-        public IGH_GooProxy EmitProxy()
-        {
+        public IGH_GooProxy EmitProxy( ) {
             return null;
         }
 
@@ -265,8 +237,7 @@ namespace WFCPlugin
         /// </remarks>
         /// <param name="reader">The reader.</param>
         /// <returns>A bool when successful.</returns>
-        public bool Read(GH_IReader reader)
-        {
+        public bool Read(GH_IReader reader) {
             return true;
         }
 
@@ -279,8 +250,7 @@ namespace WFCPlugin
         /// </remarks>
         /// <param name="writer">The writer.</param>
         /// <returns>A bool when successful.</returns>
-        public bool Write(GH_IWriter writer)
-        {
+        public bool Write(GH_IWriter writer) {
             return true;
         }
 
@@ -289,8 +259,7 @@ namespace WFCPlugin
         /// Returns the script variable. Required by Grasshopper.
         /// </summary>
         /// <returns>An object.</returns>
-        public object ScriptVariable()
-        {
+        public object ScriptVariable( ) {
             return this;
         }
 
@@ -298,14 +267,11 @@ namespace WFCPlugin
         /// Returns a user-friendly description of the <see cref="Rule"/>.
         /// </summary>
         /// <returns>A string.</returns>
-        public override string ToString()
-        {
-            if (IsExplicit())
-            {
+        public override string ToString( ) {
+            if (IsExplicit()) {
                 return Explicit.ToString();
             }
-            if (IsTyped())
-            {
+            if (IsTyped()) {
                 return Typed.ToString();
             }
             return "The rule is invalid.";
@@ -315,18 +281,15 @@ namespace WFCPlugin
         /// Gets the hash code.
         /// </summary>
         /// <returns>An int.</returns>
-        public override int GetHashCode()
-        {
-            if (IsExplicit())
-            {
+        public override int GetHashCode( ) {
+            if (IsExplicit()) {
                 return Explicit.GetHashCode();
             }
-            if (IsTyped())
-            {
+            if (IsTyped()) {
                 return Typed.GetHashCode();
             }
             // The rule is invalid, the hash code is not unique
-            int hashCode = -1934280001;
+            var hashCode = -1934280001;
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(TypeName);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(TypeDescription);
             return hashCode;
@@ -339,14 +302,11 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="modules">The modules.</param>
         /// <returns>True if valid.</returns>
-        public bool IsValidWithModules(List<Module> modules)
-        {
-            if (IsExplicit())
-            {
+        public bool IsValidWithModules(List<Module> modules) {
+            if (IsExplicit()) {
                 return Explicit.IsValidWithGivenModules(modules);
             }
-            if (IsTyped())
-            {
+            if (IsTyped()) {
                 return Typed.IsValidWithModules(modules);
             }
             return false;
@@ -397,8 +357,7 @@ namespace WFCPlugin
     /// the <see cref="ComponentFauxSolver"/>.
     /// </para>
     /// </remarks>
-    public class RuleExplicit
-    {
+    public class RuleExplicit {
         /// <summary>
         /// Name (unique identifier) of the first module, which is allowed to
         /// touch the second module.
@@ -439,22 +398,17 @@ namespace WFCPlugin
         public RuleExplicit(string sourceModuleName,
                             int sourceConnectorIndex,
                             string targetModuleName,
-                            int targetConnectorIndex)
-        {
-            if (sourceModuleName.Length == 0)
-            {
+                            int targetConnectorIndex) {
+            if (sourceModuleName.Length == 0) {
                 throw new Exception("Source module name is empty");
             }
-            if (targetModuleName.Length == 0)
-            {
+            if (targetModuleName.Length == 0) {
                 throw new Exception("Target module name is empty");
             }
-            if (sourceConnectorIndex < 0)
-            {
+            if (sourceConnectorIndex < 0) {
                 throw new Exception("Source connector index is negative");
             }
-            if (targetConnectorIndex < 0)
-            {
+            if (targetConnectorIndex < 0) {
                 throw new Exception("Target connector index is negative");
             }
             SourceModuleName = sourceModuleName.ToLower();
@@ -470,8 +424,7 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="obj">The other object.</param>
         /// <returns>True if equal.</returns>
-        public override bool Equals(object obj)
-        {
+        public override bool Equals(object obj) {
             return obj is RuleExplicit other &&
                    (
                        (
@@ -509,8 +462,7 @@ namespace WFCPlugin
         /// Grasshopper for data peeking.
         /// </summary>
         /// <returns>A string.</returns>
-        public override string ToString()
-        {
+        public override string ToString( ) {
             return "Explicit connection: " +
                 SourceModuleName + ":" + SourceConnectorIndex +
                 " -> " +
@@ -521,9 +473,8 @@ namespace WFCPlugin
         /// Gets the hash code.
         /// </summary>
         /// <returns>An int.</returns>
-        public override int GetHashCode()
-        {
-            int hashCode = -1103775584;
+        public override int GetHashCode( ) {
+            var hashCode = -1103775584;
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(SourceModuleName);
             hashCode = hashCode * -1521134295 + SourceConnectorIndex.GetHashCode();
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(TargetModuleName);
@@ -542,26 +493,23 @@ namespace WFCPlugin
         /// <param name="ruleForSolver">Output rule for
         ///     <see cref="ComponentFauxSolver"/>.</param>
         /// <returns>True if the conversion was successful.</returns>
-        public bool ToWFCRuleSolver(List<Module> modules, out RuleForSolver ruleForSolver)
-        {
+        public bool ToWFCRuleSolver(List<Module> modules, out RuleForSolver ruleForSolver) {
             // Check if such modules and their connectors exist
-            Module sourceModule = modules.FirstOrDefault(module => module.Name == SourceModuleName);
-            Module targetModule = modules.FirstOrDefault(module => module.Name == TargetModuleName);
-            if (sourceModule == null || targetModule == null)
-            {
+            var sourceModule = modules.FirstOrDefault(module => module.Name == SourceModuleName);
+            var targetModule = modules.FirstOrDefault(module => module.Name == TargetModuleName);
+            if (sourceModule == null || targetModule == null) {
                 ruleForSolver = default;
                 return false;
             }
-            ModuleConnector sourceConnector = sourceModule
+            var sourceConnector = sourceModule
                 .Connectors
                 .FirstOrDefault(connector => connector.ConnectorIndex == SourceConnectorIndex);
-            ModuleConnector targetConnector = sourceModule
+            var targetConnector = sourceModule
                 .Connectors
                 .FirstOrDefault(connector => connector.ConnectorIndex == TargetConnectorIndex);
 
             if (sourceConnector.Equals(default(ModuleConnector)) ||
-                targetConnector.Equals(default(ModuleConnector)))
-            {
+                targetConnector.Equals(default(ModuleConnector))) {
                 ruleForSolver = default;
                 return false;
             }
@@ -584,14 +532,13 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="modules">The modules.</param>
         /// <returns>True if valid.</returns>
-        public bool IsValidWithGivenModules(IEnumerable<Module> modules)
-        {
-            Module sourceModule = modules.FirstOrDefault(module => module.Name == SourceModuleName);
-            Module targetModule = modules.FirstOrDefault(module => module.Name == TargetModuleName);
-            ModuleConnector sourceConnector = sourceModule
+        public bool IsValidWithGivenModules(IEnumerable<Module> modules) {
+            var sourceModule = modules.FirstOrDefault(module => module.Name == SourceModuleName);
+            var targetModule = modules.FirstOrDefault(module => module.Name == TargetModuleName);
+            var sourceConnector = sourceModule
                 .Connectors
                 .FirstOrDefault(connector => connector.ConnectorIndex == SourceConnectorIndex);
-            ModuleConnector targetConnector = targetModule
+            var targetConnector = targetModule
                 .Connectors
                 .FirstOrDefault(connector => connector.ConnectorIndex == TargetConnectorIndex);
 
@@ -600,8 +547,7 @@ namespace WFCPlugin
                 targetModule == null ||
                 sourceConnector.Equals(default(ModuleConnector)) ||
                 targetConnector.Equals(default(ModuleConnector)) ||
-                !sourceConnector.Direction.IsOpposite(targetConnector.Direction))
-            {
+                !sourceConnector.Direction.IsOpposite(targetConnector.Direction)) {
                 return false;
             }
             return true;
@@ -644,8 +590,7 @@ namespace WFCPlugin
     /// <see cref="RuleForSolver"/>.
     /// </para>
     /// </remarks>
-    public class RuleTyped
-    {
+    public class RuleTyped {
         /// <summary>
         /// Name (unique identifier) of a <see cref="Module"/>, which is allowed
         /// to touch another <see cref="Module"/> with a
@@ -675,20 +620,16 @@ namespace WFCPlugin
         ///     <see cref="ModuleConnector"/> index.</param>
         /// <param name="connectorType">The connector type - will be converted
         ///     to lowercase.</param>
-        public RuleTyped(string moduleName, int connectorIndex, string connectorType)
-        {
-            if (moduleName.Length == 0)
-            {
+        public RuleTyped(string moduleName, int connectorIndex, string connectorType) {
+            if (moduleName.Length == 0) {
                 throw new Exception("Module name is empty");
             }
 
-            if (connectorIndex < 0)
-            {
+            if (connectorIndex < 0) {
                 throw new Exception("Connector index is negative");
             }
 
-            if (connectorType.Length == 0)
-            {
+            if (connectorType.Length == 0) {
                 throw new Exception("Connector type name is empty");
             }
 
@@ -703,8 +644,7 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="obj">The other object.</param>
         /// <returns>True if equal.</returns>
-        public override bool Equals(object obj)
-        {
+        public override bool Equals(object obj) {
             return obj is RuleTyped other &&
                    (
                     ModuleName == other.ModuleName &&
@@ -729,8 +669,7 @@ namespace WFCPlugin
         /// Grasshopper for data peeking.
         /// </summary>
         /// <returns>A string.</returns>
-        public override string ToString()
-        {
+        public override string ToString( ) {
             return "Typed connector: " +
                 ModuleName + ":" + ConnectorIndex +
                 " = " +
@@ -741,9 +680,8 @@ namespace WFCPlugin
         /// Gets the hash code.
         /// </summary>
         /// <returns>An int.</returns>
-        public override int GetHashCode()
-        {
-            int hashCode = 145665365;
+        public override int GetHashCode( ) {
+            var hashCode = 145665365;
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(ModuleName);
             hashCode = hashCode * -1521134295 + ConnectorIndex.GetHashCode();
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(ConnectorType);
@@ -772,52 +710,44 @@ namespace WFCPlugin
         /// <returns>A list of <see cref="RuleExplicit"/>. The list may be
         ///     empty.</returns>
         public List<RuleExplicit> ToRuleExplicit(IEnumerable<RuleTyped> otherRules,
-                                                 List<Module> modules)
-        {
-            List<RuleExplicit> rulesExplicit = new List<RuleExplicit>();
+                                                 List<Module> modules) {
+            var rulesExplicit = new List<RuleExplicit>();
 
             // If the source module and connector exist
-            Module sourceModule = modules.FirstOrDefault(module => module.Name == ModuleName);
-            if (sourceModule == null)
-            {
+            var sourceModule = modules.FirstOrDefault(module => module.Name == ModuleName);
+            if (sourceModule == null) {
                 return rulesExplicit;
             }
 
-            ModuleConnector sourceConnector = sourceModule
+            var sourceConnector = sourceModule
                 .Connectors
                 .FirstOrDefault(connector => connector.ConnectorIndex == ConnectorIndex);
-            if (sourceConnector.Equals(default(ModuleConnector)))
-            {
+            if (sourceConnector.Equals(default(ModuleConnector))) {
                 return rulesExplicit;
             }
 
             // Find all other rules assigning the same connector type
-            foreach (RuleTyped other in otherRules)
-            {
-                if (other.ConnectorType != ConnectorType)
-                {
+            foreach (var other in otherRules) {
+                if (other.ConnectorType != ConnectorType) {
                     continue;
                 }
 
                 // Checked if the other rule refers to an existing module and connector
-                Module targetModule = modules
+                var targetModule = modules
                     .FirstOrDefault(module => module.Name == other.ModuleName);
-                if (targetModule == null)
-                {
+                if (targetModule == null) {
                     continue;
                 }
 
-                ModuleConnector targetConnector = targetModule
+                var targetConnector = targetModule
                     .Connectors
                     .FirstOrDefault(connector => connector.ConnectorIndex == other.ConnectorIndex);
-                if (targetConnector.Equals(default(ModuleConnector)))
-                {
+                if (targetConnector.Equals(default(ModuleConnector))) {
                     continue;
                 }
 
                 // Only convert to an explicit rule if the other connector is opposite
-                if (targetConnector.Direction.IsOpposite(sourceConnector.Direction))
-                {
+                if (targetConnector.Direction.IsOpposite(sourceConnector.Direction)) {
                     rulesExplicit.Add(
                         new RuleExplicit(sourceModule.Name,
                                          sourceConnector.ConnectorIndex,
@@ -835,12 +765,10 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="modules">All <see cref="Module"/>s.</param>
         /// <returns>True if valid.</returns>
-        public bool IsValidWithModules(List<Module> modules)
-        {
-            Module sourceModule = modules.FirstOrDefault(module => module.Name == ModuleName);
+        public bool IsValidWithModules(List<Module> modules) {
+            var sourceModule = modules.FirstOrDefault(module => module.Name == ModuleName);
             if (sourceModule == null ||
-                !sourceModule.Connectors.Any(connector => connector.ConnectorIndex == ConnectorIndex))
-            {
+                !sourceModule.Connectors.Any(connector => connector.ConnectorIndex == ConnectorIndex)) {
                 return false;
             }
             return true;
@@ -871,8 +799,7 @@ namespace WFCPlugin
     ///     </item>
     /// </list>
     /// </summary>
-    public struct RuleForSolver
-    {
+    public struct RuleForSolver {
         /// <summary>
         /// String: <c>x</c> or <c>y</c> or <c>z</c>.
         /// </summary>
@@ -897,11 +824,9 @@ namespace WFCPlugin
         /// <param name="higherSubmoduleName">The higher submodule name.</param>
         public RuleForSolver(string axialDirection,
                              string lowerSubmoduleName,
-                             string higherSubmoduleName)
-        {
+                             string higherSubmoduleName) {
             AxialDirection = axialDirection.ToLower();
-            if (AxialDirection != "x" && AxialDirection != "y" && AxialDirection != "z")
-            {
+            if (AxialDirection != "x" && AxialDirection != "y" && AxialDirection != "z") {
                 throw new Exception("The axial direction is invalid: " + axialDirection);
             }
             LowerSubmoduleName = lowerSubmoduleName;
@@ -914,8 +839,7 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="obj">The other object.</param>
         /// <returns>True if equal.</returns>
-        public override bool Equals(object obj)
-        {
+        public override bool Equals(object obj) {
             return obj is RuleForSolver rule &&
                    AxialDirection == rule.AxialDirection &&
                    LowerSubmoduleName == rule.LowerSubmoduleName &&
@@ -926,9 +850,8 @@ namespace WFCPlugin
         /// Gets the hash code.
         /// </summary>
         /// <returns>An int.</returns>
-        public override int GetHashCode()
-        {
-            int hashCode = -733970503;
+        public override int GetHashCode( ) {
+            var hashCode = -733970503;
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(AxialDirection);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(LowerSubmoduleName);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(HigherSubmoduleName);

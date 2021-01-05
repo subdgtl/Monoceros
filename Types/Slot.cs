@@ -1,14 +1,13 @@
-﻿using GH_IO.Serialization;
+﻿using System;
+using System.Collections.Generic;
+using GH_IO.Serialization;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
 using Rhino;
 using Rhino.DocObjects;
 using Rhino.Geometry;
-using System;
-using System.Collections.Generic;
 
-namespace WFCPlugin
-{
+namespace WFCPlugin {
     /// <summary>
     /// <para>
     /// The <see cref="Slot"/> is a basic unit of the WFC World. It has s shape
@@ -73,8 +72,7 @@ namespace WFCPlugin
     /// internally ad it is not possible to instantiate it from Grasshopper.
     /// </para>
     /// </summary>
-    public class Slot : IGH_Goo, IGH_PreviewData, IGH_BakeAwareObject
-    {
+    public class Slot : IGH_Goo, IGH_PreviewData, IGH_BakeAwareObject {
         /// <summary>
         /// The <see cref="BasePlane"/> specifies the origin and orientation of
         /// the World grid, in which is the <see cref="Slot"/> defined. All
@@ -139,8 +137,7 @@ namespace WFCPlugin
         /// Initializes a new instance of the <see cref="Slot"/> class. Creates
         /// an invalid instance. Required by Grasshopper.
         /// </summary>
-        public Slot()
-        {
+        public Slot( ) {
         }
 
         /// <summary>
@@ -163,15 +160,12 @@ namespace WFCPlugin
                     bool allowAnyModule,
                     List<string> allowedModules,
                     List<string> allowedSubModules,
-                    int allSubmodulesCount)
-        {
-            if (diagonal.X <= 0 || diagonal.Y <= 0 || diagonal.Z <= 0)
-            {
+                    int allSubmodulesCount) {
+            if (diagonal.X <= 0 || diagonal.Y <= 0 || diagonal.Z <= 0) {
                 throw new Exception("One or more slot dimensions are not larger than 0.");
             }
 
-            if (allSubmodulesCount < 0)
-            {
+            if (allSubmodulesCount < 0) {
                 throw new Exception("All submodules count is lower than 0.");
             }
 
@@ -192,8 +186,7 @@ namespace WFCPlugin
         /// <param name="moduleNames">The new <see cref="AllowedModuleNames"/>.
         ///     </param>
         /// <returns>A Slot.</returns>
-        public Slot DuplicateWithModuleNames(List<string> moduleNames)
-        {
+        public Slot DuplicateWithModuleNames(List<string> moduleNames) {
             return new Slot(
                         BasePlane,
                         RelativeCenter,
@@ -214,8 +207,7 @@ namespace WFCPlugin
         /// <param name="allSubmodulesCount">The number of all submodules in the
         ///     solution.</param>
         /// <returns>A Slot.</returns>
-        public Slot DuplicateWithSubmodulesCount(int allSubmodulesCount)
-        {
+        public Slot DuplicateWithSubmodulesCount(int allSubmodulesCount) {
             return new Slot(
                         BasePlane,
                         RelativeCenter,
@@ -240,8 +232,7 @@ namespace WFCPlugin
         ///     <see cref="AllowedSubmoduleNames"/>.</param>
         /// <returns>A Slot.</returns>
         public Slot DuplicateWithSubmodulesCountAndNames(int allSubmodulesCount,
-                                                                  List<string> submoduleNames)
-        {
+                                                                  List<string> submoduleNames) {
             return new Slot(
                         BasePlane,
                         RelativeCenter,
@@ -258,17 +249,15 @@ namespace WFCPlugin
         /// to be calculated from the <see cref="BasePlane"/>,
         /// <see cref="Diagonal"/> and <see cref="RelativeCenter"/>.
         /// </summary>
-        public Point3d AbsoluteCenter
-        {
-            get
-            {
-                Transform baseAlignmentTransform = Transform.PlaneToPlane(Plane.WorldXY, BasePlane);
-                Transform scalingTransform = Transform.Scale(BasePlane,
+        public Point3d AbsoluteCenter {
+            get {
+                var baseAlignmentTransform = Transform.PlaneToPlane(Plane.WorldXY, BasePlane);
+                var scalingTransform = Transform.Scale(BasePlane,
                                                              Diagonal.X,
                                                              Diagonal.Y,
                                                              Diagonal.Z);
 
-                Point3d submoduleCenter = RelativeCenter.ToPoint3d();
+                var submoduleCenter = RelativeCenter.ToPoint3d();
                 submoduleCenter.Transform(baseAlignmentTransform);
                 submoduleCenter.Transform(scalingTransform);
                 return submoduleCenter;
@@ -279,8 +268,7 @@ namespace WFCPlugin
         /// Required by Grasshopper.
         /// </summary>
         /// <returns>An IGH_Goo.</returns>
-        public IGH_Goo Duplicate()
-        {
+        public IGH_Goo Duplicate( ) {
             return (IGH_Goo)MemberwiseClone();
         }
 
@@ -288,8 +276,7 @@ namespace WFCPlugin
         /// Required by Grasshopper.
         /// </summary>
         /// <returns>An IGH_GooProxy.</returns>
-        public IGH_GooProxy EmitProxy()
-        {
+        public IGH_GooProxy EmitProxy( ) {
             return null;
         }
 
@@ -299,8 +286,7 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="source">The source.</param>
         /// <returns>False</returns>
-        public bool CastFrom(object source)
-        {
+        public bool CastFrom(object source) {
             return false;
         }
 
@@ -313,25 +299,21 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="target">The target Grasshopper geometry.</param>
         /// <returns>True when successful.</returns>
-        public bool CastTo<T>(out T target)
-        {
-            if (typeof(T) == typeof(GH_Point))
-            {
-                GH_Point absoluteCenter = new GH_Point(AbsoluteCenter);
+        public bool CastTo<T>(out T target) {
+            if (typeof(T) == typeof(GH_Point)) {
+                var absoluteCenter = new GH_Point(AbsoluteCenter);
                 target = (T)absoluteCenter.Duplicate();
                 return true;
             }
 
-            if (typeof(T) == typeof(GH_Box))
-            {
-                GH_Box box = new GH_Box(Cage);
+            if (typeof(T) == typeof(GH_Box)) {
+                var box = new GH_Box(Cage);
                 target = (T)box.Duplicate();
                 return true;
             }
 
-            if (typeof(T) == typeof(GH_Brep))
-            {
-                GH_Brep boxBrep = new GH_Brep(Cage.ToBrep());
+            if (typeof(T) == typeof(GH_Brep)) {
+                var boxBrep = new GH_Brep(Cage.ToBrep());
                 target = (T)boxBrep.Duplicate();
                 return true;
             }
@@ -345,8 +327,7 @@ namespace WFCPlugin
         /// Returns the script variable. Required by Grasshopper.
         /// </summary>
         /// <returns>An object.</returns>
-        public object ScriptVariable()
-        {
+        public object ScriptVariable( ) {
             return this;
         }
 
@@ -359,8 +340,7 @@ namespace WFCPlugin
         /// </remarks>
         /// <param name="reader">The reader.</param>
         /// <returns>A bool when successful.</returns>
-        public bool Read(GH_IReader reader)
-        {
+        public bool Read(GH_IReader reader) {
             return true;
         }
 
@@ -373,8 +353,7 @@ namespace WFCPlugin
         /// </remarks>
         /// <param name="writer">The writer.</param>
         /// <returns>A bool when successful.</returns>
-        public bool Write(GH_IWriter writer)
-        {
+        public bool Write(GH_IWriter writer) {
             return true;
         }
 
@@ -383,8 +362,7 @@ namespace WFCPlugin
         /// Does nothing. Required by Grasshopper.
         /// </summary>
         /// <param name="args">The args.</param>
-        public void DrawViewportWires(GH_PreviewWireArgs args)
-        {
+        public void DrawViewportWires(GH_PreviewWireArgs args) {
         }
 
         /// <summary>
@@ -432,35 +410,30 @@ namespace WFCPlugin
         /// </list>
         /// </summary>
         /// <param name="args">The preview mesh arguments.</param>
-        public void DrawViewportMeshes(GH_PreviewMeshArgs args)
-        {
-            System.Drawing.Color color = Config.CAGE_UNKNOWN_COLOR;
+        public void DrawViewportMeshes(GH_PreviewMeshArgs args) {
+            var color = Config.CAGE_UNKNOWN_COLOR;
 
-            if (AllowAnyModule)
-            {
+            if (AllowAnyModule) {
                 color = Config.CAGE_EVERYTHING_COLOR;
             }
 
-            if (AllowedNothing)
-            {
+            if (AllowedNothing) {
                 color = Config.CAGE_NONE_COLOR;
             }
 
-            int submodulesCount = AllowedSubmoduleNames.Count;
+            var submodulesCount = AllowedSubmoduleNames.Count;
 
-            if (submodulesCount == 1 && AllSubmodulesCount != 0)
-            {
+            if (submodulesCount == 1 && AllSubmodulesCount != 0) {
                 color = Config.CAGE_ONE_COLOR;
             }
 
-            if (submodulesCount > 1 && AllSubmodulesCount != 0)
-            {
-                double t = (double)submodulesCount / AllSubmodulesCount;
+            if (submodulesCount > 1 && AllSubmodulesCount != 0) {
+                var t = (double)submodulesCount / AllSubmodulesCount;
                 color = InterpolateColor(Config.CAGE_TWO_COLOR, Config.CAGE_EVERYTHING_COLOR, t);
             }
 
 
-            Rhino.Display.DisplayMaterial material = args.Material;
+            var material = args.Material;
             material.Diffuse = color;
 
             args.Pipeline.DrawBrepShaded(Cage.ToBrep(), material);
@@ -505,29 +478,22 @@ namespace WFCPlugin
         /// Required by Grasshopper.
         /// </summary>
         /// <returns>A string.</returns>
-        public override string ToString()
-        {
-            GH_Point pt = new GH_Point(AbsoluteCenter);
-            GH_Vector diagonal = new GH_Vector(Diagonal);
-            GH_Plane plane = new GH_Plane(BasePlane);
-            string containment = "";
-            if (AllowAnyModule)
-            {
+        public override string ToString( ) {
+            var pt = new GH_Point(AbsoluteCenter);
+            var diagonal = new GH_Vector(Diagonal);
+            var plane = new GH_Plane(BasePlane);
+            var containment = "";
+            if (AllowAnyModule) {
                 containment = "all modules";
             }
-            if (AllowedNothing)
-            {
+            if (AllowedNothing) {
                 containment = "no modules";
             }
-            if (!AllowedNothing && !AllowAnyModule)
-            {
-                int count = AllowedModuleNames.Count;
-                if (count == 1)
-                {
+            if (!AllowedNothing && !AllowAnyModule) {
+                var count = AllowedModuleNames.Count;
+                if (count == 1) {
                     containment = "module '" + AllowedModuleNames[0] + "'";
-                }
-                else
-                {
+                } else {
                     containment = count + " modules";
                 }
             }
@@ -551,8 +517,7 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="doc">The doc.</param>
         /// <param name="obj_ids">The obj_ids.</param>
-        public void BakeGeometry(RhinoDoc doc, List<Guid> obj_ids)
-        {
+        public void BakeGeometry(RhinoDoc doc, List<Guid> obj_ids) {
             BakeGeometry(doc, new ObjectAttributes(), obj_ids);
         }
 
@@ -563,39 +528,33 @@ namespace WFCPlugin
         /// <param name="doc">The doc.</param>
         /// <param name="att">The att.</param>
         /// <param name="obj_ids">The obj_ids.</param>
-        public void BakeGeometry(RhinoDoc doc, ObjectAttributes att, List<Guid> obj_ids)
-        {
-            if (att == null)
-            {
+        public void BakeGeometry(RhinoDoc doc, ObjectAttributes att, List<Guid> obj_ids) {
+            if (att == null) {
                 att = doc.CreateDefaultAttributes();
             }
 
-            System.Drawing.Color color = Config.CAGE_UNKNOWN_COLOR;
+            var color = Config.CAGE_UNKNOWN_COLOR;
 
-            if (AllowAnyModule)
-            {
+            if (AllowAnyModule) {
                 color = Config.CAGE_EVERYTHING_COLOR;
             }
 
-            if (AllowedNothing)
-            {
+            if (AllowedNothing) {
                 color = Config.CAGE_NONE_COLOR;
             }
 
-            int submodulesCount = AllowedSubmoduleNames.Count;
+            var submodulesCount = AllowedSubmoduleNames.Count;
 
-            if (submodulesCount == 1 && AllSubmodulesCount != 0)
-            {
+            if (submodulesCount == 1 && AllSubmodulesCount != 0) {
                 color = Config.CAGE_ONE_COLOR;
             }
 
-            if (submodulesCount != 1 && AllSubmodulesCount != 0)
-            {
-                double t = (double)submodulesCount / AllSubmodulesCount;
+            if (submodulesCount != 1 && AllSubmodulesCount != 0) {
+                var t = (double)submodulesCount / AllSubmodulesCount;
                 color = InterpolateColor(Config.CAGE_TWO_COLOR, Config.CAGE_EVERYTHING_COLOR, t);
             }
 
-            ObjectAttributes cageAttributes = att.Duplicate();
+            var cageAttributes = att.Duplicate();
             cageAttributes.ObjectColor = color;
             cageAttributes.ColorSource = ObjectColorSource.ColorFromObject;
 
@@ -609,8 +568,7 @@ namespace WFCPlugin
         /// <param name="b">Second byte value.</param>
         /// <param name="t">Parameter (0 to 1).</param>
         /// <returns>Interpolated  byte.</returns>
-        private static byte Interpolate(byte a, byte b, double t)
-        {
+        private static byte Interpolate(byte a, byte b, double t) {
             return Convert.ToByte(a + (b - a) * t);
         }
 
@@ -623,8 +581,7 @@ namespace WFCPlugin
         /// <returns>Interpolated color.</returns>
         private static System.Drawing.Color InterpolateColor(System.Drawing.Color a,
                                                      System.Drawing.Color b,
-                                                     double t)
-        {
+                                                     double t) {
             return System.Drawing.Color.FromArgb(
 Interpolate(a.A, b.A, t),
 Interpolate(a.R, b.R, t),
@@ -638,11 +595,9 @@ Interpolate(a.B, b.B, t));
         /// the <see cref="AbsoluteCenter"/> of the <see cref="Slot"/> aligned
         /// to the <see cref="BasePlane"/>.
         /// </summary>
-        public Plane Pivot
-        {
-            get
-            {
-                Plane slotPivot = BasePlane.Clone();
+        public Plane Pivot {
+            get {
+                var slotPivot = BasePlane.Clone();
                 slotPivot.Origin = AbsoluteCenter;
                 return slotPivot;
             }
@@ -655,16 +610,14 @@ Interpolate(a.B, b.B, t));
         /// <see cref="Diagonal"/>. It reveals the respective cell of the WFC
         /// World.
         /// </summary>
-        private Box Cage
-        {
-            get
-            {
-                Plane boxPlane = BasePlane.Clone();
+        private Box Cage {
+            get {
+                var boxPlane = BasePlane.Clone();
                 boxPlane.Origin = AbsoluteCenter;
-                Interval xInterval = new Interval(-Diagonal.X / 2, Diagonal.X / 2);
-                Interval yInterval = new Interval(-Diagonal.Y / 2, Diagonal.Y / 2);
-                Interval zInterval = new Interval(-Diagonal.Z / 2, Diagonal.Z / 2);
-                Box box = new Box(boxPlane, xInterval, yInterval, zInterval);
+                var xInterval = new Interval(-Diagonal.X / 2, Diagonal.X / 2);
+                var yInterval = new Interval(-Diagonal.Y / 2, Diagonal.Y / 2);
+                var zInterval = new Interval(-Diagonal.Z / 2, Diagonal.Z / 2);
+                var box = new Box(boxPlane, xInterval, yInterval, zInterval);
                 return box;
             }
         }

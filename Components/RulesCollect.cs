@@ -1,28 +1,24 @@
-﻿using Grasshopper.Kernel;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using Grasshopper.Kernel;
 
-namespace WFCPlugin
-{
-    public class ComponentCollectRules : GH_Component
-    {
-        public ComponentCollectRules() : base("WFC Collect Rules",
+namespace WFCPlugin {
+    public class ComponentCollectRules : GH_Component {
+        public ComponentCollectRules( ) : base("WFC Collect Rules",
                                               "WFCCollectRules",
                                               "Collect, convert to Explicit, deduplicate and " +
                                               "remove disallowed rules. Automatically generates " +
                                               "an Out module and its rules.",
                                               "WaveFunctionCollapse",
-                                              "Rule")
-        {
+                                              "Rule") {
         }
 
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
-        {
+        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddParameter(new ModuleParameter(),
                                   "Module",
                                   "M",
@@ -44,8 +40,7 @@ namespace WFCPlugin
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
-        {
+        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddParameter(new RuleParameter(),
                                   "Rules",
                                   "R",
@@ -58,66 +53,60 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="DA">The DA object can be used to retrieve data from
         ///     input parameters and to store data in output parameters.</param>
-        protected override void SolveInstance(IGH_DataAccess DA)
-        {
-            List<Module> modules = new List<Module>();
-            List<Rule> allowed = new List<Rule>();
-            List<Rule> disallowed = new List<Rule>();
+        protected override void SolveInstance(IGH_DataAccess DA) {
+            var modules = new List<Module>();
+            var allowed = new List<Rule>();
+            var disallowed = new List<Rule>();
 
-            if (!DA.GetDataList(0, modules))
-            {
+            if (!DA.GetDataList(0, modules)) {
                 return;
             }
 
-            if (!DA.GetDataList(1, allowed))
-            {
+            if (!DA.GetDataList(1, allowed)) {
                 return;
             }
 
             DA.GetDataList(2, disallowed);
 
-            IEnumerable<Rule> disallowedExplicit = disallowed.Where(rule => rule.IsExplicit());
-            IEnumerable<RuleTyped> disallowedTyped = disallowed
+            var disallowedExplicit = disallowed.Where(rule => rule.IsExplicit());
+            var disallowedTyped = disallowed
                 .Where(rule => rule.IsTyped())
                 .Select(rule => rule.Typed);
-            IEnumerable<Rule> disallowedTypedUnwrapped = disallowedTyped
+            var disallowedTypedUnwrapped = disallowedTyped
                 .SelectMany(ruleTyped => ruleTyped.ToRuleExplicit(disallowedTyped, modules))
                 .Select(ruleExplicit => new Rule(ruleExplicit));
 
-            IEnumerable<Rule> disallowedProcessed = disallowedExplicit
+            var disallowedProcessed = disallowedExplicit
                 .Concat(disallowedTypedUnwrapped)
                 .Distinct();
 
 
-            List<Rule> allowedExplicit = new List<Rule>();
-            List<Rule> allowedTypedUnwrapped = new List<Rule>();
-            List<Rule> allowedTypedWrapped = new List<Rule>();
+            var allowedExplicit = new List<Rule>();
+            var allowedTypedUnwrapped = new List<Rule>();
+            var allowedTypedWrapped = new List<Rule>();
 
 
             Module.GenerateEmptySingleModule(Config.OUTER_MODULE_NAME,
                                              Config.INDIFFERENT_TAG,
                                              new Rhino.Geometry.Vector3d(1, 1, 1),
-                                             out Module moduleOut,
-                                             out List<RuleTyped> rulesOut);
+                                             out var moduleOut,
+                                             out var rulesOut);
             allowed.AddRange(
                 rulesOut.Select(ruleExplicit => new Rule(ruleExplicit))
                 );
             modules.Add(moduleOut);
 
-            IEnumerable<RuleTyped> allowedTyped = allowed
+            var allowedTyped = allowed
                 .Where(rule => rule.IsTyped())
                 .Select(rule => rule.Typed);
 
-            foreach (Rule rule in allowed)
-            {
-                if (rule.IsExplicit())
-                {
+            foreach (var rule in allowed) {
+                if (rule.IsExplicit()) {
                     allowedExplicit.Add(rule);
                     continue;
                 }
-                if (rule.IsTyped())
-                {
-                    RuleTyped typed = rule.Typed;
+                if (rule.IsTyped()) {
+                    var typed = rule.Typed;
                     if (
                         disallowedProcessed.Any(ruleDisallowed =>
                             ruleDisallowed.IsExplicit() &&
@@ -126,26 +115,23 @@ namespace WFCPlugin
                             (ruleDisallowed.Explicit.TargetModuleName == typed.ModuleName &&
                              ruleDisallowed.Explicit.TargetConnectorIndex == typed.ConnectorIndex)
                             )
-                        )
-                    {
-                        IEnumerable<Rule> typedUnwrapped = typed
+                        ) {
+                        var typedUnwrapped = typed
                             .ToRuleExplicit(allowedTyped, modules)
                             .Select(ruleExplicit => new Rule(ruleExplicit));
                         allowedTypedUnwrapped.AddRange(typedUnwrapped);
-                    }
-                    else
-                    {
+                    } else {
                         allowedTypedWrapped.Add(rule);
                     }
                 }
             }
 
-            IEnumerable<Rule> allowedProcessed = allowedExplicit
+            var allowedProcessed = allowedExplicit
                 .Concat(allowedTypedUnwrapped)
                 .Concat(allowedTypedWrapped)
                 .Distinct();
 
-            IEnumerable<Rule> rules = allowedProcessed.Except(disallowedProcessed);
+            var rules = allowedProcessed.Except(disallowedProcessed);
 
             DA.SetDataList(0, rules);
         }

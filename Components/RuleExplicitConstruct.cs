@@ -1,27 +1,23 @@
-﻿using Grasshopper.Kernel;
-using System;
+﻿using System;
+using Grasshopper.Kernel;
 
-namespace WFCPlugin
-{
+namespace WFCPlugin {
 
-    public class ComponentConstructRuleExplicit : GH_Component
-    {
-        public ComponentConstructRuleExplicit()
+    public class ComponentConstructRuleExplicit : GH_Component {
+        public ComponentConstructRuleExplicit( )
             : base("WFC Construct Explicit",
                    "WFCConstRuleExp",
                    "Construct an Explicit WFC Rule (connector-to-connector) from module " +
                    "name and connector number. The existence of the module and connector as " +
                    "well as whether the connectors are opposite is not being checked.",
                    "WaveFunctionCollapse",
-                   "Rule")
-        {
+                   "Rule") {
         }
 
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
-        {
+        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddParameter(new ModuleNameParameter(),
                                   "Source Module",
                                   "SM",
@@ -45,8 +41,7 @@ namespace WFCPlugin
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
-        {
+        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddParameter(new RuleParameter(),
                                   "Rule",
                                   "R",
@@ -59,43 +54,37 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="DA">The DA object can be used to retrieve data from
         ///     input parameters and to store data in output parameters.</param>
-        protected override void SolveInstance(IGH_DataAccess DA)
-        {
-            ModuleName sourceNameRaw = new ModuleName();
-            int sourceConnector = 0;
-            ModuleName targetNameRaw = new ModuleName();
-            int targetConnector = 0;
+        protected override void SolveInstance(IGH_DataAccess DA) {
+            var sourceNameRaw = new ModuleName();
+            var sourceConnector = 0;
+            var targetNameRaw = new ModuleName();
+            var targetConnector = 0;
 
-            if (!DA.GetData(0, ref sourceNameRaw))
-            {
+            if (!DA.GetData(0, ref sourceNameRaw)) {
                 return;
             }
 
-            if (!DA.GetData(1, ref sourceConnector))
-            {
+            if (!DA.GetData(1, ref sourceConnector)) {
                 return;
             }
 
-            if (!DA.GetData(2, ref targetNameRaw))
-            {
+            if (!DA.GetData(2, ref targetNameRaw)) {
                 return;
             }
 
-            if (!DA.GetData(3, ref targetConnector))
-            {
+            if (!DA.GetData(3, ref targetConnector)) {
                 return;
             }
 
-            string sourceName = sourceNameRaw.Name;
-            string targetName = targetNameRaw.Name;
+            var sourceName = sourceNameRaw.Name;
+            var targetName = targetNameRaw.Name;
 
-            if (sourceName == targetName && sourceConnector == targetConnector)
-            {
+            if (sourceName == targetName && sourceConnector == targetConnector) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
                                   "The connector connects to itself.");
             }
 
-            Rule rule = new Rule(sourceName, sourceConnector, targetName, targetConnector);
+            var rule = new Rule(sourceName, sourceConnector, targetName, targetConnector);
 
             DA.SetData(0, rule);
         }

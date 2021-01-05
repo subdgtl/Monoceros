@@ -1,26 +1,22 @@
-﻿using Grasshopper.Kernel;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Grasshopper.Kernel;
 
-namespace WFCPlugin
-{
-    public class ComponentRuleIndifferentUnused : GH_Component
-    {
-        public ComponentRuleIndifferentUnused()
+namespace WFCPlugin {
+    public class ComponentRuleIndifferentUnused : GH_Component {
+        public ComponentRuleIndifferentUnused( )
             : base("WFC Set Unused Connectors To Indifferent",
                    "WFCRuleIndifferentUnused",
                    "Allow unused connectors to connect to any opposite Indifferent connector.",
                    "WaveFunctionCollapse",
-                   "Rule")
-        {
+                   "Rule") {
         }
 
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
-        {
+        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddParameter(new ModuleParameter(),
                                   "Module",
                                   "M",
@@ -37,8 +33,7 @@ namespace WFCPlugin
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
-        {
+        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddParameter(new RuleParameter(),
                                   "Rules",
                                   "R",
@@ -51,46 +46,40 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="DA">The DA object can be used to retrieve data from
         ///     input parameters and to store data in output parameters.</param>
-        protected override void SolveInstance(IGH_DataAccess DA)
-        {
-            Module module = new Module();
-            List<Rule> existingRules = new List<Rule>();
-            string type = Config.INDIFFERENT_TAG;
+        protected override void SolveInstance(IGH_DataAccess DA) {
+            var module = new Module();
+            var existingRules = new List<Rule>();
+            var type = Config.INDIFFERENT_TAG;
 
-            if (!DA.GetData(0, ref module))
-            {
+            if (!DA.GetData(0, ref module)) {
                 return;
             }
 
             DA.GetDataList(1, existingRules);
 
-            List<int> thisModulesUsedConnectors = new List<int>();
+            var thisModulesUsedConnectors = new List<int>();
 
-            foreach (Rule existingRule in existingRules)
-            {
+            foreach (var existingRule in existingRules) {
                 if (existingRule.IsExplicit() &&
                     existingRule.Explicit.SourceModuleName == module.Name
-                    )
-                {
+                    ) {
                     thisModulesUsedConnectors.Add(existingRule.Explicit.SourceConnectorIndex);
                 }
 
                 if (existingRule.IsExplicit() &&
                     existingRule.Explicit.TargetModuleName == module.Name
-                    )
-                {
+                    ) {
                     thisModulesUsedConnectors.Add(existingRule.Explicit.TargetConnectorIndex);
                 }
 
                 if (existingRule.IsTyped() &&
                     existingRule.Typed.ModuleName == module.Name
-                    )
-                {
+                    ) {
                     thisModulesUsedConnectors.Add(existingRule.Typed.ConnectorIndex);
                 }
             }
 
-            IEnumerable<Rule> rules = module.Connectors
+            var rules = module.Connectors
                 .Where(connector => !thisModulesUsedConnectors.Contains(connector.ConnectorIndex))
                 .Select(connector => new Rule(connector.ModuleName, connector.ConnectorIndex, type));
 

@@ -1,27 +1,23 @@
-﻿using Grasshopper.Kernel;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using Grasshopper.Kernel;
 
-namespace WFCPlugin
-{
-    public class ComponentUnwrapRules : GH_Component
-    {
-        public ComponentUnwrapRules()
+namespace WFCPlugin {
+    public class ComponentUnwrapRules : GH_Component {
+        public ComponentUnwrapRules( )
             : base("WFC Unwrap Typed Rules",
                    "WFCUnwrapRules",
                    "Convert Typed rules into Explicit rules and deduplicate.",
                    "WaveFunctionCollapse",
-                   "Rule")
-        {
+                   "Rule") {
         }
 
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
-        {
+        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddParameter(new ModuleParameter(),
                                   "Module",
                                   "M",
@@ -37,8 +33,7 @@ namespace WFCPlugin
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
-        {
+        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddParameter(new RuleParameter(),
                                   "Rules",
                                   "R",
@@ -51,40 +46,37 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="DA">The DA object can be used to retrieve data from
         ///     input parameters and to store data in output parameters.</param>
-        protected override void SolveInstance(IGH_DataAccess DA)
-        {
-            List<Module> modules = new List<Module>();
-            List<Rule> rulesInput = new List<Rule>();
+        protected override void SolveInstance(IGH_DataAccess DA) {
+            var modules = new List<Module>();
+            var rulesInput = new List<Rule>();
 
-            if (!DA.GetDataList(0, modules))
-            {
+            if (!DA.GetDataList(0, modules)) {
                 return;
             }
 
-            if (!DA.GetDataList(1, rulesInput))
-            {
+            if (!DA.GetDataList(1, rulesInput)) {
                 return;
             }
 
-            IEnumerable<RuleTyped> rulesTyped = rulesInput
+            var rulesTyped = rulesInput
                 .Where(rule => rule.IsTyped())
                 .Select(rule => rule.Typed);
 
             Module.GenerateEmptySingleModule(Config.OUTER_MODULE_NAME,
                                              Config.INDIFFERENT_TAG,
                                              new Rhino.Geometry.Vector3d(1, 1, 1),
-                                             out Module moduleOut,
-                                             out List<RuleTyped> rulesOut);
+                                             out var moduleOut,
+                                             out var rulesOut);
             rulesTyped = rulesTyped.Concat(rulesOut);
             modules.Add(moduleOut);
 
-            IEnumerable<Rule> rulesTypedUnwrapped = rulesTyped
+            var rulesTypedUnwrapped = rulesTyped
                 .SelectMany(ruleTyped => ruleTyped.ToRuleExplicit(rulesTyped, modules))
                 .Select(ruleExplicit => new Rule(ruleExplicit));
 
-            IEnumerable<Rule> rulesExplicit = rulesInput.Where(rule => rule.IsExplicit());
+            var rulesExplicit = rulesInput.Where(rule => rule.IsExplicit());
 
-            IEnumerable<Rule> rules = rulesExplicit.Concat(rulesTypedUnwrapped).Distinct();
+            var rules = rulesExplicit.Concat(rulesTypedUnwrapped).Distinct();
 
             DA.SetDataList(0, rules);
         }

@@ -1,37 +1,32 @@
-﻿using Grasshopper.Kernel;
-using Rhino.Geometry;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Grasshopper.Kernel;
+using Rhino.Geometry;
 
-namespace WFCPlugin
-{
+namespace WFCPlugin {
 
-    public class ComponentDeconstructSlot : GH_Component
-    {
-        public ComponentDeconstructSlot()
+    public class ComponentDeconstructSlot : GH_Component {
+        public ComponentDeconstructSlot( )
             : base("WFC Deconstruct Slot",
                    "WFCDeconSlot",
                    "Deconstruct a WFC Slot into its center point, base plane, diagonal " +
                   "and list of allowed modules.",
                    "WaveFunctionCollapse",
-                   "Slot")
-        {
+                   "Slot") {
         }
 
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
-        {
+        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddParameter(new SlotParameter(), "Slot", "S", "WFC Slot", GH_ParamAccess.item);
         }
 
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
-        {
+        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddPointParameter("Slot Center",
                                        "P",
                                        "Center point of the slot",
@@ -69,12 +64,10 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="DA">The DA object can be used to retrieve data from
         ///     input parameters and to store data in output parameters.</param>
-        protected override void SolveInstance(IGH_DataAccess DA)
-        {
-            Slot slot = new Slot();
+        protected override void SolveInstance(IGH_DataAccess DA) {
+            var slot = new Slot();
 
-            if (!DA.GetData(0, ref slot))
-            {
+            if (!DA.GetData(0, ref slot)) {
                 return;
             }
 

@@ -1,22 +1,18 @@
-﻿using Grasshopper.Kernel;
-using System;
+﻿using System;
+using Grasshopper.Kernel;
 
-namespace WFCPlugin
-{
+namespace WFCPlugin {
 
-    public class ComponentIsRuleExplicit : GH_Component
-    {
-        public ComponentIsRuleExplicit() : base("WFC Is Rule Explicit", "WFCIsRuleExp",
+    public class ComponentIsRuleExplicit : GH_Component {
+        public ComponentIsRuleExplicit( ) : base("WFC Is Rule Explicit", "WFCIsRuleExp",
             "Returns true if the provided WFC Rule is explicit (connector-to-connector).",
-            "WaveFunctionCollapse", "Rule")
-        {
+            "WaveFunctionCollapse", "Rule") {
         }
 
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
-        {
+        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddParameter(new RuleParameter(),
                                   "Rule",
                                   "R",
@@ -27,8 +23,7 @@ namespace WFCPlugin
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
-        {
+        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddBooleanParameter("Explicit Pattern",
                                          "P",
                                          "True if the WFC Rule is explicit",
@@ -40,12 +35,10 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="DA">The DA object can be used to retrieve data from
         ///     input parameters and to store data in output parameters.</param>
-        protected override void SolveInstance(IGH_DataAccess DA)
-        {
-            Rule rule = new Rule();
+        protected override void SolveInstance(IGH_DataAccess DA) {
+            var rule = new Rule();
 
-            if (!DA.GetData(0, ref rule))
-            {
+            if (!DA.GetData(0, ref rule)) {
                 return;
             }
 

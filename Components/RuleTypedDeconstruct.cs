@@ -1,26 +1,22 @@
-﻿using Grasshopper.Kernel;
-using System;
+﻿using System;
+using Grasshopper.Kernel;
 
-namespace WFCPlugin
-{
+namespace WFCPlugin {
 
-    public class ComponentDeconstructRuleTyped : GH_Component
-    {
-        public ComponentDeconstructRuleTyped()
+    public class ComponentDeconstructRuleTyped : GH_Component {
+        public ComponentDeconstructRuleTyped( )
             : base("WFC Deconstruct Typed Rule To Components",
                    "WFCDeconRuleTyp",
                    "Deconstruct a Typed WFC Rule (connector-to-all-same-type-connectors) into " +
                    "module name, connector number and connector type.",
                    "WaveFunctionCollapse",
-                   "Rule")
-        {
+                   "Rule") {
         }
 
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
-        {
+        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddParameter(new RuleParameter(),
                                   "Rule",
                                   "R",
@@ -31,8 +27,7 @@ namespace WFCPlugin
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
-        {
+        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddParameter(new ModuleNameParameter(),
                                   "Module",
                                   "M",
@@ -50,17 +45,14 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="DA">The DA object can be used to retrieve data from
         ///     input parameters and to store data in output parameters.</param>
-        protected override void SolveInstance(IGH_DataAccess DA)
-        {
-            Rule rule = new Rule();
+        protected override void SolveInstance(IGH_DataAccess DA) {
+            var rule = new Rule();
 
-            if (!DA.GetData(0, ref rule))
-            {
+            if (!DA.GetData(0, ref rule)) {
                 return;
             }
 
-            if (!rule.IsTyped())
-            {
+            if (!rule.IsTyped()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The provided rule is not typed.");
                 DA.SetData(0, null);
                 DA.SetData(1, null);

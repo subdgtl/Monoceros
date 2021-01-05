@@ -1,26 +1,22 @@
-﻿using Grasshopper.Kernel;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using Grasshopper.Kernel;
 
-namespace WFCPlugin
-{
-    public class ComponentFauxSolver : GH_Component
-    {
-        public ComponentFauxSolver() : base("WFC Faux Solver",
+namespace WFCPlugin {
+    public class ComponentFauxSolver : GH_Component {
+        public ComponentFauxSolver( ) : base("WFC Faux Solver",
                                             "WFCFauxSolver",
                                             "Faux WFC Solver.",
                                             "WaveFunctionCollapse",
-                                            "Solver")
-        {
+                                            "Solver") {
         }
 
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
-        {
+        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddParameter(new SlotParameter(),
                                   "Slots",
                                   "S",
@@ -51,8 +47,7 @@ namespace WFCPlugin
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
-        {
+        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddParameter(new SlotParameter(),
                                   "Slots",
                                   "S",
@@ -65,51 +60,43 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="DA">The DA object can be used to retrieve data from
         ///     input parameters and to store data in output parameters.</param>
-        protected override void SolveInstance(IGH_DataAccess DA)
-        {
-            List<Slot> slotsRaw = new List<Slot>();
-            List<Module> modules = new List<Module>();
-            List<Rule> rulesRaw = new List<Rule>();
-            int seed = 42;
-            int attempts = 10;
+        protected override void SolveInstance(IGH_DataAccess DA) {
+            var slotsRaw = new List<Slot>();
+            var modules = new List<Module>();
+            var rulesRaw = new List<Rule>();
+            var seed = 42;
+            var attempts = 10;
 
-            if (!DA.GetDataList(0, slotsRaw))
-            {
+            if (!DA.GetDataList(0, slotsRaw)) {
                 return;
             }
 
-            if (!DA.GetDataList(1, modules))
-            {
+            if (!DA.GetDataList(1, modules)) {
                 return;
             }
 
-            if (!DA.GetDataList(2, rulesRaw))
-            {
+            if (!DA.GetDataList(2, rulesRaw)) {
                 return;
             }
 
-            if (!DA.GetData(3, ref seed))
-            {
+            if (!DA.GetData(3, ref seed)) {
                 return;
             }
 
-            if (!DA.GetData(4, ref attempts))
-            {
+            if (!DA.GetData(4, ref attempts)) {
                 return;
             }
 
             // Check if there are any slots to define the world
-            if (slotsRaw.Count == 0)
-            {
+            if (slotsRaw.Count == 0) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "No slots to define world.");
                 return;
             }
 
-            Rhino.Geometry.Vector3d diagonal = slotsRaw.First().Diagonal;
+            var diagonal = slotsRaw.First().Diagonal;
 
             // Check if all slots have the same slot diagonal
-            if (slotsRaw.Any(slot => slot.Diagonal != diagonal))
-            {
+            if (slotsRaw.Any(slot => slot.Diagonal != diagonal)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "Slots are not defined with the same diagonal.");
                 return;
@@ -117,53 +104,46 @@ namespace WFCPlugin
 
             // Check if all slots have the same base plane 
             // TODO: Consider smarter compatibility check or base plane conversion
-            Rhino.Geometry.Plane slotBasePlane = slotsRaw.First().BasePlane;
-            if (slotsRaw.Any(slot => slot.BasePlane != slotBasePlane))
-            {
+            var slotBasePlane = slotsRaw.First().BasePlane;
+            if (slotsRaw.Any(slot => slot.BasePlane != slotBasePlane)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "Slots are not defined with the same base plane.");
                 return;
             }
 
-            if (!AreSlotLocationsUnique(slotsRaw))
-            {
+            if (!AreSlotLocationsUnique(slotsRaw)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Slot centers are not unique.");
                 return;
             }
 
-            if (slotsRaw.Any(slot => slot.AllowedNothing))
-            {
+            if (slotsRaw.Any(slot => slot.AllowedNothing)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "Some slots allow no modules to be placed.");
                 return;
             }
 
-            if (modules.Count == 0)
-            {
+            if (modules.Count == 0) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "No modules to populate world.");
                 return;
             }
 
-            Rhino.Geometry.Vector3d moduleDiagonal = modules.First().SlotDiagonal;
+            var moduleDiagonal = modules.First().SlotDiagonal;
 
-            if (modules.Any(module => module.SlotDiagonal != moduleDiagonal))
-            {
+            if (modules.Any(module => module.SlotDiagonal != moduleDiagonal)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "Modules are not defined with the same diagonal.");
                 return;
             }
 
-            if (!AreModuleNamesUnique(modules))
-            {
+            if (!AreModuleNamesUnique(modules)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Module names are not unique.");
                 return;
             }
 
-            int allSubmodulesCount = modules
+            var allSubmodulesCount = modules
                 .Aggregate(0, (sum, module) => sum + module.SubmoduleCenters.Count);
 
-            if (moduleDiagonal != diagonal)
-            {
+            if (moduleDiagonal != diagonal) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "Modules and slots are not defined with the same diagonal.");
                 return;
@@ -173,14 +153,14 @@ namespace WFCPlugin
             Module.GenerateEmptySingleModule(Config.OUTER_MODULE_NAME,
                                              Config.INDIFFERENT_TAG,
                                              new Rhino.Geometry.Vector3d(1, 1, 1),
-                                             out Module moduleOut,
-                                             out List<RuleTyped> rulesOutTyped);
-            IEnumerable<Rule> rulesOut = rulesOutTyped.Select(ruleTyped => new Rule(ruleTyped));
+                                             out var moduleOut,
+                                             out var rulesOutTyped);
+            var rulesOut = rulesOutTyped.Select(ruleTyped => new Rule(ruleTyped));
             rulesRaw.AddRange(rulesOut);
 
             // Convert AllowEverything slots into an explicit list of allowed modules (except Out)
-            List<string> allModuleNames = modules.Select(module => module.Name).ToList();
-            IEnumerable<Slot> slotsUnwrapped = slotsRaw.Select(slotRaw =>
+            var allModuleNames = modules.Select(module => module.Name).ToList();
+            var slotsUnwrapped = slotsRaw.Select(slotRaw =>
                 slotRaw.AllowAnyModule ?
                     slotRaw.DuplicateWithModuleNames(allModuleNames) :
                     slotRaw
@@ -189,59 +169,53 @@ namespace WFCPlugin
             modules.Add(moduleOut);
 
             // TODO: This may be redundant
-            IEnumerable<Rule> rulesDistinct = rulesRaw.Distinct();
+            var rulesDistinct = rulesRaw.Distinct();
 
             // Unwrap typed rules
-            IEnumerable<RuleTyped> rulesTyped = rulesDistinct.Where(rule => rule.IsTyped()).Select(rule => rule.Typed);
-            IEnumerable<RuleExplicit> rulesTypedUnwrappedToExplicit = rulesTyped
+            var rulesTyped = rulesDistinct.Where(rule => rule.IsTyped()).Select(rule => rule.Typed);
+            var rulesTypedUnwrappedToExplicit = rulesTyped
                 .SelectMany(ruleTyped => ruleTyped.ToRuleExplicit(rulesTyped, modules));
 
-            IEnumerable<RuleExplicit> rulesExplicit = rulesDistinct
+            var rulesExplicit = rulesDistinct
                 .Where(rule => rule.IsExplicit())
                 .Select(rule => rule.Explicit);
 
             // Deduplicate rules again
-            IEnumerable<RuleExplicit> rulesUnwrappedExplicit = rulesExplicit.Concat(rulesTypedUnwrappedToExplicit).Distinct();
+            var rulesUnwrappedExplicit = rulesExplicit.Concat(rulesTypedUnwrappedToExplicit).Distinct();
 
             // Filter out invalid rules (not connecting the same connectors && connecting opposing connectors)
-            IEnumerable<RuleExplicit> rulesValid = rulesUnwrappedExplicit.Where(rule => rule.IsValidWithGivenModules(modules));
+            var rulesValid = rulesUnwrappedExplicit.Where(rule => rule.IsValidWithGivenModules(modules));
 
             // Convert rules to solver format
-            List<RuleForSolver> rulesForSolver = new List<RuleForSolver>();
-            foreach (RuleExplicit rule in rulesValid)
-            {
-                if (rule.ToWFCRuleSolver(modules, out RuleForSolver ruleForSolver))
-                {
+            var rulesForSolver = new List<RuleForSolver>();
+            foreach (var rule in rulesValid) {
+                if (rule.ToWFCRuleSolver(modules, out var ruleForSolver)) {
                     rulesForSolver.Add(ruleForSolver);
                 }
             }
 
             // Add internal rules to the main rule set
-            foreach (Module module in modules)
-            {
+            foreach (var module in modules) {
                 rulesForSolver.AddRange(module.InternalRules);
             }
 
-            List<int> slotOrder = new List<int>(slotsRaw.Count);
+            var slotOrder = new List<int>(slotsRaw.Count);
             // Define world space (slots bounding box + 1 layer padding)
-            ComputeWorldRelativeBounds(slotsUnwrapped, out Point3i worldMin, out Point3i worldMax);
-            int worldLength = ComputeWorldLength(worldMin, worldMax);
+            ComputeWorldRelativeBounds(slotsUnwrapped, out var worldMin, out var worldMax);
+            var worldLength = ComputeWorldLength(worldMin, worldMax);
             // TODO: Investigate more elegant solutions
-            List<Slot> worldSlots = Enumerable.Repeat<Slot>(null, worldLength).ToList();
-            foreach (Slot slot in slotsUnwrapped)
-            {
-                int index = From3DTo1D(slot.RelativeCenter - worldMin, worldMin, worldMax);
+            var worldSlots = Enumerable.Repeat<Slot>(null, worldLength).ToList();
+            foreach (var slot in slotsUnwrapped) {
+                var index = From3DTo1D(slot.RelativeCenter - worldMin, worldMin, worldMax);
                 worldSlots[index] = slot;
                 slotOrder.Add(index);
             }
 
             // Fill unused world slots with Out modules
-            for (int i = 0; i < worldSlots.Count; i++)
-            {
-                Slot slot = worldSlots[i];
-                Point3i relativeCenter = From1DTo3D(i, worldMin, worldMax) + worldMin;
-                if (slot == null)
-                {
+            for (var i = 0; i < worldSlots.Count; i++) {
+                var slot = worldSlots[i];
+                var relativeCenter = From1DTo3D(i, worldMin, worldMax) + worldMin;
+                if (slot == null) {
                     worldSlots[i] = new Slot(slotBasePlane,
                                              relativeCenter,
                                              diagonal,
@@ -253,21 +227,17 @@ namespace WFCPlugin
             }
 
             // Unwrap module names to submodule names for all slots
-            IEnumerable<Slot> worldPreprocessed = worldSlots.Select(slotRaw =>
-            {
-                if (slotRaw.AllowedSubmoduleNames.Count != 0 && !slotRaw.AllowAnyModule)
-                {
+            var worldPreprocessed = worldSlots.Select(slotRaw => {
+                if (slotRaw.AllowedSubmoduleNames.Count != 0 && !slotRaw.AllowAnyModule) {
                     return slotRaw.DuplicateWithSubmodulesCount(allSubmodulesCount);
                 }
 
-                List<string> submoduleNames = new List<string>();
-                foreach (string moduleName in slotRaw.AllowedModuleNames)
-                {
-                    Module module = modules.Find(m => m.Name == moduleName);
+                var submoduleNames = new List<string>();
+                foreach (var moduleName in slotRaw.AllowedModuleNames) {
+                    var module = modules.Find(m => m.Name == moduleName);
                     submoduleNames.AddRange(module.SubmoduleNames);
                 }
-                if (submoduleNames.Count == 0)
-                {
+                if (submoduleNames.Count == 0) {
                     throw new Exception("Slot is empty in spite of previous checks.");
                 }
                 return slotRaw.DuplicateWithSubmodulesCountAndNames(allSubmodulesCount,
@@ -275,33 +245,30 @@ namespace WFCPlugin
             });
 
             // Convert slots into the solver world format
-            IEnumerable<List<string>> worldForSolver = worldPreprocessed.Select(slot => slot.AllowedSubmoduleNames);
+            var worldForSolver = worldPreprocessed.Select(slot => slot.AllowedSubmoduleNames);
 
             // FAUX SOLVER
             // Scan all slots, pick one submodule for each
             // The solution may contain more than one value as an output: 
             // useful for Step Solver and for post-processor tuning
-            Random random = new Random();
-            List<List<string>> fauxSolution = worldForSolver
+            var random = new Random();
+            var fauxSolution = worldForSolver
                 .Select(names => new List<string>() { names[random.Next(names.Count)] })
                 .ToList();
 
 
             // Remember module name for each submodule name
-            Dictionary<string, string> submoduleToModuleName = new Dictionary<string, string>();
-            foreach (Module module in modules)
-            {
-                foreach (string submoduleName in module.SubmoduleNames)
-                {
+            var submoduleToModuleName = new Dictionary<string, string>();
+            foreach (var module in modules) {
+                foreach (var submoduleName in module.SubmoduleNames) {
                     submoduleToModuleName.Add(submoduleName, module.Name);
                 }
             }
 
             // Sort slots into the same order as they were input
-            IEnumerable<Slot> slotsSolved = slotOrder.Select(index =>
-            {
-                List<string> allowedSubmodules = fauxSolution[index];
-                List<string> allowedModules = allowedSubmodules
+            var slotsSolved = slotOrder.Select(index => {
+                var allowedSubmodules = fauxSolution[index];
+                var allowedModules = allowedSubmodules
                     .Select(submoduleName => submoduleToModuleName[submoduleName])
                     .Distinct()
                     .ToList();
@@ -321,18 +288,16 @@ namespace WFCPlugin
 
         private static void ComputeWorldRelativeBounds(IEnumerable<Slot> slots,
                                                        out Point3i min,
-                                                       out Point3i max)
-        {
-            int minX = int.MaxValue;
-            int minY = int.MaxValue;
-            int minZ = int.MaxValue;
-            int maxX = int.MinValue;
-            int maxY = int.MinValue;
-            int maxZ = int.MinValue;
+                                                       out Point3i max) {
+            var minX = int.MaxValue;
+            var minY = int.MaxValue;
+            var minZ = int.MaxValue;
+            var maxX = int.MinValue;
+            var maxY = int.MinValue;
+            var maxZ = int.MinValue;
 
-            foreach (Slot slot in slots)
-            {
-                Point3i center = slot.RelativeCenter;
+            foreach (var slot in slots) {
+                var center = slot.RelativeCenter;
                 minX = Math.Min(minX, center.X);
                 minY = Math.Min(minY, center.Y);
                 minZ = Math.Min(minZ, center.Z);
@@ -353,44 +318,37 @@ namespace WFCPlugin
             max = new Point3i(maxX, maxY, maxZ);
         }
 
-        private static int ComputeWorldLength(Point3i min, Point3i max)
-        {
-            int lengthX = max.X - min.X;
-            int lengthY = max.Y - min.Y;
-            int lengthZ = max.Z - min.Z;
+        private static int ComputeWorldLength(Point3i min, Point3i max) {
+            var lengthX = max.X - min.X;
+            var lengthY = max.Y - min.Y;
+            var lengthZ = max.Z - min.Z;
 
             return (lengthX * lengthY * lengthZ);
         }
 
-        private static int From3DTo1D(Point3i p, Point3i min, Point3i max)
-        {
-            int lengthX = max.X - min.X;
-            int lengthY = max.Y - min.Y;
+        private static int From3DTo1D(Point3i p, Point3i min, Point3i max) {
+            var lengthX = max.X - min.X;
+            var lengthY = max.Y - min.Y;
 
             return (lengthX * lengthY * p.Z) + lengthX * p.Y + p.X;
         }
 
-        private static Point3i From1DTo3D(int index, Point3i min, Point3i max)
-        {
-            int lengthX = max.X - min.X;
-            int lengthY = max.Y - min.Y;
+        private static Point3i From1DTo3D(int index, Point3i min, Point3i max) {
+            var lengthX = max.X - min.X;
+            var lengthY = max.Y - min.Y;
 
-            int lengthXY = lengthX * lengthY;
-            int z = index / lengthXY;
-            int y = (index % lengthXY) / lengthX;
-            int x = index % lengthX;
+            var lengthXY = lengthX * lengthY;
+            var z = index / lengthXY;
+            var y = (index % lengthXY) / lengthX;
+            var x = index % lengthX;
 
             return new Point3i(x, y, z);
         }
 
-        private bool AreModuleNamesUnique(List<Module> modules)
-        {
-            for (int i = 0; i < modules.Count; i++)
-            {
-                for (int j = i + 1; j < modules.Count; j++)
-                {
-                    if (modules[i].Name == modules[j].Name)
-                    {
+        private bool AreModuleNamesUnique(List<Module> modules) {
+            for (var i = 0; i < modules.Count; i++) {
+                for (var j = i + 1; j < modules.Count; j++) {
+                    if (modules[i].Name == modules[j].Name) {
                         return false;
                     }
                 }
@@ -398,14 +356,10 @@ namespace WFCPlugin
             return true;
         }
 
-        private bool AreSlotLocationsUnique(List<Slot> slots)
-        {
-            for (int i = 0; i < slots.Count; i++)
-            {
-                for (int j = i + 1; j < slots.Count; j++)
-                {
-                    if (slots[i].RelativeCenter.Equals(slots[j].RelativeCenter))
-                    {
+        private bool AreSlotLocationsUnique(List<Slot> slots) {
+            for (var i = 0; i < slots.Count; i++) {
+                for (var j = i + 1; j < slots.Count; j++) {
+                    if (slots[i].RelativeCenter.Equals(slots[j].RelativeCenter)) {
                         return false;
                     }
                 }

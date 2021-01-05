@@ -1,11 +1,10 @@
-﻿using Grasshopper.Kernel;
-using Rhino.Geometry;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Grasshopper.Kernel;
+using Rhino.Geometry;
 
-namespace WFCPlugin
-{
+namespace WFCPlugin {
     /// <summary>
     /// <para>
     /// Grasshopper component: WFC Deconstruct Module To Components
@@ -17,23 +16,20 @@ namespace WFCPlugin
     /// directly reconstructed.
     /// </para>
     /// </summary>
-    public class ComponentModuleDeconstruct : GH_Component
-    {
-        public ComponentModuleDeconstruct() : base("WFC Deconstruct Module To Components",
+    public class ComponentModuleDeconstruct : GH_Component {
+        public ComponentModuleDeconstruct( ) : base("WFC Deconstruct Module To Components",
                                                    "WFCDeconModule",
                                                    "Deconstruct WFC Module into name, base " +
                                                    "plane, connector planes, connector numbers " +
                                                    "and properties.",
                                                    "WaveFunctionCollapse",
-                                                   "Module")
-        {
+                                                   "Module") {
         }
 
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
-        {
+        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddParameter(new ModuleParameter(),
                                   "Module",
                                   "M",
@@ -44,8 +40,7 @@ namespace WFCPlugin
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
-        {
+        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddParameter(new ModuleNameParameter(),
                                   "Name",
                                   "N",
@@ -88,27 +83,24 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="DA">The DA object can be used to retrieve data from
         ///     input parameters and to store data in output parameters.</param>
-        protected override void SolveInstance(IGH_DataAccess DA)
-        {
-            Module module = new Module();
+        protected override void SolveInstance(IGH_DataAccess DA) {
+            var module = new Module();
 
-            if (!DA.GetData(0, ref module))
-            {
+            if (!DA.GetData(0, ref module)) {
                 return;
             }
 
-            Transform baseAlignmentTransform = Transform.PlaneToPlane(Plane.WorldXY, module.BasePlane);
-            Transform scalingTransform = Transform.Scale(module.BasePlane,
+            var baseAlignmentTransform = Transform.PlaneToPlane(Plane.WorldXY, module.BasePlane);
+            var scalingTransform = Transform.Scale(module.BasePlane,
                                                    module.SlotDiagonal.X,
                                                    module.SlotDiagonal.Y,
                                                    module.SlotDiagonal.Z);
 
-            IEnumerable<Point3d> submoduleCentersNormalized = module
+            var submoduleCentersNormalized = module
                 .SubmoduleCenters
                 .Select(center => center.ToPoint3d());
-            IEnumerable<Point3d> submoduleCenters = submoduleCentersNormalized
-                .Select(center =>
-                {
+            var submoduleCenters = submoduleCentersNormalized
+                .Select(center => {
                     center.Transform(baseAlignmentTransform);
                     center.Transform(scalingTransform);
                     return center;
@@ -120,7 +112,7 @@ namespace WFCPlugin
             DA.SetDataList(3, new List<Plane> { module.BasePlane });
             DA.SetDataList(4, new List<Vector3d> { module.SlotDiagonal });
 
-            List<ModuleConnector> connectors = module.Connectors;
+            var connectors = module.Connectors;
             DA.SetDataList(5, connectors.Select(connector => connector.AnchorPlane));
             DA.SetDataList(6, connectors.Select(connector => connector.ConnectorIndex));
             DA.SetDataList(7, connectors.Select(connector => connector.Direction.ToVector()));

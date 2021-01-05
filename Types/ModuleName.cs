@@ -1,10 +1,9 @@
-﻿using GH_IO.Serialization;
-using Grasshopper.Kernel.Types;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using GH_IO.Serialization;
+using Grasshopper.Kernel.Types;
 
-namespace WFCPlugin
-{
+namespace WFCPlugin {
     // TODO: Consider this to be a wrapper around an UID instead of an arbitrary string name
     /// <summary>
     /// <para>
@@ -25,8 +24,7 @@ namespace WFCPlugin
     /// is possible to use the module as its name while having a detailed
     /// description at the same time.
     /// </remarks>
-    public class ModuleName : IGH_Goo
-    {
+    public class ModuleName : IGH_Goo {
         private string _name;
 
         /// <summary>
@@ -35,18 +33,15 @@ namespace WFCPlugin
         /// <remarks>
         /// Required by Grasshopper; generates an invalid instance.
         /// </remarks>
-        public ModuleName()
-        {
+        public ModuleName( ) {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ModuleName"/> class.
         /// </summary>
         /// <param name="name">The module name.</param>
-        public ModuleName(string name)
-        {
-            if (name.Length == 0)
-            {
+        public ModuleName(string name) {
+            if (name.Length == 0) {
                 throw new Exception("The name is be empty.");
             }
             Name = name;
@@ -56,8 +51,7 @@ namespace WFCPlugin
         /// Duplicates the module. Required by Grasshopper.
         /// </summary>
         /// <returns>An IGH_Goo.</returns>
-        public IGH_Goo Duplicate()
-        {
+        public IGH_Goo Duplicate( ) {
             return (IGH_Goo)MemberwiseClone();
         }
 
@@ -66,8 +60,7 @@ namespace WFCPlugin
         /// Emits the proxy. Required by Grasshopper.
         /// </summary>
         /// <returns>An IGH_GooProxy.</returns>
-        public IGH_GooProxy EmitProxy()
-        {
+        public IGH_GooProxy EmitProxy( ) {
             return null;
         }
 
@@ -78,38 +71,31 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="inputData">The input data.</param>
         /// <returns>A bool if the cast was successful.</returns>
-        public bool CastFrom(object inputData)
-        {
-            if (inputData.GetType() == typeof(string))
-            {
+        public bool CastFrom(object inputData) {
+            if (inputData.GetType() == typeof(string)) {
                 Name = (string)inputData;
                 return true;
             }
-            if (inputData.GetType() == typeof(GH_String))
-            {
-                GH_String ghName = (GH_String)inputData;
+            if (inputData.GetType() == typeof(GH_String)) {
+                var ghName = (GH_String)inputData;
                 Name = ghName.ToString();
                 return true;
             }
-            if (inputData.GetType() == typeof(Module))
-            {
-                Module module = (Module)inputData;
+            if (inputData.GetType() == typeof(Module)) {
+                var module = (Module)inputData;
                 Name = module.Name;
                 return true;
             }
             return false;
         }
 
-        public bool CastTo<T>(out T target)
-        {
-            if (typeof(T) == typeof(string))
-            {
+        public bool CastTo<T>(out T target) {
+            if (typeof(T) == typeof(string)) {
                 target = (T)Name.Clone();
                 return true;
             }
-            if (typeof(T) == typeof(GH_String))
-            {
-                GH_String ghString = new GH_String(Name);
+            if (typeof(T) == typeof(GH_String)) {
+                var ghString = new GH_String(Name);
                 target = (T)ghString.Duplicate();
                 return true;
             }
@@ -122,8 +108,7 @@ namespace WFCPlugin
         /// Scripts the variable. Required by Grasshopper.
         /// </summary>
         /// <returns>An object.</returns>
-        public object ScriptVariable()
-        {
+        public object ScriptVariable( ) {
             return this;
         }
 
@@ -136,8 +121,7 @@ namespace WFCPlugin
         /// </remarks>
         /// <param name="writer">The writer.</param>
         /// <returns>A bool when successful.</returns>
-        public bool Write(GH_IWriter writer)
-        {
+        public bool Write(GH_IWriter writer) {
             return true;
         }
 
@@ -150,8 +134,7 @@ namespace WFCPlugin
         /// </remarks>
         /// <param name="reader">The reader.</param>
         /// <returns>A bool when successful.</returns>
-        public bool Read(GH_IReader reader)
-        {
+        public bool Read(GH_IReader reader) {
             return true;
         }
 
@@ -186,8 +169,7 @@ namespace WFCPlugin
         /// Converts the module name into a string. Required by Grasshopper for
         /// data peeking.
         /// </summary>
-        public override string ToString()
-        {
+        public override string ToString( ) {
             return Name;
         }
 
@@ -196,8 +178,7 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="obj">The obj.</param>
         /// <returns>True if equal.</returns>
-        public override bool Equals(object obj)
-        {
+        public override bool Equals(object obj) {
             return obj is ModuleName name &&
                    Name == name.Name;
         }
@@ -206,8 +187,7 @@ namespace WFCPlugin
         /// Gets the hash code.
         /// </summary>
         /// <returns>An int.</returns>
-        public override int GetHashCode()
-        {
+        public override int GetHashCode( ) {
             return 539060726 + EqualityComparer<string>.Default.GetHashCode(Name);
         }
     }

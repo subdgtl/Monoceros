@@ -1,12 +1,11 @@
-﻿using Grasshopper.Kernel;
-using Grasshopper.Kernel.Types;
-using Rhino.Geometry;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Grasshopper.Kernel;
+using Grasshopper.Kernel.Types;
+using Rhino.Geometry;
 
-namespace WFCPlugin
-{
+namespace WFCPlugin {
     /// <summary>
     /// <para>
     /// Grasshopper component: WFC Construct Module
@@ -82,22 +81,19 @@ namespace WFCPlugin
     /// </list>
     /// </para>
     /// </summary>
-    public class ComponentConstructModule : GH_Component
-    {
-        public ComponentConstructModule() : base("WFC Construct Module",
+    public class ComponentConstructModule : GH_Component {
+        public ComponentConstructModule( ) : base("WFC Construct Module",
                                                   "WFCConstModule",
                                                   "Construct a WFC Module from slot centers. " +
                                                   "The specified production geometry will be " +
                                                   "used in WFC solver result.",
-                                                  "WaveFunctionCollapse", "Module")
-        {
+                                                  "WaveFunctionCollapse", "Module") {
         }
 
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
-        {
+        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddParameter(new ModuleNameParameter(),
                                   "Name",
                                   "N",
@@ -132,8 +128,7 @@ namespace WFCPlugin
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
-        {
+        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddParameter(new ModuleParameter(),
                                   "Module",
                                   "M",
@@ -146,96 +141,84 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="DA">The DA object can be used to retrieve data from
         ///     input parameters and to store data in output parameters.</param>
-        protected override void SolveInstance(IGH_DataAccess DA)
-        {
-            List<Point3d> slotCenters = new List<Point3d>();
-            List<IGH_GeometricGoo> productionGeometryRaw = new List<IGH_GeometricGoo>();
-            ModuleName nameRaw = new ModuleName();
-            Plane basePlane = new Plane();
-            Vector3d slotDiagonal = new Vector3d();
+        protected override void SolveInstance(IGH_DataAccess DA) {
+            var slotCenters = new List<Point3d>();
+            var productionGeometryRaw = new List<IGH_GeometricGoo>();
+            var nameRaw = new ModuleName();
+            var basePlane = new Plane();
+            var slotDiagonal = new Vector3d();
 
-            if (!DA.GetData(0, ref nameRaw))
-            {
+            if (!DA.GetData(0, ref nameRaw)) {
                 return;
             }
 
-            if (!DA.GetDataList(1, slotCenters))
-            {
+            if (!DA.GetDataList(1, slotCenters)) {
                 return;
             }
 
             DA.GetDataList(2, productionGeometryRaw);
 
-            if (!DA.GetData(3, ref basePlane))
-            {
+            if (!DA.GetData(3, ref basePlane)) {
                 return;
             }
 
-            if (!DA.GetData(4, ref slotDiagonal))
-            {
+            if (!DA.GetData(4, ref slotDiagonal)) {
                 return;
             }
 
-            string name = nameRaw.Name.ToLower();
+            var name = nameRaw.Name.ToLower();
 
-            if (name.Length == 0)
-            {
+            if (name.Length == 0) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Module name is empty.");
                 return;
             }
 
-            if (Config.RESERVED_NAMES.Contains(name))
-            {
+            if (Config.RESERVED_NAMES.Contains(name)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "The module name cannot be '" + name +
                                   "' because it is reserved by WFC.");
                 return;
             }
 
-            if (slotDiagonal.X <= 0 || slotDiagonal.Y <= 0 || slotDiagonal.Z <= 0)
-            {
+            if (slotDiagonal.X <= 0 || slotDiagonal.Y <= 0 || slotDiagonal.Z <= 0) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "One or more slot dimensions are not larger than 0.");
                 return;
             }
 
             // Scale down to unit size
-            Transform normalizationTransform = Transform.Scale(basePlane,
+            var normalizationTransform = Transform.Scale(basePlane,
                                                          1 / slotDiagonal.X,
                                                          1 / slotDiagonal.Y,
                                                          1 / slotDiagonal.Z);
             // Orient to the world coordinate system
-            Transform worldAlignmentTransform = Transform.PlaneToPlane(basePlane, Plane.WorldXY);
+            var worldAlignmentTransform = Transform.PlaneToPlane(basePlane, Plane.WorldXY);
             // Slot dimension is for the sake of this calculation 1,1,1
-            List<Point3i> submoduleCenters = slotCenters.Select(center =>
-            {
+            var submoduleCenters = slotCenters.Select(center => {
                 center.Transform(normalizationTransform);
                 center.Transform(worldAlignmentTransform);
                 return new Point3i(center);
             }).Distinct()
               .ToList();
 
-            IEnumerable<GeometryBase> productionGeometryClean = productionGeometryRaw
+            var productionGeometryClean = productionGeometryRaw
                .Where(goo => goo != null)
-               .Select(ghGeo =>
-               {
-                   IGH_Goo geo = ghGeo.Duplicate();
+               .Select(ghGeo => {
+                   var geo = ghGeo.Duplicate();
                    return GH_Convert.ToGeometryBase(geo);
                });
 
-            Module module = new Module(name,
+            var module = new Module(name,
                                     productionGeometryClean,
                                     basePlane,
                                     submoduleCenters,
                                     slotDiagonal);
-            if (!module.Continuous)
-            {
+            if (!module.Continuous) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
                                   "The module is not continuous and will not hold together.");
             }
 
-            if (module.Geometry.Count != productionGeometryRaw.Count)
-            {
+            if (module.Geometry.Count != productionGeometryRaw.Count) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Some geometry was not used.");
             }
 

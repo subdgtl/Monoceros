@@ -1,30 +1,25 @@
-﻿using Grasshopper.Kernel;
-using System;
+﻿using System;
+using Grasshopper.Kernel;
 
-namespace WFCPlugin
-{
+namespace WFCPlugin {
 
-    public class ComponentIsRuleTyped : GH_Component
-    {
-        public ComponentIsRuleTyped() : base("WFC Is Rule Typed", "WFCIsRuleTyp",
+    public class ComponentIsRuleTyped : GH_Component {
+        public ComponentIsRuleTyped( ) : base("WFC Is Rule Typed", "WFCIsRuleTyp",
             "Returns true if the WFC Rule is typed (connector-to-all-same-type-connectors).",
-            "WaveFunctionCollapse", "Rule")
-        {
+            "WaveFunctionCollapse", "Rule") {
         }
 
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
-        {
+        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddParameter(new RuleParameter(), "Rule", "R", "WFC Rule", GH_ParamAccess.item);
         }
 
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
-        {
+        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddBooleanParameter("Typed Pattern",
                                          "P",
                                          "True if the WFC Rule is typed",
@@ -36,12 +31,10 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="DA">The DA object can be used to retrieve data from
         ///     input parameters and to store data in output parameters.</param>
-        protected override void SolveInstance(IGH_DataAccess DA)
-        {
-            Rule rule = new Rule();
+        protected override void SolveInstance(IGH_DataAccess DA) {
+            var rule = new Rule();
 
-            if (!DA.GetData(0, ref rule))
-            {
+            if (!DA.GetData(0, ref rule)) {
                 return;
             }
 

@@ -2,14 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using Grasshopper.Kernel;
 using System;
 using System.Drawing;
+using Grasshopper.Kernel;
 
-namespace WFCPlugin
-{
-    public class WFCPluginInfo : GH_AssemblyInfo
-    {
+namespace WFCPlugin {
+    public class WFCPluginInfo : GH_AssemblyInfo {
         public override string Name => "WFC Plugin";
         public override Bitmap Icon =>
                 //Return a 24x24 pixel bitmap to represent this GHA library.

@@ -1,12 +1,10 @@
-﻿using Grasshopper.Kernel;
-using System;
+﻿using System;
+using Grasshopper.Kernel;
 
-namespace WFCPlugin
-{
+namespace WFCPlugin {
 
-    public class ComponentConstructRuleTyped : GH_Component
-    {
-        public ComponentConstructRuleTyped()
+    public class ComponentConstructRuleTyped : GH_Component {
+        public ComponentConstructRuleTyped( )
             : base("WFC Construct Typed Rule From Components",
                    "WFCConstRuleTyp",
                    "Construct a typed WFC Rule (connector-to-all-same-type-connectors) from " +
@@ -14,15 +12,13 @@ namespace WFCPlugin
                    "module and connector is not being checked. The connector Type will be " +
                    "converted to lowercase.",
                    "WaveFunctionCollapse",
-                   "Rule")
-        {
+                   "Rule") {
         }
 
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
-        {
+        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddParameter(new ModuleNameParameter(),
                                   "Module",
                                   "M",
@@ -35,8 +31,7 @@ namespace WFCPlugin
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
-        {
+        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddParameter(new RuleParameter(),
                                   "Rule",
                                   "R",
@@ -49,30 +44,26 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="DA">The DA object can be used to retrieve data from
         ///     input parameters and to store data in output parameters.</param>
-        protected override void SolveInstance(IGH_DataAccess DA)
-        {
-            ModuleName moduleNameRaw = new ModuleName();
-            int connector = 0;
-            string type = "";
+        protected override void SolveInstance(IGH_DataAccess DA) {
+            var moduleNameRaw = new ModuleName();
+            var connector = 0;
+            var type = "";
 
-            if (!DA.GetData(0, ref moduleNameRaw))
-            {
+            if (!DA.GetData(0, ref moduleNameRaw)) {
                 return;
             }
 
-            if (!DA.GetData(1, ref connector))
-            {
+            if (!DA.GetData(1, ref connector)) {
                 return;
             }
 
-            if (!DA.GetData(2, ref type))
-            {
+            if (!DA.GetData(2, ref type)) {
                 return;
             }
 
-            string moduleName = moduleNameRaw.Name;
+            var moduleName = moduleNameRaw.Name;
 
-            Rule rule = new Rule(moduleName, connector, type);
+            var rule = new Rule(moduleName, connector, type);
 
             DA.SetData(0, rule);
         }

@@ -1,29 +1,25 @@
-﻿using Grasshopper.Kernel;
-using Rhino.Geometry;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Grasshopper.Kernel;
+using Rhino.Geometry;
 
-namespace WFCPlugin
-{
+namespace WFCPlugin {
 
-    public class ComponentRuleTypedFromPoint : GH_Component
-    {
-        public ComponentRuleTypedFromPoint()
+    public class ComponentRuleTypedFromPoint : GH_Component {
+        public ComponentRuleTypedFromPoint( )
             : base("WFC Create Typed Rule From Point Tag",
                    "WFCRuleTypPt",
                    "Create a Typed WFC Rule (connector-to-all-same-type-connectors) from " +
                   "a point tag. The connector Type will be converted to lowercase.",
                    "WaveFunctionCollapse",
-                   "Rule")
-        {
+                   "Rule") {
         }
 
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
-        {
+        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddParameter(new ModuleParameter(),
                                   "Modules",
                                   "M",
@@ -42,8 +38,7 @@ namespace WFCPlugin
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
-        {
+        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddParameter(new RuleParameter(),
                                   "Rules",
                                   "R",
@@ -56,39 +51,33 @@ namespace WFCPlugin
         /// </summary>
         /// <param name="DA">The DA object can be used to retrieve data from
         ///     input parameters and to store data in output parameters.</param>
-        protected override void SolveInstance(IGH_DataAccess DA)
-        {
-            List<Module> modules = new List<Module>();
-            Point3d point = new Point3d();
-            string type = "";
+        protected override void SolveInstance(IGH_DataAccess DA) {
+            var modules = new List<Module>();
+            var point = new Point3d();
+            var type = "";
 
-            if (!DA.GetDataList(0, modules))
-            {
+            if (!DA.GetDataList(0, modules)) {
                 return;
             }
 
-            if (!DA.GetData(1, ref point))
-            {
+            if (!DA.GetData(1, ref point)) {
                 return;
             }
 
-            if (!DA.GetData(2, ref type))
-            {
+            if (!DA.GetData(2, ref type)) {
                 return;
             }
 
-            List<Rule> rules = new List<Rule>();
+            var rules = new List<Rule>();
 
-            foreach (Module module in modules)
-            {
-                IEnumerable<Rule> moduleRules = module
+            foreach (var module in modules) {
+                var moduleRules = module
                     .GetConnectorsContainingPoint(point)
                     .Select(connector => new Rule(connector.ModuleName, connector.ConnectorIndex, type));
                 rules.AddRange(moduleRules);
             }
 
-            if (rules.Count == 0)
-            {
+            if (rules.Count == 0) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
                                   "The point does not mark any module connector.");
             }
