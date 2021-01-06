@@ -80,8 +80,8 @@ namespace WFCPlugin {
             }
 
             var rules = module.Connectors
-                .Where(connector => !thisModulesUsedConnectors.Contains(connector.ConnectorIndex))
-                .Select(connector => new Rule(connector.ModuleName, connector.ConnectorIndex, type));
+                .Where((_, index) => !thisModulesUsedConnectors.Contains(index))
+                .Select((connector, index) => new Rule(connector.ModuleName, index, type));
 
             DA.SetDataList(0, rules);
         }

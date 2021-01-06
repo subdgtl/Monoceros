@@ -63,6 +63,12 @@ namespace WFCPlugin {
             var minimumSlotDimension = 1.0;
             var averageSlotDiagonal = new Vector3d();
 
+            var moduleNames = modules.Select(module => module.Name);
+            if (moduleNames.ToList().Count != moduleNames.Distinct().ToList().Count) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                                  "Module names are not unique.");
+            }
+
             foreach (var module in modules) {
                 var minSize = module.SlotDiagonal.MinimumCoordinate;
                 if (minSize < minimumSlotDimension) {
@@ -83,21 +89,11 @@ namespace WFCPlugin {
                 // TODO: Consider displaying Out connections somehow too
                 if (!Config.RESERVED_NAMES.Contains(ruleExplicit.SourceModuleName) &&
                     !Config.RESERVED_NAMES.Contains(ruleExplicit.TargetModuleName)) {
-                    GetLinesFromExplicitRule(modules,
-                                             ruleExplicit,
-                                             out var linesX,
-                                             out var linesY,
-                                             out var linesZ);
-
-                    explicitLines.AddRange(
-                        linesX.Select(line => new ExplicitLine(line, Config.X_COLOR))
-                        );
-                    explicitLines.AddRange(
-                        linesY.Select(line => new ExplicitLine(line, Config.Y_COLOR))
-                        );
-                    explicitLines.AddRange(
-                        linesZ.Select(line => new ExplicitLine(line, Config.Z_COLOR))
-                        );
+                    GetLineFromExplicitRule(modules,
+                                                ruleExplicit,
+                                                out var line,
+                                                out var axis);
+                    explicitLines.Add(new ExplicitLine(line, Config.ColorFromAxis(axis)));
                 }
             }
 
@@ -108,25 +104,12 @@ namespace WFCPlugin {
                     // TODO: Consider displaying Out connections somehow too
                     if (!Config.RESERVED_NAMES.Contains(ruleExplicit.SourceModuleName) &&
                         !Config.RESERVED_NAMES.Contains(ruleExplicit.TargetModuleName)) {
-                        GetLinesFromExplicitRule(modules,
-                                                 ruleExplicit,
-                                                 out var linesX,
-                                                 out var linesY,
-                                                 out var linesZ);
-                        typedLines.AddRange(
-                            linesX.Select(line => new TypedLine(line,
-                                                                Config.X_COLOR,
-                                                                ruleTyped.ConnectorType))
-                        );
-                        typedLines.AddRange(
-                            linesY.Select(line => new TypedLine(line,
-                                                                Config.Y_COLOR,
-                                                                ruleTyped.ConnectorType))
-                        );
-                        typedLines.AddRange(
-                            linesZ.Select(line => new TypedLine(line,
-                                                                Config.Z_COLOR,
-                                                                ruleTyped.ConnectorType))
+                        GetLineFromExplicitRule(modules,
+                                                ruleExplicit,
+                                                out var line,
+                                                out var axis);
+                        typedLines.Add(
+                            new TypedLine(line, Config.ColorFromAxis(axis), ruleTyped.ConnectorType)
                         );
                     }
                 }
@@ -136,46 +119,48 @@ namespace WFCPlugin {
             _typedLines = typedLines.Distinct();
         }
 
-        private void GetLinesFromExplicitRule(
+        private bool GetLineFromExplicitRule(
             List<Module> modules,
             RuleExplicit ruleExplicit,
-            out List<Line> linesX,
-            out List<Line> linesY,
-            out List<Line> linesZ
+            out Line line,
+            out Axis axis
             ) {
-            linesX = new List<Line>();
-            linesY = new List<Line>();
-            linesZ = new List<Line>();
-            var sourceModules = modules
-                .Where(module => module.Name == ruleExplicit.SourceModuleName);
-            var sourceConnectors = sourceModules
-                .SelectMany(module => module.Connectors)
-                .Where(connector => connector.ConnectorIndex == ruleExplicit.SourceConnectorIndex);
-            var targetModules = modules
-                .Where(module => module.Name == ruleExplicit.TargetModuleName);
-            var targetConnectors = targetModules
-                .SelectMany(module => module.Connectors)
-                .Where(connector => connector.ConnectorIndex == ruleExplicit.TargetConnectorIndex);
+            line = default;
+            axis = default;
 
-            foreach (var sourceConnector in sourceConnectors) {
-                foreach (var targetConnector in targetConnectors) {
-                    if (targetConnector.Direction.IsOpposite(sourceConnector.Direction)) {
-                        switch (sourceConnector.Direction._axis) {
-                            case Axis.X:
-                                linesX.Add(new Line(sourceConnector.AnchorPlane.Origin,
-                                                    targetConnector.AnchorPlane.Origin));
-                                break;
-                            case Axis.Y:
-                                linesY.Add(new Line(sourceConnector.AnchorPlane.Origin,
-                                                    targetConnector.AnchorPlane.Origin));
-                                break;
-                            case Axis.Z:
-                                linesZ.Add(new Line(sourceConnector.AnchorPlane.Origin,
-                                                    targetConnector.AnchorPlane.Origin));
-                                break;
-                        }
-                    }
-                }
+            var sourceModule = modules
+                .FirstOrDefault(module => module.Name == ruleExplicit.SourceModuleName);
+            if (sourceModule == default(Module)) {
+                return false;
+            }
+
+            var sourceConnector = sourceModule
+                .Connectors
+                .ElementAtOrDefault(ruleExplicit.SourceConnectorIndex);
+            if (sourceConnector.Equals(default(ModuleConnector))) {
+                return false;
+            }
+
+            var targetModule = modules
+                .FirstOrDefault(module => module.Name == ruleExplicit.TargetModuleName);
+            if (targetModule == default(Module)) {
+                return false;
+            }
+
+            var targetConnector = sourceModule
+                .Connectors
+                .ElementAtOrDefault(ruleExplicit.TargetConnectorIndex);
+            if (targetConnector.Equals(default(ModuleConnector))) {
+                return false;
+            }
+
+            if (targetConnector.Direction.IsOpposite(sourceConnector.Direction)) {
+                line = new Line(sourceConnector.AnchorPlane.Origin,
+                                targetConnector.AnchorPlane.Origin);
+                axis = sourceConnector.Direction.Axis;
+                return true;
+            } else {
+                return false;
             }
         }
 

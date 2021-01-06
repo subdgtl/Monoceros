@@ -39,6 +39,12 @@ namespace WFCPlugin {
         public static Color CAGE_COLOR = Color.FromArgb(128, 255, 255, 255);
 
         /// <summary>
+        /// Preview and baking color an erroneous <see cref="Module"/> cage and
+        /// <see cref="ModuleConnector.Face"/>.
+        /// </summary>
+        public static Color CAGE_ERROR_COLOR = Color.FromArgb(128, 255, 0, 0);
+
+        /// <summary>
         /// Preview and baking color for <see cref="Slot"/>s with unknown
         /// entropy.
         /// </summary>
@@ -123,14 +129,14 @@ namespace WFCPlugin {
         /// <param name="dir">The <see cref="Direction"/> to convert.</param>
         /// <returns>Dot background <see cref="Color"/>.
         ///     </returns>
-        public static Color BackgroundFromDirection(Direction dir) {
-            if (dir._axis == Axis.X) {
+        public static Color ColorFromAxis(Axis axis) {
+            if (axis == Axis.X) {
                 return X_DOT_COLOR;
             }
-            if (dir._axis == Axis.Y) {
+            if (axis == Axis.Y) {
                 return Y_DOT_COLOR;
             }
-            if (dir._axis == Axis.Z) {
+            if (axis == Axis.Z) {
                 return Z_DOT_COLOR;
             }
             return Color.Red;
@@ -142,11 +148,11 @@ namespace WFCPlugin {
         /// <param name="dir">The <see cref="Direction"/> to convert.</param>
         /// <returns>Dot foreground <see cref="Color"/>.
         ///     </returns>
-        public static Color ForegroundFromDirection(Direction dir) {
-            if (dir._orientation == Orientation.Positive) {
+        public static Color ColorFromOrientation(Orientation orientation) {
+            if (orientation == Orientation.Positive) {
                 return POSITIVE_COLOR;
             }
-            if (dir._orientation == Orientation.Negative) {
+            if (orientation == Orientation.Negative) {
                 return NEGATIVE_COLOR;
             }
             return Color.Blue;

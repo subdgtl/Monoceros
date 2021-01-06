@@ -89,5 +89,6 @@ namespace WFCPlugin {
         public Point3d ToPoint3d( ) {
             return new Point3d(X, Y, Z);
         }
+
     }
 }

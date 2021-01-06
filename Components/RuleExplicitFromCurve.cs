@@ -86,16 +86,16 @@ namespace WFCPlugin {
                                   "The curve does not end at any module connector.");
             }
 
-            foreach (var startConnector in startConnectors) {
-                foreach (var endConnector in endConnectors) {
-                    if (endConnector.Direction.IsOpposite(startConnector.Direction)) {
+            for (var sourceIndex = 0; sourceIndex < startConnectors.Count; sourceIndex++) {
+                var sourceConnector = startConnectors[sourceIndex];
+                for (var targetIndex = 0; targetIndex < endConnectors.Count; targetIndex++) {
+                    var targetConnector = endConnectors[targetIndex];
+                    if (targetConnector.Direction.IsOpposite(sourceConnector.Direction)) {
                         rules.Add(
-                            new Rule(
-                                startConnector.ModuleName,
-                                startConnector.ConnectorIndex,
-                                endConnector.ModuleName,
-                                endConnector.ConnectorIndex
-                                )
+                            new Rule(sourceConnector.ModuleName,
+                                     sourceIndex,
+                                     targetConnector.ModuleName,
+                                     targetIndex)
                             );
                     } else {
                         AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,

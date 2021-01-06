@@ -206,5 +206,21 @@ dotnet_naming_style.begins_with_i.word_separator =
 dotnet_naming_style.begins_with_i.capitalization = pascal_case
 
 # All files
+
+# ClassDocumentationHeader: The class must have a documentation header.
+dotnet_diagnostic.ClassDocumentationHeader.severity = silent
+
+# ConstructorDocumentationHeader: The constructor must have a documentation header.
+dotnet_diagnostic.ConstructorDocumentationHeader.severity = silent
+
+# MethodDocumentationHeader: The method must have a documentation header.
+dotnet_diagnostic.MethodDocumentationHeader.severity = silent
+
+# PropertyDocumentationHeader: The property must have a documentation header.
+dotnet_diagnostic.PropertyDocumentationHeader.severity = silent
+
 [*]
 guidelines = 100
+
+# Default severity for analyzer diagnostics with category 'Style'
+dotnet_analyzer_diagnostic.category-Style.severity = silent

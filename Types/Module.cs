@@ -108,11 +108,11 @@ namespace WFCPlugin {
         public readonly List<RuleForSolver> InternalRules;
 
         /// <summary>
-        /// Check if the module submodules create a continuous blob.  If the
-        /// module contains islands, then it is not continuous and the module
-        /// will never hold together. 
+        /// Check if the module submodules create a continuous compact blob.  If
+        /// the module contains islands, then it is not compact and the module
+        /// will not hold together. 
         /// </summary>
-        public readonly bool Continuous;
+        public readonly bool Compact;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Module"/> class.
@@ -163,8 +163,7 @@ namespace WFCPlugin {
 
             SlotDiagonal = slotDiagonal;
 
-            // TODO: Make a proper crawler to test the continuity
-            Continuous = true;
+            Compact = CheckConsistency(submoduleCenters);
 
             Name = name.ToLower();
             Geometry = geometry.ToList();
@@ -195,6 +194,31 @@ namespace WFCPlugin {
 
             // Generates internal rules holding the module (its submodules) together
             InternalRules = ComputeInternalRules(submoduleCenters, SubmoduleNames);
+        }
+
+        private bool CheckConsistency(List<Point3i> centers) {
+            var visited = Enumerable.Repeat(false, centers.Count).ToList();
+            var stack = new List<Point3i>() { centers[0] };
+            visited[0] = true;
+            var i = 0;
+            while (i < stack.Count) {
+                var current = centers[i];
+                for (var j = 0; j < centers.Count; j++) {
+                    var other = centers[j];
+                    if (AreNeighbors(current, other) && !visited[j]) {
+                        stack.Add(other);
+                        visited[j] = true;
+                    }
+                }
+                i++;
+            }
+            return visited.All(wasVisited => wasVisited);
+        }
+
+        private bool AreNeighbors(Point3i a, Point3i b) {
+            return (Math.Abs(a.X - b.X) == 1 && a.Y == b.Y && a.Z == b.Z) ||
+                (a.X == b.X && Math.Abs(a.Y - b.Y) == 1 && a.Z == b.Z) ||
+                (a.X == b.X && a.Y == b.Y && (Math.Abs(a.Z - b.Z) == 1));
         }
 
         /// <summary>
@@ -260,8 +284,8 @@ namespace WFCPlugin {
                     faceCenterXPositive.Transform(scalingTransform);
                     // A plane oriented as the submodule face, placed in the face center
                     var planeXPositive = new Plane(faceCenterXPositive,
-                                                     basePlane.YAxis,
-                                                     basePlane.ZAxis);
+                                                   basePlane.YAxis,
+                                                   basePlane.ZAxis);
                     // Rectangle around the submodule face. 
                     // To be used for point tag detection and to be displayed in the viewport.
                     var faceXPositive = new Rectangle3d(
@@ -272,7 +296,6 @@ namespace WFCPlugin {
                     var connectorXPositive = new ModuleConnector(
                         moduleName,
                         submoduleName,
-                        submoduleIndex * 6 + directionXPositive.ToConnectorIndex(),
                         directionXPositive,
                         planeXPositive,
                         faceXPositive);
@@ -288,8 +311,8 @@ namespace WFCPlugin {
                     faceCenterYPositive.Transform(baseAlignmentTransform);
                     faceCenterYPositive.Transform(scalingTransform);
                     var planeYPositive = new Plane(faceCenterYPositive,
-                                                     basePlane.XAxis * (-1),
-                                                     basePlane.ZAxis);
+                                                   basePlane.XAxis * (-1),
+                                                   basePlane.ZAxis);
                     var faceYPositive = new Rectangle3d(
                         planeYPositive,
                         new Interval(slotDiagonal.X * (-0.5), slotDiagonal.X * 0.5),
@@ -297,7 +320,6 @@ namespace WFCPlugin {
                     var connectorYPositive = new ModuleConnector(
                         moduleName,
                         submoduleName,
-                        submoduleIndex * 6 + directionYPositive.ToConnectorIndex(),
                         directionYPositive,
                         planeYPositive,
                         faceYPositive);
@@ -312,8 +334,8 @@ namespace WFCPlugin {
                     faceCenterZPositive.Transform(baseAlignmentTransform);
                     faceCenterZPositive.Transform(scalingTransform);
                     var planeZPositive = new Plane(faceCenterZPositive,
-                                                     basePlane.XAxis,
-                                                     basePlane.YAxis);
+                                                   basePlane.XAxis,
+                                                   basePlane.YAxis);
                     var faceZPositive = new Rectangle3d(
                         planeZPositive,
                         new Interval(slotDiagonal.X * (-0.5), slotDiagonal.X * 0.5),
@@ -321,7 +343,6 @@ namespace WFCPlugin {
                     var connectorZPositive = new ModuleConnector(
                         moduleName,
                         submoduleName,
-                        submoduleIndex * 6 + directionZPositive.ToConnectorIndex(),
                         directionZPositive,
                         planeZPositive,
                         faceZPositive);
@@ -336,8 +357,8 @@ namespace WFCPlugin {
                     faceCenterXNegative.Transform(baseAlignmentTransform);
                     faceCenterXNegative.Transform(scalingTransform);
                     var planeXNegative = new Plane(faceCenterXNegative,
-                                                     basePlane.YAxis * (-1),
-                                                     basePlane.ZAxis);
+                                                   basePlane.YAxis * (-1),
+                                                   basePlane.ZAxis);
                     var faceXNegative = new Rectangle3d(
                         planeXNegative,
                         new Interval(slotDiagonal.Y * (-0.5), slotDiagonal.Y * 0.5),
@@ -345,7 +366,6 @@ namespace WFCPlugin {
                     var connectorXNegative = new ModuleConnector(
                         moduleName,
                         submoduleName,
-                        submoduleIndex * 6 + directionXNegative.ToConnectorIndex(),
                         directionXNegative,
                         planeXNegative,
                         faceXNegative);
@@ -360,8 +380,8 @@ namespace WFCPlugin {
                     faceCenterYNegative.Transform(baseAlignmentTransform);
                     faceCenterYNegative.Transform(scalingTransform);
                     var planeYNegative = new Plane(faceCenterYNegative,
-                                                     basePlane.XAxis,
-                                                     basePlane.ZAxis);
+                                                   basePlane.XAxis,
+                                                   basePlane.ZAxis);
                     var faceYNegative = new Rectangle3d(
                         planeYNegative,
                         new Interval(slotDiagonal.X * (-0.5), slotDiagonal.X * 0.5),
@@ -369,7 +389,6 @@ namespace WFCPlugin {
                     var connectorYNegative = new ModuleConnector(
                         moduleName,
                         submoduleName,
-                        submoduleIndex * 6 + directionYNegative.ToConnectorIndex(),
                         directionYNegative,
                         planeYNegative,
                         faceYNegative);
@@ -383,8 +402,8 @@ namespace WFCPlugin {
                     faceCenterZNegative.Transform(baseAlignmentTransform);
                     faceCenterZNegative.Transform(scalingTransform);
                     var planeZNegative = new Plane(faceCenterZNegative,
-                                                     basePlane.XAxis * (-1),
-                                                     basePlane.YAxis);
+                                                   basePlane.XAxis * (-1),
+                                                   basePlane.YAxis);
                     var faceZNegative = new Rectangle3d(
                         planeZNegative,
                         new Interval(slotDiagonal.X * (-0.5), slotDiagonal.X * 0.5),
@@ -392,7 +411,6 @@ namespace WFCPlugin {
                     var connectorZNegative = new ModuleConnector(
                         moduleName,
                         submoduleName,
-                        submoduleIndex * 6 + directionZNegative.ToConnectorIndex(),
                         directionZNegative,
                         planeZNegative,
                         faceZNegative);
@@ -437,7 +455,7 @@ namespace WFCPlugin {
                 if (otherIndexYPositive != -1) {
                     rulesInternal.Add(new RuleForSolver(Axis.Y.ToString("g"),
                                                         submoduleNames[thisIndex],
-                                                        submoduleNames[otherIndexXPositive]));
+                                                        submoduleNames[otherIndexYPositive]));
                 }
 
                 // Positive Z neighbor
@@ -446,7 +464,7 @@ namespace WFCPlugin {
                 if (otherIndexZPositive != -1) {
                     rulesInternal.Add(new RuleForSolver(Axis.Z.ToString("g"),
                                                         submoduleNames[thisIndex],
-                                                        submoduleNames[otherIndexXPositive]));
+                                                        submoduleNames[otherIndexZPositive]));
                 }
             }
             // No need to check neighbors in the negative orientation because 
@@ -478,7 +496,7 @@ namespace WFCPlugin {
             Pivot != null &&
             PivotSubmoduleName != null &&
             Connectors.Count > 0 &&
-            Continuous;
+            Compact;
 
         // TODO: Check whether this works
         /// <summary>
@@ -486,8 +504,9 @@ namespace WFCPlugin {
         /// </summary>
         public string IsValidWhyNot {
             get {
-                if (!Continuous) {
-                    return "The module is not continuous and therefore will not hold together.";
+                if (!Compact) {
+                    return "The module is not compact, contains islands and therefore " +
+                        "will not hold together.";
                 }
                 return "Some of the fields are null.";
             }
@@ -614,12 +633,12 @@ namespace WFCPlugin {
         /// <returns>A string description of the module.</returns>
         public override string ToString( ) {
             return "Module '" + Name + "' occupies " +
-Connectors.Count / 6 + " slots and has " +
-// TODO: Consider precomputing this number
-Connectors.ToList().Count + " connectors. " +
-(Continuous ?
-"The module is continuous." :
-"WARNING: The module is not continuous and therefore will not hold together.");
+                    Connectors.Count / 6 + " slots and has " +
+                    Connectors.Count + " connectors. " +
+                    (Compact ?
+                    "The module is compact." :
+                    "WARNING: The module is not compact, contains islands and therefore " +
+                    "will not hold together.");
         }
 
         /// <summary>
@@ -693,16 +712,17 @@ Connectors.ToList().Count + " connectors. " +
                     args.Pipeline.DrawCurve((Curve)geo, args.Color);
                 }
             }
-            foreach (var connector in Connectors) {
+            for (var connectorIndex = 0; connectorIndex < Connectors.Count; connectorIndex++) {
+                var connector = Connectors[connectorIndex];
                 // Draw connectors (together they look like a cage around the module)
-                args.Pipeline.DrawPolyline(connector.Face.ToPolyline(),
-                                           Config.CAGE_COLOR);
+                var cageColor = IsValid ? Config.CAGE_COLOR : Config.CAGE_ERROR_COLOR;
+                args.Pipeline.DrawPolyline(connector.Face.ToPolyline(), cageColor);
                 var anchorPosition = connector.AnchorPlane.Origin;
-                var dotColor = Config.BackgroundFromDirection(connector.Direction);
-                var textColor = Config.ForegroundFromDirection(connector.Direction);
+                var dotColor = Config.ColorFromAxis(connector.Direction.Axis);
+                var textColor = Config.ColorFromOrientation(connector.Direction.Orientation);
                 // Display connector index in the viewport
                 args.Pipeline.DrawDot(anchorPosition,
-                                      connector.ConnectorIndex.ToString(),
+                                      connectorIndex.ToString(),
                                       dotColor,
                                       textColor);
             }
@@ -757,9 +777,11 @@ Connectors.ToList().Count + " connectors. " +
             // Put all connector anchors into a Rhino group
             var groupConnectorsId = doc.Groups.Add(Name + "-connectors");
 
-            foreach (var connector in Connectors) {
+            for (var connectorIndex = 0; connectorIndex < Connectors.Count; connectorIndex++) {
+                var connector = Connectors[connectorIndex];
                 var cageAttributes = att.Duplicate();
-                cageAttributes.ObjectColor = Config.CAGE_COLOR;
+                var cageColor = IsValid ? Config.CAGE_COLOR : Config.CAGE_ERROR_COLOR;
+                cageAttributes.ObjectColor = cageColor;
                 cageAttributes.ColorSource = ObjectColorSource.ColorFromObject;
                 var faceId = doc.Objects.AddRectangle(connector.Face, cageAttributes);
                 doc.Groups.AddToGroup(groupCagesId, faceId);
@@ -767,11 +789,11 @@ Connectors.ToList().Count + " connectors. " +
                 var dotAttributes = att.Duplicate();
                 // Following the 3D modeling convention, the connectors in 
                 // direction X are Red, in Y are Green, in Z are Blue
-                dotAttributes.ObjectColor = Config.BackgroundFromDirection(connector.Direction);
+                dotAttributes.ObjectColor = Config.ColorFromAxis(connector.Direction.Axis);
                 dotAttributes.ColorSource = ObjectColorSource.ColorFromObject;
-                var connectorId = doc.Objects.AddTextDot(connector.ConnectorIndex.ToString(),
-                                                          connector.AnchorPlane.Origin,
-                                                          dotAttributes);
+                var connectorId = doc.Objects.AddTextDot(connectorIndex.ToString(),
+                                                         connector.AnchorPlane.Origin,
+                                                         dotAttributes);
                 doc.Groups.AddToGroup(groupConnectorsId, connectorId);
                 obj_ids.Add(connectorId);
             }
@@ -835,11 +857,6 @@ Connectors.ToList().Count + " connectors. " +
         /// </summary>
         public readonly string SubmoduleName;
         /// <summary>
-        /// Index of the current connector in the list of all module's
-        /// connectors
-        /// </summary>
-        public readonly int ConnectorIndex;
-        /// <summary>
         /// Direction of the current connector in the orthogonal coordinate
         /// system
         /// </summary>
@@ -869,13 +886,11 @@ Connectors.ToList().Count + " connectors. " +
         /// <param name="face">The connector face rectangle.</param>
         public ModuleConnector(string moduleName,
                                string submoduleName,
-                               int connectorIndex,
                                Direction direction,
                                Plane anchorPlane,
                                Rectangle3d face) {
             ModuleName = moduleName;
             SubmoduleName = submoduleName;
-            ConnectorIndex = connectorIndex;
             Direction = direction;
             AnchorPlane = anchorPlane;
             Face = face;
@@ -889,7 +904,6 @@ Connectors.ToList().Count + " connectors. " +
         public override bool Equals(object obj) {
             return obj is ModuleConnector connector &&
                    SubmoduleName == connector.SubmoduleName &&
-                   ConnectorIndex == connector.ConnectorIndex &&
                    EqualityComparer<Direction>.Default.Equals(Direction, connector.Direction) &&
                    AnchorPlane.Equals(connector.AnchorPlane) &&
                    EqualityComparer<Rectangle3d>.Default.Equals(Face, connector.Face);
@@ -902,7 +916,6 @@ Connectors.ToList().Count + " connectors. " +
         public override int GetHashCode( ) {
             var hashCode = -855668167;
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(SubmoduleName);
-            hashCode = hashCode * -1521134295 + ConnectorIndex.GetHashCode();
             hashCode = hashCode * -1521134295 + Direction.GetHashCode();
             hashCode = hashCode * -1521134295 + AnchorPlane.GetHashCode();
             hashCode = hashCode * -1521134295 + Face.GetHashCode();

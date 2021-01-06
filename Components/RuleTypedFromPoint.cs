@@ -73,7 +73,7 @@ namespace WFCPlugin {
             foreach (var module in modules) {
                 var moduleRules = module
                     .GetConnectorsContainingPoint(point)
-                    .Select(connector => new Rule(connector.ModuleName, connector.ConnectorIndex, type));
+                    .Select((connector, index) => new Rule(connector.ModuleName, index, type));
                 rules.AddRange(moduleRules);
             }
 

@@ -501,12 +501,8 @@ namespace WFCPlugin {
                 ruleForSolver = default;
                 return false;
             }
-            var sourceConnector = sourceModule
-                .Connectors
-                .FirstOrDefault(connector => connector.ConnectorIndex == SourceConnectorIndex);
-            var targetConnector = sourceModule
-                .Connectors
-                .FirstOrDefault(connector => connector.ConnectorIndex == TargetConnectorIndex);
+            var sourceConnector = sourceModule.Connectors.ElementAtOrDefault(SourceConnectorIndex);
+            var targetConnector = sourceModule.Connectors.ElementAtOrDefault(TargetConnectorIndex);
 
             if (sourceConnector.Equals(default(ModuleConnector)) ||
                 targetConnector.Equals(default(ModuleConnector))) {
@@ -515,11 +511,11 @@ namespace WFCPlugin {
             }
 
             // Ensure positive direction (lower-to-higher order)
-            ruleForSolver = sourceConnector.Direction._orientation == Orientation.Positive ?
-                            new RuleForSolver(sourceConnector.Direction._axis.ToString("g"),
+            ruleForSolver = sourceConnector.Direction.Orientation == Orientation.Positive ?
+                            new RuleForSolver(sourceConnector.Direction.Axis.ToString("g"),
                                               sourceConnector.SubmoduleName,
                                               targetConnector.SubmoduleName) :
-                            new RuleForSolver(targetConnector.Direction._axis.ToString("g"),
+                            new RuleForSolver(targetConnector.Direction.Axis.ToString("g"),
                                               targetConnector.SubmoduleName,
                                               sourceConnector.SubmoduleName);
             return true;
@@ -535,12 +531,8 @@ namespace WFCPlugin {
         public bool IsValidWithGivenModules(IEnumerable<Module> modules) {
             var sourceModule = modules.FirstOrDefault(module => module.Name == SourceModuleName);
             var targetModule = modules.FirstOrDefault(module => module.Name == TargetModuleName);
-            var sourceConnector = sourceModule
-                .Connectors
-                .FirstOrDefault(connector => connector.ConnectorIndex == SourceConnectorIndex);
-            var targetConnector = targetModule
-                .Connectors
-                .FirstOrDefault(connector => connector.ConnectorIndex == TargetConnectorIndex);
+            var sourceConnector = sourceModule.Connectors.ElementAtOrDefault(SourceConnectorIndex);
+            var targetConnector = targetModule.Connectors.ElementAtOrDefault(TargetConnectorIndex);
 
             // Invalid if modules do not exist or if the direction of the connectors is not opposite
             if (sourceModule == null ||
@@ -719,9 +711,7 @@ namespace WFCPlugin {
                 return rulesExplicit;
             }
 
-            var sourceConnector = sourceModule
-                .Connectors
-                .FirstOrDefault(connector => connector.ConnectorIndex == ConnectorIndex);
+            var sourceConnector = sourceModule.Connectors.ElementAtOrDefault(ConnectorIndex);
             if (sourceConnector.Equals(default(ModuleConnector))) {
                 return rulesExplicit;
             }
@@ -739,9 +729,7 @@ namespace WFCPlugin {
                     continue;
                 }
 
-                var targetConnector = targetModule
-                    .Connectors
-                    .FirstOrDefault(connector => connector.ConnectorIndex == other.ConnectorIndex);
+                var targetConnector = targetModule.Connectors.ElementAtOrDefault(other.ConnectorIndex);
                 if (targetConnector.Equals(default(ModuleConnector))) {
                     continue;
                 }
@@ -750,9 +738,9 @@ namespace WFCPlugin {
                 if (targetConnector.Direction.IsOpposite(sourceConnector.Direction)) {
                     rulesExplicit.Add(
                         new RuleExplicit(sourceModule.Name,
-                                         sourceConnector.ConnectorIndex,
+                                         ConnectorIndex,
                                          targetModule.Name,
-                                         targetConnector.ConnectorIndex)
+                                         other.ConnectorIndex)
                         );
                 }
             }
@@ -767,8 +755,7 @@ namespace WFCPlugin {
         /// <returns>True if valid.</returns>
         public bool IsValidWithModules(List<Module> modules) {
             var sourceModule = modules.FirstOrDefault(module => module.Name == ModuleName);
-            if (sourceModule == null ||
-                !sourceModule.Connectors.Any(connector => connector.ConnectorIndex == ConnectorIndex)) {
+            if (sourceModule == null || ConnectorIndex >= sourceModule.Connectors.Count) {
                 return false;
             }
             return true;

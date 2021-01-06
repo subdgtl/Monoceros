@@ -64,13 +64,12 @@ namespace WFCPlugin {
             foreach (var module in modules) {
                 var moduleRules = module
                     .GetConnectorsContainingPoint(point)
-                    .Select(connector => new Rule(
-                                connector.ModuleName,
-                                connector.ConnectorIndex,
-                                targetName,
-                                connector.Direction.ToFlipped().ToConnectorIndex()
-                                )
-                    );
+                    .Select((connector, index) => new Rule(connector.ModuleName,
+                                                           index,
+                                                           targetName,
+                                                           DirectionToSingleModuleConnectorIndex(
+                                                               connector.Direction)
+                                                           ));
                 rules.AddRange(moduleRules);
             }
 
@@ -80,6 +79,38 @@ namespace WFCPlugin {
             }
 
             DA.SetDataList(0, rules);
+        }
+
+        /// <summary>
+        /// Converts the <see cref="Direction"/> to a submodule connector index,
+        /// according to the convention: (submoduleIndex * 6) + faceIndex, where
+        /// faceIndex is X=0, Y=1, Z=2, -X=3, -Y=4, -Z=5. This method is the
+        /// source of truth.
+        /// </summary>
+        /// <returns>Submodule connector index.</returns>
+        private int DirectionToSingleModuleConnectorIndex(Direction direction) {
+            // Connector numbering convention: 
+            // faceIndex is X=0, Y=1, Z=2, -X=3, -Y=4, -Z=5
+            if (direction.Axis == Axis.X && direction.Orientation == Orientation.Positive) {
+                return 0;
+            }
+            if (direction.Axis == Axis.Y && direction.Orientation == Orientation.Positive) {
+                return 1;
+            }
+            if (direction.Axis == Axis.Z && direction.Orientation == Orientation.Positive) {
+                return 2;
+            }
+            if (direction.Axis == Axis.X && direction.Orientation == Orientation.Negative) {
+                return 3;
+            }
+            if (direction.Axis == Axis.Y && direction.Orientation == Orientation.Negative) {
+                return 4;
+            }
+            if (direction.Axis == Axis.Z && direction.Orientation == Orientation.Negative) {
+                return 5;
+            }
+            // Never
+            return -1;
         }
 
         /// <summary>

@@ -67,10 +67,6 @@ namespace WFCPlugin {
                                        "C",
                                        "Connector planes",
                                        GH_ParamAccess.list);
-            pManager.AddIntegerParameter("Connector Indices",
-                                         "I",
-                                         "Connector indices - a list parallel to C",
-                                         GH_ParamAccess.list);
             pManager.AddVectorParameter("Connector Direction",
                                         "D",
                                         "Connector direction base-plane-aligned axis vector - " +
@@ -114,8 +110,7 @@ namespace WFCPlugin {
 
             var connectors = module.Connectors;
             DA.SetDataList(5, connectors.Select(connector => connector.AnchorPlane));
-            DA.SetDataList(6, connectors.Select(connector => connector.ConnectorIndex));
-            DA.SetDataList(7, connectors.Select(connector => connector.Direction.ToVector()));
+            DA.SetDataList(6, connectors.Select(connector => connector.Direction.ToVector()));
         }
 
         /// <summary>
