@@ -10,7 +10,7 @@ namespace WFCPlugin {
                                             "WFCFauxSolver",
                                             "Faux WFC Solver.",
                                             "WaveFunctionCollapse",
-                                            "Solver") {
+                                            "Main") {
         }
 
         /// <summary>

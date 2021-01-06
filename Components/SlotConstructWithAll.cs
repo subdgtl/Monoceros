@@ -89,6 +89,10 @@ namespace WFCPlugin {
                                 new List<string>(),
                                 new List<string>(),
                                 0);
+            if (!slot.IsValid) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, slot.IsValidWhyNot);
+                return;
+            }
 
             DA.SetData(0, slot);
         }

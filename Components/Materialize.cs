@@ -6,14 +6,15 @@ using Grasshopper.Kernel;
 using Rhino.Geometry;
 
 namespace WFCPlugin {
-    // TODO: Make bake aware and think about using blocks. Override baking output geometry.
+    // TODO: Think about using baking blocks. Override baking output geometry.
+    // https://github.com/scotttd/developer-rhino3d-com-branches/blob/92de0fdec892b5bdc0ad9167673c003a43f9d19d/_samples/rhinocommon/addnestedblock.md
     // TODO: Think about how to bake contradictory and non-deterministic slots.
     public class ComponentMaterialize : GH_Component {
         public ComponentMaterialize( ) : base("WFC Materialize",
                                              "WFCMaterialize",
                                              "WFC Materialize.",
                                              "WaveFunctionCollapse",
-                                             "Materialize") {
+                                             "Main") {
         }
 
         /// <summary>

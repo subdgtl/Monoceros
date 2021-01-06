@@ -8,17 +8,20 @@ using Grasshopper.Kernel;
 
 namespace WFCPlugin {
     /// <summary>
-    /// Wraps <see cref="Rule"/> type so that it can be used in Grasshopper as an input, output or a floating parameter.
+    /// Wraps <see cref="Rule"/> type so that it can be used in Grasshopper as
+    /// an input, output or a floating parameter.
     /// </summary>
     public class RuleParameter : GH_PersistentParam<Rule> {
-        public RuleParameter( )
-      : base("WFC Rule", "WFC-R", "Contains a collection of WFC Rules.", "WaveFunctionCollapse", "Parameters") { }
+        public RuleParameter( ) : base("WFC Rule",
+                                       "WFC-R",
+                                       "Contains a collection of WFC Rules.",
+                                       "WaveFunctionCollapse",
+                                       "Parameters") { }
         public override Guid ComponentGuid => new Guid("9804D786-20FA-4DEF-A68E-7A5D47D8A61D");
 
         public override GH_Exposure Exposure => GH_Exposure.primary;
 
-        protected override System.Drawing.Bitmap Icon =>
-               Properties.Resources.C;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.C;
 
         public bool Hidden { get => true; set { } }
 

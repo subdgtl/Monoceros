@@ -161,7 +161,7 @@ namespace WFCPlugin {
         /// Checks if the <see cref="Rule"/> is valid, including the validity of
         /// the wrapped <see cref="RuleExplicit"/> or <see cref="RuleTyped"/>.
         /// </summary>
-        bool IGH_Goo.IsValid {
+        public bool IsValid {
             get {
                 if (IsExplicit()) {
                     return Explicit.IsValid;
@@ -176,7 +176,7 @@ namespace WFCPlugin {
         /// <summary>
         /// Provides an explanation why is the <see cref="Rule"/> invalid.
         /// </summary>
-        string IGH_Goo.IsValidWhyNot {
+        public string IsValidWhyNot {
             get {
                 if (IsExplicit()) {
                     return Explicit.IsValidWhyNot;
@@ -188,15 +188,66 @@ namespace WFCPlugin {
             }
         }
 
-        // TODO: Consider allowing to cast from a string in the format defined by ToString 
-        // or even in the original X,mod1,mod2
         /// <summary>
         /// The <see cref="Rule"/> cannot be automatically cast from another
         /// type exposed in Grasshopper. Required by Grasshopper. 
         /// </summary>
         /// <param name="rule"></param>
         /// <returns>False</returns>
-        public bool CastFrom(object rule) {
+        public bool CastFrom(object inputData) {
+            if (inputData.GetType() == typeof(GH_String)) {
+                var ghString = (GH_String)inputData;
+                var text = ghString.ToString();
+                if (text.Contains(":") && text.Contains("=")) {
+                    var subTexts1 = text.Split(':');
+                    if (subTexts1.Length != 2) {
+                        return false;
+                    }
+                    var moduleName = subTexts1[0].Trim();
+                    var subTexts2 = subTexts1[1].Split('=');
+                    if (subTexts2.Length != 2) {
+                        return false;
+                    }
+                    var connectorIndexStr = subTexts2[0].Trim();
+                    var connectorType = subTexts2[1].Trim();
+                    try {
+                        var connectorIndex = int.Parse(connectorIndexStr);
+                        Typed = new RuleTyped(moduleName, connectorIndex, connectorType);
+                        return true;
+                    } catch {
+                        return false;
+                    }
+                }
+                if (text.Contains(":") && text.Contains("->")) {
+                    var subTexts = text.Split(new string[] { "->" }, StringSplitOptions.None);
+                    if (subTexts.Length != 2) {
+                        return false;
+                    }
+                    var sourceSubTexts = subTexts[0].Split(':');
+                    if (sourceSubTexts.Length != 2) {
+                        return false;
+                    }
+                    var sourceModuleName = sourceSubTexts[0].Trim();
+                    var sourceConnectorIndexStr = sourceSubTexts[1].Trim();
+                    var targetSubTexts = subTexts[1].Split(':');
+                    if (sourceSubTexts.Length != 2) {
+                        return false;
+                    }
+                    var targetModuleName = targetSubTexts[0].Trim();
+                    var targetConnectorIndexStr = targetSubTexts[1].Trim();
+                    try {
+                        var sourceConnectorIndex = int.Parse(sourceConnectorIndexStr);
+                        var targetConnectorIndex = int.Parse(targetConnectorIndexStr);
+                        Explicit = new RuleExplicit(sourceModuleName,
+                                                    sourceConnectorIndex,
+                                                    targetModuleName,
+                                                    targetConnectorIndex);
+                        return true;
+                    } catch {
+                        return false;
+                    }
+                }
+            }
             return false;
         }
 
@@ -254,7 +305,6 @@ namespace WFCPlugin {
             return true;
         }
 
-        // TODO: Find out what this is and what should be done here
         /// <summary>
         /// Returns the script variable. Required by Grasshopper.
         /// </summary>
@@ -268,6 +318,9 @@ namespace WFCPlugin {
         /// </summary>
         /// <returns>A string.</returns>
         public override string ToString( ) {
+            if (!IsValid) {
+                return IsValidWhyNot;
+            }
             if (IsExplicit()) {
                 return Explicit.ToString();
             }
@@ -448,8 +501,8 @@ namespace WFCPlugin {
         /// only possible when all modules are provided and can be done with
         /// <see cref="IsValidWithGivenModules(List{Module})"/>
         /// </summary>
-        public bool IsValid => SourceModuleName == TargetModuleName ^
-                               SourceConnectorIndex == TargetConnectorIndex;
+        public bool IsValid => !(SourceModuleName == TargetModuleName &&
+                                SourceConnectorIndex == TargetConnectorIndex);
 
         /// <summary>
         /// Returns a message why is the rule invalid.
@@ -463,8 +516,7 @@ namespace WFCPlugin {
         /// </summary>
         /// <returns>A string.</returns>
         public override string ToString( ) {
-            return "Explicit connection: " +
-                SourceModuleName + ":" + SourceConnectorIndex +
+            return SourceModuleName + ":" + SourceConnectorIndex +
                 " -> " +
                 TargetModuleName + ":" + TargetConnectorIndex;
         }
@@ -662,8 +714,7 @@ namespace WFCPlugin {
         /// </summary>
         /// <returns>A string.</returns>
         public override string ToString( ) {
-            return "Typed connector: " +
-                ModuleName + ":" + ConnectorIndex +
+            return ModuleName + ":" + ConnectorIndex +
                 " = " +
                 ConnectorType;
         }

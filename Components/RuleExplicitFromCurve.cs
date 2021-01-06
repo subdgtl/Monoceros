@@ -104,6 +104,12 @@ namespace WFCPlugin {
                 }
             }
 
+            foreach (var rule in rules) {
+                if (!rule.IsValid) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, rule.IsValidWhyNot);
+                }
+            }
+
             DA.SetDataList(0, rules);
         }
 

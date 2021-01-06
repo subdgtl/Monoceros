@@ -83,6 +83,12 @@ namespace WFCPlugin {
                 .Where((_, index) => !thisModulesUsedConnectors.Contains(index))
                 .Select((connector, index) => new Rule(connector.ModuleName, index, type));
 
+            foreach (var rule in rules) {
+                if (!rule.IsValid) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, rule.IsValidWhyNot);
+                }
+            }
+
             DA.SetDataList(0, rules);
         }
 

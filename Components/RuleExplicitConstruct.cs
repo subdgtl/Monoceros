@@ -79,12 +79,12 @@ namespace WFCPlugin {
             var sourceName = sourceNameRaw.Name;
             var targetName = targetNameRaw.Name;
 
-            if (sourceName == targetName && sourceConnector == targetConnector) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                                  "The connector connects to itself.");
-            }
-
             var rule = new Rule(sourceName, sourceConnector, targetName, targetConnector);
+
+            if (!rule.IsValid) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, rule.IsValidWhyNot);
+                return;
+            }
 
             DA.SetData(0, rule);
         }

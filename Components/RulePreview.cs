@@ -18,7 +18,7 @@ namespace WFCPlugin {
                    "Preview rules as lines connecting individual connectors. Does not display " +
                   "connections to reserved modules " + Config.RESERVED_TO_STRING + ".",
                    "WaveFunctionCollapse",
-                   "Preview") {
+                   "Rule") {
         }
 
         /// <summary>

@@ -65,6 +65,11 @@ namespace WFCPlugin {
 
             var rule = new Rule(moduleName, connector, type);
 
+            if (!rule.IsValid) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, rule.IsValidWhyNot);
+                return;
+            }
+
             DA.SetData(0, rule);
         }
 

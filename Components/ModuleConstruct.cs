@@ -175,8 +175,14 @@ namespace WFCPlugin {
 
             if (Config.RESERVED_NAMES.Contains(name)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  "The module name cannot be '" + name +
-                                  "' because it is reserved by WFC.");
+                                  "The module name cannot be \"" + name +
+                                  "\" because it is reserved by WFC.");
+                return;
+            }
+
+            if (name.Contains(":") || name.Contains("=")) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  "The module name cannot contain \":\" or \"=\"");
                 return;
             }
 

@@ -498,7 +498,6 @@ namespace WFCPlugin {
             Connectors.Count > 0 &&
             Compact;
 
-        // TODO: Check whether this works
         /// <summary>
         /// Indicates why is the module not valid. Required by Grasshopper.
         /// </summary>
@@ -571,7 +570,6 @@ namespace WFCPlugin {
             return (IGH_Goo)MemberwiseClone();
         }
 
-        // TODO: Find out what this is
         /// <summary>
         /// Emits the proxy. Required by Grasshopper.
         /// </summary>
@@ -606,7 +604,6 @@ namespace WFCPlugin {
             return true;
         }
 
-        // TODO: Find out what this is and what should be done here
         /// <summary>
         /// Returns the script variable. Required by Grasshopper.
         /// </summary>
@@ -632,7 +629,7 @@ namespace WFCPlugin {
         /// </remarks>
         /// <returns>A string description of the module.</returns>
         public override string ToString( ) {
-            return "Module '" + Name + "' occupies " +
+            return "Module \"" + Name + "\" occupies " +
                     Connectors.Count / 6 + " slots and has " +
                     Connectors.Count + " connectors. " +
                     (Compact ?

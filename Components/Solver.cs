@@ -27,7 +27,7 @@ namespace WFCPlugin {
                                          "WFC",
                                          "Solver for the Wave Function Collapse",
                                          "WaveFunctionCollapse",
-                                         "Solver") {
+                                         "Main") {
         }
 
         public override Guid ComponentGuid => new Guid("DD1A1FA6-ACD4-4202-8B1A-9840949644B3");
@@ -190,7 +190,6 @@ namespace WFCPlugin {
 
             modules.Add(moduleOut);
 
-            // TODO: This may be redundant
             var rulesDistinct = rulesRaw.Distinct();
 
             // Unwrap typed rules
@@ -225,7 +224,6 @@ namespace WFCPlugin {
             // Define world space (slots bounding box + 1 layer padding)
             ComputeWorldRelativeBounds(slotsUnwrapped, out var worldMin, out var worldMax);
             var worldLength = ComputeWorldLength(worldMin, worldMax);
-            // TODO: Investigate more elegant solutions
             var worldSlots = Enumerable.Repeat<Slot>(null, worldLength).ToList();
             foreach (var slot in slotsUnwrapped) {
                 var index = From3DTo1D(slot.RelativeCenter - worldMin, worldMin, worldMax);
@@ -271,12 +269,17 @@ namespace WFCPlugin {
             // The solution may contain more than one value as an output: 
             // useful for Step Solver and for post-processor tuning
 
-            var adjacencyRulesAxis = rulesForSolver.Select(rule => rule.AxialDirection).ToList();
+            var adjacencyRulesAxis = rulesForSolver
+                .Select(rule => rule.AxialDirection)
+                .Distinct()
+                .ToList();
             var adjacencyRulesSubmoduleLow = rulesForSolver
                 .Select(rule => rule.LowerSubmoduleName)
+                .Distinct()
                 .ToList();
             var adjacencyRulesSubmoduleHigh = rulesForSolver
                 .Select(rule => rule.HigherSubmoduleName)
+                .Distinct()
                 .ToList();
             var worldsSizeP3i = (worldMax - worldMin);
             var worldSize = worldsSizeP3i.ToVector3d();

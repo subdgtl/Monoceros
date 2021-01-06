@@ -14,7 +14,7 @@ namespace WFCPlugin {
                    "used as WFC Slot centers. Supports Point, Curve, " +
                    "Brep, Mesh. Prefer Mesh to BRep.",
                    "WaveFunctionCollapse",
-                   "World") {
+                   "Main") {
         }
 
         /// <summary>

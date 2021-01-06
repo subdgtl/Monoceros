@@ -55,7 +55,6 @@ namespace WFCPlugin {
             return (IGH_Goo)MemberwiseClone();
         }
 
-        // TODO: Find out what this is
         /// <summary>
         /// Emits the proxy. Required by Grasshopper.
         /// </summary>
@@ -72,10 +71,6 @@ namespace WFCPlugin {
         /// <param name="inputData">The input data.</param>
         /// <returns>A bool if the cast was successful.</returns>
         public bool CastFrom(object inputData) {
-            if (inputData.GetType() == typeof(string)) {
-                Name = (string)inputData;
-                return true;
-            }
             if (inputData.GetType() == typeof(GH_String)) {
                 var ghName = (GH_String)inputData;
                 Name = ghName.ToString();
@@ -103,7 +98,6 @@ namespace WFCPlugin {
             return false;
         }
 
-        // TODO: Find out what this is and what should be done here
         /// <summary>
         /// Scripts the variable. Required by Grasshopper.
         /// </summary>
@@ -144,7 +138,6 @@ namespace WFCPlugin {
         /// </summary>
         public bool IsValid => Name != null && Name.Length != 0;
 
-        // TODO: Check whether this works
         /// <summary>
         /// Indicates why is the module name not valid. Required by Grasshopper.
         /// </summary>
@@ -170,7 +163,7 @@ namespace WFCPlugin {
         /// data peeking.
         /// </summary>
         public override string ToString( ) {
-            return Name;
+            return IsValid ? Name : IsValidWhyNot;
         }
 
         /// <summary>

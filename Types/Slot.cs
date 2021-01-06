@@ -322,7 +322,6 @@ namespace WFCPlugin {
             return false;
         }
 
-        // TODO: Find out what this is and what should be done here
         /// <summary>
         /// Returns the script variable. Required by Grasshopper.
         /// </summary>
@@ -479,6 +478,9 @@ namespace WFCPlugin {
         /// </summary>
         /// <returns>A string.</returns>
         public override string ToString( ) {
+            if (!IsValid) {
+                return IsValidWhyNot;
+            }
             var pt = new GH_Point(AbsoluteCenter);
             var diagonal = new GH_Vector(Diagonal);
             var plane = new GH_Plane(BasePlane);
@@ -582,13 +584,11 @@ namespace WFCPlugin {
         private static System.Drawing.Color InterpolateColor(System.Drawing.Color a,
                                                      System.Drawing.Color b,
                                                      double t) {
-            return System.Drawing.Color.FromArgb(
-Interpolate(a.A, b.A, t),
-Interpolate(a.R, b.R, t),
-Interpolate(a.G, b.G, t),
-Interpolate(a.B, b.B, t));
+            return System.Drawing.Color.FromArgb(Interpolate(a.A, b.A, t),
+                                                 Interpolate(a.R, b.R, t),
+                                                 Interpolate(a.G, b.G, t),
+                                                 Interpolate(a.B, b.B, t));
         }
-
 
         /// <summary>
         /// Gets the pivot of the <see cref="Slot"/>. The pivot is a plane at
