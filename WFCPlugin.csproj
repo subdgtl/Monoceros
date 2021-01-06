@@ -31,6 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -59,6 +60,7 @@
     <Compile Include="Components\ModuleConstruct.cs" />
     <Compile Include="Components\ModuleDeconstruct.cs" />
     <Compile Include="Components\Materialize.cs" />
+    <Compile Include="Components\Solver.cs" />
     <Compile Include="Components\SolverFaux.cs" />
     <Compile Include="Components\PopulateGeometryWithSlotCenters.cs" />
     <Compile Include="Components\SlotDeconstruct.cs" />
@@ -147,5 +149,6 @@ Erase "$(TargetPath)"</PostBuildEvent>
     <StartArguments>
     </StartArguments>
     <StartAction>Program</StartAction>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 </Project>

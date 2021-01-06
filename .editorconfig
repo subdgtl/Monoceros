@@ -219,8 +219,14 @@ dotnet_diagnostic.MethodDocumentationHeader.severity = silent
 # PropertyDocumentationHeader: The property must have a documentation header.
 dotnet_diagnostic.PropertyDocumentationHeader.severity = silent
 
+# ConstFieldDocumentationHeader: The field must have a documentation header.
+dotnet_diagnostic.ConstFieldDocumentationHeader.severity = silent
+
 [*]
 guidelines = 100
 
 # Default severity for analyzer diagnostics with category 'Style'
 dotnet_analyzer_diagnostic.category-Style.severity = silent
+
+# Default severity for analyzer diagnostics with category 'DocumentationHeader'
+dotnet_analyzer_diagnostic.category-DocumentationHeader.severity = silent

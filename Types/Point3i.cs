@@ -90,5 +90,13 @@ namespace WFCPlugin {
             return new Point3d(X, Y, Z);
         }
 
+        /// <summary>
+        /// Converts to <see cref="Vector3d"/>.
+        /// </summary>
+        /// <returns>A Vector3d.</returns>
+        public Vector3d ToVector3d( ) {
+            return new Vector3d(X, Y, Z);
+        }
+
     }
 }
