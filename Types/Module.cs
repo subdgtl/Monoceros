@@ -472,6 +472,8 @@ namespace WFCPlugin {
             return rulesInternal;
         }
 
+
+        // TODO: Stop using
         /// <summary>
         /// Check whether the point lies inside external connectors.
         /// </summary>
@@ -479,9 +481,7 @@ namespace WFCPlugin {
         /// <returns>A list of ModuleConnectors encompassing the point.
         ///     </returns>
         public IEnumerable<ModuleConnector> GetConnectorsContainingPoint(Point3d point) {
-            return Connectors.Where(connector =>
-                                connector.AnchorPlane.DistanceTo(point) < RhinoMath.SqrtEpsilon &&
-                                connector.Face.Contains(point) == PointContainment.Inside);
+            return Connectors.Where(connector => connector.ContaininsPoint(point));
         }
 
         /// <summary>
@@ -718,11 +718,12 @@ namespace WFCPlugin {
                 var dotColor = Config.ColorFromAxis(connector.Direction.Axis);
                 var textColor = Config.ColorFromOrientation(connector.Direction.Orientation);
                 // Display connector index in the viewport
-                args.Pipeline.DrawDot(anchorPosition,
-                                      connectorIndex.ToString(),
-                                      dotColor,
-                                      textColor);
+                args.Pipeline.DrawDot(anchorPosition, connectorIndex.ToString(), dotColor, textColor);
             }
+            var pivotPosition = Pivot.Origin;
+            var pivotDotColor = Config.POSITIVE_COLOR;
+            var pivotTextColor = Config.NEGATIVE_COLOR;
+            args.Pipeline.DrawDot(pivotPosition, Name, pivotDotColor, pivotTextColor);
         }
 
         /// <summary>
@@ -794,6 +795,12 @@ namespace WFCPlugin {
                 doc.Groups.AddToGroup(groupConnectorsId, connectorId);
                 obj_ids.Add(connectorId);
             }
+
+            var pivotPosition = Pivot.Origin;
+            var pivotDotAttributes = att.Duplicate();
+            pivotDotAttributes.ObjectColor = Config.POSITIVE_COLOR;
+            pivotDotAttributes.ColorSource = ObjectColorSource.ColorFromObject;
+            doc.Objects.AddTextDot(Name, pivotPosition, pivotDotAttributes);
         }
     }
 
@@ -845,6 +852,7 @@ namespace WFCPlugin {
     /// </list>
     /// </summary>
     public struct ModuleConnector {
+        // TODO: check if not obsolete
         /// <summary>
         /// Name of the parent module containing the connector
         /// </summary>
@@ -891,6 +899,16 @@ namespace WFCPlugin {
             Direction = direction;
             AnchorPlane = anchorPlane;
             Face = face;
+        }
+
+        /// <summary>
+        /// Checks whether the connector contains point.
+        /// </summary>
+        /// <param name="point">The point.</param>
+        /// <returns>True if contains.</returns>
+        public bool ContaininsPoint(Point3d point) {
+            return Math.Abs(AnchorPlane.DistanceTo(point)) < RhinoMath.SqrtEpsilon &&
+                Face.Contains(point) == PointContainment.Inside;
         }
 
         /// <summary>

@@ -60,46 +60,28 @@ namespace WFCPlugin {
 
             var rules = new List<Rule>();
 
-            if (curve.IsPeriodic) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The connecting curve is periodic.");
+            if (curve.IsPeriodic || curve.IsClosed) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  "The connecting curve is closed or periodic.");
                 return;
             }
 
-            var startConnectors = new List<ModuleConnector>();
-            var endConnectors = new List<ModuleConnector>();
-            foreach (var module in modules) {
-                startConnectors.AddRange(
-                    module.GetConnectorsContainingPoint(curve.PointAtStart)
-                   );
-                endConnectors.AddRange(
-                    module.GetConnectorsContainingPoint(curve.PointAtEnd)
-                   );
-            }
-
-            if (startConnectors.Count == 0) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                                  "The curve does not start at any module connector.");
-            }
-
-            if (endConnectors.Count == 0) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                                  "The curve does not end at any module connector.");
-            }
-
-            for (var sourceIndex = 0; sourceIndex < startConnectors.Count; sourceIndex++) {
-                var sourceConnector = startConnectors[sourceIndex];
-                for (var targetIndex = 0; targetIndex < endConnectors.Count; targetIndex++) {
-                    var targetConnector = endConnectors[targetIndex];
-                    if (targetConnector.Direction.IsOpposite(sourceConnector.Direction)) {
-                        rules.Add(
-                            new Rule(sourceConnector.ModuleName,
-                                     sourceIndex,
-                                     targetConnector.ModuleName,
-                                     targetIndex)
-                            );
-                    } else {
-                        AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                                          "The curve connects non-opposing connectors.");
+            foreach (var startModule in modules) {
+                for (var startConnectorIndex = 0; startConnectorIndex < startModule.Connectors.Count; startConnectorIndex++) {
+                    var startConnector = startModule.Connectors[startConnectorIndex];
+                    if (startConnector.ContaininsPoint(curve.PointAtStart)) {
+                        foreach (var endModule in modules) {
+                            for (var endConnectorIndex = 0; endConnectorIndex < endModule.Connectors.Count; endConnectorIndex++) {
+                                var endConnector = endModule.Connectors[endConnectorIndex];
+                                if (endConnector.ContaininsPoint(curve.PointAtEnd)) {
+                                    rules.Add(new Rule(startModule.Name,
+                                                       startConnectorIndex,
+                                                       endModule.Name,
+                                                       endConnectorIndex)
+                                    );
+                                }
+                            }
+                        }
                     }
                 }
             }

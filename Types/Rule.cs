@@ -507,7 +507,7 @@ namespace WFCPlugin {
         /// <summary>
         /// Returns a message why is the rule invalid.
         /// </summary>
-        public string IsValidWhyNot => "The connector connects to itself";
+        public string IsValidWhyNot => ToString() + " The connector connects to itself!";
 
 
         /// <summary>
