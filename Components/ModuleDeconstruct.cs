@@ -35,6 +35,12 @@ namespace WFCPlugin {
                                   "M",
                                   "WFC Module",
                                   GH_ParamAccess.item);
+            pManager.AddParameter(new RuleParameter(),
+                                  "Rules",
+                                  "R",
+                                  "All WFC Rules. (Optional)",
+                                  GH_ParamAccess.list);
+            pManager[1].Optional = true;
         }
 
         /// <summary>
@@ -68,9 +74,14 @@ namespace WFCPlugin {
                                        "Connector planes",
                                        GH_ParamAccess.list);
             pManager.AddVectorParameter("Connector Direction",
-                                        "D",
+                                        "CD",
                                         "Connector direction base-plane-aligned axis vector - " +
                                         "a list parallel to C.",
+                                        GH_ParamAccess.list);
+            pManager.AddBooleanParameter("Connector Use Pattern",
+                                        "CP",
+                                        "Connector use pattern - a list parallel to C. " +
+                                        "(only if R are provided)",
                                         GH_ParamAccess.list);
         }
 
@@ -81,10 +92,13 @@ namespace WFCPlugin {
         ///     input parameters and to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA) {
             var module = new Module();
+            var existingRules = new List<Rule>();
 
             if (!DA.GetData(0, ref module)) {
                 return;
             }
+
+            DA.GetDataList(1, existingRules);
 
             var baseAlignmentTransform = Transform.PlaneToPlane(Plane.WorldXY, module.BasePlane);
             var scalingTransform = Transform.Scale(module.BasePlane,
@@ -102,6 +116,27 @@ namespace WFCPlugin {
                     return center;
                 });
 
+            var connectorUsePattern = Enumerable.Repeat(false, module.Connectors.Count).ToList();
+            foreach (var existingRule in existingRules) {
+                if (existingRule.IsExplicit() &&
+                    existingRule.Explicit.SourceModuleName == module.Name &&
+                    existingRule.Explicit.SourceConnectorIndex < module.Connectors.Count) {
+                    connectorUsePattern[existingRule.Explicit.SourceConnectorIndex] = true;
+                }
+
+                if (existingRule.IsExplicit() &&
+                    existingRule.Explicit.TargetModuleName == module.Name &&
+                    existingRule.Explicit.TargetConnectorIndex < module.Connectors.Count) {
+                    connectorUsePattern[existingRule.Explicit.TargetConnectorIndex] = true;
+                }
+
+                if (existingRule.IsTyped() &&
+                    existingRule.Typed.ModuleName == module.Name &&
+                    existingRule.Typed.ConnectorIndex < module.Connectors.Count) {
+                    connectorUsePattern[existingRule.Typed.ConnectorIndex] = true;
+                }
+            }
+
             DA.SetDataList(0, new List<ModuleName> { new ModuleName(module.Name) });
             DA.SetDataList(1, submoduleCenters);
             DA.SetDataList(2, module.Geometry);
@@ -111,6 +146,7 @@ namespace WFCPlugin {
             var connectors = module.Connectors;
             DA.SetDataList(5, connectors.Select(connector => connector.AnchorPlane));
             DA.SetDataList(6, connectors.Select(connector => connector.Direction.ToVector()));
+            DA.SetDataList(7, existingRules.Count > 0 ? connectorUsePattern : null);
         }
 
         /// <summary>
