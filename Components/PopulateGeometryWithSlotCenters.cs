@@ -8,11 +8,11 @@ using Rhino.Geometry;
 namespace WFCPlugin {
     public class ComponentPopulateGeometryWithSlotCenters : GH_Component {
         public ComponentPopulateGeometryWithSlotCenters( )
-            : base("WFC Populate Geometry With Slot Centers",
-                   "WFCPopSlotCen",
+            : base("Populate Geometry With Slot Centers",
+                   "PopSlots",
                    "Populate geometry with points ready to be " +
-                   "used as WFC Slot centers. Supports Point, Curve, " +
-                   "Brep, Mesh. Prefer Mesh to BRep.",
+                   "used as WFC Slot and WFC Module centers. Supports Point, Curve, " +
+                   "Brep, Mesh.",
                    "WaveFunctionCollapse",
                    "Main") {
         }

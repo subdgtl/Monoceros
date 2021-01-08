@@ -5,9 +5,9 @@ namespace WFCPlugin {
 
     public class ComponentConstructRuleExplicit : GH_Component {
         public ComponentConstructRuleExplicit( )
-            : base("WFC Construct Explicit",
-                   "WFCConstRuleExp",
-                   "Construct an Explicit WFC Rule (connector-to-connector) from module " +
+            : base("Construct Explicit Rule",
+                   "RuleExp",
+                   "Construct a WFC Explicit Rule (connector-to-connector) from WFC Module " +
                    "name and connector number. The existence of the module and connector as " +
                    "well as whether the connectors are opposite is not being checked.",
                    "WaveFunctionCollapse",

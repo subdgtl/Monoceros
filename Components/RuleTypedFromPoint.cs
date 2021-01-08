@@ -8,10 +8,10 @@ namespace WFCPlugin {
 
     public class ComponentRuleTypedFromPoint : GH_Component {
         public ComponentRuleTypedFromPoint( )
-            : base("WFC Create Typed Rule From Point Tag",
-                   "WFCRuleTypPt",
-                   "Create a Typed WFC Rule (connector-to-all-same-type-connectors) from " +
-                  "a point tag. The connector Type will be converted to lowercase.",
+            : base("Typed Rule From Point Tag",
+                   "RuleTypPt",
+                   "Create a WFC Typed Rule (connector-to-all-same-type-connectors) from " +
+                   "a Point tag. The connector Type will be converted to lowercase.",
                    "WaveFunctionCollapse",
                    "Rule") {
         }

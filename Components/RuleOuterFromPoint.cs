@@ -7,10 +7,10 @@ using Rhino.Geometry;
 namespace WFCPlugin {
     public class ComponentRuleOuterFromPoint : GH_Component {
         public ComponentRuleOuterFromPoint( )
-            : base("WFC Create Out-neighbor Rule From Point Tag",
-                   "WFCRuleOutPt",
-                   "Allow the connector to connect to an Out module. " +
-                   "All Out module's connectors are Indifferent.",
+            : base("Rule Allow Out From Point Tag",
+                   "RuleOutPt",
+                   "Allow the WFC Moudle's connector marked with a Point to connect to an " +
+                   "Out Module. All Out module's connectors are Indifferent.",
                    "WaveFunctionCollapse",
                    "Rule") {
         }

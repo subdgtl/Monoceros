@@ -17,8 +17,8 @@ namespace WFCPlugin {
     /// </para>
     /// </summary>
     public class ComponentModuleDeconstruct : GH_Component {
-        public ComponentModuleDeconstruct( ) : base("WFC Deconstruct Module To Components",
-                                                   "WFCDeconModule",
+        public ComponentModuleDeconstruct( ) : base("Deconstruct Module",
+                                                   "DeconModule",
                                                    "Deconstruct WFC Module into name, base " +
                                                    "plane, connector planes, connector numbers " +
                                                    "and properties.",

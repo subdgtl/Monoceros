@@ -18,9 +18,9 @@ namespace WFCPlugin {
     // respective slot pivots. Also return transform data, so that it is possible to orient 
     // the module geometry manually. 
     public class ComponentMaterializeModule : GH_Component {
-        public ComponentMaterializeModule( ) : base("WFC Materialize Module",
-                                             "WFCMaterializeModule",
-                                             "WFC Materialize Module into given Slots.",
+        public ComponentMaterializeModule( ) : base("Materialize Module",
+                                             "Materialize",
+                                             "Materialize WFC Module into given WFC Slots.",
                                              "WaveFunctionCollapse",
                                              "Main") {
         }

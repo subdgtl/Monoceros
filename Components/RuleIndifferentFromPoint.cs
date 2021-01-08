@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
 namespace WFCPlugin {
     public class ComponentRuleIndifferentFromPoint : GH_Component {
         public ComponentRuleIndifferentFromPoint( )
-            : base("WFC Create Indifferent Type Rule From Point Tag",
-                   "WFCRuleIndifferentPt",
-                   "Allow the connector to connect to any opposite indifferent connector.",
+            : base("Rule Typed Indifferent From Point Tag",
+                   "RuleIndiffPt",
+                   "Allow connectors of a WFC Module marked with a Point to connect to any opposite " +
+                   "indifferent connector of any WFC Module.",
                    "WaveFunctionCollapse",
                    "Rule") {
         }

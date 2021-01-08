@@ -5,11 +5,12 @@ using Rhino.Geometry;
 
 namespace WFCPlugin {
     public class ComponentConstructSlotWithAll : GH_Component {
-        public ComponentConstructSlotWithAll( ) : base("WFC Construct Slot With All Modules Allowed",
-                                                      "WFCConstSlotAll",
-                                                      "Construct a WFC Slot.",
-                                                      "WaveFunctionCollapse",
-                                                      "Slot") {
+        public ComponentConstructSlotWithAll( ) 
+            : base("Construct Slot With All Modules Allowed",
+                   "SlotAll",
+                   "Construct a WFC Slot with all WFC Modules allowed.",
+                   "WaveFunctionCollapse",
+                   "Slot") {
         }
 
         /// <summary>

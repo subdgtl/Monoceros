@@ -6,9 +6,10 @@ using Grasshopper.Kernel;
 namespace WFCPlugin {
     public class ComponentRuleIndifferentUnused : GH_Component {
         public ComponentRuleIndifferentUnused( )
-            : base("WFC Set Unused Connectors To Indifferent",
-                   "WFCRuleIndifferentUnused",
-                   "Allow unused connectors to connect to any opposite Indifferent connector.",
+            : base("Rule Typed Indifferent For Unused Connectors",
+                   "RuleIndiffUnused",
+                   "Allow unused connectors of a WFC Module to connect to any opposite " +
+                   "indifferent connector of any WFC Module.",
                    "WaveFunctionCollapse",
                    "Rule") {
         }

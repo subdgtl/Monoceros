@@ -82,8 +82,8 @@ namespace WFCPlugin {
     /// </para>
     /// </summary>
     public class ComponentConstructModule : GH_Component {
-        public ComponentConstructModule( ) : base("WFC Construct Module",
-                                                  "WFCConstModule",
+        public ComponentConstructModule( ) : base("Construct Module",
+                                                  "ConstModule",
                                                   "Construct a WFC Module from slot centers. " +
                                                   "The specified production geometry will be " +
                                                   "used in WFC solver result.",

@@ -9,20 +9,6 @@ using Rhino.Geometry;
 
 namespace WFCPlugin {
     public class ComponentSolver : GH_Component {
-
-        private const int IN_PARAM_RULE_AXIS = 0;
-        private const int IN_PARAM_RULE_LOW = 1;
-        private const int IN_PARAM_RULE_HIGH = 2;
-        private const int IN_PARAM_WORLD_SIZE = 3;
-        private const int IN_PARAM_WORLD_SLOT_POSITION = 4;
-        private const int IN_PARAM_WORLD_SLOT_MODULE = 5;
-        private const int IN_PARAM_RANDOM_SEED = 6;
-        private const int IN_PARAM_MAX_ATTEMPTS = 7;
-
-        private const int OUT_PARAM_DEBUG_OUTPUT = 0;
-        private const int OUT_PARAM_WORLD_SLOT_POSITION = 1;
-        private const int OUT_PARAM_WORLD_SLOT_MODULE = 2;
-
         public ComponentSolver( ) : base("WFC Solver",
                                          "WFC",
                                          "Solver for the Wave Function Collapse",

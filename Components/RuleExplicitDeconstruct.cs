@@ -5,9 +5,9 @@ namespace WFCPlugin {
 
     public class ComponentDeconstructRuleExplicit : GH_Component {
         public ComponentDeconstructRuleExplicit( )
-            : base("WFC Deconstruct Explicit Rule To Components",
-                   "WFCDeconRuleExp",
-                   "Deconstruct an Explicit WFC Rule (connector-to-connector) " +
+            : base("Deconstruct Explicit Rule",
+                   "DeconRuleExp",
+                   "Deconstruct an WFC Explicit Rule (connector-to-connector) " +
                    "into module names and connector numbers.",
                    "WaveFunctionCollapse",
                    "Rule") {

@@ -5,10 +5,10 @@ namespace WFCPlugin {
 
     public class ComponentDeconstructRuleTyped : GH_Component {
         public ComponentDeconstructRuleTyped( )
-            : base("WFC Deconstruct Typed Rule To Components",
-                   "WFCDeconRuleTyp",
-                   "Deconstruct a Typed WFC Rule (connector-to-all-same-type-connectors) into " +
-                   "module name, connector number and connector type.",
+            : base("Deconstruct Typed Rule",
+                   "DeconRuleTyp",
+                   "Deconstruct a WFC Typed Rule (connector-to-all-same-type-connectors) into " +
+                   "Module name, connector number and connector type.",
                    "WaveFunctionCollapse",
                    "Rule") {
         }

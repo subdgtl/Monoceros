@@ -13,10 +13,9 @@ namespace WFCPlugin {
         private IEnumerable<TypedLine> _typedLines;
 
         public ComponentPreviewRules( )
-            : base("WFC Preview Rules",
-                   "WFCRulePreview",
-                   "Preview rules as lines connecting individual connectors. Does not display " +
-                  "connections to reserved modules " + Config.RESERVED_TO_STRING + ".",
+            : base("Preview Rules",
+                   "RulePreview",
+                   "Preview WFC Rules as lines connecting individual connectors of WFC Modules.",
                    "WaveFunctionCollapse",
                    "Rule") {
         }

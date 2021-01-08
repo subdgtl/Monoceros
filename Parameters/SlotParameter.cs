@@ -15,7 +15,7 @@ namespace WFCPlugin {
     /// </summary>
     public class SlotParameter : GH_PersistentParam<Slot>, IGH_PreviewObject, IGH_BakeAwareObject {
         public SlotParameter( )
-      : base("WFC Slot", "WFC-S", "Contains a collection of WFC Slots.", "WaveFunctionCollapse", "Parameters") { }
+      : base("Slot", "S", "Contains a collection of WFC Slots.", "WaveFunctionCollapse", "Parameters") { }
         public override Guid ComponentGuid => new Guid("75063FD9-1A1F-4173-817B-E3C01428FA7A");
 
         public override GH_Exposure Exposure => GH_Exposure.primary;

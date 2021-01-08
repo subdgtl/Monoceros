@@ -12,8 +12,8 @@ namespace WFCPlugin {
     /// an input, output or a floating parameter.
     /// </summary>
     public class RuleParameter : GH_PersistentParam<Rule> {
-        public RuleParameter( ) : base("WFC Rule",
-                                       "WFC-R",
+        public RuleParameter( ) : base("Rule",
+                                       "R",
                                        "Contains a collection of WFC Rules.",
                                        "WaveFunctionCollapse",
                                        "Parameters") { }

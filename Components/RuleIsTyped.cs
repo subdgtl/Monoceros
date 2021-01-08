@@ -4,8 +4,8 @@ using Grasshopper.Kernel;
 namespace WFCPlugin {
 
     public class ComponentIsRuleTyped : GH_Component {
-        public ComponentIsRuleTyped( ) : base("WFC Is Rule Typed", "WFCIsRuleTyp",
-            "Returns true if the WFC Rule is typed (connector-to-all-same-type-connectors).",
+        public ComponentIsRuleTyped( ) : base("Is Rule Typed", "IsRuleTyp",
+            "Returns true if the WFC Rule is Typed (connector-to-all-same-type-connectors).",
             "WaveFunctionCollapse", "Rule") {
         }
 

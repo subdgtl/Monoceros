@@ -8,9 +8,9 @@ namespace WFCPlugin {
 
     public class ComponentConstructSlotWithModules : GH_Component {
         public ComponentConstructSlotWithModules( )
-            : base("WFC Construct Slot With Module Names",
-                   "WFCConstSlotModules",
-                   "Construct a WFC Slot with allowed module names.",
+            : base("Construct Slot With Module Names",
+                   "SlotModules",
+                   "Construct a WFC Slot with allowed WFC Module names.",
                    "WaveFunctionCollapse",
                    "Slot") {
         }

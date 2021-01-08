@@ -7,9 +7,9 @@ using Grasshopper.Kernel;
 namespace WFCPlugin {
     public class ComponentUnwrapRules : GH_Component {
         public ComponentUnwrapRules( )
-            : base("WFC Unwrap Typed Rules",
-                   "WFCUnwrapRules",
-                   "Convert Typed rules into Explicit rules and deduplicate.",
+            : base("Unwrap Typed Rules",
+                   "UnwrapRules",
+                   "Convert WFC Typed Rules into WFC Explicit Rules and deduplicate.",
                    "WaveFunctionCollapse",
                    "Rule") {
         }

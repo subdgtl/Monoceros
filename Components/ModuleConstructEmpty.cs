@@ -48,8 +48,8 @@ namespace WFCPlugin {
     /// </para>
     /// </summary>
     public class ComponentModuleEmpty : GH_Component {
-        public ComponentModuleEmpty( ) : base("WFC Construct Empty Module",
-                                             "WFCModuleEmpty",
+        public ComponentModuleEmpty( ) : base("Construct Empty Module",
+                                             "ModuleEmpty",
                                              "Construct an empty WFC Module.",
                                              "WaveFunctionCollapse",
                                              "Module") {

@@ -8,10 +8,10 @@ namespace WFCPlugin {
 
     public class ComponentDeconstructSlot : GH_Component {
         public ComponentDeconstructSlot( )
-            : base("WFC Deconstruct Slot",
-                   "WFCDeconSlot",
+            : base("Deconstruct Slot",
+                   "DeconSlot",
                    "Deconstruct a WFC Slot into its center point, base plane, diagonal " +
-                  "and list of allowed modules.",
+                   "and list of allowed WFC Modules.",
                    "WaveFunctionCollapse",
                    "Slot") {
         }

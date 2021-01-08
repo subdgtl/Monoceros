@@ -4,8 +4,8 @@ using Grasshopper.Kernel;
 namespace WFCPlugin {
 
     public class ComponentIsRuleExplicit : GH_Component {
-        public ComponentIsRuleExplicit( ) : base("WFC Is Rule Explicit", "WFCIsRuleExp",
-            "Returns true if the provided WFC Rule is explicit (connector-to-connector).",
+        public ComponentIsRuleExplicit( ) : base("Is Rule Explicit", "IsRuleExp",
+            "Returns true if the provided WFC Rule is Explicit (connector-to-connector).",
             "WaveFunctionCollapse", "Rule") {
         }
 

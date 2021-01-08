@@ -6,13 +6,13 @@ using Grasshopper.Kernel;
 
 namespace WFCPlugin {
     public class ComponentCollectRules : GH_Component {
-        public ComponentCollectRules( ) : base("WFC Collect Rules",
-                                              "WFCCollectRules",
-                                              "Collect, convert to Explicit, deduplicate and " +
-                                              "remove disallowed rules. Automatically generates " +
-                                              "an Out module and its rules.",
-                                              "WaveFunctionCollapse",
-                                              "Rule") {
+        public ComponentCollectRules( ) : base("Collect Rules",
+                                               "CollectRules",
+                                               "Collect, convert to Explicit, deduplicate and " +
+                                               "remove disallowed WFC Rules. Automatically " +
+                                               "generates an Out Module and its Rules.",
+                                               "WaveFunctionCollapse",
+                                               "Rule") {
         }
 
         /// <summary>

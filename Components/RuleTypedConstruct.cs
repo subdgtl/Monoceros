@@ -5,11 +5,11 @@ namespace WFCPlugin {
 
     public class ComponentConstructRuleTyped : GH_Component {
         public ComponentConstructRuleTyped( )
-            : base("WFC Construct Typed Rule From Components",
-                   "WFCConstRuleTyp",
-                   "Construct a typed WFC Rule (connector-to-all-same-type-connectors) from " +
-                   "module name, connector number and connector type. The existence of the " +
-                   "module and connector is not being checked. The connector Type will be " +
+            : base("Construct Typed Rule",
+                   "RuleTyp",
+                   "Construct a WFC Typed Rule (connector-to-all-same-type-connectors) from " +
+                   "WFC Module name, connector number and connector Type. The existence of the " +
+                   "Module and connector is not being checked. The connector Type will be " +
                    "converted to lowercase.",
                    "WaveFunctionCollapse",
                    "Rule") {
