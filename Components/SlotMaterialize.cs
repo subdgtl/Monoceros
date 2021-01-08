@@ -6,13 +6,18 @@ using Grasshopper.Kernel;
 using Rhino.Geometry;
 
 namespace WFCPlugin {
-    // TODO: Think about using baking blocks. Override baking output geometry.
+    // TODO: Think about baking blocks. Override baking output geometry.
     // https://github.com/scotttd/developer-rhino3d-com-branches/blob/92de0fdec892b5bdc0ad9167673c003a43f9d19d/_samples/rhinocommon/addnestedblock.md
     // TODO: Think about how to bake contradictory and non-deterministic slots.
-    public class ComponentMaterialize : GH_Component {
-        public ComponentMaterialize( ) : base("WFC Materialize",
-                                             "WFCMaterialize",
-                                             "WFC Materialize.",
+
+    // TODO: Add (and possibly replace this with) MaterializeModule (Module is Item access). 
+    // That will generate a block from the module geometry in place and orient it to the 
+    // respective slot pivots. Also return transform data, so that it is possible to orient 
+    // the module geometry manually. 
+    public class ComponentMaterializeSlot : GH_Component {
+        public ComponentMaterializeSlot( ) : base("WFC Materialize Slot",
+                                             "WFCMaterializeSlot",
+                                             "WFC Materialize Slot with given modules.",
                                              "WaveFunctionCollapse",
                                              "Main") {
         }

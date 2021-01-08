@@ -39,11 +39,11 @@ namespace WFCPlugin {
     /// The main purpose of the <see cref="Slot"/> is to specify, which
     /// <see cref="Module"/>s can be placed into the corresponding World grid
     /// cell by the <see cref="ComponentFauxSolver"/> and the
-    /// <see cref="ComponentMaterialize"/>. The Grasshopper API only reveals
+    /// <see cref="ComponentMaterializeSlot"/>. The Grasshopper API only reveals
     /// the list of <see cref="AllowedModuleNames"/> (because the concept of
     /// submodules is repressed). Before the <see cref="Slot"/> can be processed
     /// by the <see cref="ComponentFauxSolver"/> or
-    /// <see cref="ComponentMaterialize"/>, it has to unwrap
+    /// <see cref="ComponentMaterializeSlot"/>, it has to unwrap
     /// <see cref="AllowedSubmoduleNames"/> from a given list of
     /// <see cref="Module"/>s. The <see cref="ComponentFauxSolver"/> then should
     /// reduce the number of allowed submodules to one. If the remaining
@@ -51,7 +51,7 @@ namespace WFCPlugin {
     /// triggers the entire module placement), the submodule's parent
     /// <see cref="Module"/> will be oriented from its own
     /// <see cref="Module.Pivot"/> onto <see cref="Slot.Pivot"/> by the
-    /// <see cref="ComponentMaterialize"/>.
+    /// <see cref="ComponentMaterializeSlot"/>.
     /// </para>
     /// <para>
     /// In Grasshopper the <see cref="Slot"/> can be instantiated with a list of
@@ -107,7 +107,7 @@ namespace WFCPlugin {
         /// list of <see cref="AllowedModuleNames"/> (because the concept of
         /// submodules is repressed). Before the <see cref="Slot"/> can be
         /// processed by the <see cref="ComponentFauxSolver"/> or
-        /// <see cref="ComponentMaterialize"/>, it has to unwrap
+        /// <see cref="ComponentMaterializeSlot"/>, it has to unwrap
         /// <see cref="AllowedSubmoduleNames"/> from a given list of
         /// <see cref="Module"/>s.
         /// </summary>
@@ -119,7 +119,7 @@ namespace WFCPlugin {
         /// <see cref="AllowedModuleNames"/> (because the concept of submodules
         /// is repressed). Before the <see cref="Slot"/> can be processed by the
         /// <see cref="ComponentFauxSolver"/> or
-        /// <see cref="ComponentMaterialize"/>, it has to unwrap
+        /// <see cref="ComponentMaterializeSlot"/>, it has to unwrap
         /// <see cref="AllowedSubmoduleNames"/> from a given list of
         /// <see cref="Module"/>s. This is always done internally.
         /// </summary>

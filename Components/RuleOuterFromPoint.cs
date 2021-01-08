@@ -62,15 +62,18 @@ namespace WFCPlugin {
             var rules = new List<Rule>();
 
             foreach (var module in modules) {
-                var moduleRules = module
-                    .GetConnectorsContainingPoint(point)
-                    .Select((connector, index) => new Rule(connector.ModuleName,
-                                                           index,
-                                                           targetName,
-                                                           DirectionToSingleModuleConnectorIndex(
-                                                               connector.Direction)
-                                                           ));
-                rules.AddRange(moduleRules);
+                for (var connectorIndex = 0; connectorIndex < module.Connectors.Count; connectorIndex++) {
+                    var connector = module.Connectors[connectorIndex];
+                    if (connector.ContaininsPoint(point)) {
+                        rules.Add(
+                            new Rule(module.Name,
+                                     connectorIndex,
+                                     targetName,
+                                     DirectionToSingleModuleConnectorIndex(
+                                         connector.Direction.ToFlipped()))
+                            );
+                    }
+                }
             }
 
             if (rules.Count == 0) {

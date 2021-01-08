@@ -81,7 +81,7 @@ namespace WFCPlugin {
 
             var rules = module.Connectors
                 .Where((_, index) => !thisModulesUsedConnectors.Contains(index))
-                .Select((connector, index) => new Rule(connector.ModuleName, index, type));
+                .Select((connector, index) => new Rule(module.Name, index, type));
 
             foreach (var rule in rules) {
                 if (!rule.IsValid) {

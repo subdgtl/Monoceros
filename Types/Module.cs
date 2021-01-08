@@ -28,7 +28,7 @@ namespace WFCPlugin {
     /// The class consists of input data, computed data, which will be later
     /// used by <see cref="Rule"/> generators and parsers, the
     /// <see cref="ComponentFauxSolver"/> and the
-    /// <see cref="ComponentMaterialize"/>.
+    /// <see cref="ComponentMaterializeSlot"/>.
     /// </para>
     /// </summary>
     /// <remarks>
@@ -60,7 +60,7 @@ namespace WFCPlugin {
         /// <summary>
         /// Computed submodule names for the purposes of
         /// <see cref="ComponentFauxSolver"/> and
-        /// <see cref="ComponentMaterialize"/>.
+        /// <see cref="ComponentMaterializeSlot"/>.
         /// </summary>
         public readonly List<string> SubmoduleNames;
 
@@ -472,18 +472,6 @@ namespace WFCPlugin {
             return rulesInternal;
         }
 
-
-        // TODO: Stop using
-        /// <summary>
-        /// Check whether the point lies inside external connectors.
-        /// </summary>
-        /// <param name="point">The point to check.</param>
-        /// <returns>A list of ModuleConnectors encompassing the point.
-        ///     </returns>
-        public IEnumerable<ModuleConnector> GetConnectorsContainingPoint(Point3d point) {
-            return Connectors.Where(connector => connector.ContaininsPoint(point));
-        }
-
         /// <summary>
         /// Gets a value indicating whether the module is valid. Required by
         /// Grasshopper.
@@ -586,7 +574,7 @@ namespace WFCPlugin {
         /// Not implemented yet.
         /// </remarks>
         /// <param name="reader">The reader.</param>
-        /// <returns>A bool when successful.</returns>
+        /// <returns>True when successful.</returns>
         public bool Read(GH_IReader reader) {
             return true;
         }
@@ -599,7 +587,7 @@ namespace WFCPlugin {
         /// Not implemented yet.
         /// </remarks>
         /// <param name="writer">The writer.</param>
-        /// <returns>A bool when successful.</returns>
+        /// <returns>True when successful.</returns>
         public bool Write(GH_IWriter writer) {
             return true;
         }
@@ -852,11 +840,6 @@ namespace WFCPlugin {
     /// </list>
     /// </summary>
     public struct ModuleConnector {
-        // TODO: check if not obsolete
-        /// <summary>
-        /// Name of the parent module containing the connector
-        /// </summary>
-        public readonly string ModuleName;
         /// <summary>
         /// >Name of a submodule containing the connector
         /// </summary>
@@ -881,12 +864,8 @@ namespace WFCPlugin {
         /// Initializes a new instance of the <see cref="ModuleConnector"/>
         /// class.
         /// </summary>
-        /// <param name="moduleName">The parent module name.</param>
         /// <param name="submoduleName">The current submodule name.</param>
-        /// <param name="connectorIndex">The connector index in the module's
-        ///     list of connectors.</param>
         /// <param name="direction">The connector direction.</param>
-        /// <param name="valence">The connector valence.</param>
         /// <param name="anchorPlane">The connector anchor plane.</param>
         /// <param name="face">The connector face rectangle.</param>
         public ModuleConnector(string moduleName,
@@ -894,7 +873,6 @@ namespace WFCPlugin {
                                Direction direction,
                                Plane anchorPlane,
                                Rectangle3d face) {
-            ModuleName = moduleName;
             SubmoduleName = submoduleName;
             Direction = direction;
             AnchorPlane = anchorPlane;

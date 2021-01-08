@@ -18,7 +18,7 @@ namespace WFCPlugin {
     /// <see cref="ComponentPopulateGeometryWithSlotCenters"/>. Redundant
     /// <see cref="Point3d"/>s will be removed. Production
     /// <see cref="GeometryBase"/> will be used by the
-    /// <see cref="ComponentMaterialize"/> to materialize the result of the WFC
+    /// <see cref="ComponentMaterializeSlot"/> to materialize the result of the WFC
     /// <see cref="ComponentFauxSolver"/>. The production
     /// <see cref="GeometryBase"/> is unrelated to the <see cref="Module"/> cage
     /// and <see cref="Slot"/>s it may occupy. 
@@ -47,7 +47,7 @@ namespace WFCPlugin {
     ///     <item>
     ///         <term><see cref="GeometryBase"/> Production Geometry</term>
     ///         <description><see cref="GeometryBase"/> used by the
-    ///             <see cref="ComponentMaterialize"/> to materialize the result
+    ///             <see cref="ComponentMaterializeSlot"/> to materialize the result
     ///             of the WFC <see cref="ComponentFauxSolver"/>. Production
     ///             Geometry does not have to fit into the generated
     ///             <see cref="Module"/> cages and can be larger, smaller,

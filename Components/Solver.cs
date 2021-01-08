@@ -269,17 +269,16 @@ namespace WFCPlugin {
             // The solution may contain more than one value as an output: 
             // useful for Step Solver and for post-processor tuning
 
-            var adjacencyRulesAxis = rulesForSolver
+            var rulesForSolverDistinct = rulesForSolver.Distinct();
+
+            var adjacencyRulesAxis = rulesForSolverDistinct
                 .Select(rule => rule.AxialDirection)
-                .Distinct()
                 .ToList();
-            var adjacencyRulesSubmoduleLow = rulesForSolver
+            var adjacencyRulesSubmoduleLow = rulesForSolverDistinct
                 .Select(rule => rule.LowerSubmoduleName)
-                .Distinct()
                 .ToList();
-            var adjacencyRulesSubmoduleHigh = rulesForSolver
+            var adjacencyRulesSubmoduleHigh = rulesForSolverDistinct
                 .Select(rule => rule.HigherSubmoduleName)
-                .Distinct()
                 .ToList();
             var worldsSizeP3i = (worldMax - worldMin);
             var worldSize = worldsSizeP3i.ToVector3d();

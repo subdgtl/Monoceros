@@ -554,7 +554,7 @@ namespace WFCPlugin {
                 return false;
             }
             var sourceConnector = sourceModule.Connectors.ElementAtOrDefault(SourceConnectorIndex);
-            var targetConnector = sourceModule.Connectors.ElementAtOrDefault(TargetConnectorIndex);
+            var targetConnector = targetModule.Connectors.ElementAtOrDefault(TargetConnectorIndex);
 
             if (sourceConnector.Equals(default(ModuleConnector)) ||
                 targetConnector.Equals(default(ModuleConnector))) {
