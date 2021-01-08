@@ -694,7 +694,7 @@ namespace WFCPlugin {
                 }
                 if (geo.ObjectType == ObjectType.Curve) {
                     // Draw those geometries of the module that are a curve
-                    args.Pipeline.DrawCurve((Curve)geo, args.Color);
+                    args.Pipeline.DrawCurve((Curve)geo, args.Color, args.Thickness);
                 }
             }
             for (var connectorIndex = 0; connectorIndex < Connectors.Count; connectorIndex++) {
@@ -706,12 +706,19 @@ namespace WFCPlugin {
                 var dotColor = Config.ColorFromAxis(connector.Direction.Axis);
                 var textColor = Config.ColorFromOrientation(connector.Direction.Orientation);
                 // Display connector index in the viewport
-                args.Pipeline.DrawDot(anchorPosition, connectorIndex.ToString(), dotColor, textColor);
+                args.Pipeline.DrawDot(new TextDot(connectorIndex.ToString(), anchorPosition),
+                                      dotColor,
+                                      textColor,
+                                      dotColor);
             }
+            
             var pivotPosition = Pivot.Origin;
-            var pivotDotColor = Config.POSITIVE_COLOR;
-            var pivotTextColor = Config.NEGATIVE_COLOR;
-            args.Pipeline.DrawDot(pivotPosition, Name, pivotDotColor, pivotTextColor);
+            args.Pipeline.Draw2dText(Name,
+                                     Config.POSITIVE_COLOR,
+                                     pivotPosition,
+                                     true,
+                                     Config.MODULE_NAME_FONT_HEIGHT,
+                                     Config.FONT_FACE);
         }
 
         /// <summary>

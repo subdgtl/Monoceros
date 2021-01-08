@@ -31,6 +31,9 @@ namespace WFCPlugin {
         public static string RESERVED_TO_STRING => RESERVED_NAMES
             .Aggregate("", (accum, name) => accum + ", " + name);
 
+        public static readonly string FONT_FACE = "Mark Pro";
+        public static readonly int MODULE_NAME_FONT_HEIGHT = 40;
+
 
         /// <summary>
         /// Preview and baking color a <see cref="Module"/> cage and
@@ -122,13 +125,25 @@ namespace WFCPlugin {
         /// </summary>
         public static Color NEGATIVE_COLOR = Color.FromArgb(128, 0, 0, 0);
 
+        /// <summary>
+        /// <para>
+        /// <see cref="Slot"/> preview cage shrink factor.
+        /// </para>
+        /// <para>
+        /// A <see cref="Slot"/> is displayed as a wire frame cage. To make
+        /// individual cages visually distinct, they are slightly shrunk, so
+        /// that each cage's edges are visible. <see cref="SLOT_SHRINK_FACTOR"/>
+        /// is the amount of uniform size reduction to make the visual
+        /// distinction possible.
+        /// </para>
+        /// </summary>
+        public static readonly double SLOT_SHRINK_FACTOR = 0.025;
 
         /// <summary>
         /// Converts <see cref="Direction"/> to a dot background color.
         /// </summary>
         /// <param name="dir">The <see cref="Direction"/> to convert.</param>
-        /// <returns>Dot background <see cref="Color"/>.
-        ///     </returns>
+        /// <returns>Dot background <see cref="Color"/>.</returns>
         public static Color ColorFromAxis(Axis axis) {
             if (axis == Axis.X) {
                 return X_DOT_COLOR;
@@ -146,8 +161,7 @@ namespace WFCPlugin {
         /// Converts <see cref="Direction"/> to a dot foreground color.
         /// </summary>
         /// <param name="dir">The <see cref="Direction"/> to convert.</param>
-        /// <returns>Dot foreground <see cref="Color"/>.
-        ///     </returns>
+        /// <returns>Dot foreground <see cref="Color"/>.</returns>
         public static Color ColorFromOrientation(Orientation orientation) {
             if (orientation == Orientation.Positive) {
                 return POSITIVE_COLOR;

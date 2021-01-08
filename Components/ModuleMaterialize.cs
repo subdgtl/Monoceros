@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using Grasshopper;
 using Grasshopper.Kernel;
+using Grasshopper.Kernel.Data;
 using Grasshopper.Kernel.Types;
 using Rhino.Geometry;
 
@@ -32,7 +33,7 @@ namespace WFCPlugin {
                                   "Module",
                                   "M",
                                   "All WFC Modules",
-                                  GH_ParamAccess.item);
+                                  GH_ParamAccess.list);
             pManager.AddParameter(new SlotParameter(),
                                   "Slots",
                                   "S",
@@ -60,10 +61,10 @@ namespace WFCPlugin {
         /// <param name="DA">The DA object can be used to retrieve data from
         ///     input parameters and to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA) {
-            var module = new Module();
+            var modules = new List<Module>();
             var slots = new List<Slot>();
 
-            if (!DA.GetData(0, ref module)) {
+            if (!DA.GetDataList(0, modules)) {
                 return;
             }
 
@@ -74,18 +75,24 @@ namespace WFCPlugin {
             var transforms = new List<Transform>();
             var geometry = new DataTree<GeometryBase>();
 
-            for (var branch = 0; branch < slots.Count; branch++) {
-                var slot = slots[branch];
-                if (slot.AllowedSubmoduleNames.Count == 1 &&
-                    slot.AllowedSubmoduleNames[0] == module.PivotSubmoduleName) {
-                    var transform = Transform.PlaneToPlane(module.Pivot, slot.Pivot);
-                    transforms.Add(transform);
-                    var slotGeometry = module.Geometry.Select(geo => {
-                        var placedGeometry = geo.Duplicate();
-                        placedGeometry.Transform(transform);
-                        return placedGeometry;
-                    });
-                    geometry.AddRange(slotGeometry, new Grasshopper.Kernel.Data.GH_Path(branch));
+            for (var moduleIndex = 0; moduleIndex < modules.Count; moduleIndex++) {
+                var module = modules[moduleIndex];
+                IEnumerable<GeometryBase> slotGeometry;
+                for (var slotIndex = 0; slotIndex < slots.Count; slotIndex++) {
+                    var slot = slots[slotIndex];
+                    if (slot.AllowedSubmoduleNames.Count == 1 &&
+                        slot.AllowedSubmoduleNames[0] == module.PivotSubmoduleName) {
+                        var transform = Transform.PlaneToPlane(module.Pivot, slot.Pivot);
+                        transforms.Add(transform);
+                        slotGeometry = module.Geometry.Select(geo => {
+                            var placedGeometry = geo.Duplicate();
+                            placedGeometry.Transform(transform);
+                            return placedGeometry;
+                        });
+                    } else {
+                        slotGeometry = Enumerable.Empty<GeometryBase>();
+                    }
+                    geometry.AddRange(slotGeometry, new GH_Path(new int[] { moduleIndex, slotIndex }));
                 }
             }
 

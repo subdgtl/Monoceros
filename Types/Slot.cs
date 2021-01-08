@@ -361,7 +361,7 @@ namespace WFCPlugin {
         /// Does nothing. Required by Grasshopper.
         /// </summary>
         /// <param name="args">The args.</param>
-        public void DrawViewportWires(GH_PreviewWireArgs args) {
+        public void DrawViewportMeshes(GH_PreviewMeshArgs args) {
         }
 
         /// <summary>
@@ -409,7 +409,7 @@ namespace WFCPlugin {
         /// </list>
         /// </summary>
         /// <param name="args">The preview mesh arguments.</param>
-        public void DrawViewportMeshes(GH_PreviewMeshArgs args) {
+        public void DrawViewportWires(GH_PreviewWireArgs args) {
             var color = Config.CAGE_UNKNOWN_COLOR;
 
             if (AllowAnyModule) {
@@ -432,10 +432,15 @@ namespace WFCPlugin {
             }
 
 
-            var material = args.Material;
-            material.Diffuse = color;
+            var cage = Cage;
+            var minDimension = Math.Min(cage.X.Length, Math.Min(cage.Y.Length, cage.Z.Length));
+            var shrinkSize = minDimension * Config.SLOT_SHRINK_FACTOR;
+            var xInterval = new Interval(cage.X.Min + shrinkSize, cage.X.Max - shrinkSize);
+            var yInterval = new Interval(cage.Y.Min + shrinkSize, cage.Y.Max - shrinkSize);
+            var zInterval = new Interval(cage.Z.Min + shrinkSize, cage.Z.Max - shrinkSize);
+            var box = new Box(cage.Plane, xInterval, yInterval, zInterval);
 
-            args.Pipeline.DrawBrepShaded(Cage.ToBrep(), material);
+            args.Pipeline.DrawBox(box, color);
         }
 
         /// <summary>
