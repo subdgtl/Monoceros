@@ -2,7 +2,7 @@
 using Grasshopper.Kernel;
 
 namespace WFCPlugin {
-
+    // TODO: Consider making this part of Deconstruct
     public class ComponentIsRuleExplicit : GH_Component {
         public ComponentIsRuleExplicit( ) : base("Is Rule Explicit", "IsRuleExp",
             "Returns true if the provided WFC Rule is Explicit (connector-to-connector).",

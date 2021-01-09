@@ -4,6 +4,7 @@ using Grasshopper.Kernel;
 using Rhino.Geometry;
 
 namespace WFCPlugin {
+    // TODO: Consider doing this entirely in Grasshopper as a user object / cluster
     /// <summary>
     /// <para>
     /// Grasshopper component: WFC Construct Empty Module

@@ -2,7 +2,7 @@
 using Grasshopper.Kernel;
 
 namespace WFCPlugin {
-
+    // TODO: Consider making one Deconstruct for both types of Rule
     public class ComponentDeconstructRuleExplicit : GH_Component {
         public ComponentDeconstructRuleExplicit( )
             : base("Deconstruct Explicit Rule",

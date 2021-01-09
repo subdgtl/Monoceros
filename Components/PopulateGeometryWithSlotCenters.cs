@@ -6,6 +6,7 @@ using Grasshopper.Kernel.Types;
 using Rhino.Geometry;
 
 namespace WFCPlugin {
+    // TODO: Make this work better and more precise
     public class ComponentPopulateGeometryWithSlotCenters : GH_Component {
         public ComponentPopulateGeometryWithSlotCenters( )
             : base("Populate Geometry With Slot Centers",

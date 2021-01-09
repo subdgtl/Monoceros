@@ -2,7 +2,7 @@
 using Grasshopper.Kernel;
 
 namespace WFCPlugin {
-
+    // TODO: Consider making this part of Deconstruct
     public class ComponentIsRuleTyped : GH_Component {
         public ComponentIsRuleTyped( ) : base("Is Rule Typed", "IsRuleTyp",
             "Returns true if the WFC Rule is Typed (connector-to-all-same-type-connectors).",
