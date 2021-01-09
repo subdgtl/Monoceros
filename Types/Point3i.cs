@@ -50,6 +50,13 @@ namespace WFCPlugin {
             Z = Convert.ToInt32(point.Z);
         }
 
+
+        public bool FitsUshort( ) {
+            return X >= ushort.MinValue && X <= ushort.MaxValue &&
+                Y >= ushort.MinValue && Y <= ushort.MaxValue &&
+                Z >= ushort.MinValue && Z <= ushort.MaxValue;
+        }
+
         /// <summary>
         /// Determines if two instances of <see cref="Point3i"/> are equal.
         /// </summary>

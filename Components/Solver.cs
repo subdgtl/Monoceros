@@ -5,7 +5,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using Grasshopper.Kernel;
-using Rhino.Geometry;
 
 namespace WFCPlugin {
     public class ComponentSolver : GH_Component {
@@ -95,12 +94,6 @@ namespace WFCPlugin {
                 return;
             }
 
-            // Check if there are any slots to define the world
-            if (slotsRaw.Count == 0) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "No slots to define world.");
-                return;
-            }
-
             var diagonal = slotsRaw.First().Diagonal;
 
             // Check if all slots have the same slot diagonal
@@ -124,17 +117,6 @@ namespace WFCPlugin {
                 return;
             }
 
-            if (slotsRaw.Any(slot => slot.AllowedNothing)) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  "Some slots allow no modules to be placed.");
-                return;
-            }
-
-            if (modules.Count == 0) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "No modules to populate world.");
-                return;
-            }
-
             var moduleDiagonal = modules.First().SlotDiagonal;
 
             if (modules.Any(module => module.SlotDiagonal != moduleDiagonal)) {
@@ -151,11 +133,21 @@ namespace WFCPlugin {
             var allSubmodulesCount = modules
                 .Aggregate(0, (sum, module) => sum + module.SubmoduleCenters.Count);
 
+            if (allSubmodulesCount > Config.MAX_SUBMODULES) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                    "The modules occupy too many slots. Maximum allowed is " + Config.MAX_SUBMODULES +
+                    ", current is " + allSubmodulesCount + ".");
+                return;
+            }
+
             if (moduleDiagonal != diagonal) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "Modules and slots are not defined with the same diagonal.");
                 return;
             }
+
+            // TODO: Check if modules and slots refer to the same submodules. 
+            // Throw warning if some modules can never be placed.
 
             // Generate Out module
             Module.GenerateEmptySingleModule(Config.OUTER_MODULE_NAME,
@@ -169,34 +161,29 @@ namespace WFCPlugin {
             // Convert AllowEverything slots into an explicit list of allowed modules (except Out)
             var allModuleNames = modules.Select(module => module.Name).ToList();
             var slotsUnwrapped = slotsRaw.Select(slotRaw =>
-                slotRaw.AllowAnyModule ?
+                slotRaw.AllowsAnyModule ?
                     slotRaw.DuplicateWithModuleNames(allModuleNames) :
                     slotRaw
             );
 
             modules.Add(moduleOut);
 
-            var rulesDistinct = rulesRaw.Distinct();
-
             // Unwrap typed rules
-            var rulesTyped = rulesDistinct.Where(rule => rule.IsTyped()).Select(rule => rule.Typed);
+            var rulesTyped = rulesRaw.Where(rule => rule.IsTyped()).Select(rule => rule.Typed);
             var rulesTypedUnwrappedToExplicit = rulesTyped
                 .SelectMany(ruleTyped => ruleTyped.ToRuleExplicit(rulesTyped, modules));
 
-            var rulesExplicit = rulesDistinct
+            var rulesExplicit = rulesRaw
                 .Where(rule => rule.IsExplicit())
                 .Select(rule => rule.Explicit);
 
             // Deduplicate rules again
-            var rulesUnwrappedExplicit = rulesExplicit.Concat(rulesTypedUnwrappedToExplicit).Distinct();
-
-            // Filter out invalid rules (not connecting the same connectors && connecting opposing connectors)
-            var rulesValid = rulesUnwrappedExplicit.Where(rule => rule.IsValidWithGivenModules(modules));
+            var rulesExplicitAll = rulesExplicit.Concat(rulesTypedUnwrappedToExplicit).Distinct();
 
             // Convert rules to solver format
             var rulesForSolver = new List<RuleForSolver>();
-            foreach (var rule in rulesValid) {
-                if (rule.ToWFCRuleSolver(modules, out var ruleForSolver)) {
+            foreach (var rule in rulesExplicitAll) {
+                if (rule.ToRuleForSolver(modules, out var ruleForSolver)) {
                     rulesForSolver.Add(ruleForSolver);
                 }
             }
@@ -212,7 +199,7 @@ namespace WFCPlugin {
             var worldLength = ComputeWorldLength(worldMin, worldMax);
             var worldSlots = Enumerable.Repeat<Slot>(null, worldLength).ToList();
             foreach (var slot in slotsUnwrapped) {
-                var index = From3DTo1D(slot.RelativeCenter - worldMin, worldMin, worldMax);
+                var index = From3DTo1D(slot.RelativeCenter, worldMin, worldMax);
                 worldSlots[index] = slot;
                 slotOrder.Add(index);
             }
@@ -220,7 +207,7 @@ namespace WFCPlugin {
             // Fill unused world slots with Out modules
             for (var i = 0; i < worldSlots.Count; i++) {
                 var slot = worldSlots[i];
-                var relativeCenter = From1DTo3D(i, worldMin, worldMax) + worldMin;
+                var relativeCenter = From1DTo3D(i, worldMin, worldMax);
                 if (slot == null) {
                     worldSlots[i] = new Slot(slotBasePlane,
                                              relativeCenter,
@@ -233,8 +220,8 @@ namespace WFCPlugin {
             }
 
             // Unwrap module names to submodule names for all slots
-            var worldPreprocessed = worldSlots.Select(slotRaw => {
-                if (slotRaw.AllowedSubmoduleNames.Count != 0 && !slotRaw.AllowAnyModule) {
+            var worldForSolver = worldSlots.Select(slotRaw => {
+                if (slotRaw.AllowedSubmoduleNames.Count != 0) {
                     return slotRaw.DuplicateWithSubmodulesCount(allSubmodulesCount);
                 }
 
@@ -243,67 +230,58 @@ namespace WFCPlugin {
                     var module = modules.Find(m => m.Name == moduleName);
                     submoduleNames.AddRange(module.SubmoduleNames);
                 }
-                if (submoduleNames.Count == 0) {
-                    throw new Exception("Slot is empty in spite of previous checks.");
-                }
                 return slotRaw.DuplicateWithSubmodulesCountAndNames(allSubmodulesCount,
                                                                     submoduleNames);
             });
 
+            foreach (var slot in worldForSolver) {
+                if (slot.AllowsNothing) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  "Slot at " + slot.AbsoluteCenter + "does not allow any module " +
+                                  "to be placed.");
+                    return;
+                }
+
+                if (slot.AllowedModuleNames.Count == 0) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  "Invalid slot at " + slot.AbsoluteCenter + ".");
+                    return;
+                }
+
+                if (slot.AllowedSubmoduleNames.Count == 0) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  "Unwrapping failed for slot at " + slot.AbsoluteCenter + ".");
+                    return;
+                }
+
+                if (slot.AllowsAnyModule) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  "Processing failed for slot at " + slot.AbsoluteCenter + ".");
+                    return;
+                }
+            }
+            var worldSize = (worldMax - worldMin);
+
+            if (!worldSize.FitsUshort()) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  "The world size exceeds minimum or maximum dimensions: " +
+                                  ushort.MinValue + " to " + ushort.MaxValue + "in any direction.");
+                return;
+            }
+
             // SOLVER
-            // Scan all slots, pick one submodule for each
-            // The solution may contain more than one value as an output: 
-            // useful for Step Solver and for post-processor tuning
-
-            var rulesForSolverDistinct = rulesForSolver.Distinct();
-
-            var adjacencyRulesAxis = rulesForSolverDistinct
-                .Select(rule => rule.AxialDirection)
-                .ToList();
-            var adjacencyRulesSubmoduleLow = rulesForSolverDistinct
-                .Select(rule => rule.LowerSubmoduleName)
-                .ToList();
-            var adjacencyRulesSubmoduleHigh = rulesForSolverDistinct
-                .Select(rule => rule.HigherSubmoduleName)
-                .ToList();
-            var worldsSizeP3i = (worldMax - worldMin);
-            var worldSize = worldsSizeP3i.ToVector3d();
-            var worldSlotsPositions = worldPreprocessed.SelectMany((slot, index) =>
-                Enumerable.Repeat(
-                    From1DTo3D(index, worldMin, worldMax).ToPoint3d(),
-                    slot.AllowedSubmoduleNames.Count
-                    )
-            ).ToList();
-            var worldSlotSubmodules = worldPreprocessed
-                .SelectMany(slot => slot.AllowedSubmoduleNames)
-                .ToList();
-
-            var success = Solve(adjacencyRulesAxis,
-                                adjacencyRulesSubmoduleLow,
-                                adjacencyRulesSubmoduleHigh,
+            var success = Solve(rulesForSolver.Distinct().ToList(),
                                 worldSize,
+                                worldForSolver.ToList(),
                                 randomSeed,
                                 maxAttempts,
-                                ref worldSlotsPositions,
-                                ref worldSlotSubmodules,
+                                out var solvedSlotSubmodules,
                                 out var report);
 
             if (!success) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, report);
                 DA.SetData(0, report);
                 return;
-            }
-
-            var solution = new List<List<string>>();
-            for (var i = 0; i < worldLength; i++) {
-                solution.Add(new List<string>());
-            }
-
-            for (var i = 0; i < worldSlotsPositions.Count; i++) {
-                var position = worldSlotsPositions[i];
-                var submoduleName = worldSlotSubmodules[i];
-                var position1D = From3DTo1D(new Point3i(position), worldsSizeP3i);
-                solution[position1D].Add(submoduleName);
             }
 
             // Remember module name for each submodule name
@@ -316,18 +294,15 @@ namespace WFCPlugin {
 
             // Sort slots into the same order as they were input
             var slotsSolved = slotOrder.Select(index => {
-                var allowedSubmodules = solution[index];
-                var allowedModules = allowedSubmodules
-                    .Select(submoduleName => submoduleToModuleName[submoduleName])
-                    .Distinct()
-                    .ToList();
+                var allowedSubmodule = solvedSlotSubmodules[index];
+                var allowedModule = submoduleToModuleName[allowedSubmodule];
                 // Convert world from solver format into slots 
                 return new Slot(slotBasePlane,
-                                From1DTo3D(index, worldMin, worldMax) + worldMin,
+                                From1DTo3D(index, worldMin, worldMax),
                                 diagonal,
                                 false,
-                                allowedModules,
-                                allowedSubmodules,
+                                new List<string>() { allowedModule },
+                                new List<string>() { allowedSubmodule },
                                 allSubmodulesCount);
             });
 
@@ -375,27 +350,40 @@ namespace WFCPlugin {
             return (lengthX * lengthY * lengthZ);
         }
 
-        private static int From3DTo1D(Point3i p, Point3i min, Point3i max) {
+        private static int From3DTo1D(Point3i point, Point3i min, Point3i max) {
             var lengthX = max.X - min.X;
             var lengthY = max.Y - min.Y;
 
-            return (lengthX * lengthY * p.Z) + lengthX * p.Y + p.X;
+            var worldSlotsPerLayer = lengthX * lengthY;
+            var worldSlotsPerRow = lengthX;
+
+            var p = point - min;
+
+            var index = p.X + p.Y * worldSlotsPerRow + p.Z * worldSlotsPerLayer;
+
+            return index;
         }
 
         private static int From3DTo1D(Point3i p, Point3i max) {
-            return (max.X * max.Y * p.Z) + max.X * p.Y + p.X;
+            return From3DTo1D(p, new Point3i(0, 0, 0), max);
         }
 
         private static Point3i From1DTo3D(int index, Point3i min, Point3i max) {
             var lengthX = max.X - min.X;
             var lengthY = max.Y - min.Y;
 
-            var lengthXY = lengthX * lengthY;
-            var z = index / lengthXY;
-            var y = (index % lengthXY) / lengthX;
-            var x = index % lengthX;
+            var worldSlotsPerLayer = lengthX * lengthY;
+            var worldSlotsPerRow = lengthX;
 
-            return new Point3i(x, y, z);
+            var x = index % worldSlotsPerLayer % worldSlotsPerRow;
+            var y = index % worldSlotsPerLayer / worldSlotsPerRow;
+            var z = index / worldSlotsPerLayer;
+
+            return new Point3i(x, y, z) + min;
+        }
+
+        private static Point3i From1DTo3D(int index, Point3i max) {
+            return From1DTo3D(index, new Point3i(0, 0, 0), max);
         }
 
         private bool AreModuleNamesUnique(List<Module> modules) {
@@ -420,82 +408,48 @@ namespace WFCPlugin {
             return true;
         }
 
-        private bool Solve(List<string> adjacencyRulesAxis,
-                           List<string> adjacencyRulesSubmoduleLow,
-                           List<string> adjacencyRulesSubmoduleHigh,
-                           Vector3d worldSize,
+        private bool Solve(List<RuleForSolver> rules,
+                           Point3i worldSize,
+                           List<Slot> slots,
                            int randomSeed,
                            int maxAttemptsInt,
-                           // Note: This list will be cleared and re-used for output.
-                           ref List<Point3d> worldSlotPositions,
-                           // Note: This list will be cleared and re-used for output.
-                           ref List<string> worldSlotSubmodules,
+                           out List<string> worldSlotSubmodules,
                            out string report) {
             var stats = new Stats();
+            worldSlotSubmodules = new List<string>();
 
             // -- Adjacency rules --
             //
-            // The rules come in three lists of the same length. The first contains texts
-            // representing the axis/kind (x/y/z).
             // Second and third list contain unique textual identifiers of the modules.
             // This importer replaces those string names with generated u32 numbers,
             // starting with 0.
 
-            if (adjacencyRulesAxis.Count != adjacencyRulesSubmoduleLow.Count ||
-                adjacencyRulesAxis.Count != adjacencyRulesSubmoduleHigh.Count) {
-                report = "Unequal rule components count.";
-                return false;
-            }
-
             // We need to check ahead of time, if there are at most 256 modules
             // altogether in the input, otherwise the `nextModule` variable will
             // overflow and cause a dictionary error.
-            {
-                var allModules = new HashSet<string>();
+            var allSubmodules = new HashSet<string>();
 
-                for (var i = 0; i < adjacencyRulesAxis.Count; ++i) {
-                    allModules.Add(adjacencyRulesSubmoduleLow[i]);
-                    allModules.Add(adjacencyRulesSubmoduleHigh[i]);
-                }
+            foreach (var rule in rules) {
+                allSubmodules.Add(rule.LowerSubmoduleName);
+                allSubmodules.Add(rule.HigherSubmoduleName);
+            }
 
-                // TODO: Move to caller
-                if (allModules.Count > 256) {
-                    report = "The modules occupy too many slots. Maximum allowed is 256, current is " +
-                        allModules.Count + ".";
-                    return false;
-                }
+            if (allSubmodules.Count > Config.MAX_SUBMODULES) {
+                report = "Too many submodules.";
+                return false;
             }
 
             byte nextSubmodule = 0;
             var nameToSubmodule = new Dictionary<string, byte>();
             var submoduleToName = new Dictionary<byte, string>();
-            var adjacencyRules = new AdjacencyRule[adjacencyRulesAxis.Count];
+            var adjacencyRules = new AdjacencyRule[rules.Count];
 
-            for (var i = 0; i < adjacencyRulesAxis.Count; ++i) {
-                var axisStr = adjacencyRulesAxis[i];
-                var lowStr = adjacencyRulesSubmoduleLow[i];
-                var highStr = adjacencyRulesSubmoduleHigh[i];
+            for (var i = 0; i < rules.Count; ++i) {
+                var lowStr = rules[i].LowerSubmoduleName;
+                var highStr = rules[i].HigherSubmoduleName;
+                var kind = rules[i].Axis;
 
-                AdjacencyRuleKind kind;
-                switch (axisStr) {
-                    case "x":
-                    case "X":
-                        kind = AdjacencyRuleKind.X;
-                        break;
-                    case "y":
-                    case "Y":
-                        kind = AdjacencyRuleKind.Y;
-                        break;
-                    case "z":
-                    case "Z":
-                        kind = AdjacencyRuleKind.Z;
-                        break;
-                    default:
-                        report = "Invalid world state.";
-                        return false;
-                }
-
-                byte low = 0;
+                byte low;
                 if (nameToSubmodule.ContainsKey(lowStr)) {
                     nameToSubmodule.TryGetValue(lowStr, out low);
                 } else {
@@ -505,7 +459,7 @@ namespace WFCPlugin {
                     nextSubmodule++;
                 }
 
-                byte high = 0;
+                byte high;
                 if (nameToSubmodule.ContainsKey(highStr)) {
                     nameToSubmodule.TryGetValue(highStr, out high);
                 } else {
@@ -515,10 +469,11 @@ namespace WFCPlugin {
                     nextSubmodule++;
                 }
 
-                AdjacencyRule rule;
-                rule.kind = kind;
-                rule.module_low = low;
-                rule.module_high = high;
+                var rule = new AdjacencyRule() {
+                    kind = kind,
+                    module_low = low,
+                    module_high = high
+                };
                 adjacencyRules[i] = rule;
             }
 
@@ -526,29 +481,9 @@ namespace WFCPlugin {
             // -- World dimensions --
             //
 
-            var worldXInt = (int)Math.Round(worldSize.X);
-            var worldYInt = (int)Math.Round(worldSize.Y);
-            var worldZInt = (int)Math.Round(worldSize.Z);
-
-            if (worldXInt <= 0) {
-                report = "World X must be a positive integer";
-                return false;
-            }
-            if (worldYInt <= 0) {
-                report = "World Y must be a positive integer";
-                return false;
-            }
-            if (worldZInt <= 0) {
-                report = "World Z must be a positive integer";
-                return false;
-            }
-
-            var worldX = (ushort)worldXInt;
-            var worldY = (ushort)worldYInt;
-            var worldZ = (ushort)worldZInt;
-            var worldDimensions = (uint)worldX * worldY * worldZ;
-            var worldSlotsPerLayer = (uint)worldX * worldY;
-            uint worldSlotsPerRow = worldX;
+            var worldDimensions = worldSize.X * worldSize.Y * worldSize.Z;
+            var worldSlotsPerLayer = worldSize.X * worldSize.Y;
+            var worldSlotsPerRow = worldSize.X;
 
             //
             // -- World slot positions and modules --
@@ -568,48 +503,21 @@ namespace WFCPlugin {
                 }
             }
 
-            var worldSlotMinCount = Math.Min(worldSlotPositions.Count, worldSlotSubmodules.Count);
-            for (var i = 0; i < worldSlotMinCount; ++i) {
-                var position = worldSlotPositions[i];
-                var moduleStr = worldSlotSubmodules[i];
+            for (var slotIndex = 0; slotIndex < slots.Count; ++slotIndex) {
+                var submoduleStrings = slots[slotIndex].AllowedSubmoduleNames;
+                foreach (var submoduleString in submoduleStrings) {
+                    if (nameToSubmodule.TryGetValue(submoduleString, out var submoduleByte)) {
+                        Debug.Assert(slotIndex < worldState.Length);
 
-                var slotXInt = (int)Math.Round(position.X);
-                var slotYInt = (int)Math.Round(position.Y);
-                var slotZInt = (int)Math.Round(position.Z);
+                        var blkIndex = (byte)(submoduleByte / 64u);
+                        var bitIndex = (byte)(submoduleByte % 64u);
+                        var mask = 1ul << bitIndex;
 
-                if (slotXInt < 0) {
-                    report = "Slot X must be a nonnegative integer";
-                    return false;
-                }
-                if (slotYInt < 0) {
-                    report = "Slot Y must be a nonnegative integer";
-                    return false;
-                }
-                if (slotZInt < 0) {
-                    report = "World Z must be a nonnegative integer";
-                    return false;
-                }
-
-                var slotX = (uint)slotXInt;
-                var slotY = (uint)slotYInt;
-                var slotZ = (uint)slotZInt;
-
-                if (nameToSubmodule.TryGetValue(moduleStr.ToString(), out var module)) {
-                    var slotIndex = slotX + slotY * worldSlotsPerRow + slotZ * worldSlotsPerLayer;
-                    Debug.Assert(slotIndex < worldState.Length);
-
-                    var blkIndex = (byte)(module / 64u);
-                    var bitIndex = (byte)(module % 64u);
-                    var mask = 1ul << bitIndex;
-
-                    Debug.Assert(blkIndex < 4);
-                    unsafe {
-                        worldState[slotIndex].slot_state[blkIndex] |= mask;
+                        Debug.Assert(blkIndex < 4);
+                        unsafe {
+                            worldState[slotIndex].slot_state[blkIndex] |= mask;
+                        }
                     }
-                } else {
-                    report = "Slot submodule list (SM) contains submodule not found in " +
-                                      "the ruleset: " + moduleStr;
-                    return false;
                 }
             }
 
@@ -652,9 +560,9 @@ namespace WFCPlugin {
                     var result = Native.wfc_init(&wfc,
                                                  adjacencyRulesPtr,
                                                  (UIntPtr)adjacencyRules.Length,
-                                                 worldX,
-                                                 worldY,
-                                                 worldZ,
+                                                 (ushort)worldSize.X,
+                                                 (ushort)worldSize.Y,
+                                                 (ushort)worldSize.Z,
                                                  rngSeedLow,
                                                  rngSeedHigh);
 
@@ -663,13 +571,13 @@ namespace WFCPlugin {
                             // All good
                             break;
                         case WfcInitResult.TooManyModules:
-                            report = "WFC solver failed: Adjacency rules contained too many modules";
+                            report = "WFC Solver failed: Adjacency rules contained too many modules";
                             return false;
                         case WfcInitResult.WorldDimensionsZero:
-                            report = "WFC solver failed: World dimensions are zero";
+                            report = "WFC Solver failed: World dimensions are zero";
                             return false;
                         default:
-                            report = "WFC solver failed with unknown error";
+                            report = "WFC Solver failed with unknown error";
                             return false;
                     }
                 }
@@ -688,7 +596,7 @@ namespace WFCPlugin {
                             stats.worldNotCanonical = true;
                             break;
                         case WfcWorldStateSetResult.WorldContradictory:
-                            report = "WFC solver failed: World state is contradictory";
+                            report = "WFC Solver failed: World state is contradictory";
                             return false;
                     }
                 }
@@ -696,7 +604,7 @@ namespace WFCPlugin {
 
             var attempts = Native.wfc_observe(wfc, maxAttempts);
             if (attempts == 0) {
-                report = "WFC solver failed to find solution within " + maxAttempts + " attempts";
+                report = "WFC Solver failed to find solution within " + maxAttempts + " attempts";
                 return false;
             }
 
@@ -714,9 +622,6 @@ namespace WFCPlugin {
             // The resulting world state is in the flat bit-vector format. Since we
             // early-out on nondeterministic results, we can assume exactly one bit
             // being set here and can therefore produce a flat list on output.
-
-            worldSlotPositions.Clear();
-            worldSlotSubmodules.Clear();
             for (var i = 0; i < worldState.Length; ++i) {
                 // Assume the result is deterministic and only take the first set bit
                 var submodule = short.MinValue;
@@ -731,21 +636,19 @@ namespace WFCPlugin {
                     }
                 }
 
-                var submoduleStr = "<unknown>";
                 if (submodule >= 0) {
                     Debug.Assert(submodule <= byte.MaxValue);
-                    submoduleToName.TryGetValue((byte)submodule, out submoduleStr);
+                    var valid = submoduleToName.TryGetValue((byte)submodule, out var submoduleStr);
+                    if (valid) {
+                        worldSlotSubmodules.Add(submoduleStr);
+                    } else {
+                        report = "WFC Solver returned a non-existing submodule.";
+                        return false;
+                    }
                 }
-
-                var slotX = i % worldSlotsPerLayer % worldSlotsPerRow;
-                var slotY = i % worldSlotsPerLayer / worldSlotsPerRow;
-                var slotZ = i / worldSlotsPerLayer;
-
-                worldSlotPositions.Add(new Point3d(slotX, slotY, slotZ));
-                worldSlotSubmodules.Add(submoduleStr);
             }
 
-            stats.ruleCount = (uint)adjacencyRulesAxis.Count;
+            stats.ruleCount = (uint)rules.Count;
             stats.submoduleCount = (uint)submoduleToName.Count;
             stats.solveAttempts = attempts;
 
@@ -754,15 +657,9 @@ namespace WFCPlugin {
         }
     }
 
-    internal enum AdjacencyRuleKind : uint {
-        X = 0,
-        Y = 1,
-        Z = 2,
-    }
-
     [StructLayout(LayoutKind.Sequential)]
     internal struct AdjacencyRule {
-        public AdjacencyRuleKind kind;
+        public Axis kind;
         public byte module_low;
         public byte module_high;
     }

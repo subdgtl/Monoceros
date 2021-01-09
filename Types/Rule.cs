@@ -398,7 +398,7 @@ namespace WFCPlugin {
     /// Providing a list of <see cref="Module"/>s, the
     /// <see cref="RuleExplicit"/> can be converted to
     /// <see cref="RuleForSolver"/> with
-    /// <see cref="ToWFCRuleSolver(List{Module}, out RuleForSolver)"/>, which is
+    /// <see cref="ToRuleForSolver(List{Module}, out RuleForSolver)"/>, which is
     /// checked for validity and converted to lower-to-higher order (positive
     /// direction). 
     /// </para>
@@ -545,29 +545,23 @@ namespace WFCPlugin {
         /// <param name="ruleForSolver">Output rule for
         ///     <see cref="ComponentFauxSolver"/>.</param>
         /// <returns>True if the conversion was successful.</returns>
-        public bool ToWFCRuleSolver(List<Module> modules, out RuleForSolver ruleForSolver) {
-            // Check if such modules and their connectors exist
-            var sourceModule = modules.FirstOrDefault(module => module.Name == SourceModuleName);
-            var targetModule = modules.FirstOrDefault(module => module.Name == TargetModuleName);
-            if (sourceModule == null || targetModule == null) {
+        public bool ToRuleForSolver(List<Module> modules, out RuleForSolver ruleForSolver) {
+            if (!IsValidWithGivenModules(modules)) {
                 ruleForSolver = default;
                 return false;
             }
-            var sourceConnector = sourceModule.Connectors.ElementAtOrDefault(SourceConnectorIndex);
-            var targetConnector = targetModule.Connectors.ElementAtOrDefault(TargetConnectorIndex);
 
-            if (sourceConnector.Equals(default(ModuleConnector)) ||
-                targetConnector.Equals(default(ModuleConnector))) {
-                ruleForSolver = default;
-                return false;
-            }
+            var sourceModule = modules.First(module => module.Name == SourceModuleName);
+            var targetModule = modules.First(module => module.Name == TargetModuleName);
+            var sourceConnector = sourceModule.Connectors[SourceConnectorIndex];
+            var targetConnector = targetModule.Connectors[TargetConnectorIndex];
 
             // Ensure positive direction (lower-to-higher order)
             ruleForSolver = sourceConnector.Direction.Orientation == Orientation.Positive ?
-                            new RuleForSolver(sourceConnector.Direction.Axis.ToString("g"),
+                            new RuleForSolver(sourceConnector.Direction.Axis,
                                               sourceConnector.SubmoduleName,
                                               targetConnector.SubmoduleName) :
-                            new RuleForSolver(targetConnector.Direction.Axis.ToString("g"),
+                            new RuleForSolver(targetConnector.Direction.Axis,
                                               targetConnector.SubmoduleName,
                                               sourceConnector.SubmoduleName);
             return true;
@@ -818,7 +812,7 @@ namespace WFCPlugin {
     /// the Solver.
     /// <list type="bullet">
     ///     <item>
-    ///         <term><see cref="AxialDirection"/></term>
+    ///         <term><see cref="Axis"/></term>
     ///         <description>String: <c>x</c> or <c>y</c> or <c>z</c>.
     ///             </description>
     ///     </item>
@@ -841,7 +835,7 @@ namespace WFCPlugin {
         /// <summary>
         /// String: <c>x</c> or <c>y</c> or <c>z</c>.
         /// </summary>
-        public readonly string AxialDirection;
+        public readonly Axis Axis;
         /// <summary>
         /// Unique string identifier of a source (lower X or Y or Z coordinate)
         /// submodule (size of a single <see cref="Slot"/>).
@@ -860,13 +854,10 @@ namespace WFCPlugin {
         ///     "<c>y</c>" or "<c>z</c>".</param>
         /// <param name="lowerSubmoduleName">The lower submodule name.</param>
         /// <param name="higherSubmoduleName">The higher submodule name.</param>
-        public RuleForSolver(string axialDirection,
+        public RuleForSolver(Axis axialDirection,
                              string lowerSubmoduleName,
                              string higherSubmoduleName) {
-            AxialDirection = axialDirection.ToLower();
-            if (AxialDirection != "x" && AxialDirection != "y" && AxialDirection != "z") {
-                throw new Exception("The axial direction is invalid: " + axialDirection);
-            }
+            Axis = axialDirection;
             LowerSubmoduleName = lowerSubmoduleName;
             HigherSubmoduleName = higherSubmoduleName;
         }
@@ -879,7 +870,7 @@ namespace WFCPlugin {
         /// <returns>True if equal.</returns>
         public override bool Equals(object obj) {
             return obj is RuleForSolver rule &&
-                   AxialDirection == rule.AxialDirection &&
+                   Axis == rule.Axis &&
                    LowerSubmoduleName == rule.LowerSubmoduleName &&
                    HigherSubmoduleName == rule.HigherSubmoduleName;
         }
@@ -889,8 +880,8 @@ namespace WFCPlugin {
         /// </summary>
         /// <returns>An int.</returns>
         public override int GetHashCode( ) {
-            var hashCode = -733970503;
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(AxialDirection);
+            var hashCode = 747929822;
+            hashCode = hashCode * -1521134295 + Axis.GetHashCode();
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(LowerSubmoduleName);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(HigherSubmoduleName);
             return hashCode;

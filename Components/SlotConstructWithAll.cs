@@ -5,7 +5,7 @@ using Rhino.Geometry;
 
 namespace WFCPlugin {
     public class ComponentConstructSlotWithAll : GH_Component {
-        public ComponentConstructSlotWithAll( ) 
+        public ComponentConstructSlotWithAll( )
             : base("Construct Slot With All Modules Allowed",
                    "SlotAll",
                    "Construct a WFC Slot with all WFC Modules allowed.",

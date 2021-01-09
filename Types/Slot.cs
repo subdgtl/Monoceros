@@ -60,7 +60,7 @@ namespace WFCPlugin {
     /// instantiate a <see cref="Slot"/> with any module allowed (except "Out"
     /// module, which is a special case) using
     /// <see cref="ComponentConstructSlotWithAll"/>. In such case the
-    /// <see cref="AllowAnyModule"/> flag is set to True. That is especially
+    /// <see cref="AllowsAnyModule"/> flag is set to True. That is especially
     /// useful because the list of existing <see cref="Module"/> names does not
     /// have to be known.
     /// </para>
@@ -99,7 +99,7 @@ namespace WFCPlugin {
         /// without the necessity explicitly of specifying a list of
         /// <see cref="AllowedModuleNames"/>
         /// </summary>
-        public readonly bool AllowAnyModule;
+        public readonly bool AllowsAnyModule;
 
         /// <summary>
         /// An explicit list of <see cref="Module"/> names that can be placed
@@ -172,7 +172,7 @@ namespace WFCPlugin {
             Diagonal = diagonal;
             BasePlane = basePlane;
             RelativeCenter = relativeCenter;
-            AllowAnyModule = allowAnyModule;
+            AllowsAnyModule = allowAnyModule;
             AllowedModuleNames = allowedModules;
             AllowedSubmoduleNames = allowedSubModules;
             AllSubmodulesCount = allSubmodulesCount;
@@ -181,7 +181,7 @@ namespace WFCPlugin {
         /// <summary>
         /// Duplicates the <see cref="Slot"/> with <see cref="Module"/> names
         /// explicitly specified. Useful for unwrapping <see cref="Slot"/>s that
-        /// <see cref="AllowAnyModule"/>.
+        /// <see cref="AllowsAnyModule"/>.
         /// </summary>
         /// <param name="moduleNames">The new <see cref="AllowedModuleNames"/>.
         ///     </param>
@@ -191,7 +191,7 @@ namespace WFCPlugin {
                         BasePlane,
                         RelativeCenter,
                         Diagonal,
-                        AllowAnyModule,
+                        AllowsAnyModule,
                         moduleNames,
                         AllowedSubmoduleNames,
                         AllSubmodulesCount
@@ -212,7 +212,7 @@ namespace WFCPlugin {
                         BasePlane,
                         RelativeCenter,
                         Diagonal,
-                        AllowAnyModule,
+                        AllowsAnyModule,
                         AllowedModuleNames,
                         AllowedSubmoduleNames,
                         allSubmodulesCount
@@ -378,7 +378,7 @@ namespace WFCPlugin {
         ///     <item>
         ///         <term><see cref="Config.CAGE_EVERYTHING_COLOR"/></term>
         ///         <description>The <see cref="Slot"/> allows placement of any
-        ///             <see cref="Module"/>.  The <see cref="AllowAnyModule"/>
+        ///             <see cref="Module"/>.  The <see cref="AllowsAnyModule"/>
         ///             flag is on.</description>
         ///     </item>
         ///     <item>
@@ -412,11 +412,11 @@ namespace WFCPlugin {
         public void DrawViewportWires(GH_PreviewWireArgs args) {
             var color = Config.CAGE_UNKNOWN_COLOR;
 
-            if (AllowAnyModule) {
+            if (AllowsAnyModule) {
                 color = Config.CAGE_EVERYTHING_COLOR;
             }
 
-            if (AllowedNothing) {
+            if (AllowsNothing) {
                 color = Config.CAGE_NONE_COLOR;
             }
 
@@ -448,9 +448,9 @@ namespace WFCPlugin {
         /// not allow placement of any submodule and therefore also any
         /// <see cref="Module"/>.
         /// </summary>
-        public bool AllowedNothing =>
-            (!AllowAnyModule && AllowedModuleNames.Count == 0) ||
-            (!AllowAnyModule && AllowedSubmoduleNames.Count == 0);
+        public bool AllowsNothing =>
+            (!AllowsAnyModule && AllowedModuleNames.Count == 0) ||
+            (!AllowsAnyModule && AllowedSubmoduleNames.Count == 0);
 
         /// <summary>
         /// Checks the validity of a <see cref="Slot"/>.  Required by
@@ -490,13 +490,13 @@ namespace WFCPlugin {
             var diagonal = new GH_Vector(Diagonal);
             var plane = new GH_Plane(BasePlane);
             var containment = "";
-            if (AllowAnyModule) {
+            if (AllowsAnyModule) {
                 containment = "all modules";
             }
-            if (AllowedNothing) {
+            if (AllowsNothing) {
                 containment = "no modules";
             }
-            if (!AllowedNothing && !AllowAnyModule) {
+            if (!AllowsNothing && !AllowsAnyModule) {
                 var count = AllowedModuleNames.Count;
                 if (count == 1) {
                     containment = "module '" + AllowedModuleNames[0] + "'";
@@ -542,11 +542,11 @@ namespace WFCPlugin {
 
             var color = Config.CAGE_UNKNOWN_COLOR;
 
-            if (AllowAnyModule) {
+            if (AllowsAnyModule) {
                 color = Config.CAGE_EVERYTHING_COLOR;
             }
 
-            if (AllowedNothing) {
+            if (AllowsNothing) {
                 color = Config.CAGE_NONE_COLOR;
             }
 

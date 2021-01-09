@@ -31,9 +31,13 @@ namespace WFCPlugin {
         public static string RESERVED_TO_STRING => RESERVED_NAMES
             .Aggregate("", (accum, name) => accum + ", " + name);
 
+        /// <summary>
+        /// Maximum number of submodules supported by the current solver.
+        /// </summary>
+        public static readonly int MAX_SUBMODULES = 256;
+
         public static readonly string FONT_FACE = "Mark Pro";
         public static readonly int MODULE_NAME_FONT_HEIGHT = 40;
-
 
         /// <summary>
         /// Preview and baking color a <see cref="Module"/> cage and

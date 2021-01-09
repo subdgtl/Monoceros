@@ -444,7 +444,7 @@ namespace WFCPlugin {
                 if (otherIndexXPositive != -1) {
                     // Add internal rule, that the current submodule connects to the neighbor 
                     // through its positive X connector (face)
-                    rulesInternal.Add(new RuleForSolver(Axis.X.ToString("g"),
+                    rulesInternal.Add(new RuleForSolver(Axis.X,
                                                         submoduleNames[thisIndex],
                                                         submoduleNames[otherIndexXPositive]));
                 }
@@ -453,7 +453,7 @@ namespace WFCPlugin {
                 var otherIndexYPositive = submoduleCenters
                     .FindIndex(o => center.Y - o.Y == -1 && center.X == o.X && center.Z == o.Z);
                 if (otherIndexYPositive != -1) {
-                    rulesInternal.Add(new RuleForSolver(Axis.Y.ToString("g"),
+                    rulesInternal.Add(new RuleForSolver(Axis.Y,
                                                         submoduleNames[thisIndex],
                                                         submoduleNames[otherIndexYPositive]));
                 }
@@ -462,7 +462,7 @@ namespace WFCPlugin {
                 var otherIndexZPositive = submoduleCenters
                     .FindIndex(o => center.Z - o.Z == -1 && center.X == o.X && center.Y == o.Y);
                 if (otherIndexZPositive != -1) {
-                    rulesInternal.Add(new RuleForSolver(Axis.Z.ToString("g"),
+                    rulesInternal.Add(new RuleForSolver(Axis.Z,
                                                         submoduleNames[thisIndex],
                                                         submoduleNames[otherIndexZPositive]));
                 }
@@ -711,7 +711,7 @@ namespace WFCPlugin {
                                       textColor,
                                       dotColor);
             }
-            
+
             var pivotPosition = Pivot.Origin;
             args.Pipeline.Draw2dText(Name,
                                      Config.POSITIVE_COLOR,

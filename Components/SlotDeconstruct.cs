@@ -74,8 +74,8 @@ namespace WFCPlugin {
             DA.SetDataList(0, new List<Point3d>() { slot.AbsoluteCenter });
             DA.SetDataList(1, new List<Plane>() { slot.BasePlane });
             DA.SetDataList(2, new List<Vector3d>() { slot.Diagonal });
-            DA.SetDataList(3, new List<bool>() { slot.AllowAnyModule });
-            DA.SetDataList(4, new List<bool>() { slot.AllowedNothing });
+            DA.SetDataList(3, new List<bool>() { slot.AllowsAnyModule });
+            DA.SetDataList(4, new List<bool>() { slot.AllowsNothing });
             DA.SetDataList(5, slot.AllowedModuleNames.Select(name => new ModuleName(name)));
         }
 

@@ -81,10 +81,10 @@ namespace WFCPlugin {
     /// <summary>
     /// Submodule face axis within a grid: <c>X</c> or <c>Y</c> or <c>Z</c>.
     /// </summary>
-    public enum Axis {
-        X,
-        Y,
-        Z
+    public enum Axis : uint {
+        X = 0,
+        Y = 1,
+        Z = 2,
     }
 
     /// <summary>
