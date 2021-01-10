@@ -52,11 +52,13 @@ namespace WFCPlugin {
                 return;
             }
 
+            if (rule == null || !rule.IsValid) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The rule is null or invalid.");
+                return;
+            }
+
             if (!rule.IsTyped()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The provided rule is not typed.");
-                DA.SetData(0, null);
-                DA.SetData(1, null);
-                DA.SetData(2, null);
                 return;
             }
 

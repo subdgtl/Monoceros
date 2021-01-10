@@ -229,12 +229,14 @@ namespace WFCPlugin {
                     }
                     var sourceModuleName = sourceSubTexts[0].Trim();
                     var sourceConnectorIndexStr = sourceSubTexts[1].Trim();
+
                     var targetSubTexts = subTexts[1].Split(':');
-                    if (sourceSubTexts.Length != 2) {
+                    if (targetSubTexts.Length != 2) {
                         return false;
                     }
                     var targetModuleName = targetSubTexts[0].Trim();
                     var targetConnectorIndexStr = targetSubTexts[1].Trim();
+
                     try {
                         var sourceConnectorIndex = int.Parse(sourceConnectorIndexStr);
                         var targetConnectorIndex = int.Parse(targetConnectorIndexStr);
@@ -368,7 +370,7 @@ namespace WFCPlugin {
 
     /// <summary>
     /// <para>
-    /// Explicit rule for Monoceros <see cref="ComponentFauxSolver"/>.
+    /// Explicit rule for Monoceros <see cref="ComponentSolver"/>.
     /// </para>
     /// <para>
     /// <see cref="RuleExplicit"/> describes an allowed neighborhood of two
@@ -407,7 +409,7 @@ namespace WFCPlugin {
     /// <see cref="Module.InternalRules"/>, in which case the rule allows
     /// connection of two submodules of the same <see cref="Module"/>. This is,
     /// however, hidden from the Grasshopper API and is used only internally by
-    /// the <see cref="ComponentFauxSolver"/>.
+    /// the <see cref="ComponentSolver"/>.
     /// </para>
     /// </remarks>
     public class RuleExplicit {
@@ -537,13 +539,13 @@ namespace WFCPlugin {
         /// <summary>
         /// Converts the <see cref="RuleExplicit"/> to
         /// <see cref="RuleForSolver"/>, which is a format ready to be processed
-        /// by the <see cref="ComponentFauxSolver"/>. The conversion checks the
+        /// by the <see cref="ComponentSolver"/>. The conversion checks the
         /// validity of the rule and converts it to lower-to-higher order
         /// (positive direction).
         /// </summary>
         /// <param name="modules">All (related) modules.</param>
         /// <param name="ruleForSolver">Output rule for
-        ///     <see cref="ComponentFauxSolver"/>.</param>
+        ///     <see cref="ComponentSolver"/>.</param>
         /// <returns>True if the conversion was successful.</returns>
         public bool ToRuleForSolver(List<Module> modules, out RuleForSolver ruleForSolver) {
             if (!IsValidWithGivenModules(modules)) {

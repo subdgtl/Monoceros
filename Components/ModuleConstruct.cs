@@ -19,7 +19,7 @@ namespace WFCPlugin {
     /// <see cref="Point3d"/>s will be removed. Production
     /// <see cref="GeometryBase"/> will be used by the
     /// <see cref="ComponentMaterializeSlot"/> to materialize the result of the Monoceros
-    /// <see cref="ComponentFauxSolver"/>. The production
+    /// <see cref="ComponentSolver"/>. The production
     /// <see cref="GeometryBase"/> is unrelated to the <see cref="Module"/> cage
     /// and <see cref="Slot"/>s it may occupy. 
     /// </para>
@@ -48,7 +48,7 @@ namespace WFCPlugin {
     ///         <term><see cref="GeometryBase"/> Production Geometry</term>
     ///         <description><see cref="GeometryBase"/> used by the
     ///             <see cref="ComponentMaterializeSlot"/> to materialize the result
-    ///             of the Monoceros <see cref="ComponentFauxSolver"/>. Production
+    ///             of the Monoceros <see cref="ComponentSolver"/>. Production
     ///             Geometry does not have to fit into the generated
     ///             <see cref="Module"/> cages and can be larger, smaller,
     ///             different or none.  Supports any geometry. List access. No

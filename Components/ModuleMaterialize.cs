@@ -80,10 +80,19 @@ namespace WFCPlugin {
 
             for (var moduleIndex = 0; moduleIndex < modules.Count; moduleIndex++) {
                 var module = modules[moduleIndex];
+                if (module == null || !module.IsValid) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The module is null or invalid.");
+                    return;
+                }
+
                 var currentTransforms = new List<Transform>();
                 IEnumerable<GeometryBase> slotGeometry;
                 for (var slotIndex = 0; slotIndex < slots.Count; slotIndex++) {
                     var slot = slots[slotIndex];
+                    if (slot == null || !slot.IsValid) {
+                        AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The slot is null or invalid.");
+                        continue;
+                    }
                     // TODO: Think about how to display bake contradictory and non-deterministic slots.
                     if (slot.AllowedSubmoduleNames.Count == 1 &&
                         slot.AllowedSubmoduleNames[0] == module.PivotSubmoduleName) {

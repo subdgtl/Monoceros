@@ -8,9 +8,9 @@ using Grasshopper.Kernel;
 
 namespace WFCPlugin {
     public class ComponentSolver : GH_Component {
-        public ComponentSolver( ) : base("Monoceros Solver",
-                                         "Monoceros",
-                                         "Solver for the Wave Function Collapse",
+        public ComponentSolver( ) : base("Monoceros WFC Solver",
+                                         "WFC",
+                                         "Moniceros Solver for the Wave Function Collapse",
                                          "Monoceros",
                                          "Main") {
         }
@@ -69,7 +69,7 @@ namespace WFCPlugin {
         ///     input parameters and to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA) {
             var slotsRaw = new List<Slot>();
-            var modules = new List<Module>();
+            var modulesRaw = new List<Module>();
             var rulesRaw = new List<Rule>();
             var randomSeed = 42;
             var maxAttempts = 10;
@@ -78,7 +78,7 @@ namespace WFCPlugin {
                 return;
             }
 
-            if (!DA.GetDataList(1, modules)) {
+            if (!DA.GetDataList(1, modulesRaw)) {
                 return;
             }
 
@@ -94,38 +94,64 @@ namespace WFCPlugin {
                 return;
             }
 
-            var diagonal = slotsRaw.First().Diagonal;
 
-            // Check if all slots have the same slot diagonal
-            if (slotsRaw.Any(slot => slot.Diagonal != diagonal)) {
+            var slotsClean = new List<Slot>();
+            foreach (var slot in slotsRaw) {
+                if (slot == null || !slot.IsValid) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Slot is null or invalid.");
+                } else {
+                    slotsClean.Add(slot);
+                }
+            }
+
+            var modulesClean = new List<Module>();
+            foreach (var module in modulesRaw) {
+                if (module == null || !module.IsValid) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Module is null or invalid.");
+                } else {
+                    modulesClean.Add(module);
+                }
+            }
+
+            var rulesClean = new List<Rule>();
+            foreach (var rule in rulesRaw) {
+                if (rule == null || !rule.IsValid) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Rule is null or invalid.");
+                } else {
+                    rulesClean.Add(rule);
+                }
+            }
+
+            var diagonal = slotsClean.First().Diagonal;
+
+            if (slotsClean.Any(slot => slot.Diagonal != diagonal)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "Slots are not defined with the same diagonal.");
                 return;
             }
 
-            // Check if all slots have the same base plane 
             // TODO: Consider smarter compatibility check or base plane conversion
-            var slotBasePlane = slotsRaw.First().BasePlane;
-            if (slotsRaw.Any(slot => slot.BasePlane != slotBasePlane)) {
+            var slotBasePlane = slotsClean.First().BasePlane;
+            if (slotsClean.Any(slot => slot.BasePlane != slotBasePlane)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "Slots are not defined with the same base plane.");
                 return;
             }
 
-            if (!AreSlotLocationsUnique(slotsRaw)) {
+            if (!AreSlotLocationsUnique(slotsClean)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Slot centers are not unique.");
                 return;
             }
 
-            var moduleDiagonal = modules.First().SlotDiagonal;
+            var moduleDiagonal = modulesClean.First().SlotDiagonal;
 
-            if (modules.Any(module => module.SlotDiagonal != moduleDiagonal)) {
+            if (modulesClean.Any(module => module.SlotDiagonal != moduleDiagonal)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "Modules are not defined with the same diagonal.");
                 return;
             }
 
-            if (!AreModuleNamesUnique(modules)) {
+            if (!AreModuleNamesUnique(modulesClean)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Module names are not unique.");
                 return;
             }
@@ -138,9 +164,9 @@ namespace WFCPlugin {
 
             var modulesUsable = new List<Module>();
 
-            foreach (var module in modules) {
+            foreach (var module in modulesClean) {
                 var usedConnectors = Enumerable.Repeat(false, module.Connectors.Count).ToList();
-                foreach (var rule in rulesRaw) {
+                foreach (var rule in rulesClean) {
                     if (rule.IsExplicit()) {
                         if (rule.Explicit.SourceModuleName == module.Name &&
                             rule.Explicit.SourceConnectorIndex < module.Connectors.Count) {
@@ -159,14 +185,13 @@ namespace WFCPlugin {
                     }
                 }
                 if (usedConnectors.Any(boolean => boolean == false)) {
-                    var warningString = "Module " + module.Name + " will be excluded from the " +
-                        "solution. Connectors ";
+                    var warningString = "Module \"" + module.Name + "\" will be excluded from the " +
+                        "solution. Connectors not described by any Rule: ";
                     for (var i = 0; i < usedConnectors.Count; i++) {
                         if (!usedConnectors[i]) {
                             warningString += i + ", ";
                         }
                     }
-                    warningString += "are not described by any Rule.";
                     AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, warningString);
                 } else {
                     modulesUsable.Add(module);
@@ -175,8 +200,8 @@ namespace WFCPlugin {
 
             if (modulesUsable.Count == 0) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  "There are no modules with all connectors described by the " +
-                                  "given rules.");
+                                  "There are no Modules with all connectors described by the " +
+                                  "given Rules.");
                 return;
             }
 
@@ -185,23 +210,22 @@ namespace WFCPlugin {
 
             if (allSubmodulesCount > Config.MAX_SUBMODULES) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                    "The modules occupy too many slots. Maximum allowed is " + Config.MAX_SUBMODULES +
-                    ", current is " + allSubmodulesCount + ".");
+                    "The Modules occupy too many Slots: " + allSubmodulesCount + ". Maximum allowed :" +
+                    Config.MAX_SUBMODULES + ".");
                 return;
             }
 
-            // Generate Out module
             Module.GenerateEmptySingleModule(Config.OUTER_MODULE_NAME,
                                              Config.INDIFFERENT_TAG,
                                              new Rhino.Geometry.Vector3d(1, 1, 1),
                                              out var moduleOut,
                                              out var rulesOutTyped);
             var rulesOut = rulesOutTyped.Select(ruleTyped => new Rule(ruleTyped));
-            rulesRaw.AddRange(rulesOut);
+            rulesClean.AddRange(rulesOut);
 
             // Convert AllowEverything slots into an explicit list of allowed modules (except Out)
             var allModuleNames = modulesUsable.Select(module => module.Name).ToList();
-            var slotsUnwrapped = slotsRaw.Select(slotRaw =>
+            var slotsUnwrapped = slotsClean.Select(slotRaw =>
                 slotRaw.AllowsAnyModule ?
                     slotRaw.DuplicateWithModuleNames(allModuleNames) :
                     slotRaw
@@ -210,11 +234,11 @@ namespace WFCPlugin {
             modulesUsable.Add(moduleOut);
 
             // Unwrap typed rules
-            var rulesTyped = rulesRaw.Where(rule => rule.IsTyped()).Select(rule => rule.Typed);
+            var rulesTyped = rulesClean.Where(rule => rule.IsTyped()).Select(rule => rule.Typed);
             var rulesTypedUnwrappedToExplicit = rulesTyped
                 .SelectMany(ruleTyped => ruleTyped.ToRuleExplicit(rulesTyped, modulesUsable));
 
-            var rulesExplicit = rulesRaw
+            var rulesExplicit = rulesClean
                 .Where(rule => rule.IsExplicit())
                 .Select(rule => rule.Explicit);
 
@@ -234,7 +258,7 @@ namespace WFCPlugin {
                 rulesForSolver.AddRange(module.InternalRules);
             }
 
-            var slotOrder = new List<int>(slotsRaw.Count);
+            var slotOrder = new List<int>(slotsClean.Count);
             // Define world space (slots bounding box + 1 layer padding)
             ComputeWorldRelativeBounds(slotsUnwrapped, out var worldMin, out var worldMax);
             var worldLength = ComputeWorldLength(worldMin, worldMax);
@@ -276,28 +300,21 @@ namespace WFCPlugin {
             });
 
             foreach (var slot in worldForSolver) {
+                if (!slot.IsValid) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, slot.IsValidWhyNot);
+                    return;
+                }
+
                 if (slot.AllowsNothing) {
                     AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  "Slot at " + slot.AbsoluteCenter + "does not allow any module " +
+                                  "Slot at " + slot.AbsoluteCenter + "does not allow any Module " +
                                   "to be placed.");
-                    return;
-                }
-
-                if (slot.AllowedModuleNames.Count == 0) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  "Invalid slot at " + slot.AbsoluteCenter + ".");
-                    return;
-                }
-
-                if (slot.AllowedSubmoduleNames.Count == 0) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  "Unwrapping failed for slot at " + slot.AbsoluteCenter + ".");
                     return;
                 }
 
                 if (slot.AllowsAnyModule) {
                     AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  "Processing failed for slot at " + slot.AbsoluteCenter + ".");
+                                  "Unwrapping failed for slot at " + slot.AbsoluteCenter + ".");
                     return;
                 }
             }
@@ -595,10 +612,10 @@ namespace WFCPlugin {
             // -- Run the thing and **pray** --
             //
 
-            var Monoceros = IntPtr.Zero;
+            var wfc = IntPtr.Zero;
             unsafe {
                 fixed (AdjacencyRule* adjacencyRulesPtr = &adjacencyRules[0]) {
-                    var result = Native.wfc_init(&Monoceros,
+                    var result = Native.wfc_init(&wfc,
                                                  adjacencyRulesPtr,
                                                  (UIntPtr)adjacencyRules.Length,
                                                  (ushort)worldSize.X,
@@ -624,7 +641,7 @@ namespace WFCPlugin {
                 }
 
                 fixed (SlotState* worldStatePtr = &worldState[0]) {
-                    var result = Native.wfc_world_state_set(Monoceros,
+                    var result = Native.wfc_world_state_set(wfc,
                                                             worldStatePtr,
                                                             (UIntPtr)worldState.Length);
                     switch (result) {
@@ -643,7 +660,7 @@ namespace WFCPlugin {
                 }
             }
 
-            var attempts = Native.wfc_observe(Monoceros, maxAttempts);
+            var attempts = Native.wfc_observe(wfc, maxAttempts);
             if (attempts == 0) {
                 report = "Monoceros Solver failed to find solution within " + maxAttempts + " attempts";
                 return false;
@@ -651,11 +668,11 @@ namespace WFCPlugin {
 
             unsafe {
                 fixed (SlotState* worldStatePtr = &worldState[0]) {
-                    Native.wfc_world_state_get(Monoceros, worldStatePtr, (UIntPtr)worldState.Length);
+                    Native.wfc_world_state_get(wfc, worldStatePtr, (UIntPtr)worldState.Length);
                 }
             }
 
-            Native.wfc_free(Monoceros);
+            Native.wfc_free(wfc);
 
             //
             // -- Output: World state --
@@ -766,7 +783,7 @@ namespace WFCPlugin {
     }
 
     internal class Native {
-        [DllImport("Monoceros", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("wfc", CallingConvention = CallingConvention.StdCall)]
         internal static extern unsafe WfcInitResult wfc_init(IntPtr* wfc_ptr,
                                                              AdjacencyRule* adjacency_rules_ptr,
                                                              UIntPtr adjacency_rules_len,
@@ -776,19 +793,19 @@ namespace WFCPlugin {
                                                              ulong rngSeedLow,
                                                              ulong rngSeedHigh);
 
-        [DllImport("Monoceros", CallingConvention = CallingConvention.StdCall)]
-        internal static extern void wfc_free(IntPtr Monoceros);
+        [DllImport("wfc", CallingConvention = CallingConvention.StdCall)]
+        internal static extern void wfc_free(IntPtr wfc);
 
-        [DllImport("Monoceros", CallingConvention = CallingConvention.StdCall)]
-        internal static extern uint wfc_observe(IntPtr Monoceros, uint max_attempts);
+        [DllImport("wfc", CallingConvention = CallingConvention.StdCall)]
+        internal static extern uint wfc_observe(IntPtr wfc, uint max_attempts);
 
-        [DllImport("Monoceros", CallingConvention = CallingConvention.StdCall)]
-        internal static extern unsafe WfcWorldStateSetResult wfc_world_state_set(IntPtr Monoceros,
+        [DllImport("wfc", CallingConvention = CallingConvention.StdCall)]
+        internal static extern unsafe WfcWorldStateSetResult wfc_world_state_set(IntPtr wfc,
                                                                                  SlotState* world_state_ptr,
                                                                                  UIntPtr world_state_len);
 
-        [DllImport("Monoceros", CallingConvention = CallingConvention.StdCall)]
-        internal static extern unsafe void wfc_world_state_get(IntPtr Monoceros,
+        [DllImport("wfc", CallingConvention = CallingConvention.StdCall)]
+        internal static extern unsafe void wfc_world_state_get(IntPtr wfc,
                                                                SlotState* world_state_ptr,
                                                                UIntPtr world_state_len);
     }

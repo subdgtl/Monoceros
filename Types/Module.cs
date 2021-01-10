@@ -27,7 +27,7 @@ namespace WFCPlugin {
     /// <para>
     /// The class consists of input data, computed data, which will be later
     /// used by <see cref="Rule"/> generators and parsers, the
-    /// <see cref="ComponentFauxSolver"/> and the
+    /// <see cref="ComponentSolver"/> and the
     /// <see cref="ComponentMaterializeSlot"/>.
     /// </para>
     /// </summary>
@@ -59,7 +59,7 @@ namespace WFCPlugin {
 
         /// <summary>
         /// Computed submodule names for the purposes of
-        /// <see cref="ComponentFauxSolver"/> and
+        /// <see cref="ComponentSolver"/> and
         /// <see cref="ComponentMaterializeSlot"/>.
         /// </summary>
         public readonly List<string> SubmoduleNames;
@@ -197,6 +197,7 @@ namespace WFCPlugin {
         }
 
         private bool CheckConsistency(List<Point3i> centers) {
+            // TODO: Check why this sometimes returns false true
             var visited = Enumerable.Repeat(false, centers.Count).ToList();
             var stack = new List<Point3i>() { centers[0] };
             visited[0] = true;
@@ -427,7 +428,7 @@ namespace WFCPlugin {
         /// </summary>
         /// <param name="submoduleCenters">The submodule centers.</param>
         /// <returns>A list of RuleExplicits to be used only in the
-        ///     <see cref="ComponentFauxSolver"/>.</returns>
+        ///     <see cref="ComponentSolver"/>.</returns>
         private List<RuleForSolver> ComputeInternalRules(List<Point3i> submoduleCenters,
                                                          List<string> submoduleNames) {
             var rulesInternal = new List<RuleForSolver>();
@@ -507,7 +508,7 @@ namespace WFCPlugin {
         /// <summary>
         /// Gets the type description. Required by Grasshopper.
         /// </summary>
-        public string TypeDescription => "Monoceros Module data.";
+        public string TypeDescription => "Monoceros Module for Wave Function Collapse solution.";
 
         /// <summary>
         /// Gets the clipping box for the module. Required by Grasshopper for
@@ -556,14 +557,6 @@ namespace WFCPlugin {
         /// <returns>An IGH_Goo.</returns>
         public IGH_Goo Duplicate( ) {
             return (IGH_Goo)MemberwiseClone();
-        }
-
-        /// <summary>
-        /// Emits the proxy. Required by Grasshopper.
-        /// </summary>
-        /// <returns>An IGH_GooProxy.</returns>
-        public IGH_GooProxy EmitProxy( ) {
-            return null;
         }
 
         // TODO: Do this for real
@@ -617,9 +610,11 @@ namespace WFCPlugin {
         /// </remarks>
         /// <returns>A string description of the module.</returns>
         public override string ToString( ) {
-            return "Module \"" + Name + "\" occupies " +
-                    Connectors.Count / 6 + " slots and has " +
-                    Connectors.Count + " connectors. " +
+            var slotCount = SubmoduleCenters.Count;
+            var diagonal = new GH_Vector(SlotDiagonal);
+            return "Module \"" + Name + "\" has " + Connectors.Count + " connectors and " +
+                    "occupies " + slotCount + (slotCount == 1 ? " slot" : " slots") +
+                    " with dimensions " + diagonal + ". " +
                     (Compact ?
                     "The module is compact." :
                     "WARNING: The module is not compact, contains islands and therefore " +
@@ -796,6 +791,10 @@ namespace WFCPlugin {
             pivotDotAttributes.ObjectColor = Config.POSITIVE_COLOR;
             pivotDotAttributes.ColorSource = ObjectColorSource.ColorFromObject;
             doc.Objects.AddTextDot(Name, pivotPosition, pivotDotAttributes);
+        }
+
+        IGH_GooProxy IGH_Goo.EmitProxy( ) {
+            return null;
         }
     }
 

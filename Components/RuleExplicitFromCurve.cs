@@ -67,10 +67,18 @@ namespace WFCPlugin {
             }
 
             foreach (var startModule in modules) {
+                if (startModule == null || !startModule.IsValid) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The module is null or invalid.");
+                    continue;
+                }
                 for (var startConnectorIndex = 0; startConnectorIndex < startModule.Connectors.Count; startConnectorIndex++) {
                     var startConnector = startModule.Connectors[startConnectorIndex];
                     if (startConnector.ContaininsPoint(curve.PointAtStart)) {
                         foreach (var endModule in modules) {
+                            if (endModule == null || !endModule.IsValid) {
+                                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The module is null or invalid.");
+                                continue;
+                            }
                             for (var endConnectorIndex = 0; endConnectorIndex < endModule.Connectors.Count; endConnectorIndex++) {
                                 var endConnector = endModule.Connectors[endConnectorIndex];
                                 if (endConnector.ContaininsPoint(curve.PointAtEnd)) {

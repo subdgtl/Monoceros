@@ -61,6 +61,10 @@ namespace WFCPlugin {
             var rules = new List<Rule>();
 
             foreach (var module in modules) {
+                if (module == null || !module.IsValid) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The module is null or invalid.");
+                    continue;
+                }
                 for (var connectorIndex = 0; connectorIndex < module.Connectors.Count; connectorIndex++) {
                     var connector = module.Connectors[connectorIndex];
                     if (connector.ContaininsPoint(point)) {

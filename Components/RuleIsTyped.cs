@@ -38,6 +38,11 @@ namespace WFCPlugin {
                 return;
             }
 
+            if (rule == null || !rule.IsValid) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The rule is null or invalid.");
+                return;
+            }
+
             DA.SetData(0, rule.IsTyped());
         }
 

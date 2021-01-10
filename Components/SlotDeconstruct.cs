@@ -71,6 +71,11 @@ namespace WFCPlugin {
                 return;
             }
 
+            if (slot == null || !slot.IsValid) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The slot is null or invalid.");
+                return;
+            }
+
             DA.SetDataList(0, new List<Point3d>() { slot.AbsoluteCenter });
             DA.SetDataList(1, new List<Plane>() { slot.BasePlane });
             DA.SetDataList(2, new List<Vector3d>() { slot.Diagonal });

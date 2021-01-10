@@ -58,8 +58,22 @@ namespace WFCPlugin {
                 return;
             }
 
+            var modulesClean = new List<Module>();
+            foreach (var module in modules) {
+                if (module == null || !module.IsValid) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The module is null or invalid.");
+                } else {
+                    modulesClean.Add(module);
+                }
+            }
+
+            if (rulesInput.Any(rule => rule == null || !rule.IsValid)) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  "Some of the rules are null or invalid.");
+            }
+
             var rulesTyped = rulesInput
-                .Where(rule => rule.IsTyped())
+                .Where(rule => rule != null && rule.IsTyped())
                 .Select(rule => rule.Typed);
 
             Module.GenerateEmptySingleModule(Config.OUTER_MODULE_NAME,
@@ -68,13 +82,13 @@ namespace WFCPlugin {
                                              out var moduleOut,
                                              out var rulesOut);
             rulesTyped = rulesTyped.Concat(rulesOut);
-            modules.Add(moduleOut);
+            modulesClean.Add(moduleOut);
 
             var rulesTypedUnwrapped = rulesTyped
-                .SelectMany(ruleTyped => ruleTyped.ToRuleExplicit(rulesTyped, modules))
+                .SelectMany(ruleTyped => ruleTyped.ToRuleExplicit(rulesTyped, modulesClean))
                 .Select(ruleExplicit => new Rule(ruleExplicit));
 
-            var rulesExplicit = rulesInput.Where(rule => rule.IsExplicit());
+            var rulesExplicit = rulesInput.Where(rule => rule != null && rule.IsExplicit());
 
             var rules = rulesExplicit.Concat(rulesTypedUnwrapped).Distinct();
 

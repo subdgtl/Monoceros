@@ -68,7 +68,13 @@ namespace WFCPlugin {
                                   "Module names are not unique.");
             }
 
+            var modulesClean = new List<Module>();
             foreach (var module in modules) {
+                if (module == null || !module.IsValid) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The module is null or invalid.");
+                    continue;
+                }
+                modulesClean.Add(module);
                 var minSize = module.SlotDiagonal.MinimumCoordinate;
                 if (minSize < minimumSlotDimension) {
                     minimumSlotDimension = minSize;
@@ -76,34 +82,43 @@ namespace WFCPlugin {
                 averageSlotDiagonal += module.SlotDiagonal;
             }
 
-            averageSlotDiagonal /= modules.Count;
+            averageSlotDiagonal /= modulesClean.Count;
 
             var explicitLines = new List<ExplicitLine>();
             var typedLines = new List<TypedLine>();
 
-            var rulesExplicit = rules.Where(rule => rule.IsExplicit()).Select(rule => rule.Explicit);
-            var rulesTyped = rules.Where(rule => rule.IsTyped()).Select(rule => rule.Typed);
+            var rulesClean = new List<Rule>();
+            foreach (var rule in rules) {
+                if (rule == null || !rule.IsValid) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The rule is null or invalid.");
+                } else {
+                    rulesClean.Add(rule);
+                }
+            }
+
+            var rulesExplicit = rulesClean.Where(rule => rule.IsExplicit()).Select(rule => rule.Explicit);
+            var rulesTyped = rulesClean.Where(rule => rule.IsTyped()).Select(rule => rule.Typed);
 
             foreach (var ruleExplicit in rulesExplicit) {
                 // TODO: Consider displaying Out connections somehow too
                 if (!Config.RESERVED_NAMES.Contains(ruleExplicit.SourceModuleName) &&
                     !Config.RESERVED_NAMES.Contains(ruleExplicit.TargetModuleName)) {
-                    GetLineFromExplicitRule(modules,
-                                                ruleExplicit,
-                                                out var line,
-                                                out var axis);
+                    GetLineFromExplicitRule(modulesClean,
+                                            ruleExplicit,
+                                            out var line,
+                                            out var axis);
                     explicitLines.Add(new ExplicitLine(line, Config.ColorFromAxis(axis)));
                 }
             }
 
             foreach (var ruleTyped in rulesTyped) {
-                var rulesExplicitComputed = ruleTyped.ToRuleExplicit(rulesTyped, modules);
+                var rulesExplicitComputed = ruleTyped.ToRuleExplicit(rulesTyped, modulesClean);
 
                 foreach (var ruleExplicit in rulesExplicitComputed) {
                     // TODO: Consider displaying Out connections somehow too
                     if (!Config.RESERVED_NAMES.Contains(ruleExplicit.SourceModuleName) &&
                         !Config.RESERVED_NAMES.Contains(ruleExplicit.TargetModuleName)) {
-                        GetLineFromExplicitRule(modules,
+                        GetLineFromExplicitRule(modulesClean,
                                                 ruleExplicit,
                                                 out var line,
                                                 out var axis);

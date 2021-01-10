@@ -55,13 +55,6 @@ namespace WFCPlugin {
             return (IGH_Goo)MemberwiseClone();
         }
 
-        /// <summary>
-        /// Emits the proxy. Required by Grasshopper.
-        /// </summary>
-        /// <returns>An IGH_GooProxy.</returns>
-        public IGH_GooProxy EmitProxy( ) {
-            return null;
-        }
 
         /// <summary>
         /// Casts from a string or a <see cref="GH_String"/> or a
@@ -182,6 +175,10 @@ namespace WFCPlugin {
         /// <returns>An int.</returns>
         public override int GetHashCode( ) {
             return 539060726 + EqualityComparer<string>.Default.GetHashCode(Name);
+        }
+
+        public IGH_GooProxy EmitProxy( ) {
+            return null;
         }
     }
 }

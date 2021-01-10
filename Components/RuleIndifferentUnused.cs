@@ -59,35 +59,51 @@ namespace WFCPlugin {
 
             DA.GetDataList(1, existingRules);
 
-            var thisModulesUsedConnectors = new List<int>();
+            if (module == null || !module.IsValid) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The module is null or invalid.");
+            }
+
+            var connectorCount = module.Connectors.Count;
+            var connectorUsePattern = Enumerable.Repeat(false, module.Connectors.Count).ToList();
 
             foreach (var existingRule in existingRules) {
-                if (existingRule.IsExplicit() &&
-                    existingRule.Explicit.SourceModuleName == module.Name
-                    ) {
-                    thisModulesUsedConnectors.Add(existingRule.Explicit.SourceConnectorIndex);
+                if (existingRule == null || !existingRule.IsValid) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The rule is null or invalid.");
+                    continue;
                 }
 
                 if (existingRule.IsExplicit() &&
-                    existingRule.Explicit.TargetModuleName == module.Name
+                    existingRule.Explicit.SourceModuleName == module.Name &&
+                    existingRule.Explicit.SourceConnectorIndex < connectorCount
                     ) {
-                    thisModulesUsedConnectors.Add(existingRule.Explicit.TargetConnectorIndex);
+                    connectorUsePattern[existingRule.Explicit.SourceConnectorIndex] = true;
+                }
+
+                if (existingRule.IsExplicit() &&
+                    existingRule.Explicit.TargetModuleName == module.Name &&
+                    existingRule.Explicit.TargetConnectorIndex < connectorCount
+                    ) {
+                    connectorUsePattern[existingRule.Explicit.TargetConnectorIndex] = true;
                 }
 
                 if (existingRule.IsTyped() &&
-                    existingRule.Typed.ModuleName == module.Name
+                    existingRule.Typed.ModuleName == module.Name &&
+                    existingRule.Typed.ConnectorIndex < connectorCount
                     ) {
-                    thisModulesUsedConnectors.Add(existingRule.Typed.ConnectorIndex);
+                    connectorUsePattern[existingRule.Typed.ConnectorIndex] = true;
                 }
             }
 
-            var rules = module.Connectors
-                .Where((_, index) => !thisModulesUsedConnectors.Contains(index))
-                .Select((connector, index) => new Rule(module.Name, index, type));
-
-            foreach (var rule in rules) {
-                if (!rule.IsValid) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, rule.IsValidWhyNot);
+            var rules = new List<Rule>();
+            for (var connectorIndex = 0; connectorIndex < connectorUsePattern.Count; connectorIndex++) {
+                var used = connectorUsePattern[connectorIndex];
+                if (!used) {
+                    var rule = new Rule(module.Name, connectorIndex, type);
+                    if (rule.IsValid) {
+                        rules.Add(rule);
+                    } else {
+                        AddRuntimeMessage(GH_RuntimeMessageLevel.Error, rule.IsValidWhyNot);
+                    }
                 }
             }
 

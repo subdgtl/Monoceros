@@ -68,12 +68,31 @@ namespace WFCPlugin {
 
             DA.GetDataList(2, disallowed);
 
-            var disallowedExplicit = disallowed.Where(rule => rule.IsExplicit());
+            var modulesClean = new List<Module>();
+            foreach (var module in modules) {
+                if (module == null || !module.IsValid) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The module is null or invalid.");
+                } else {
+                    modulesClean.Add(module);
+                }
+            }
+
+            if (allowed.Any(rule => rule == null || !rule.IsValid)) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  "Some of the allowed rules are null or invalid.");
+            }
+
+            if (disallowed.Any(rule => rule == null)) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  "Some of the disallowed rules are null or invalid.");
+            }
+
+            var disallowedExplicit = disallowed.Where(rule => rule != null && rule.IsExplicit());
             var disallowedTyped = disallowed
-                .Where(rule => rule.IsTyped())
+                .Where(rule => rule != null && rule.IsTyped())
                 .Select(rule => rule.Typed);
             var disallowedTypedUnwrapped = disallowedTyped
-                .SelectMany(ruleTyped => ruleTyped.ToRuleExplicit(disallowedTyped, modules))
+                .SelectMany(ruleTyped => ruleTyped.ToRuleExplicit(disallowedTyped, modulesClean))
                 .Select(ruleExplicit => new Rule(ruleExplicit));
 
             var disallowedProcessed = disallowedExplicit
@@ -94,13 +113,18 @@ namespace WFCPlugin {
             allowed.AddRange(
                 rulesOut.Select(ruleExplicit => new Rule(ruleExplicit))
                 );
-            modules.Add(moduleOut);
+            modulesClean.Add(moduleOut);
 
             var allowedTyped = allowed
-                .Where(rule => rule.IsTyped())
+                .Where(rule => rule != null && rule.IsTyped())
                 .Select(rule => rule.Typed);
 
             foreach (var rule in allowed) {
+                if (rule == null || !rule.IsValid) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The rule is null or invalid.");
+                    continue;
+                }
+
                 if (rule.IsExplicit()) {
                     allowedExplicit.Add(rule);
                     continue;
@@ -117,7 +141,7 @@ namespace WFCPlugin {
                             )
                         ) {
                         var typedUnwrapped = typed
-                            .ToRuleExplicit(allowedTyped, modules)
+                            .ToRuleExplicit(allowedTyped, modulesClean)
                             .Select(ruleExplicit => new Rule(ruleExplicit));
                         allowedTypedUnwrapped.AddRange(typedUnwrapped);
                     } else {

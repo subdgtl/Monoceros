@@ -60,6 +60,11 @@ namespace WFCPlugin {
                 return;
             }
 
+            if (rule == null || !rule.IsValid) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The rule is null or invalid.");
+                return;
+            }
+
             if (!rule.IsExplicit()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "The provided rule is not explicit.");

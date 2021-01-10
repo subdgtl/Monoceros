@@ -100,6 +100,15 @@ namespace WFCPlugin {
 
             DA.GetDataList(1, existingRules);
 
+            if (module == null) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The is null or invalid.");
+                return;
+            }
+
+            if (!module.IsValid) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The module is invalid.");
+            }
+
             var baseAlignmentTransform = Transform.PlaneToPlane(Plane.WorldXY, module.BasePlane);
             var scalingTransform = Transform.Scale(module.BasePlane,
                                                    module.SlotDiagonal.X,
@@ -118,6 +127,11 @@ namespace WFCPlugin {
 
             var connectorUsePattern = Enumerable.Repeat(false, module.Connectors.Count).ToList();
             foreach (var existingRule in existingRules) {
+                if (existingRule == null || !existingRule.IsValid) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The rule is null or invalid.");
+                    continue;
+                }
+
                 if (existingRule.IsExplicit() &&
                     existingRule.Explicit.SourceModuleName == module.Name &&
                     existingRule.Explicit.SourceConnectorIndex < module.Connectors.Count) {
