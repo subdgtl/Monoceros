@@ -9,9 +9,9 @@ namespace WFCPlugin {
         public ComponentCollectRules( ) : base("Collect Rules",
                                                "CollectRules",
                                                "Collect, convert to Explicit, deduplicate and " +
-                                               "remove disallowed WFC Rules. Automatically " +
+                                               "remove disallowed Monoceros Rules. Automatically " +
                                                "generates an Out Module and its Rules.",
-                                               "WaveFunctionCollapse",
+                                               "Monoceros",
                                                "Rule") {
         }
 
@@ -22,17 +22,17 @@ namespace WFCPlugin {
             pManager.AddParameter(new ModuleParameter(),
                                   "Module",
                                   "M",
-                                  "WFC module for indifferent rule generation",
+                                  "Monoceros module for indifferent rule generation",
                                   GH_ParamAccess.list);
             pManager.AddParameter(new RuleParameter(),
                                   "Rules Allowed",
                                   "RA",
-                                  "All allowed WFC rules",
+                                  "All allowed Monoceros rules",
                                   GH_ParamAccess.list);
             pManager.AddParameter(new RuleParameter(),
                                   "Rules Disallowed",
                                   "RD",
-                                  "All disallowed WFC rules (optional)",
+                                  "All disallowed Monoceros rules (optional)",
                                   GH_ParamAccess.list);
             pManager[2].Optional = true;
         }
@@ -44,7 +44,7 @@ namespace WFCPlugin {
             pManager.AddParameter(new RuleParameter(),
                                   "Rules",
                                   "R",
-                                  "WFC Rules",
+                                  "Monoceros Rules",
                                   GH_ParamAccess.list);
         }
 
@@ -155,7 +155,7 @@ namespace WFCPlugin {
         /// Provides an Icon for every component that will be visible in the
         /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override Bitmap Icon => Properties.Resources.C;
+        protected override Bitmap Icon => Properties.Resources.R;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it.  It is vital

@@ -5,8 +5,8 @@ namespace WFCPlugin {
     // TODO: Consider making this part of Deconstruct
     public class ComponentIsRuleExplicit : GH_Component {
         public ComponentIsRuleExplicit( ) : base("Is Rule Explicit", "IsRuleExp",
-            "Returns true if the provided WFC Rule is Explicit (connector-to-connector).",
-            "WaveFunctionCollapse", "Rule") {
+            "Returns true if the provided Monoceros Rule is Explicit (connector-to-connector).",
+            "Monoceros", "Rule") {
         }
 
         /// <summary>
@@ -16,7 +16,7 @@ namespace WFCPlugin {
             pManager.AddParameter(new RuleParameter(),
                                   "Rule",
                                   "R",
-                                  "WFC Rule",
+                                  "Monoceros Rule",
                                   GH_ParamAccess.item);
         }
 
@@ -26,7 +26,7 @@ namespace WFCPlugin {
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddBooleanParameter("Explicit Pattern",
                                          "P",
-                                         "True if the WFC Rule is explicit",
+                                         "True if the Monoceros Rule is explicit",
                                          GH_ParamAccess.item);
         }
 
@@ -58,7 +58,7 @@ namespace WFCPlugin {
         /// Provides an Icon for every component that will be visible in the
         /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.C;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.R;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it.  It is vital

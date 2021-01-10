@@ -7,9 +7,9 @@ namespace WFCPlugin {
         public ComponentDeconstructRuleExplicit( )
             : base("Deconstruct Explicit Rule",
                    "DeconRuleExp",
-                   "Deconstruct an WFC Explicit Rule (connector-to-connector) " +
+                   "Deconstruct an Monoceros Explicit Rule (connector-to-connector) " +
                    "into module names and connector numbers.",
-                   "WaveFunctionCollapse",
+                   "Monoceros",
                    "Rule") {
         }
 
@@ -20,7 +20,7 @@ namespace WFCPlugin {
             pManager.AddParameter(new RuleParameter(),
                                   "Rule",
                                   "R",
-                                  "WFC Rule (Explicit)",
+                                  "Monoceros Rule (Explicit)",
                                   GH_ParamAccess.item);
         }
 
@@ -86,7 +86,7 @@ namespace WFCPlugin {
         /// Provides an Icon for every component that will be visible in the
         /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.C;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.R;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it.  It is vital

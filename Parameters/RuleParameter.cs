@@ -14,14 +14,14 @@ namespace WFCPlugin {
     public class RuleParameter : GH_PersistentParam<Rule> {
         public RuleParameter( ) : base("Rule",
                                        "R",
-                                       "Contains a collection of WFC Rules.",
-                                       "WaveFunctionCollapse",
+                                       "Contains a collection of Monoceros Rules.",
+                                       "Monoceros",
                                        "Parameters") { }
         public override Guid ComponentGuid => new Guid("9804D786-20FA-4DEF-A68E-7A5D47D8A61D");
 
         public override GH_Exposure Exposure => GH_Exposure.primary;
 
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.C;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.RP;
 
         public bool Hidden { get => true; set { } }
 

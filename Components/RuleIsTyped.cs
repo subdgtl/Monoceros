@@ -5,15 +5,15 @@ namespace WFCPlugin {
     // TODO: Consider making this part of Deconstruct
     public class ComponentIsRuleTyped : GH_Component {
         public ComponentIsRuleTyped( ) : base("Is Rule Typed", "IsRuleTyp",
-            "Returns true if the WFC Rule is Typed (connector-to-all-same-type-connectors).",
-            "WaveFunctionCollapse", "Rule") {
+            "Returns true if the Monoceros Rule is Typed (connector-to-all-same-type-connectors).",
+            "Monoceros", "Rule") {
         }
 
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
-            pManager.AddParameter(new RuleParameter(), "Rule", "R", "WFC Rule", GH_ParamAccess.item);
+            pManager.AddParameter(new RuleParameter(), "Rule", "R", "Monoceros Rule", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -22,7 +22,7 @@ namespace WFCPlugin {
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddBooleanParameter("Typed Pattern",
                                          "P",
-                                         "True if the WFC Rule is typed",
+                                         "True if the Monoceros Rule is typed",
                                          GH_ParamAccess.item);
         }
 
@@ -54,7 +54,7 @@ namespace WFCPlugin {
         /// Provides an Icon for every component that will be visible in the
         /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.C;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.R;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it.  It is vital

@@ -7,11 +7,11 @@ namespace WFCPlugin {
         public ComponentConstructRuleTyped( )
             : base("Construct Typed Rule",
                    "RuleTyp",
-                   "Construct a WFC Typed Rule (connector-to-all-same-type-connectors) from " +
-                   "WFC Module name, connector number and connector Type. The existence of the " +
+                   "Construct a Monoceros Typed Rule (connector-to-all-same-type-connectors) from " +
+                   "Monoceros Module name, connector number and connector Type. The existence of the " +
                    "Module and connector is not being checked. The connector Type will be " +
                    "converted to lowercase.",
-                   "WaveFunctionCollapse",
+                   "Monoceros",
                    "Rule") {
         }
 
@@ -35,7 +35,7 @@ namespace WFCPlugin {
             pManager.AddParameter(new RuleParameter(),
                                   "Rule",
                                   "R",
-                                  "WFC Rule",
+                                  "Monoceros Rule",
                                   GH_ParamAccess.item);
         }
 
@@ -87,7 +87,7 @@ namespace WFCPlugin {
         /// Provides an Icon for every component that will be visible in the
         /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.C;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.R;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it.  It is vital

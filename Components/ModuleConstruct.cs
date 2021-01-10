@@ -8,17 +8,17 @@ using Rhino.Geometry;
 namespace WFCPlugin {
     /// <summary>
     /// <para>
-    /// Grasshopper component: WFC Construct Module
+    /// Grasshopper component: Monoceros Construct Module
     /// </para>
     /// <para>
-    /// Construct a WFC <see cref="Module"/> from <see cref="Point3d"/>s inside
+    /// Construct a Monoceros <see cref="Module"/> from <see cref="Point3d"/>s inside
     /// World grid cells marking those that should become submodules of the
     /// created <see cref="Module"/>.  The <see cref="Point3d"/>s can be
     /// generated independently in Grasshopper or using
     /// <see cref="ComponentPopulateGeometryWithSlotCenters"/>. Redundant
     /// <see cref="Point3d"/>s will be removed. Production
     /// <see cref="GeometryBase"/> will be used by the
-    /// <see cref="ComponentMaterializeSlot"/> to materialize the result of the WFC
+    /// <see cref="ComponentMaterializeSlot"/> to materialize the result of the Monoceros
     /// <see cref="ComponentFauxSolver"/>. The production
     /// <see cref="GeometryBase"/> is unrelated to the <see cref="Module"/> cage
     /// and <see cref="Slot"/>s it may occupy. 
@@ -48,7 +48,7 @@ namespace WFCPlugin {
     ///         <term><see cref="GeometryBase"/> Production Geometry</term>
     ///         <description><see cref="GeometryBase"/> used by the
     ///             <see cref="ComponentMaterializeSlot"/> to materialize the result
-    ///             of the WFC <see cref="ComponentFauxSolver"/>. Production
+    ///             of the Monoceros <see cref="ComponentFauxSolver"/>. Production
     ///             Geometry does not have to fit into the generated
     ///             <see cref="Module"/> cages and can be larger, smaller,
     ///             different or none.  Supports any geometry. List access. No
@@ -74,7 +74,7 @@ namespace WFCPlugin {
     /// <list type="bullet">
     ///     <item>
     ///         <term><see cref="Module"/> Module</term>
-    ///         <description>WFC Module encapsulating the input geometry and
+    ///         <description>Monoceros Module encapsulating the input geometry and
     ///             containing the same input geometry. Item access.
     ///             </description>
     ///     </item>
@@ -84,10 +84,10 @@ namespace WFCPlugin {
     public class ComponentConstructModule : GH_Component {
         public ComponentConstructModule( ) : base("Construct Module",
                                                   "ConstModule",
-                                                  "Construct a WFC Module from slot centers. " +
+                                                  "Construct a Monoceros Module from slot centers. " +
                                                   "The specified production geometry will be " +
-                                                  "used in WFC solver result.",
-                                                  "WaveFunctionCollapse", "Module") {
+                                                  "used in Monoceros solver result.",
+                                                  "Monoceros", "Module") {
         }
 
         /// <summary>
@@ -107,7 +107,7 @@ namespace WFCPlugin {
             pManager.AddGeometryParameter("Production Geometry",
                                           "G",
                                           "Geometry used to materialize the result of the " +
-                                          "WFC Solver. Production geometry does not have to fit " +
+                                          "Monoceros Solver. Production geometry does not have to fit " +
                                           "into the generated module cage and can be larger, " +
                                           "smaller, different or none.",
                                           GH_ParamAccess.list);
@@ -132,7 +132,7 @@ namespace WFCPlugin {
             pManager.AddParameter(new ModuleParameter(),
                                   "Module",
                                   "M",
-                                  "WFC Module",
+                                  "Monoceros Module",
                                   GH_ParamAccess.item);
         }
 
@@ -176,7 +176,7 @@ namespace WFCPlugin {
             if (Config.RESERVED_NAMES.Contains(name)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "The module name cannot be \"" + name +
-                                  "\" because it is reserved by WFC.");
+                                  "\" because it is reserved by Monoceros.");
                 return;
             }
 

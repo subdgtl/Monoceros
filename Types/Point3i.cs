@@ -4,22 +4,22 @@ using Rhino.Geometry;
 namespace WFCPlugin {
     /// <summary>
     /// Used as a relative discrete coordinate of a slot or a submodule center
-    /// in the orthogonal 3D voxel-like grid, which describes the WFC World.
+    /// in the orthogonal 3D voxel-like grid, which describes the Monoceros World.
     /// </summary>
     public struct Point3i {
         /// <summary>
         /// The X coordinate of a slot or submodule center in the orthogonal
-        /// voxel-like grid, which describes the WFC world.
+        /// voxel-like grid, which describes the Monoceros world.
         /// </summary>
         public readonly int X;
         /// <summary>
         /// The Y coordinate of a slot or submodule center in the orthogonal
-        /// voxel-like grid, which describes the WFC world.
+        /// voxel-like grid, which describes the Monoceros world.
         /// </summary>
         public readonly int Y;
         /// <summary>
         /// The Z coordinate of a slot or submodule center in the orthogonal
-        /// voxel-like grid, which describes the WFC world.
+        /// voxel-like grid, which describes the Monoceros world.
         /// </summary>
         public readonly int Z;
 

@@ -8,9 +8,9 @@ namespace WFCPlugin {
         public ComponentRuleIndifferentFromPoint( )
             : base("Rule Typed Indifferent From Point Tag",
                    "RuleIndiffPt",
-                   "Allow connectors of a WFC Module marked with a Point to connect to any opposite " +
-                   "indifferent connector of any WFC Module.",
-                   "WaveFunctionCollapse",
+                   "Allow connectors of a Monoceros Module marked with a Point to connect to any opposite " +
+                   "indifferent connector of any Monoceros Module.",
+                   "Monoceros",
                    "Rule") {
         }
 
@@ -21,7 +21,7 @@ namespace WFCPlugin {
             pManager.AddParameter(new ModuleParameter(),
                                   "Modules",
                                   "M",
-                                  "All available WFC modules",
+                                  "All available Monoceros modules",
                                   GH_ParamAccess.list);
             pManager.AddPointParameter("Point Tag",
                                        "PT",
@@ -36,7 +36,7 @@ namespace WFCPlugin {
             pManager.AddParameter(new RuleParameter(),
                                   "Rules",
                                   "R",
-                                  "WFC Rules",
+                                  "Monoceros Rules",
                                   GH_ParamAccess.list);
         }
 
@@ -96,7 +96,7 @@ namespace WFCPlugin {
         /// Provides an Icon for every component that will be visible in the
         /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.C;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.R;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it.  It is vital

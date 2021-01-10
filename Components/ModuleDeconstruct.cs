@@ -7,7 +7,7 @@ using Rhino.Geometry;
 namespace WFCPlugin {
     /// <summary>
     /// <para>
-    /// Grasshopper component: WFC Deconstruct Module To Components
+    /// Grasshopper component: Monoceros Deconstruct Module To Components
     /// </para>
     /// <para>
     /// Outputs the internal fields and properties of the <see cref="Module"/>
@@ -19,10 +19,10 @@ namespace WFCPlugin {
     public class ComponentModuleDeconstruct : GH_Component {
         public ComponentModuleDeconstruct( ) : base("Deconstruct Module",
                                                    "DeconModule",
-                                                   "Deconstruct WFC Module into name, base " +
+                                                   "Deconstruct Monoceros Module into name, base " +
                                                    "plane, connector planes, connector numbers " +
                                                    "and properties.",
-                                                   "WaveFunctionCollapse",
+                                                   "Monoceros",
                                                    "Module") {
         }
 
@@ -33,12 +33,12 @@ namespace WFCPlugin {
             pManager.AddParameter(new ModuleParameter(),
                                   "Module",
                                   "M",
-                                  "WFC Module",
+                                  "Monoceros Module",
                                   GH_ParamAccess.item);
             pManager.AddParameter(new RuleParameter(),
                                   "Rules",
                                   "R",
-                                  "All WFC Rules. (Optional)",
+                                  "All Monoceros Rules. (Optional)",
                                   GH_ParamAccess.list);
             pManager[1].Optional = true;
         }

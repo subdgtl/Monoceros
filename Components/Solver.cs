@@ -8,10 +8,10 @@ using Grasshopper.Kernel;
 
 namespace WFCPlugin {
     public class ComponentSolver : GH_Component {
-        public ComponentSolver( ) : base("WFC Solver",
-                                         "WFC",
+        public ComponentSolver( ) : base("Monoceros Solver",
+                                         "Monoceros",
                                          "Solver for the Wave Function Collapse",
-                                         "WaveFunctionCollapse",
+                                         "Monoceros",
                                          "Main") {
         }
 
@@ -26,17 +26,17 @@ namespace WFCPlugin {
             pManager.AddParameter(new SlotParameter(),
                                   "Slots",
                                   "S",
-                                  "All WFC Slots",
+                                  "All Monoceros Slots",
                                   GH_ParamAccess.list);
             pManager.AddParameter(new ModuleParameter(),
                                   "Modules",
                                   "M",
-                                  "All WFC Modules",
+                                  "All Monoceros Modules",
                                   GH_ParamAccess.list);
             pManager.AddParameter(new RuleParameter(),
                                   "Rules",
                                   "R",
-                                  "All WFC rules",
+                                  "All Monoceros rules",
                                   GH_ParamAccess.list);
             pManager.AddIntegerParameter("Random Seed",
                                          "S",
@@ -58,7 +58,7 @@ namespace WFCPlugin {
             pManager.AddParameter(new SlotParameter(),
                                   "Slots",
                                   "S",
-                                  "Solved WFC Slots",
+                                  "Solved Monoceros Slots",
                                   GH_ParamAccess.list);
         }
 
@@ -130,7 +130,57 @@ namespace WFCPlugin {
                 return;
             }
 
-            var allSubmodulesCount = modules
+            if (moduleDiagonal != diagonal) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  "Modules and slots are not defined with the same diagonal.");
+                return;
+            }
+
+            var modulesUsable = new List<Module>();
+
+            foreach (var module in modules) {
+                var usedConnectors = Enumerable.Repeat(false, module.Connectors.Count).ToList();
+                foreach (var rule in rulesRaw) {
+                    if (rule.IsExplicit()) {
+                        if (rule.Explicit.SourceModuleName == module.Name &&
+                            rule.Explicit.SourceConnectorIndex < module.Connectors.Count) {
+                            usedConnectors[rule.Explicit.SourceConnectorIndex] = true;
+                        }
+                        if (rule.Explicit.TargetModuleName == module.Name &&
+                            rule.Explicit.TargetConnectorIndex < module.Connectors.Count) {
+                            usedConnectors[rule.Explicit.TargetConnectorIndex] = true;
+                        }
+                    }
+                    if (rule.IsTyped()) {
+                        if (rule.Typed.ModuleName == module.Name &&
+                            rule.Typed.ConnectorIndex < module.Connectors.Count) {
+                            usedConnectors[rule.Typed.ConnectorIndex] = true;
+                        }
+                    }
+                }
+                if (usedConnectors.Any(boolean => boolean == false)) {
+                    var warningString = "Module " + module.Name + " will be excluded from the " +
+                        "solution. Connectors ";
+                    for (var i = 0; i < usedConnectors.Count; i++) {
+                        if (!usedConnectors[i]) {
+                            warningString += i + ", ";
+                        }
+                    }
+                    warningString += "are not described by any Rule.";
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, warningString);
+                } else {
+                    modulesUsable.Add(module);
+                }
+            }
+
+            if (modulesUsable.Count == 0) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  "There are no modules with all connectors described by the " +
+                                  "given rules.");
+                return;
+            }
+
+            var allSubmodulesCount = modulesUsable
                 .Aggregate(0, (sum, module) => sum + module.SubmoduleCenters.Count);
 
             if (allSubmodulesCount > Config.MAX_SUBMODULES) {
@@ -139,15 +189,6 @@ namespace WFCPlugin {
                     ", current is " + allSubmodulesCount + ".");
                 return;
             }
-
-            if (moduleDiagonal != diagonal) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  "Modules and slots are not defined with the same diagonal.");
-                return;
-            }
-
-            // TODO: Check if modules and slots refer to the same submodules. 
-            // Throw warning if some modules can never be placed.
 
             // Generate Out module
             Module.GenerateEmptySingleModule(Config.OUTER_MODULE_NAME,
@@ -159,19 +200,19 @@ namespace WFCPlugin {
             rulesRaw.AddRange(rulesOut);
 
             // Convert AllowEverything slots into an explicit list of allowed modules (except Out)
-            var allModuleNames = modules.Select(module => module.Name).ToList();
+            var allModuleNames = modulesUsable.Select(module => module.Name).ToList();
             var slotsUnwrapped = slotsRaw.Select(slotRaw =>
                 slotRaw.AllowsAnyModule ?
                     slotRaw.DuplicateWithModuleNames(allModuleNames) :
                     slotRaw
             );
 
-            modules.Add(moduleOut);
+            modulesUsable.Add(moduleOut);
 
             // Unwrap typed rules
             var rulesTyped = rulesRaw.Where(rule => rule.IsTyped()).Select(rule => rule.Typed);
             var rulesTypedUnwrappedToExplicit = rulesTyped
-                .SelectMany(ruleTyped => ruleTyped.ToRuleExplicit(rulesTyped, modules));
+                .SelectMany(ruleTyped => ruleTyped.ToRuleExplicit(rulesTyped, modulesUsable));
 
             var rulesExplicit = rulesRaw
                 .Where(rule => rule.IsExplicit())
@@ -183,13 +224,13 @@ namespace WFCPlugin {
             // Convert rules to solver format
             var rulesForSolver = new List<RuleForSolver>();
             foreach (var rule in rulesExplicitAll) {
-                if (rule.ToRuleForSolver(modules, out var ruleForSolver)) {
+                if (rule.ToRuleForSolver(modulesUsable, out var ruleForSolver)) {
                     rulesForSolver.Add(ruleForSolver);
                 }
             }
 
             // Add internal rules to the main rule set
-            foreach (var module in modules) {
+            foreach (var module in modulesUsable) {
                 rulesForSolver.AddRange(module.InternalRules);
             }
 
@@ -227,7 +268,7 @@ namespace WFCPlugin {
 
                 var submoduleNames = new List<string>();
                 foreach (var moduleName in slotRaw.AllowedModuleNames) {
-                    var module = modules.Find(m => m.Name == moduleName);
+                    var module = modulesUsable.Find(m => m.Name == moduleName);
                     submoduleNames.AddRange(module.SubmoduleNames);
                 }
                 return slotRaw.DuplicateWithSubmodulesCountAndNames(allSubmodulesCount,
@@ -286,7 +327,7 @@ namespace WFCPlugin {
 
             // Remember module name for each submodule name
             var submoduleToModuleName = new Dictionary<string, string>();
-            foreach (var module in modules) {
+            foreach (var module in modulesUsable) {
                 foreach (var submoduleName in module.SubmoduleNames) {
                     submoduleToModuleName.Add(submoduleName, module.Name);
                 }
@@ -554,10 +595,10 @@ namespace WFCPlugin {
             // -- Run the thing and **pray** --
             //
 
-            var wfc = IntPtr.Zero;
+            var Monoceros = IntPtr.Zero;
             unsafe {
                 fixed (AdjacencyRule* adjacencyRulesPtr = &adjacencyRules[0]) {
-                    var result = Native.wfc_init(&wfc,
+                    var result = Native.wfc_init(&Monoceros,
                                                  adjacencyRulesPtr,
                                                  (UIntPtr)adjacencyRules.Length,
                                                  (ushort)worldSize.X,
@@ -571,19 +612,19 @@ namespace WFCPlugin {
                             // All good
                             break;
                         case WfcInitResult.TooManyModules:
-                            report = "WFC Solver failed: Adjacency rules contained too many modules";
+                            report = "Monoceros Solver failed: Adjacency rules contained too many modules";
                             return false;
                         case WfcInitResult.WorldDimensionsZero:
-                            report = "WFC Solver failed: World dimensions are zero";
+                            report = "Monoceros Solver failed: World dimensions are zero";
                             return false;
                         default:
-                            report = "WFC Solver failed with unknown error";
+                            report = "Monoceros Solver failed with unknown error";
                             return false;
                     }
                 }
 
                 fixed (SlotState* worldStatePtr = &worldState[0]) {
-                    var result = Native.wfc_world_state_set(wfc,
+                    var result = Native.wfc_world_state_set(Monoceros,
                                                             worldStatePtr,
                                                             (UIntPtr)worldState.Length);
                     switch (result) {
@@ -596,25 +637,25 @@ namespace WFCPlugin {
                             stats.worldNotCanonical = true;
                             break;
                         case WfcWorldStateSetResult.WorldContradictory:
-                            report = "WFC Solver failed: World state is contradictory";
+                            report = "Monoceros Solver failed: World state is contradictory";
                             return false;
                     }
                 }
             }
 
-            var attempts = Native.wfc_observe(wfc, maxAttempts);
+            var attempts = Native.wfc_observe(Monoceros, maxAttempts);
             if (attempts == 0) {
-                report = "WFC Solver failed to find solution within " + maxAttempts + " attempts";
+                report = "Monoceros Solver failed to find solution within " + maxAttempts + " attempts";
                 return false;
             }
 
             unsafe {
                 fixed (SlotState* worldStatePtr = &worldState[0]) {
-                    Native.wfc_world_state_get(wfc, worldStatePtr, (UIntPtr)worldState.Length);
+                    Native.wfc_world_state_get(Monoceros, worldStatePtr, (UIntPtr)worldState.Length);
                 }
             }
 
-            Native.wfc_free(wfc);
+            Native.wfc_free(Monoceros);
 
             //
             // -- Output: World state --
@@ -642,7 +683,7 @@ namespace WFCPlugin {
                     if (valid) {
                         worldSlotSubmodules.Add(submoduleStr);
                     } else {
-                        report = "WFC Solver returned a non-existing submodule.";
+                        report = "Monoceros Solver returned a non-existing submodule.";
                         return false;
                     }
                 }
@@ -725,7 +766,7 @@ namespace WFCPlugin {
     }
 
     internal class Native {
-        [DllImport("wfc", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("Monoceros", CallingConvention = CallingConvention.StdCall)]
         internal static extern unsafe WfcInitResult wfc_init(IntPtr* wfc_ptr,
                                                              AdjacencyRule* adjacency_rules_ptr,
                                                              UIntPtr adjacency_rules_len,
@@ -735,19 +776,19 @@ namespace WFCPlugin {
                                                              ulong rngSeedLow,
                                                              ulong rngSeedHigh);
 
-        [DllImport("wfc", CallingConvention = CallingConvention.StdCall)]
-        internal static extern void wfc_free(IntPtr wfc);
+        [DllImport("Monoceros", CallingConvention = CallingConvention.StdCall)]
+        internal static extern void wfc_free(IntPtr Monoceros);
 
-        [DllImport("wfc", CallingConvention = CallingConvention.StdCall)]
-        internal static extern uint wfc_observe(IntPtr wfc, uint max_attempts);
+        [DllImport("Monoceros", CallingConvention = CallingConvention.StdCall)]
+        internal static extern uint wfc_observe(IntPtr Monoceros, uint max_attempts);
 
-        [DllImport("wfc", CallingConvention = CallingConvention.StdCall)]
-        internal static extern unsafe WfcWorldStateSetResult wfc_world_state_set(IntPtr wfc,
+        [DllImport("Monoceros", CallingConvention = CallingConvention.StdCall)]
+        internal static extern unsafe WfcWorldStateSetResult wfc_world_state_set(IntPtr Monoceros,
                                                                                  SlotState* world_state_ptr,
                                                                                  UIntPtr world_state_len);
 
-        [DllImport("wfc", CallingConvention = CallingConvention.StdCall)]
-        internal static extern unsafe void wfc_world_state_get(IntPtr wfc,
+        [DllImport("Monoceros", CallingConvention = CallingConvention.StdCall)]
+        internal static extern unsafe void wfc_world_state_get(IntPtr Monoceros,
                                                                SlotState* world_state_ptr,
                                                                UIntPtr world_state_len);
     }

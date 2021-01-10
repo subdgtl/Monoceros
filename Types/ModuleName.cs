@@ -146,12 +146,12 @@ namespace WFCPlugin {
         /// <summary>
         /// Gets the type name. Required by Grasshopper.
         /// </summary>
-        public string TypeName => "WFC Module Name";
+        public string TypeName => "Monoceros Module Name";
 
         /// <summary>
         /// Gets the type description. Required by Grasshopper.
         /// </summary>
-        public string TypeDescription => "Name of a WFC module.";
+        public string TypeDescription => "Name of a Monoceros module.";
 
         /// <summary>
         /// Gets or sets the name.

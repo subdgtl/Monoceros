@@ -9,9 +9,9 @@ namespace WFCPlugin {
         public ComponentRuleExplicitFromCurve( )
             : base("Create Explicit Rule From Curve",
                    "RuleExpCrv",
-                   "Create an WFC Explicit Rule (connector-to-connector) " +
+                   "Create an Monoceros Explicit Rule (connector-to-connector) " +
                    "from a curve connecting two opposite connectors.",
-                   "WaveFunctionCollapse",
+                   "Monoceros",
                    "Rule") {
         }
 
@@ -22,7 +22,7 @@ namespace WFCPlugin {
             pManager.AddParameter(new ModuleParameter(),
                                   "Modules",
                                   "M",
-                                  "All available WFC modules",
+                                  "All available Monoceros modules",
                                   GH_ParamAccess.list);
             pManager.AddCurveParameter("Connection Curve",
                                        "C",
@@ -37,7 +37,7 @@ namespace WFCPlugin {
             pManager.AddParameter(new RuleParameter(),
                                   "Rules",
                                   "R",
-                                  "WFC Rules",
+                                  "Monoceros Rules",
                                   GH_ParamAccess.list);
         }
 
@@ -109,7 +109,7 @@ namespace WFCPlugin {
         /// Provides an Icon for every component that will be visible in the
         /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.C;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.R;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it.  It is vital

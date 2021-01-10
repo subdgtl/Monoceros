@@ -12,9 +12,9 @@ namespace WFCPlugin {
             : base("Populate Geometry With Slot Centers",
                    "PopSlots",
                    "Populate geometry with points ready to be " +
-                   "used as WFC Slot and WFC Module centers. Supports Point, Curve, " +
+                   "used as Monoceros Slot and Monoceros Module centers. Supports Point, Curve, " +
                    "Brep, Mesh.",
-                   "WaveFunctionCollapse",
+                   "Monoceros",
                    "Main") {
         }
 
@@ -60,7 +60,7 @@ namespace WFCPlugin {
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddPointParameter("Slot Centers",
                                        "C",
-                                       "Points ready to be used as WFC Slot centers",
+                                       "Points ready to be used as Monoceros Slot centers",
                                        GH_ParamAccess.list);
         }
 

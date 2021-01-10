@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace WFCPlugin {
     /// <summary>
-    /// The WFC configuration and constants.
+    /// The Monoceros configuration and constants.
     /// </summary>
     public class Config {
         /// <summary>

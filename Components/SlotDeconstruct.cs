@@ -10,9 +10,9 @@ namespace WFCPlugin {
         public ComponentDeconstructSlot( )
             : base("Deconstruct Slot",
                    "DeconSlot",
-                   "Deconstruct a WFC Slot into its center point, base plane, diagonal " +
-                   "and list of allowed WFC Modules.",
-                   "WaveFunctionCollapse",
+                   "Deconstruct a Monoceros Slot into its center point, base plane, diagonal " +
+                   "and list of allowed Monoceros Modules.",
+                   "Monoceros",
                    "Slot") {
         }
 
@@ -20,7 +20,7 @@ namespace WFCPlugin {
         /// Registers all the input parameters for this component.
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
-            pManager.AddParameter(new SlotParameter(), "Slot", "S", "WFC Slot", GH_ParamAccess.item);
+            pManager.AddParameter(new SlotParameter(), "Slot", "S", "Monoceros Slot", GH_ParamAccess.item);
         }
 
         /// <summary>

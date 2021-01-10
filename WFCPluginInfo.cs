@@ -8,13 +8,13 @@ using Grasshopper.Kernel;
 
 namespace WFCPlugin {
     public class WFCPluginInfo : GH_AssemblyInfo {
-        public override string Name => "WFC Plugin";
+        public override string Name => "Monoceros";
         public override Bitmap Icon =>
                 //Return a 24x24 pixel bitmap to represent this GHA library.
                 WFCPlugin.Properties.Resources.WFC;
         public override string Description =>
                 //Return a short string describing the purpose of this GHA library.
-                "Subdigital: Wave Function Collapse plug-in for Grasshopper.";
+                "Monoceros: A Wave Function Collapse plug-in by Subdigital";
         public override Guid Id => new Guid("e02a564d-2a18-4990-bfc2-852fb04f9268");
 
         public override string AuthorName =>

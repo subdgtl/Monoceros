@@ -15,8 +15,8 @@ namespace WFCPlugin {
         public ComponentPreviewRules( )
             : base("Preview Rules",
                    "RulePreview",
-                   "Preview WFC Rules as lines connecting individual connectors of WFC Modules.",
-                   "WaveFunctionCollapse",
+                   "Preview Monoceros Rules as lines connecting individual connectors of Monoceros Modules.",
+                   "Monoceros",
                    "Rule") {
         }
 
@@ -27,12 +27,12 @@ namespace WFCPlugin {
             pManager.AddParameter(new ModuleParameter(),
                                   "Module",
                                   "M",
-                                  "WFC module for indifferent rule generation",
+                                  "Monoceros module for indifferent rule generation",
                                   GH_ParamAccess.list);
             pManager.AddParameter(new RuleParameter(),
                                   "Rules",
                                   "R",
-                                  "All existing WFC rules",
+                                  "All existing Monoceros rules",
                                   GH_ParamAccess.list);
         }
 

@@ -10,7 +10,7 @@ using Rhino.Geometry;
 namespace WFCPlugin {
     /// <summary>
     /// <para>
-    /// The <see cref="Slot"/> is a basic unit of the WFC World. It has s shape
+    /// The <see cref="Slot"/> is a basic unit of the Monoceros World. It has s shape
     /// of a cuboid and occupies a single cell of a homogeneous discrete 3D
     /// grid.  It specifies which <see cref="Module"/>s can be placed into the
     /// respective World grid cell.
@@ -470,12 +470,12 @@ namespace WFCPlugin {
         /// <summary>
         /// Gets the type name. Required by Grasshopper.
         /// </summary>
-        public string TypeName => "WFC Slot";
+        public string TypeName => "Monoceros Slot";
 
         /// <summary>
         /// Gets the type description. Required by Grasshopper.
         /// </summary>
-        public string TypeDescription => "WFC World Slot that may contain module parts.";
+        public string TypeDescription => "Monoceros World Slot that may contain module parts.";
 
         /// <summary>
         /// Provides an user-friendly description of a <see cref="Slot"/>.
@@ -612,7 +612,7 @@ namespace WFCPlugin {
         /// <summary>
         /// Gets the <see cref="Slot"/> cage - a cuboid at the position of the
         /// <see cref="Slot"/> with dimensions defined by the
-        /// <see cref="Diagonal"/>. It reveals the respective cell of the WFC
+        /// <see cref="Diagonal"/>. It reveals the respective cell of the Monoceros
         /// World.
         /// </summary>
         private Box Cage {

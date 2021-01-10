@@ -16,13 +16,12 @@ namespace WFCPlugin {
     /// </summary>
     public class ModuleParameter : GH_PersistentParam<Module>, IGH_PreviewObject, IGH_BakeAwareObject {
         public ModuleParameter( )
-      : base("Module", "M", "Contains a collection of WFC Modules.", "WaveFunctionCollapse", "Parameters") { }
+      : base("Module", "M", "Contains a collection of Monoceros Modules.", "Monoceros", "Parameters") { }
         public override Guid ComponentGuid => new Guid("976AE239-A098-4B77-978F-416B974DD146");
 
         public override GH_Exposure Exposure => GH_Exposure.primary;
 
-        protected override System.Drawing.Bitmap Icon =>
-               Properties.Resources.M;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.MP;
 
         public bool Hidden { get; set; }
 

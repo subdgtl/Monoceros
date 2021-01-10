@@ -149,12 +149,12 @@ namespace WFCPlugin {
         /// <summary>
         /// Type name. Required by Grasshopper.
         /// </summary>
-        public string TypeName => "WFC Rule";
+        public string TypeName => "Monoceros Rule";
 
         /// <summary>
         /// Type description. Required by Grasshopper.
         /// </summary>
-        public string TypeDescription => "WFC Connection rule.";
+        public string TypeDescription => "Monoceros Connection rule.";
 
 
         /// <summary>
@@ -368,7 +368,7 @@ namespace WFCPlugin {
 
     /// <summary>
     /// <para>
-    /// Explicit rule for WFC <see cref="ComponentFauxSolver"/>.
+    /// Explicit rule for Monoceros <see cref="ComponentFauxSolver"/>.
     /// </para>
     /// <para>
     /// <see cref="RuleExplicit"/> describes an allowed neighborhood of two
@@ -594,7 +594,7 @@ namespace WFCPlugin {
 
     /// <summary>
     /// <para>
-    /// Typed rule for WFC Solver.
+    /// Typed rule for Monoceros Solver.
     /// </para>
     /// <para>
     /// <see cref="RuleTyped"/> describes an allowed neighborhood of the current

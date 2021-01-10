@@ -7,7 +7,7 @@ namespace WFCPlugin {
     // TODO: Consider doing this entirely in Grasshopper as a user object / cluster
     /// <summary>
     /// <para>
-    /// Grasshopper component: WFC Construct Empty Module
+    /// Grasshopper component: Monoceros Construct Empty Module
     /// </para>
     /// <para>
     /// Construct the "Empty" module. "Empty" is a system reserved module, which
@@ -38,11 +38,11 @@ namespace WFCPlugin {
     /// <list type="bullet">
     ///     <item>
     ///         <term><see cref="Module"/> Module</term>
-    ///         <description>WFC Module. Item access.</description>
+    ///         <description>Monoceros Module. Item access.</description>
     ///     </item>
     ///     <item>
     ///         <term><see cref="Rule"/> Rules</term>
-    ///         <description>WFC Rules making the Empty rule Indifferent. List
+    ///         <description>Monoceros Rules making the Empty rule Indifferent. List
     ///             access.</description>
     ///     </item>
     /// </list>
@@ -51,8 +51,8 @@ namespace WFCPlugin {
     public class ComponentModuleEmpty : GH_Component {
         public ComponentModuleEmpty( ) : base("Construct Empty Module",
                                              "ModuleEmpty",
-                                             "Construct an empty WFC Module.",
-                                             "WaveFunctionCollapse",
+                                             "Construct an empty Monoceros Module.",
+                                             "Monoceros",
                                              "Module") {
         }
 
@@ -82,12 +82,12 @@ namespace WFCPlugin {
             pManager.AddParameter(new ModuleParameter(),
                                   "Module",
                                   "M",
-                                  "Empty WFC Module",
+                                  "Empty Monoceros Module",
                                   GH_ParamAccess.item);
             pManager.AddParameter(new RuleParameter(),
                                   "Rules",
                                   "R",
-                                  "WFC Rules making the Empty rule Indifferent",
+                                  "Monoceros Rules making the Empty rule Indifferent",
                                   GH_ParamAccess.list);
         }
 

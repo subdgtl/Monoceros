@@ -8,9 +8,9 @@ namespace WFCPlugin {
         public ComponentRuleOuterFromPoint( )
             : base("Rule Allow Out From Point Tag",
                    "RuleOutPt",
-                   "Allow the WFC Moudle's connector marked with a Point to connect to an " +
+                   "Allow the Monoceros Moudle's connector marked with a Point to connect to an " +
                    "Out Module. All Out module's connectors are Indifferent.",
-                   "WaveFunctionCollapse",
+                   "Monoceros",
                    "Rule") {
         }
 
@@ -21,7 +21,7 @@ namespace WFCPlugin {
             pManager.AddParameter(new ModuleParameter(),
                                   "Modules",
                                   "M",
-                                  "All available WFC modules",
+                                  "All available Monoceros modules",
                                   GH_ParamAccess.list);
             pManager.AddPointParameter("Point Tag",
                                        "PT",
@@ -36,7 +36,7 @@ namespace WFCPlugin {
             pManager.AddParameter(new RuleParameter(),
                                   "Rules",
                                   "R",
-                                  "WFC Rules",
+                                  "Monoceros Rules",
                                   GH_ParamAccess.list);
         }
 
@@ -134,7 +134,7 @@ namespace WFCPlugin {
         /// Provides an Icon for every component that will be visible in the
         /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.C;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.R;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it.  It is vital

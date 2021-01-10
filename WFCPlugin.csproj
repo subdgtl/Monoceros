@@ -105,9 +105,6 @@
     <None Include="Icons\W.png" />
     <None Include="Icons\S.png" />
     <None Include="Icons\M.png" />
-    <None Include="Icons\F.png" />
-    <None Include="Icons\C.png" />
-    <None Include="Icons\B.png" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -127,6 +124,10 @@
     <Content Include="DynamicLinkingDependencies\GH_IO.dll" />
     <Content Include="DynamicLinkingDependencies\Grasshopper.dll" />
     <Content Include="DynamicLinkingDependencies\RhinoCommon.dll" />
+    <None Include="Icons\SP.png" />
+    <None Include="Icons\RP.png" />
+    <None Include="Icons\NP.png" />
+    <None Include="Icons\MP.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

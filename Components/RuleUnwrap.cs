@@ -9,8 +9,8 @@ namespace WFCPlugin {
         public ComponentUnwrapRules( )
             : base("Unwrap Typed Rules",
                    "UnwrapRules",
-                   "Convert WFC Typed Rules into WFC Explicit Rules and deduplicate.",
-                   "WaveFunctionCollapse",
+                   "Convert Monoceros Typed Rules into Monoceros Explicit Rules and deduplicate.",
+                   "Monoceros",
                    "Rule") {
         }
 
@@ -21,12 +21,12 @@ namespace WFCPlugin {
             pManager.AddParameter(new ModuleParameter(),
                                   "Module",
                                   "M",
-                                  "WFC module for indifferent rule generation",
+                                  "Monoceros module for indifferent rule generation",
                                   GH_ParamAccess.list);
             pManager.AddParameter(new RuleParameter(),
                                   "Rules",
                                   "R",
-                                  "All WFC rules, including Explicit",
+                                  "All Monoceros rules, including Explicit",
                                   GH_ParamAccess.list);
         }
 
@@ -37,7 +37,7 @@ namespace WFCPlugin {
             pManager.AddParameter(new RuleParameter(),
                                   "Rules",
                                   "R",
-                                  "WFC Rules",
+                                  "Monoceros Rules",
                                   GH_ParamAccess.list);
         }
 
@@ -100,7 +100,7 @@ namespace WFCPlugin {
         /// Provides an Icon for every component that will be visible in the
         /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override Bitmap Icon => Properties.Resources.C;
+        protected override Bitmap Icon => Properties.Resources.R;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it.  It is vital

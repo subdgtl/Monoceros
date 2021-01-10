@@ -9,9 +9,9 @@ namespace WFCPlugin {
         public ComponentRuleIndifferentUnused( )
             : base("Rule Typed Indifferent For Unused Connectors",
                    "RuleIndiffUnused",
-                   "Allow unused connectors of a WFC Module to connect to any opposite " +
-                   "indifferent connector of any WFC Module.",
-                   "WaveFunctionCollapse",
+                   "Allow unused connectors of a Monoceros Module to connect to any opposite " +
+                   "indifferent connector of any Monoceros Module.",
+                   "Monoceros",
                    "Rule") {
         }
 
@@ -22,12 +22,12 @@ namespace WFCPlugin {
             pManager.AddParameter(new ModuleParameter(),
                                   "Module",
                                   "M",
-                                  "WFC module for indifferent rule generation",
+                                  "Monoceros module for indifferent rule generation",
                                   GH_ParamAccess.item);
             pManager.AddParameter(new RuleParameter(),
                                   "Rules",
                                   "R",
-                                  "All existing WFC rules",
+                                  "All existing Monoceros rules",
                                   GH_ParamAccess.list);
             pManager[1].Optional = true;
         }
@@ -39,7 +39,7 @@ namespace WFCPlugin {
             pManager.AddParameter(new RuleParameter(),
                                   "Rules",
                                   "R",
-                                  "WFC Rules",
+                                  "Monoceros Rules",
                                   GH_ParamAccess.list);
         }
 
@@ -107,7 +107,7 @@ namespace WFCPlugin {
         /// Provides an Icon for every component that will be visible in the
         /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.C;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.R;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it.  It is vital

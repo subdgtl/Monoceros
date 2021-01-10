@@ -13,16 +13,15 @@ namespace WFCPlugin {
     public class ModuleNameParameter : GH_PersistentParam<ModuleName> {
         public ModuleNameParameter( ) : base("Module Name",
                                             "MN",
-                                            "Contains a collection of WFC Module names.",
-                                            "WaveFunctionCollapse",
+                                            "Contains a collection of Monoceros Module names.",
+                                            "Monoceros",
                                             "Parameters") { }
 
         public override Guid ComponentGuid => new Guid("2206385E-137A-4E4F-B786-642C6A27C126");
 
         public override GH_Exposure Exposure => GH_Exposure.primary;
 
-        protected override System.Drawing.Bitmap Icon =>
-               Properties.Resources.B;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.NP;
 
         protected override GH_GetterResult Prompt_Plural(ref List<ModuleName> values) {
             values = new List<ModuleName>();

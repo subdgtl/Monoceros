@@ -18,8 +18,8 @@ namespace WFCPlugin {
         private List<List<Transform>> _slotTransforms;
         public ComponentMaterializeModule( ) : base("Materialize Module",
                                              "Materialize",
-                                             "Materialize WFC Module into given WFC Slots.",
-                                             "WaveFunctionCollapse",
+                                             "Materialize Monoceros Module into given Monoceros Slots.",
+                                             "Monoceros",
                                              "Main") {
         }
 
@@ -30,12 +30,12 @@ namespace WFCPlugin {
             pManager.AddParameter(new ModuleParameter(),
                                   "Module",
                                   "M",
-                                  "All WFC Modules",
+                                  "All Monoceros Modules",
                                   GH_ParamAccess.list);
             pManager.AddParameter(new SlotParameter(),
                                   "Slots",
                                   "S",
-                                  "WFC Slots",
+                                  "Monoceros Slots",
                                   GH_ParamAccess.list);
         }
 
@@ -45,7 +45,7 @@ namespace WFCPlugin {
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddGeometryParameter("Geometry",
                                           "G",
-                                          "Geometry placed into WFC Slot",
+                                          "Geometry placed into Monoceros Slot",
                                           GH_ParamAccess.tree);
             pManager.AddTransformParameter("Transform",
                                            "X",
@@ -126,7 +126,7 @@ namespace WFCPlugin {
         /// Provides an Icon for every component that will be visible in the
         /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override Bitmap Icon => Properties.Resources.WFC;
+        protected override Bitmap Icon => Properties.Resources.M;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it.  It is vital

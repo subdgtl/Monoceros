@@ -11,7 +11,7 @@ using Rhino.Geometry;
 namespace WFCPlugin {
     /// <summary>
     /// <para>
-    /// WFC Module type.
+    /// Monoceros Module type.
     /// </para>
     /// <para>
     /// The Module is a collection of cuboid submodules that should be placed
@@ -124,7 +124,7 @@ namespace WFCPlugin {
         }
 
         /// <summary>
-        /// WFC <see cref="Module"/> constructor.
+        /// Monoceros <see cref="Module"/> constructor.
         /// </summary>
         /// <param name="name">Module name to be used as its unique identifier.
         ///     </param>
@@ -134,7 +134,7 @@ namespace WFCPlugin {
         ///     nor fill all submodules.</param>
         /// <param name="basePlane">The base plane of the module, defining its
         ///     coordinate system.  It will be used to display submodule cages
-        ///     and to orient the geometry into the WFC world slots.</param>
+        ///     and to orient the geometry into the Monoceros world slots.</param>
         /// <param name="submoduleCenters">Centers of the submodules in integer
         ///     coordinate system.  Each unit represents one slot. The
         ///     coordinate system origin and orientation is defined by the
@@ -156,7 +156,7 @@ namespace WFCPlugin {
                 throw new Exception("Submodule centers are repetitive");
             }
 
-            // Check if the slot diagonal is valid for the purposes of WFC
+            // Check if the slot diagonal is valid for the purposes of Monoceros
             if (slotDiagonal.X <= 0 || slotDiagonal.Y <= 0 || slotDiagonal.Z <= 0) {
                 throw new Exception("One or more slot dimensions are not larger than 0");
             }
@@ -170,7 +170,7 @@ namespace WFCPlugin {
             BasePlane = basePlane.Clone();
             SubmoduleCenters = submoduleCenters;
 
-            // Generate submodule names to be used as module names by the WFC solver
+            // Generate submodule names to be used as module names by the Monoceros solver
             SubmoduleNames = new List<string>();
             for (var i = 0; i < submoduleCenters.Count; i++) {
                 SubmoduleNames.Add(name + i);
@@ -502,12 +502,12 @@ namespace WFCPlugin {
         /// <summary>
         /// Gets the type name. Required by Grasshopper.
         /// </summary>
-        public string TypeName => "WFC Module";
+        public string TypeName => "Monoceros Module";
 
         /// <summary>
         /// Gets the type description. Required by Grasshopper.
         /// </summary>
-        public string TypeDescription => "WFC Module data.";
+        public string TypeDescription => "Monoceros Module data.";
 
         /// <summary>
         /// Gets the clipping box for the module. Required by Grasshopper for
