@@ -173,9 +173,18 @@ namespace WFCPlugin {
 
             // Place the pivot into the first submodule and orient is according to the base plane 
             var pivot = basePlane.Clone();
-            pivot.Origin = new Point3d(submoduleCenters[0].X * slotDiagonal.X,
-                                       submoduleCenters[0].Y * slotDiagonal.Y,
-                                       submoduleCenters[0].Z * slotDiagonal.Z);
+            var pivotOrigin = submoduleCenters[0].ToPoint3d();
+
+            // Orient to the base coordinate system
+            var baseAlignmentTransform = Transform.PlaneToPlane(Plane.WorldXY, basePlane);
+            // Scale up to slot size
+            var scalingTransform = Transform.Scale(basePlane,
+                                                         slotDiagonal.X,
+                                                         slotDiagonal.Y,
+                                                         slotDiagonal.Z);
+            pivotOrigin.Transform(baseAlignmentTransform);
+            pivotOrigin.Transform(scalingTransform);
+            pivot.Origin = pivotOrigin;
             Pivot = pivot;
             // The name of the first submodule which should trigger the geometry placement
             PivotSubmoduleName = Name + 0;

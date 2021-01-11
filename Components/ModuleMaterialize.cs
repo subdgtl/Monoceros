@@ -94,7 +94,6 @@ namespace WFCPlugin {
                         continue;
                     }
 
-                    var currentSlotTransforms = new List<Transform>();
                     // TODO: Think about how to display bake contradictory and non-deterministic slots.
                     if (slot.AllowedSubmoduleNames.Count == 1 &&
                         slot.AllowedSubmoduleNames[0] == module.PivotSubmoduleName) {
@@ -105,14 +104,13 @@ namespace WFCPlugin {
                             return placedGeometry;
                         });
                         currentModuleTransforms.Add(transform);
-                        currentSlotTransforms.Add(transform);
                     } else {
                         slotGeometry = Enumerable.Empty<GeometryBase>();
                     }
                     geometry.AddRange(slotGeometry, new GH_Path(new int[] { moduleIndex, slotIndex }));
-                    transforms.AddRange(currentSlotTransforms, new GH_Path(new int[] { moduleIndex, slotIndex }));
 
                 }
+                transforms.AddRange(currentModuleTransforms, new GH_Path(new int[] { moduleIndex }));
                 _moduleGeometry.Add(module.Geometry);
                 _moduleOrigins.Add(module.Pivot.Origin);
                 _moduleTransforms.Add(currentModuleTransforms);
