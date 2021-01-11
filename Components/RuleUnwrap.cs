@@ -73,7 +73,7 @@ namespace WFCPlugin {
             }
 
             var rulesTyped = rulesInput
-                .Where(rule => rule != null && rule.IsTyped())
+                .Where(rule => rule != null && rule.IsTyped)
                 .Select(rule => rule.Typed);
 
             Module.GenerateEmptySingleModule(Config.OUTER_MODULE_NAME,
@@ -88,7 +88,7 @@ namespace WFCPlugin {
                 .SelectMany(ruleTyped => ruleTyped.ToRuleExplicit(rulesTyped, modulesClean))
                 .Select(ruleExplicit => new Rule(ruleExplicit));
 
-            var rulesExplicit = rulesInput.Where(rule => rule != null && rule.IsExplicit());
+            var rulesExplicit = rulesInput.Where(rule => rule != null && rule.IsExplicit);
 
             var rules = rulesExplicit.Concat(rulesTypedUnwrapped).Distinct();
 

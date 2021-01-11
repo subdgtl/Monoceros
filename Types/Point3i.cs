@@ -6,22 +6,23 @@ namespace WFCPlugin {
     /// Used as a relative discrete coordinate of a slot or a submodule center
     /// in the orthogonal 3D voxel-like grid, which describes the Monoceros World.
     /// </summary>
+    [Serializable]
     public struct Point3i {
         /// <summary>
         /// The X coordinate of a slot or submodule center in the orthogonal
         /// voxel-like grid, which describes the Monoceros world.
         /// </summary>
-        public readonly int X;
+        public int X;
         /// <summary>
         /// The Y coordinate of a slot or submodule center in the orthogonal
         /// voxel-like grid, which describes the Monoceros world.
         /// </summary>
-        public readonly int Y;
+        public int Y;
         /// <summary>
         /// The Z coordinate of a slot or submodule center in the orthogonal
         /// voxel-like grid, which describes the Monoceros world.
         /// </summary>
-        public readonly int Z;
+        public int Z;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Point3i"/> class.

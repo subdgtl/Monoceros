@@ -1,10 +1,12 @@
-﻿using Rhino.Geometry;
+﻿using System;
+using Rhino.Geometry;
 
 namespace WFCPlugin {
     /// <summary>
     /// Submodule face direction consisting of <see cref="WFCPlugin.Axis"/> and
     /// <see cref="WFCPlugin.Orientation"/>.
     /// </summary>
+    [Serializable]
     public struct Direction {
         private readonly Axis axis;
         private readonly Orientation orientation;
@@ -81,6 +83,7 @@ namespace WFCPlugin {
     /// <summary>
     /// Submodule face axis within a grid: <c>X</c> or <c>Y</c> or <c>Z</c>.
     /// </summary>
+    [Serializable]
     public enum Axis : uint {
         X = 0,
         Y = 1,
@@ -91,6 +94,7 @@ namespace WFCPlugin {
     /// Submodule face orientation within a grid: <c>Positive</c> or
     /// <c>Negative</c>.
     /// </summary>
+    [Serializable]
     public enum Orientation {
         Positive,
         Negative

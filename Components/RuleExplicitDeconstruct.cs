@@ -46,6 +46,7 @@ namespace WFCPlugin {
                                          "TC",
                                          "Target connector number",
                                          GH_ParamAccess.item);
+            // TODO: Add IsValid
         }
 
         /// <summary>
@@ -65,7 +66,7 @@ namespace WFCPlugin {
                 return;
             }
 
-            if (!rule.IsExplicit()) {
+            if (!rule.IsExplicit) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "The provided rule is not explicit.");
                 return;

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using GH_IO.Serialization;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
@@ -10,10 +12,10 @@ using Rhino.Geometry;
 namespace WFCPlugin {
     /// <summary>
     /// <para>
-    /// The <see cref="Slot"/> is a basic unit of the Monoceros World. It has s shape
-    /// of a cuboid and occupies a single cell of a homogeneous discrete 3D
-    /// grid.  It specifies which <see cref="Module"/>s can be placed into the
-    /// respective World grid cell.
+    /// The <see cref="Slot"/> is a basic unit of the Monoceros World. It has s
+    /// shape of a cuboid and occupies a single cell of a homogeneous discrete
+    /// 3D grid.  It specifies which <see cref="Module"/>s can be placed into
+    /// the respective World grid cell.
     /// </para>
     /// <para>
     /// The <see cref="Slot"/>s of the world do not have to form any specific
@@ -72,6 +74,7 @@ namespace WFCPlugin {
     /// internally ad it is not possible to instantiate it from Grasshopper.
     /// </para>
     /// </summary>
+    [Serializable]
     public class Slot : IGH_Goo, IGH_PreviewData, IGH_BakeAwareObject {
         /// <summary>
         /// The <see cref="BasePlane"/> specifies the origin and orientation of
@@ -79,27 +82,27 @@ namespace WFCPlugin {
         /// <see cref="Slot"/>s of the world have to be anchored by the same
         /// <see cref="BasePlane"/>.
         /// </summary>
-        public readonly Plane BasePlane;
+        public Plane BasePlane;
 
         /// <summary>
         /// The <see cref="Slot"/> is located at <see cref="RelativeCenter"/>,
         /// which specifies its integer coordinate in the World grid. 
         /// </summary>
-        public readonly Point3i RelativeCenter;
+        public Point3i RelativeCenter;
 
         /// <summary>
         /// The <see cref="Slot"/> dimension is specified by its
         /// <see cref="Diagonal"/> and has to match the dimensions of the World
         /// grid. 
         /// </summary>
-        public readonly Vector3d Diagonal;
+        public Vector3d Diagonal;
 
         /// <summary>
         /// Flag marking whether the <see cref="Slot"/> may contain any module
         /// without the necessity explicitly of specifying a list of
         /// <see cref="AllowedModuleNames"/>
         /// </summary>
-        public readonly bool AllowsAnyModule;
+        public bool AllowsAnyModule;
 
         /// <summary>
         /// An explicit list of <see cref="Module"/> names that can be placed
@@ -111,7 +114,7 @@ namespace WFCPlugin {
         /// <see cref="AllowedSubmoduleNames"/> from a given list of
         /// <see cref="Module"/>s.
         /// </summary>
-        public readonly List<string> AllowedModuleNames;
+        public List<string> AllowedModuleNames;
 
         /// <summary>
         /// An explicit list of submodule names that can be placed into the
@@ -123,14 +126,14 @@ namespace WFCPlugin {
         /// <see cref="AllowedSubmoduleNames"/> from a given list of
         /// <see cref="Module"/>s. This is always done internally.
         /// </summary>
-        public readonly List<string> AllowedSubmoduleNames;
+        public List<string> AllowedSubmoduleNames;
 
         /// <summary>
         /// Holds the number of existing submodules in the solution for viewport
         /// display purposes.  The color of the slot represents its entropy
         /// (number of allowed submodules).
         /// </summary>
-        public readonly int AllSubmodulesCount;
+        public int AllSubmodulesCount;
 
 
         /// <summary>
@@ -330,32 +333,53 @@ namespace WFCPlugin {
             return this;
         }
 
-        // TODO: Do this for real
         /// <summary>
         /// De-serialization. Required by Grasshopper for data internalization.
         /// </summary>
-        /// <remarks>
-        /// Not implemented yet.
-        /// </remarks>
         /// <param name="reader">The reader.</param>
-        /// <returns>A bool when successful.</returns>
+        /// <returns>True when successful.</returns>
         public bool Read(GH_IReader reader) {
-            return true;
+            var formatter = new BinaryFormatter();
+
+            if (reader.ItemExists("SlotData")) {
+                var slotBytes = reader.GetByteArray("SlotData");
+                using (var slotDataStream = new System.IO.MemoryStream(slotBytes)) {
+                    try {
+                        var slot = (Slot)formatter.Deserialize(slotDataStream);
+                        BasePlane = slot.BasePlane;
+                        RelativeCenter = slot.RelativeCenter;
+                        Diagonal = slot.Diagonal;
+                        AllowsAnyModule = slot.AllowsAnyModule;
+                        AllowedModuleNames = slot.AllowedModuleNames;
+                        AllowedSubmoduleNames = slot.AllowedSubmoduleNames;
+                        AllSubmodulesCount = slot.AllSubmodulesCount;
+                        return true;
+                    } catch (SerializationException e) {
+                        throw e;
+                    }
+                }
+            }
+
+            return false;
         }
 
-        // TODO: Do this for real
         /// <summary>
         /// Serialization. Required by Grasshopper for data internalization.
         /// </summary>
-        /// <remarks>
-        /// Not implemented yet.
-        /// </remarks>
         /// <param name="writer">The writer.</param>
-        /// <returns>A bool when successful.</returns>
+        /// <returns>True when successful.</returns>
         public bool Write(GH_IWriter writer) {
-            return true;
+            var formatter = new BinaryFormatter();
+            using (var dataStream = new System.IO.MemoryStream()) {
+                try {
+                    formatter.Serialize(dataStream, this);
+                    writer.SetByteArray("SlotData", dataStream.ToArray());
+                    return true;
+                } catch (SerializationException e) {
+                    throw e;
+                }
+            }
         }
-
 
         /// <summary>
         /// Does nothing. Required by Grasshopper.
@@ -599,7 +623,7 @@ namespace WFCPlugin {
         /// <param name="a">First byte value.</param>
         /// <param name="b">Second byte value.</param>
         /// <param name="t">Parameter (0 to 1).</param>
-        /// <returns>Interpolated  byte.</returns>
+        /// <returns>Interpolated byte.</returns>
         private static byte Interpolate(byte a, byte b, double t) {
             return Convert.ToByte(a + (b - a) * t);
         }
@@ -637,8 +661,8 @@ namespace WFCPlugin {
         /// <summary>
         /// Gets the <see cref="Slot"/> cage - a cuboid at the position of the
         /// <see cref="Slot"/> with dimensions defined by the
-        /// <see cref="Diagonal"/>. It reveals the respective cell of the Monoceros
-        /// World.
+        /// <see cref="Diagonal"/>. It reveals the respective cell of the
+        /// Monoceros World.
         /// </summary>
         private Box Cage {
             get {

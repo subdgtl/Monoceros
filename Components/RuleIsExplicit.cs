@@ -47,7 +47,7 @@ namespace WFCPlugin {
                 return;
             }
 
-            DA.SetData(0, rule.IsExplicit());
+            DA.SetData(0, rule.IsExplicit);
         }
 
         /// <summary>

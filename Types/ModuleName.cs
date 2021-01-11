@@ -25,7 +25,7 @@ namespace WFCPlugin {
     /// description at the same time.
     /// </remarks>
     public class ModuleName : IGH_Goo {
-        private string _name;
+        public string Name;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ModuleName"/> class.
@@ -99,30 +99,28 @@ namespace WFCPlugin {
             return this;
         }
 
-        // TODO: Do this for real
         /// <summary>
         /// Serialization. Required by Grasshopper for data internalization.
         /// </summary>
-        /// <remarks>
-        /// Not implemented yet.
-        /// </remarks>
         /// <param name="writer">The writer.</param>
         /// <returns>A bool when successful.</returns>
         public bool Write(GH_IWriter writer) {
+            writer.SetString("Name", Name);
             return true;
         }
 
-        // TODO: Do this for real
         /// <summary>
         /// De-serialization. Required by Grasshopper for data internalization.
         /// </summary>
-        /// <remarks>
-        /// Not implemented yet.
-        /// </remarks>
         /// <param name="reader">The reader.</param>
         /// <returns>A bool when successful.</returns>
         public bool Read(GH_IReader reader) {
-            return true;
+            if (reader.ItemExists("Name")) {
+                Name = reader.GetString("Name");
+                return true;
+            } else {
+                return false;
+            }
         }
 
         /// <summary>
@@ -145,11 +143,6 @@ namespace WFCPlugin {
         /// Gets the type description. Required by Grasshopper.
         /// </summary>
         public string TypeDescription => "Name of a Monoceros module.";
-
-        /// <summary>
-        /// Gets or sets the name.
-        /// </summary>
-        public string Name { get => _name; set => _name = value; }
 
         /// <summary>
         /// Converts the module name into a string. Required by Grasshopper for

@@ -69,6 +69,8 @@ namespace WFCPlugin {
                                         "Grid slot diagonal vector specifying slot dimension in " +
                                         "base-plane-aligned axes.",
                                         GH_ParamAccess.list);
+            // TODO: Add IsCoherent
+            // TODO: Add IsValid
             pManager.AddPlaneParameter("Connectors",
                                        "C",
                                        "Connector planes",
@@ -132,19 +134,19 @@ namespace WFCPlugin {
                     continue;
                 }
 
-                if (existingRule.IsExplicit() &&
+                if (existingRule.IsExplicit &&
                     existingRule.Explicit.SourceModuleName == module.Name &&
                     existingRule.Explicit.SourceConnectorIndex < module.Connectors.Count) {
                     connectorUsePattern[existingRule.Explicit.SourceConnectorIndex] = true;
                 }
 
-                if (existingRule.IsExplicit() &&
+                if (existingRule.IsExplicit &&
                     existingRule.Explicit.TargetModuleName == module.Name &&
                     existingRule.Explicit.TargetConnectorIndex < module.Connectors.Count) {
                     connectorUsePattern[existingRule.Explicit.TargetConnectorIndex] = true;
                 }
 
-                if (existingRule.IsTyped() &&
+                if (existingRule.IsTyped &&
                     existingRule.Typed.ModuleName == module.Name &&
                     existingRule.Typed.ConnectorIndex < module.Connectors.Count) {
                     connectorUsePattern[existingRule.Typed.ConnectorIndex] = true;

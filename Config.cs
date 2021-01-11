@@ -37,7 +37,7 @@ namespace WFCPlugin {
         public static readonly int MAX_SUBMODULES = 256;
 
         public static readonly string FONT_FACE = "Mark Pro";
-        public static readonly int MODULE_NAME_FONT_HEIGHT = 40;
+        public static readonly int MODULE_NAME_FONT_HEIGHT = 50;
 
         /// <summary>
         /// Preview and baking color a <see cref="Module"/> cage and

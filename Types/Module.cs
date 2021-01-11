@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using GH_IO.Serialization;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
@@ -34,35 +36,36 @@ namespace WFCPlugin {
     /// <remarks>
     /// The class is designed as immutable, therefore all fields are read only. 
     /// </remarks>
+    [Serializable]
     public class Module : IGH_Goo, IGH_PreviewData, IGH_BakeAwareObject {
         /// <summary>
         /// Module name, used as a unique module identifier.
         /// </summary>
-        public readonly string Name;
+        public string Name;
 
         /// <summary>
         /// Geometry to be placed into the corresponding world
         /// <see cref="Slot"/>s.
         /// </summary>
-        public readonly List<GeometryBase> Geometry;
+        public List<GeometryBase> Geometry;
 
         /// <summary>
         /// Base plane defining the module's coordinate system.
         /// </summary>
-        public readonly Plane BasePlane;
+        public Plane BasePlane;
 
         /// <summary>
         /// Computed centers of submodules for module deconstruction and
         /// reconstruction.
         /// </summary>
-        public readonly List<Point3i> SubmoduleCenters;
+        public List<Point3i> SubmoduleCenters;
 
         /// <summary>
         /// Computed submodule names for the purposes of
         /// <see cref="ComponentSolver"/> and
         /// <see cref="ComponentMaterializeSlot"/>.
         /// </summary>
-        public readonly List<string> SubmoduleNames;
+        public List<string> SubmoduleNames;
 
         /// <summary>
         /// Computed source plane for geometry placement. The Pivot is located
@@ -70,7 +73,7 @@ namespace WFCPlugin {
         /// geometry can be Oriented from the Pivot to the target
         /// <see cref="Slot"/> center plane.
         /// </summary>
-        public readonly Plane Pivot;
+        public Plane Pivot;
 
         /// <summary>
         /// Computed name of the submodule containing the Pivot. The entire
@@ -78,7 +81,7 @@ namespace WFCPlugin {
         /// <see cref="Slot"/>, which allows the placement of solely the
         /// PivotSubmoduleName.
         /// </summary>
-        public readonly string PivotSubmoduleName;
+        public string PivotSubmoduleName;
 
         // TODO: Consider squishing the modules to fit the world's slot dimensions.
         /// <summary>
@@ -86,7 +89,7 @@ namespace WFCPlugin {
         /// module. The filed's purpose is to check compatibility of various
         /// modules with the world they should populate.
         /// </summary>
-        public readonly Vector3d SlotDiagonal;
+        public Vector3d SlotDiagonal;
 
         /// <summary>
         /// Computed information about module connectors - those of the 6 faces
@@ -97,7 +100,7 @@ namespace WFCPlugin {
         /// The connectors appear to belong to the main module.  The concept of
         /// submodules is not revealed in the Grasshopper API. 
         /// </remarks>
-        public readonly List<ModuleConnector> Connectors;
+        public List<ModuleConnector> Connectors;
 
         /// <summary>
         /// Rules in the solver format describing connections of submodules
@@ -105,14 +108,7 @@ namespace WFCPlugin {
         /// the module's submodules together. The existence of the internal
         /// rules is hidden from the Grasshopper API. 
         /// </summary>
-        public readonly List<RuleForSolver> InternalRules;
-
-        /// <summary>
-        /// Check if the module submodules create a continuous compact blob.  If
-        /// the module contains islands, then it is not compact and the module
-        /// will not hold together. 
-        /// </summary>
-        public readonly bool Compact;
+        public List<RuleForSolver> InternalRules;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Module"/> class.
@@ -134,7 +130,8 @@ namespace WFCPlugin {
         ///     nor fill all submodules.</param>
         /// <param name="basePlane">The base plane of the module, defining its
         ///     coordinate system.  It will be used to display submodule cages
-        ///     and to orient the geometry into the Monoceros world slots.</param>
+        ///     and to orient the geometry into the Monoceros world slots.
+        ///     </param>
         /// <param name="submoduleCenters">Centers of the submodules in integer
         ///     coordinate system.  Each unit represents one slot. The
         ///     coordinate system origin and orientation is defined by the
@@ -163,8 +160,6 @@ namespace WFCPlugin {
 
             SlotDiagonal = slotDiagonal;
 
-            Compact = CheckConsistency(submoduleCenters);
-
             Name = name.ToLower();
             Geometry = geometry.ToList();
             BasePlane = basePlane.Clone();
@@ -177,11 +172,11 @@ namespace WFCPlugin {
             }
 
             // Place the pivot into the first submodule and orient is according to the base plane 
-            Pivot = basePlane.Clone();
-            Pivot.Origin = new Point3d(submoduleCenters[0].X * slotDiagonal.X,
+            var pivot = basePlane.Clone();
+            pivot.Origin = new Point3d(submoduleCenters[0].X * slotDiagonal.X,
                                        submoduleCenters[0].Y * slotDiagonal.Y,
                                        submoduleCenters[0].Z * slotDiagonal.Z);
-
+            Pivot = pivot;
             // The name of the first submodule which should trigger the geometry placement
             PivotSubmoduleName = Name + 0;
 
@@ -203,7 +198,7 @@ namespace WFCPlugin {
             visited[0] = true;
             var i = 0;
             while (i < stack.Count) {
-                var current = centers[i];
+                var current = stack[i];
                 for (var j = 0; j < centers.Count; j++) {
                     var other = centers[j];
                     if (AreNeighbors(current, other) && !visited[j]) {
@@ -485,6 +480,7 @@ namespace WFCPlugin {
             Pivot != null &&
             PivotSubmoduleName != null &&
             Connectors.Count > 0 &&
+            SubmoduleCenters.Count <= Config.MAX_SUBMODULES &&
             Compact;
 
         /// <summary>
@@ -493,8 +489,13 @@ namespace WFCPlugin {
         public string IsValidWhyNot {
             get {
                 if (!Compact) {
-                    return "The module is not compact, contains islands and therefore " +
+                    return "Module \"" + Name + "\" is not compact, contains islands and therefore " +
                         "will not hold together.";
+                }
+                if (SubmoduleCenters.Count > Config.MAX_SUBMODULES) {
+                    return "Module \"" + Name + "\" alone occupies " + SubmoduleCenters.Count +
+                           " Slots. The Monoceros WFC Solver supports Modules occupying " +
+                           "up to " + Config.MAX_SUBMODULES + " Slots altogether.";
                 }
                 return "Some of the fields are null.";
             }
@@ -559,30 +560,55 @@ namespace WFCPlugin {
             return (IGH_Goo)MemberwiseClone();
         }
 
-        // TODO: Do this for real
         /// <summary>
         /// De-serialization. Required by Grasshopper for data internalization.
         /// </summary>
-        /// <remarks>
-        /// Not implemented yet.
-        /// </remarks>
         /// <param name="reader">The reader.</param>
         /// <returns>True when successful.</returns>
         public bool Read(GH_IReader reader) {
-            return true;
+            var formatter = new BinaryFormatter();
+
+            if (reader.ItemExists("ModuleData")) {
+                var moduleData = reader.GetByteArray("ModuleData");
+                using (var moduleDataStream = new System.IO.MemoryStream(moduleData)) {
+                    try {
+                        var module = (Module)formatter.Deserialize(moduleDataStream);
+                        Name = module.Name;
+                        Geometry = module.Geometry;
+                        BasePlane = module.BasePlane;
+                        SubmoduleCenters = module.SubmoduleCenters;
+                        Pivot = module.Pivot;
+                        PivotSubmoduleName = module.PivotSubmoduleName;
+                        SlotDiagonal = module.SlotDiagonal;
+                        Connectors = module.Connectors;
+                        InternalRules = module.InternalRules;
+                        return true;
+                    } catch (SerializationException e) {
+                        throw e;
+                    }
+                }
+            }
+
+            return false;
         }
 
-        // TODO: Do this for real
         /// <summary>
         /// Serialization. Required by Grasshopper for data internalization.
         /// </summary>
-        /// <remarks>
-        /// Not implemented yet.
-        /// </remarks>
         /// <param name="writer">The writer.</param>
         /// <returns>True when successful.</returns>
         public bool Write(GH_IWriter writer) {
-            return true;
+            var formatter = new BinaryFormatter();
+            var module = Duplicate();
+            using (var dataStream = new System.IO.MemoryStream()) {
+                try {
+                    formatter.Serialize(dataStream, module);
+                    writer.SetByteArray("ModuleData", dataStream.ToArray());
+                    return true;
+                } catch (SerializationException e) {
+                    throw e;
+                }
+            }
         }
 
         /// <summary>
@@ -707,10 +733,11 @@ namespace WFCPlugin {
                                       dotColor);
             }
 
-            var pivotPosition = Pivot.Origin;
+            var namePosition = Pivot.Origin;
+            var nameColor = IsValid ? Config.CAGE_ONE_COLOR : Config.CAGE_ERROR_COLOR;
             args.Pipeline.Draw2dText(Name,
-                                     Config.POSITIVE_COLOR,
-                                     pivotPosition,
+                                     nameColor,
+                                     namePosition,
                                      true,
                                      Config.MODULE_NAME_FONT_HEIGHT,
                                      Config.FONT_FACE);
@@ -737,6 +764,13 @@ namespace WFCPlugin {
         /// by Grasshopper for baking.
         /// </summary>
         public bool IsBakeCapable => IsValid;
+
+        /// <summary>
+        /// Check if the module submodules create a continuous compact blob.  If
+        /// the module contains islands, then it is not compact and the module
+        /// will not hold together. 
+        /// </summary>
+        public bool Compact => CheckConsistency(SubmoduleCenters);
 
         /// <summary>
         /// Bakes the module helpers (cages and connector anchors). Required by
@@ -845,26 +879,27 @@ namespace WFCPlugin {
     ///     </item>
     /// </list>
     /// </summary>
+    [Serializable]
     public struct ModuleConnector {
         /// <summary>
         /// >Name of a submodule containing the connector
         /// </summary>
-        public readonly string SubmoduleName;
+        public string SubmoduleName;
         /// <summary>
         /// Direction of the current connector in the orthogonal coordinate
         /// system
         /// </summary>
-        public readonly Direction Direction;
+        public Direction Direction;
         /// <summary>
         /// A plane in the center of the connector oriented in the direction of
         /// the connector (in world Cartesian coordinates)
         /// </summary>
-        public readonly Plane AnchorPlane;
+        public Plane AnchorPlane;
         /// <summary>
         /// A rectangle around the connector - a face of the cuboid representing
         /// the submodule
         /// </summary>
-        public readonly Rectangle3d Face;
+        public Rectangle3d Face;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ModuleConnector"/>
@@ -921,4 +956,5 @@ namespace WFCPlugin {
             return hashCode;
         }
     }
+
 }

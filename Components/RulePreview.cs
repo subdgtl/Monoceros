@@ -96,8 +96,8 @@ namespace WFCPlugin {
                 }
             }
 
-            var rulesExplicit = rulesClean.Where(rule => rule.IsExplicit()).Select(rule => rule.Explicit);
-            var rulesTyped = rulesClean.Where(rule => rule.IsTyped()).Select(rule => rule.Typed);
+            var rulesExplicit = rulesClean.Where(rule => rule.IsExplicit).Select(rule => rule.Explicit);
+            var rulesTyped = rulesClean.Where(rule => rule.IsTyped).Select(rule => rule.Typed);
 
             foreach (var ruleExplicit in rulesExplicit) {
                 // TODO: Consider displaying Out connections somehow too

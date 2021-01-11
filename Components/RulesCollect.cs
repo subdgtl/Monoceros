@@ -87,9 +87,9 @@ namespace WFCPlugin {
                                   "Some of the disallowed rules are null or invalid.");
             }
 
-            var disallowedExplicit = disallowed.Where(rule => rule != null && rule.IsExplicit());
+            var disallowedExplicit = disallowed.Where(rule => rule != null && rule.IsExplicit);
             var disallowedTyped = disallowed
-                .Where(rule => rule != null && rule.IsTyped())
+                .Where(rule => rule != null && rule.IsTyped)
                 .Select(rule => rule.Typed);
             var disallowedTypedUnwrapped = disallowedTyped
                 .SelectMany(ruleTyped => ruleTyped.ToRuleExplicit(disallowedTyped, modulesClean))
@@ -116,7 +116,7 @@ namespace WFCPlugin {
             modulesClean.Add(moduleOut);
 
             var allowedTyped = allowed
-                .Where(rule => rule != null && rule.IsTyped())
+                .Where(rule => rule != null && rule.IsTyped)
                 .Select(rule => rule.Typed);
 
             foreach (var rule in allowed) {
@@ -125,15 +125,15 @@ namespace WFCPlugin {
                     continue;
                 }
 
-                if (rule.IsExplicit()) {
+                if (rule.IsExplicit) {
                     allowedExplicit.Add(rule);
                     continue;
                 }
-                if (rule.IsTyped()) {
+                if (rule.IsTyped) {
                     var typed = rule.Typed;
                     if (
                         disallowedProcessed.Any(ruleDisallowed =>
-                            ruleDisallowed.IsExplicit() &&
+                            ruleDisallowed.IsExplicit &&
                             (ruleDisallowed.Explicit.SourceModuleName == typed.ModuleName &&
                              ruleDisallowed.Explicit.SourceConnectorIndex == typed.ConnectorIndex) ||
                             (ruleDisallowed.Explicit.TargetModuleName == typed.ModuleName &&

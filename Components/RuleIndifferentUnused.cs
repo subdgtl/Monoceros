@@ -72,21 +72,21 @@ namespace WFCPlugin {
                     continue;
                 }
 
-                if (existingRule.IsExplicit() &&
+                if (existingRule.IsExplicit &&
                     existingRule.Explicit.SourceModuleName == module.Name &&
                     existingRule.Explicit.SourceConnectorIndex < connectorCount
                     ) {
                     connectorUsePattern[existingRule.Explicit.SourceConnectorIndex] = true;
                 }
 
-                if (existingRule.IsExplicit() &&
+                if (existingRule.IsExplicit &&
                     existingRule.Explicit.TargetModuleName == module.Name &&
                     existingRule.Explicit.TargetConnectorIndex < connectorCount
                     ) {
                     connectorUsePattern[existingRule.Explicit.TargetConnectorIndex] = true;
                 }
 
-                if (existingRule.IsTyped() &&
+                if (existingRule.IsTyped &&
                     existingRule.Typed.ModuleName == module.Name &&
                     existingRule.Typed.ConnectorIndex < connectorCount
                     ) {

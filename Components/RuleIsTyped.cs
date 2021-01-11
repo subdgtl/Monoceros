@@ -43,7 +43,7 @@ namespace WFCPlugin {
                 return;
             }
 
-            DA.SetData(0, rule.IsTyped());
+            DA.SetData(0, rule.IsTyped);
         }
 
         /// <summary>

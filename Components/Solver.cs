@@ -167,7 +167,7 @@ namespace WFCPlugin {
             foreach (var module in modulesClean) {
                 var usedConnectors = Enumerable.Repeat(false, module.Connectors.Count).ToList();
                 foreach (var rule in rulesClean) {
-                    if (rule.IsExplicit()) {
+                    if (rule.IsExplicit) {
                         if (rule.Explicit.SourceModuleName == module.Name &&
                             rule.Explicit.SourceConnectorIndex < module.Connectors.Count) {
                             usedConnectors[rule.Explicit.SourceConnectorIndex] = true;
@@ -177,7 +177,7 @@ namespace WFCPlugin {
                             usedConnectors[rule.Explicit.TargetConnectorIndex] = true;
                         }
                     }
-                    if (rule.IsTyped()) {
+                    if (rule.IsTyped) {
                         if (rule.Typed.ModuleName == module.Name &&
                             rule.Typed.ConnectorIndex < module.Connectors.Count) {
                             usedConnectors[rule.Typed.ConnectorIndex] = true;
@@ -234,12 +234,12 @@ namespace WFCPlugin {
             modulesUsable.Add(moduleOut);
 
             // Unwrap typed rules
-            var rulesTyped = rulesClean.Where(rule => rule.IsTyped()).Select(rule => rule.Typed);
+            var rulesTyped = rulesClean.Where(rule => rule.IsTyped).Select(rule => rule.Typed);
             var rulesTypedUnwrappedToExplicit = rulesTyped
                 .SelectMany(ruleTyped => ruleTyped.ToRuleExplicit(rulesTyped, modulesUsable));
 
             var rulesExplicit = rulesClean
-                .Where(rule => rule.IsExplicit())
+                .Where(rule => rule.IsExplicit)
                 .Select(rule => rule.Explicit);
 
             // Deduplicate rules again

@@ -48,7 +48,7 @@ namespace WFCPlugin {
                                          2);
             pManager.AddNumberParameter("Precision",
                                         "P",
-                                        "Module slicer precision (lower = more precise & slower)",
+                                        "Geometry surface populate precision (lower = more precise & slower)",
                                         GH_ParamAccess.item,
                                         0.5);
 
@@ -161,8 +161,8 @@ namespace WFCPlugin {
                     if ((method == 1 || method == 2) &&
                         goo.ObjectType == Rhino.DocObjects.ObjectType.Mesh) {
                         var mesh = (Mesh)geometry;
-                        var populatePoints = PopulateMeshVolume(precision, mesh);
-                        foreach (var geometryPoint in populatePoints) {
+                        var pointsInsideMesh = PopulateMeshVolumeUnit(mesh);
+                        foreach (var geometryPoint in pointsInsideMesh) {
                             // Round point locations
                             // Slot dimension is for the sake of this calculation 1,1,1
                             var slotCenterPoint = new Point3i(geometryPoint);
@@ -263,20 +263,25 @@ namespace WFCPlugin {
         }
 
         /// <summary>
-        /// Populates the mesh volume.
+        /// Populates the mesh volume with unit boxes.
         /// </summary>
-        /// <param name="step">The distance - precision.</param>
         /// <param name="mesh">The mesh.</param>
-        /// <returns>A list of Point3ds.</returns>
-        private static List<Point3d> PopulateMeshVolume(double step, Mesh mesh) {
+        /// <returns>A list of Point3ds representing unit boxes centers that are
+        ///     entirely inside mesh volume.</returns>
+        private static List<Point3d> PopulateMeshVolumeUnit(Mesh mesh) {
             var pointsInsideMesh = new List<Point3d>();
             var boundingBox = mesh.GetBoundingBox(false);
-            for (var z = boundingBox.Min.Z - step; z < boundingBox.Max.Z + step; z += step) {
-                for (var y = boundingBox.Min.Y - step; y < boundingBox.Max.Y + step; y += step) {
-                    for (var x = boundingBox.Min.X - step; x < boundingBox.Max.X + step; x += step) {
-                        var testPoint = new Point3d(x, y, z);
-                        if (mesh.IsPointInside(testPoint, Rhino.RhinoMath.SqrtEpsilon, false)) {
-                            pointsInsideMesh.Add(testPoint);
+            var slotInterval = new Interval(-0.5, 0.5);
+            for (var z = Math.Round(boundingBox.Min.Z - 1); z < Math.Round(boundingBox.Max.Z + 1); z++) {
+                for (var y = Math.Round(boundingBox.Min.Y - 1); y < Math.Round(boundingBox.Max.Y + 1); y++) {
+                    for (var x = Math.Round(boundingBox.Min.X - 1); x < Math.Round(boundingBox.Max.X + 1); x++) {
+                        var testSlotCenter = new Point3d(x, y, z);
+                        var plane = Plane.WorldXY;
+                        plane.Origin = testSlotCenter;
+                        var box = new Box(plane, slotInterval, slotInterval, slotInterval);
+                        var boxPoints = box.GetCorners();
+                        if (boxPoints.All(point => mesh.IsPointInside(point, Rhino.RhinoMath.SqrtEpsilon, false))) {
+                            pointsInsideMesh.Add(testSlotCenter);
                         }
                     }
 

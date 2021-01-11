@@ -57,6 +57,7 @@ namespace WFCPlugin {
                                   "M",
                                   "Initiate the slot with specified module names allowed.",
                                   GH_ParamAccess.list);
+            // TODO: Add IsValid
         }
 
         /// <summary>
