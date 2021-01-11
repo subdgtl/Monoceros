@@ -15,7 +15,7 @@ namespace WFCPlugin {
         private List<List<GeometryBase>> _moduleGeometry;
         private List<Point3d> _moduleOrigins;
         private List<string> _moduleNames;
-        private List<List<Transform>> _slotTransforms;
+        private List<List<Transform>> _moduleTransforms;
         public ComponentMaterializeModule( ) : base("Materialize Module",
                                              "Materialize",
                                              "Materialize Monoceros Module into given Monoceros Slots.",
@@ -50,7 +50,7 @@ namespace WFCPlugin {
             pManager.AddTransformParameter("Transform",
                                            "X",
                                            "Transformation data",
-                                           GH_ParamAccess.list);
+                                           GH_ParamAccess.tree);
         }
 
         /// <summary>
@@ -70,13 +70,13 @@ namespace WFCPlugin {
                 return;
             }
 
-            var transforms = new List<Transform>();
+            var transforms = new DataTree<Transform>();
             var geometry = new DataTree<GeometryBase>();
 
             _moduleGeometry = new List<List<GeometryBase>>();
             _moduleOrigins = new List<Point3d>();
             _moduleNames = new List<string>();
-            _slotTransforms = new List<List<Transform>>();
+            _moduleTransforms = new List<List<Transform>>();
 
             for (var moduleIndex = 0; moduleIndex < modules.Count; moduleIndex++) {
                 var module = modules[moduleIndex];
@@ -85,7 +85,7 @@ namespace WFCPlugin {
                     return;
                 }
 
-                var currentTransforms = new List<Transform>();
+                var currentModuleTransforms = new List<Transform>();
                 IEnumerable<GeometryBase> slotGeometry;
                 for (var slotIndex = 0; slotIndex < slots.Count; slotIndex++) {
                     var slot = slots[slotIndex];
@@ -93,33 +93,34 @@ namespace WFCPlugin {
                         AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The slot is null or invalid.");
                         continue;
                     }
+
+                    var currentSlotTransforms = new List<Transform>();
                     // TODO: Think about how to display bake contradictory and non-deterministic slots.
                     if (slot.AllowedSubmoduleNames.Count == 1 &&
                         slot.AllowedSubmoduleNames[0] == module.PivotSubmoduleName) {
                         var transform = Transform.PlaneToPlane(module.Pivot, slot.Pivot);
-                        transforms.Add(transform);
-                        currentTransforms.Add(transform);
                         slotGeometry = module.Geometry.Select(geo => {
                             var placedGeometry = geo.Duplicate();
                             placedGeometry.Transform(transform);
                             return placedGeometry;
                         });
+                        currentModuleTransforms.Add(transform);
+                        currentSlotTransforms.Add(transform);
                     } else {
                         slotGeometry = Enumerable.Empty<GeometryBase>();
                     }
                     geometry.AddRange(slotGeometry, new GH_Path(new int[] { moduleIndex, slotIndex }));
+                    transforms.AddRange(currentSlotTransforms, new GH_Path(new int[] { moduleIndex, slotIndex }));
 
-                    _moduleGeometry.Add(module.Geometry);
-                    _moduleOrigins.Add(module.Pivot.Origin);
-                    _slotTransforms.Add(currentTransforms);
-                    _moduleNames.Add(module.Name);
                 }
+                _moduleGeometry.Add(module.Geometry);
+                _moduleOrigins.Add(module.Pivot.Origin);
+                _moduleTransforms.Add(currentModuleTransforms);
+                _moduleNames.Add(module.Name);
             }
 
-
-
             DA.SetDataTree(0, geometry);
-            DA.SetDataList(1, transforms);
+            DA.SetDataTree(1, transforms);
         }
 
         /// <summary>
@@ -156,13 +157,13 @@ namespace WFCPlugin {
                 var geometry = _moduleGeometry[i];
                 var origin = _moduleOrigins[i];
                 var name = _moduleNames[i];
-                var transforms = _slotTransforms[i];
+                var transforms = _moduleTransforms[i];
 
                 // Only bake if the module appears in any slots
                 if (transforms.Count > 0) {
                     var instanceIndex = doc.InstanceDefinitions.Add(name,
                                                                     "Geometry of module " + name,
-                                                                    origin,
+                                                                    Point3d.Origin,
                                                                     geometry);
                     foreach (var transfrom in transforms) {
                         obj_ids.Add(

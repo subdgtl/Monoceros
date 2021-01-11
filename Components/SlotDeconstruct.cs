@@ -57,7 +57,10 @@ namespace WFCPlugin {
                                   "M",
                                   "Initiate the slot with specified module names allowed.",
                                   GH_ParamAccess.list);
-            // TODO: Add IsValid
+            pManager.AddBooleanParameter("Is Valid",
+                                        "V",
+                                        "Is the Slot valid for the Monoceros WFC Solver?",
+                                        GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -83,6 +86,7 @@ namespace WFCPlugin {
             DA.SetDataList(3, new List<bool>() { slot.AllowsAnyModule });
             DA.SetDataList(4, new List<bool>() { slot.AllowsNothing });
             DA.SetDataList(5, slot.AllowedModuleNames.Select(name => new ModuleName(name)));
+            DA.SetData(6, slot.IsValid);
         }
 
 

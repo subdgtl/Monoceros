@@ -59,6 +59,10 @@ namespace WFCPlugin {
                 return;
             }
 
+            if (modules.Count == 0 || rules.Count == 0) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Failed to collect input data.");
+            }
+
             var minimumSlotDimension = 1.0;
             var averageSlotDiagonal = new Vector3d();
 
@@ -112,7 +116,7 @@ namespace WFCPlugin {
             }
 
             foreach (var ruleTyped in rulesTyped) {
-                var rulesExplicitComputed = ruleTyped.ToRuleExplicit(rulesTyped, modulesClean);
+                var rulesExplicitComputed = ruleTyped.ToRulesExplicit(rulesTyped, modulesClean);
 
                 foreach (var ruleExplicit in rulesExplicitComputed) {
                     // TODO: Consider displaying Out connections somehow too
@@ -144,7 +148,7 @@ namespace WFCPlugin {
 
             var sourceModule = modules
                 .FirstOrDefault(module => module.Name == ruleExplicit.SourceModuleName);
-            if (sourceModule == default(Module)) {
+            if (sourceModule == null) {
                 return false;
             }
 
@@ -157,11 +161,11 @@ namespace WFCPlugin {
 
             var targetModule = modules
                 .FirstOrDefault(module => module.Name == ruleExplicit.TargetModuleName);
-            if (targetModule == default(Module)) {
+            if (targetModule == null) {
                 return false;
             }
 
-            var targetConnector = sourceModule
+            var targetConnector = targetModule
                 .Connectors
                 .ElementAtOrDefault(ruleExplicit.TargetConnectorIndex);
             if (targetConnector.Equals(default(ModuleConnector))) {

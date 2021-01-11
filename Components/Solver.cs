@@ -10,7 +10,7 @@ namespace WFCPlugin {
     public class ComponentSolver : GH_Component {
         public ComponentSolver( ) : base("Monoceros WFC Solver",
                                          "WFC",
-                                         "Moniceros Solver for the Wave Function Collapse",
+                                         "Monoceros Solver for the Wave Function Collapse",
                                          "Monoceros",
                                          "Main") {
         }
@@ -236,7 +236,7 @@ namespace WFCPlugin {
             // Unwrap typed rules
             var rulesTyped = rulesClean.Where(rule => rule.IsTyped).Select(rule => rule.Typed);
             var rulesTypedUnwrappedToExplicit = rulesTyped
-                .SelectMany(ruleTyped => ruleTyped.ToRuleExplicit(rulesTyped, modulesUsable));
+                .SelectMany(ruleTyped => ruleTyped.ToRulesExplicit(rulesTyped, modulesUsable));
 
             var rulesExplicit = rulesClean
                 .Where(rule => rule.IsExplicit)
@@ -388,13 +388,13 @@ namespace WFCPlugin {
                 maxZ = Math.Max(maxZ, center.Z);
             }
 
-            minX -= 1;
-            minY -= 1;
-            minZ -= 1;
+            minX -= 2;
+            minY -= 2;
+            minZ -= 2;
 
-            maxX += 1;
-            maxY += 1;
-            maxZ += 1;
+            maxX += 2;
+            maxY += 2;
+            maxZ += 2;
 
             min = new Point3i(minX, minY, minZ);
             max = new Point3i(maxX, maxY, maxZ);
@@ -490,11 +490,6 @@ namespace WFCPlugin {
             foreach (var rule in rules) {
                 allSubmodules.Add(rule.LowerSubmoduleName);
                 allSubmodules.Add(rule.HigherSubmoduleName);
-            }
-
-            if (allSubmodules.Count > Config.MAX_SUBMODULES) {
-                report = "Too many submodules.";
-                return false;
             }
 
             byte nextSubmodule = 0;
@@ -629,13 +624,14 @@ namespace WFCPlugin {
                             // All good
                             break;
                         case WfcInitResult.TooManyModules:
-                            report = "Monoceros Solver failed: Adjacency rules contained too many modules";
+                            report = "Monoceros Solver failed: Rules refer to Modules occupying " +
+                                "too many Slots.";
                             return false;
                         case WfcInitResult.WorldDimensionsZero:
-                            report = "Monoceros Solver failed: World dimensions are zero";
+                            report = "Monoceros Solver failed: World dimensions are zero.";
                             return false;
                         default:
-                            report = "Monoceros Solver failed with unknown error";
+                            report = "Monoceros Solver failed with unknown error.";
                             return false;
                     }
                 }
@@ -654,7 +650,9 @@ namespace WFCPlugin {
                             stats.worldNotCanonical = true;
                             break;
                         case WfcWorldStateSetResult.WorldContradictory:
-                            report = "Monoceros Solver failed: World state is contradictory";
+                            report = "Monoceros Solver failed: World state is contradictory. " +
+                                "Try changing Slots, Modules or Rules. Changing random seed or " +
+                                "max attempts will not help.";
                             return false;
                     }
                 }
@@ -764,18 +762,19 @@ namespace WFCPlugin {
         public override string ToString( ) {
             var b = new StringBuilder(128);
 
-            b.Append("Rule count: ");
-            b.Append(ruleCount);
-            b.AppendLine();
-            b.Append("Submodule count: ");
-            b.Append(submoduleCount);
-            b.AppendLine();
+            //b.Append("Rule count: ");
+            //b.Append(ruleCount);
+            //b.AppendLine();
+            //b.Append("Submodule count: ");
+            //b.Append(submoduleCount);
+            //b.AppendLine();
             b.Append("Solve attempts: ");
             b.Append(solveAttempts);
             b.AppendLine();
 
             if (worldNotCanonical) {
-                b.AppendLine("Warning: Initial world state is not canonical");
+                b.AppendLine(
+                    "Initial world state is not canonical according to the original WFC standards.");
             }
 
             return b.ToString();

@@ -38,7 +38,6 @@ namespace WFCPlugin {
                                          "Connector number",
                                          GH_ParamAccess.item);
             pManager.AddTextParameter("Type", "T", "Connector type", GH_ParamAccess.item);
-            // TODO: Add IsValid
         }
 
         /// <summary>
@@ -59,7 +58,7 @@ namespace WFCPlugin {
             }
 
             if (!rule.IsTyped) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The provided rule is not typed.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The provided Rule is not Typed.");
                 return;
             }
 

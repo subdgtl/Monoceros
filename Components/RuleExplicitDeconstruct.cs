@@ -46,7 +46,10 @@ namespace WFCPlugin {
                                          "TC",
                                          "Target connector number",
                                          GH_ParamAccess.item);
-            // TODO: Add IsValid
+            pManager.AddBooleanParameter("Is Valid",
+                                        "V",
+                                        "Is the Rule Explicit valid for the Monoceros WFC Solver?",
+                                        GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -68,7 +71,7 @@ namespace WFCPlugin {
 
             if (!rule.IsExplicit) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  "The provided rule is not explicit.");
+                                  "The provided Rule is not Explicit.");
                 return;
             }
 
@@ -76,6 +79,7 @@ namespace WFCPlugin {
             DA.SetData(1, rule.Explicit.SourceConnectorIndex);
             DA.SetData(2, new ModuleName(rule.Explicit.TargetModuleName));
             DA.SetData(3, rule.Explicit.TargetConnectorIndex);
+            DA.SetData(4, rule.Explicit.IsValid);
         }
 
 

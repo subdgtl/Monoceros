@@ -69,10 +69,8 @@ namespace WFCPlugin {
                                         "Grid slot diagonal vector specifying slot dimension in " +
                                         "base-plane-aligned axes.",
                                         GH_ParamAccess.list);
-            // TODO: Add IsCoherent
-            // TODO: Add IsValid
             pManager.AddPlaneParameter("Connectors",
-                                       "C",
+                                       "CP",
                                        "Connector planes",
                                        GH_ParamAccess.list);
             pManager.AddVectorParameter("Connector Direction",
@@ -85,6 +83,14 @@ namespace WFCPlugin {
                                         "Connector use pattern - a list parallel to C. " +
                                         "(only if R are provided)",
                                         GH_ParamAccess.list);
+            pManager.AddBooleanParameter("Is Compact",
+                                        "C",
+                                        "Does the Module hold together?",
+                                        GH_ParamAccess.item);
+            pManager.AddBooleanParameter("Is Valid",
+                                        "V",
+                                        "Is the Module valid for the Monoceros WFC Solver?",
+                                        GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -163,6 +169,8 @@ namespace WFCPlugin {
             DA.SetDataList(5, connectors.Select(connector => connector.AnchorPlane));
             DA.SetDataList(6, connectors.Select(connector => connector.Direction.ToVector()));
             DA.SetDataList(7, existingRules.Count > 0 ? connectorUsePattern : null);
+            DA.SetData(8, module.Compact);
+            DA.SetData(9, module.IsValid);
         }
 
         /// <summary>

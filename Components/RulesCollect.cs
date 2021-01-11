@@ -92,7 +92,7 @@ namespace WFCPlugin {
                 .Where(rule => rule != null && rule.IsTyped)
                 .Select(rule => rule.Typed);
             var disallowedTypedUnwrapped = disallowedTyped
-                .SelectMany(ruleTyped => ruleTyped.ToRuleExplicit(disallowedTyped, modulesClean))
+                .SelectMany(ruleTyped => ruleTyped.ToRulesExplicit(disallowedTyped, modulesClean))
                 .Select(ruleExplicit => new Rule(ruleExplicit));
 
             var disallowedProcessed = disallowedExplicit
@@ -141,7 +141,7 @@ namespace WFCPlugin {
                             )
                         ) {
                         var typedUnwrapped = typed
-                            .ToRuleExplicit(allowedTyped, modulesClean)
+                            .ToRulesExplicit(allowedTyped, modulesClean)
                             .Select(ruleExplicit => new Rule(ruleExplicit));
                         allowedTypedUnwrapped.AddRange(typedUnwrapped);
                     } else {

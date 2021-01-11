@@ -192,7 +192,6 @@ namespace WFCPlugin {
         }
 
         private bool CheckConsistency(List<Point3i> centers) {
-            // TODO: Check why this sometimes returns false true
             var visited = Enumerable.Repeat(false, centers.Count).ToList();
             var stack = new List<Point3i>() { centers[0] };
             visited[0] = true;

@@ -85,7 +85,7 @@ namespace WFCPlugin {
             modulesClean.Add(moduleOut);
 
             var rulesTypedUnwrapped = rulesTyped
-                .SelectMany(ruleTyped => ruleTyped.ToRuleExplicit(rulesTyped, modulesClean))
+                .SelectMany(ruleTyped => ruleTyped.ToRulesExplicit(rulesTyped, modulesClean))
                 .Select(ruleExplicit => new Rule(ruleExplicit));
 
             var rulesExplicit = rulesInput.Where(rule => rule != null && rule.IsExplicit);

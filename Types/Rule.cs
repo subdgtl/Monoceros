@@ -777,7 +777,7 @@ namespace WFCPlugin {
         /// <param name="modules">The modules.</param>
         /// <returns>A list of <see cref="RuleExplicit"/>. The list may be
         ///     empty.</returns>
-        public List<RuleExplicit> ToRuleExplicit(IEnumerable<RuleTyped> otherRules,
+        public List<RuleExplicit> ToRulesExplicit(IEnumerable<RuleTyped> otherRules,
                                                  List<Module> modules) {
             var rulesExplicit = new List<RuleExplicit>();
 
