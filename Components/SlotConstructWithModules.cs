@@ -20,10 +20,10 @@ namespace WFCPlugin {
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddPointParameter("Slot Point",
-                                       "P",
+                                       "Pt",
                                        "Point inside the slot",
                                        GH_ParamAccess.item);
-            pManager.AddPlaneParameter("Base plane",
+            pManager.AddPlaneParameter("Base Plane",
                                        "B",
                                        "Grid space base plane. Defines orientation of the grid.",
                                        GH_ParamAccess.item,

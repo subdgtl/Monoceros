@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
@@ -82,7 +83,7 @@ namespace WFCPlugin {
                 }
             }
 
-            if (rules.Count == 0) {
+            if (!rules.Any()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
                                   "The point does not mark any module connector.");
             }

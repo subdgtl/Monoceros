@@ -24,8 +24,8 @@ namespace WFCPlugin {
         /// Registers all the output parameters for this component.
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
-            pManager.AddBooleanParameter("Explicit Pattern",
-                                         "P",
+            pManager.AddBooleanParameter("Boolean Pattern",
+                                         "B",
                                          "True if the Monoceros Rule is explicit",
                                          GH_ParamAccess.item);
         }

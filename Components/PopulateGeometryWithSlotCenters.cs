@@ -58,7 +58,7 @@ namespace WFCPlugin {
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddPointParameter("Slot Centers",
-                                       "C",
+                                       "Pt",
                                        "Points ready to be used as Monoceros Slot centers",
                                        GH_ParamAccess.list);
         }
@@ -126,20 +126,23 @@ namespace WFCPlugin {
                }
                );
 
+            if (!geometryClean.Any()) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  "Failed to collect any valid geometry.");
+                return;
+            }
+
             // Scale down to unit size
             var normalizationTransform = Transform.Scale(basePlane,
                                                          1 / diagonal.X,
                                                          1 / diagonal.Y,
                                                          1 / diagonal.Z);
+
             // Orient to the world coordinate system
             var worldAlignmentTransform = Transform.PlaneToPlane(basePlane, Plane.WorldXY);
+
             var submoduleCentersNormalized = new List<Point3i>();
-            var geometryTransformed = geometryClean.Select(goo => {
-                var geo = goo.Duplicate();
-                geo.Transform(normalizationTransform);
-                geo.Transform(worldAlignmentTransform);
-                return geo;
-            });
+            var geometryOnBoundary = false;
 
             foreach (var goo in geometryClean) {
                 var geometry = goo.Duplicate();
@@ -148,12 +151,16 @@ namespace WFCPlugin {
                     if (method == 0 || method == 2) {
                         var populatePoints = PopulateSurface(precision, geometry);
                         foreach (var geometryPoint in populatePoints) {
-                            // Round point locations
-                            // Slot dimension is for the sake of this calculation 1,1,1
-                            var slotCenterPoint = new Point3i(geometryPoint);
-                            // Deduplicate
-                            if (!submoduleCentersNormalized.Contains(slotCenterPoint)) {
-                                submoduleCentersNormalized.Add(slotCenterPoint);
+                            if (IsOnEdge(geometryPoint, diagonal)) {
+                                geometryOnBoundary = true;
+                            } else {
+                                // Round point locations
+                                // Slot dimension is for the sake of this calculation 1,1,1
+                                var slotCenterPoint = new Point3i(geometryPoint);
+                                // Deduplicate
+                                if (!submoduleCentersNormalized.Contains(slotCenterPoint)) {
+                                    submoduleCentersNormalized.Add(slotCenterPoint);
+                                }
                             }
                         }
                     }
@@ -162,16 +169,31 @@ namespace WFCPlugin {
                         var mesh = (Mesh)geometry;
                         var pointsInsideMesh = PopulateMeshVolumeUnit(mesh);
                         foreach (var geometryPoint in pointsInsideMesh) {
-                            // Round point locations
-                            // Slot dimension is for the sake of this calculation 1,1,1
-                            var slotCenterPoint = new Point3i(geometryPoint);
-                            // Deduplicate
-                            if (!submoduleCentersNormalized.Contains(slotCenterPoint)) {
-                                submoduleCentersNormalized.Add(slotCenterPoint);
+                            if (IsOnEdge(geometryPoint, diagonal)) {
+                                geometryOnBoundary = true;
+                            } else {
+                                // Round point locations
+                                // Slot dimension is for the sake of this calculation 1,1,1
+                                var slotCenterPoint = new Point3i(geometryPoint);
+                                // Deduplicate
+                                if (!submoduleCentersNormalized.Contains(slotCenterPoint)) {
+                                    submoduleCentersNormalized.Add(slotCenterPoint);
+                                }
                             }
                         }
                     }
                 }
+            }
+
+            if (!submoduleCentersNormalized.Any()) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  "Failed to collect any Slot centers from the given geometry.");
+                return;
+            }
+
+            if (geometryOnBoundary) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
+                                  "Some geometry touches the boundary of a Slot.");
             }
 
             var baseAlignmentTransform = Transform.PlaneToPlane(Plane.WorldXY, basePlane);
@@ -185,7 +207,15 @@ namespace WFCPlugin {
                     return center;
                 });
 
+
+
             DA.SetDataList(0, submoduleCenters);
+        }
+
+        private static bool IsOnEdge(Point3d geometryPoint, Vector3d diagonal) {
+            return Math.Abs(geometryPoint.X % diagonal.X - (diagonal.X / 2)) <= Rhino.RhinoMath.SqrtEpsilon
+                || Math.Abs(geometryPoint.Y % diagonal.Y - (diagonal.Y / 2)) <= Rhino.RhinoMath.SqrtEpsilon
+                || Math.Abs(geometryPoint.Z % diagonal.Z - (diagonal.Z / 2)) <= Rhino.RhinoMath.SqrtEpsilon;
         }
 
         /// <summary>
@@ -356,11 +386,9 @@ namespace WFCPlugin {
             Point3d bPoint,
             Point3d cPoint
         ) {
-            return new Point3d(
-                barycentricCoords.X * aPoint +
-                barycentricCoords.Y * bPoint +
-                barycentricCoords.Z * cPoint
-            );
+            return new Point3d((barycentricCoords.X * aPoint)
+                + (barycentricCoords.Y * bPoint)
+                + (barycentricCoords.Z * cPoint));
         }
 
         /// <summary>

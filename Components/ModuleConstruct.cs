@@ -101,7 +101,7 @@ namespace WFCPlugin {
                                   "The Name will be converted to lowercase.",
                                   GH_ParamAccess.item);
             pManager.AddPointParameter("Slot Points",
-                                       "P",
+                                       "Pt",
                                        "Points inside the slot to be occupied by the module",
                                        GH_ParamAccess.list);
             pManager.AddGeometryParameter("Production Geometry",
@@ -112,7 +112,7 @@ namespace WFCPlugin {
                                           "smaller, different or none.",
                                           GH_ParamAccess.list);
             pManager[2].Optional = true;
-            pManager.AddPlaneParameter("Base plane",
+            pManager.AddPlaneParameter("Base Plane",
                                        "B",
                                        "Grid space base plane. Defines orientation of the grid.",
                                        GH_ParamAccess.item,
@@ -183,6 +183,12 @@ namespace WFCPlugin {
             if (name.Contains(":") || name.Contains("=")) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "The module name cannot contain \":\" or \"=\"");
+                return;
+            }
+
+            if (!slotCenters.Any()) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  "Failed to collect Slot Points.");
                 return;
             }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using GH_IO.Serialization;
@@ -472,7 +473,7 @@ namespace WFCPlugin {
         /// not allow placement of any submodule and therefore also any
         /// <see cref="Module"/>.
         /// </summary>
-        public bool AllowsNothing => !AllowsAnyModule && AllowedModuleNames.Count == 0;
+        public bool AllowsNothing => !(AllowsAnyModule || AllowedModuleNames.Any());
 
         /// <summary>
         /// Checks the validity of a <see cref="Slot"/>.  Required by
@@ -506,7 +507,7 @@ namespace WFCPlugin {
                 if (AllowedSubmoduleNames == null) {
                     reasons += "Allowed submodule names is null. ";
                 }
-                if (!AllowsAnyModule && AllowedModuleNames.Count == 0) {
+                if (!(AllowsAnyModule || AllowedModuleNames.Any())) {
                     reasons += "Allowed module names are empty and the Slot does not allow any module. ";
                 }
                 if (Diagonal.X <= 0 || Diagonal.Y <= 0 || Diagonal.Z <= 0) {

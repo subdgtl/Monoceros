@@ -9,8 +9,8 @@ using Rhino.Geometry;
 
 namespace WFCPlugin {
     public class ComponentPreviewRules : GH_Component, IGH_PreviewObject, IGH_BakeAwareObject {
-        private IEnumerable<ExplicitLine> _explicitLines;
-        private IEnumerable<TypedLine> _typedLines;
+        private List<ExplicitLine> _explicitLines;
+        private List<TypedLine> _typedLines;
 
         public ComponentPreviewRules( )
             : base("Preview Rules",
@@ -48,26 +48,36 @@ namespace WFCPlugin {
         /// <param name="DA">The DA object can be used to retrieve data from
         ///     input parameters and to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA) {
-            var modules = new List<Module>();
-            var rules = new List<Rule>();
+            var modulesRaw = new List<Module>();
+            var rulesRaw = new List<Rule>();
+            _explicitLines = new List<ExplicitLine>();
+            _typedLines = new List<TypedLine>();
 
-            if (!DA.GetDataList(0, modules)) {
+            if (!DA.GetDataList(0, modulesRaw)) {
                 return;
             }
 
-            if (!DA.GetDataList(1, rules)) {
+            if (!DA.GetDataList(1, rulesRaw)) {
                 return;
             }
 
-            if (modules.Count == 0 || rules.Count == 0) {
+            var modules = modulesRaw.Where(module => module != null && module.IsValid).ToList();
+            var rules = rulesRaw.Where(rule => rule != null && rule.IsValid).ToList();
+
+            if (!modules.Any() || !rules.Any()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Failed to collect input data.");
+                return;
+            }
+
+            if (modules.Count != modulesRaw.Count || rules.Count != rulesRaw.Count) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Some input data was invalid.");
             }
 
             var minimumSlotDimension = 1.0;
             var averageSlotDiagonal = new Vector3d();
 
-            var moduleNames = modules.Select(module => module.Name);
-            if (moduleNames.ToList().Count != moduleNames.Distinct().ToList().Count) {
+            var moduleNames = modules.Select(module => module.Name).ToList();
+            if (moduleNames.Count != moduleNames.Distinct().ToList().Count) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
                                   "Module names are not unique.");
             }
@@ -87,9 +97,6 @@ namespace WFCPlugin {
             }
 
             averageSlotDiagonal /= modulesClean.Count;
-
-            var explicitLines = new List<ExplicitLine>();
-            var typedLines = new List<TypedLine>();
 
             var rulesClean = new List<Rule>();
             foreach (var rule in rules) {
@@ -111,7 +118,7 @@ namespace WFCPlugin {
                                             ruleExplicit,
                                             out var line,
                                             out var axis);
-                    explicitLines.Add(new ExplicitLine(line, Config.ColorFromAxis(axis)));
+                    _explicitLines.Add(new ExplicitLine(line, Config.ColorFromAxis(axis)));
                 }
             }
 
@@ -126,15 +133,15 @@ namespace WFCPlugin {
                                                 ruleExplicit,
                                                 out var line,
                                                 out var axis);
-                        typedLines.Add(
+                        _typedLines.Add(
                             new TypedLine(line, Config.ColorFromAxis(axis), ruleTyped.ConnectorType)
                         );
                     }
                 }
             }
 
-            _explicitLines = explicitLines.Distinct();
-            _typedLines = typedLines.Distinct();
+            _explicitLines = _explicitLines.Distinct().ToList();
+            _typedLines = _typedLines.Distinct().ToList();
         }
 
         private bool GetLineFromExplicitRule(

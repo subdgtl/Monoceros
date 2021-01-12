@@ -198,7 +198,7 @@ namespace WFCPlugin {
                 }
             }
 
-            if (modulesUsable.Count == 0) {
+            if (!modulesUsable.Any()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "There are no Modules with all connectors described by the " +
                                   "given Rules.");

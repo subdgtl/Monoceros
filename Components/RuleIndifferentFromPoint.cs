@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
@@ -24,7 +25,7 @@ namespace WFCPlugin {
                                   "All available Monoceros modules",
                                   GH_ParamAccess.list);
             pManager.AddPointParameter("Point Tag",
-                                       "PT",
+                                       "Pt",
                                        "Point marking a connector",
                                        GH_ParamAccess.item);
         }
@@ -73,7 +74,7 @@ namespace WFCPlugin {
                 }
             }
 
-            if (rules.Count == 0) {
+            if (!rules.Any()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
                                   "The point does not mark any module connector.");
             }

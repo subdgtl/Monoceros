@@ -28,7 +28,7 @@ namespace WFCPlugin {
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddPointParameter("Slot Center",
-                                       "P",
+                                       "Pt",
                                        "Center point of the slot",
                                        GH_ParamAccess.list);
             pManager.AddPlaneParameter("Base plane",
@@ -42,6 +42,11 @@ namespace WFCPlugin {
                "in base-plane-aligned XYZ axes",
                GH_ParamAccess.list
                );
+            pManager.AddParameter(new ModuleNameParameter(),
+                                  "Allowed Module Names",
+                                  "M",
+                                  "Initiate the slot with specified module names allowed.",
+                                  GH_ParamAccess.list);
             pManager.AddBooleanParameter("Allows Everything",
                                          "E",
                                          "The slot allows any module to be placed in it if true.",
@@ -52,11 +57,6 @@ namespace WFCPlugin {
                                          "The slot allows no module to be placed in it if true.",
                                          GH_ParamAccess.list
                                          );
-            pManager.AddParameter(new ModuleNameParameter(),
-                                  "Allowed Module Names",
-                                  "M",
-                                  "Initiate the slot with specified module names allowed.",
-                                  GH_ParamAccess.list);
             pManager.AddBooleanParameter("Is Valid",
                                         "V",
                                         "Is the Slot valid for the Monoceros WFC Solver?",
@@ -83,9 +83,9 @@ namespace WFCPlugin {
             DA.SetDataList(0, new List<Point3d>() { slot.AbsoluteCenter });
             DA.SetDataList(1, new List<Plane>() { slot.BasePlane });
             DA.SetDataList(2, new List<Vector3d>() { slot.Diagonal });
-            DA.SetDataList(3, new List<bool>() { slot.AllowsAnyModule });
-            DA.SetDataList(4, new List<bool>() { slot.AllowsNothing });
-            DA.SetDataList(5, slot.AllowedModuleNames.Select(name => new ModuleName(name)));
+            DA.SetDataList(3, slot.AllowedModuleNames.Select(name => new ModuleName(name)));
+            DA.SetDataList(4, new List<bool>() { slot.AllowsAnyModule });
+            DA.SetDataList(5, new List<bool>() { slot.AllowsNothing });
             DA.SetData(6, slot.IsValid);
         }
 

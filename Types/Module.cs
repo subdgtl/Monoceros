@@ -144,7 +144,7 @@ namespace WFCPlugin {
                       List<Point3i> submoduleCenters,
                       Vector3d slotDiagonal) {
             // Check if any submodule centers are defined
-            if (submoduleCenters.Count == 0) {
+            if (!submoduleCenters.Any()) {
                 throw new Exception("Submodule centers list is empty");
             }
 

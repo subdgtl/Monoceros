@@ -53,7 +53,7 @@ namespace WFCPlugin {
                                   "Module name (converted to lowercase).",
                                   GH_ParamAccess.list);
             pManager.AddPointParameter("Slot Centers",
-                                       "SC",
+                                       "Pt",
                                        "Used slots centers to be used for module reconstruction.",
                                        GH_ParamAccess.list);
             pManager.AddGeometryParameter("Geometry",
