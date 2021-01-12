@@ -59,7 +59,7 @@
     <Compile Include="Components\ModuleConstructEmpty.cs" />
     <Compile Include="Components\ModuleConstruct.cs" />
     <Compile Include="Components\ModuleDeconstruct.cs" />
-    <Compile Include="Components\ModuleMaterialize.cs" />
+    <Compile Include="Components\Materialize.cs" />
     <Compile Include="Components\Solver.cs" />
     <Compile Include="Components\PopulateGeometryWithSlotCenters.cs" />
     <Compile Include="Components\SlotDeconstruct.cs" />

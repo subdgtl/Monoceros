@@ -10,17 +10,17 @@ using Rhino.DocObjects;
 using Rhino.Geometry;
 
 namespace WFCPlugin {
-    public class ComponentMaterializeModule : GH_Component, IGH_BakeAwareObject {
+    public class ComponentMaterializeSlots : GH_Component, IGH_BakeAwareObject {
 
         private List<List<GeometryBase>> _moduleGeometry;
         private List<Point3d> _moduleOrigins;
         private List<string> _moduleNames;
         private List<List<Transform>> _moduleTransforms;
-        public ComponentMaterializeModule( ) : base("Materialize Module",
-                                             "Materialize",
-                                             "Materialize Monoceros Module into given Monoceros Slots.",
-                                             "Monoceros",
-                                             "Main") {
+        public ComponentMaterializeSlots( ) : base("Materialize Slots",
+                                                   "Materialize",
+                                                   "Materialize Monoceros Modules into Monoceros Slots.",
+                                                   "Monoceros",
+                                                   "Main") {
         }
 
         /// <summary>
@@ -86,7 +86,6 @@ namespace WFCPlugin {
                 }
 
                 var currentModuleTransforms = new List<Transform>();
-                IEnumerable<GeometryBase> slotGeometry;
                 for (var slotIndex = 0; slotIndex < slots.Count; slotIndex++) {
                     var slot = slots[slotIndex];
                     if (slot == null || !slot.IsValid) {
@@ -98,16 +97,14 @@ namespace WFCPlugin {
                     if (slot.AllowedSubmoduleNames.Count == 1 &&
                         slot.AllowedSubmoduleNames[0] == module.PivotSubmoduleName) {
                         var transform = Transform.PlaneToPlane(module.Pivot, slot.Pivot);
-                        slotGeometry = module.Geometry.Select(geo => {
+                        var slotGeometry = module.Geometry.Select(geo => {
                             var placedGeometry = geo.Duplicate();
                             placedGeometry.Transform(transform);
                             return placedGeometry;
                         });
                         currentModuleTransforms.Add(transform);
-                    } else {
-                        slotGeometry = Enumerable.Empty<GeometryBase>();
+                        geometry.AddRange(slotGeometry, new GH_Path(new int[] { moduleIndex, slotIndex }));
                     }
-                    geometry.AddRange(slotGeometry, new GH_Path(new int[] { moduleIndex, slotIndex }));
 
                 }
                 transforms.AddRange(currentModuleTransforms, new GH_Path(new int[] { moduleIndex }));
