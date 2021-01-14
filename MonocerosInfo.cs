@@ -1,17 +1,15 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
-
-using System;
+﻿using System;
 using System.Drawing;
 using Grasshopper.Kernel;
 
-namespace WFCPlugin {
-    public class WFCPluginInfo : GH_AssemblyInfo {
+[assembly: GH_Loading(GH_LoadingDemand.ForceDirect)]
+
+namespace Monoceros {
+    public class MonocerosInfo : GH_AssemblyInfo {
         public override string Name => "Monoceros";
         public override Bitmap Icon =>
                 //Return a 24x24 pixel bitmap to represent this GHA library.
-                WFCPlugin.Properties.Resources.WFC;
+                Monoceros.Properties.Resources.WFC;
         public override string Description =>
                 //Return a short string describing the purpose of this GHA library.
                 "Monoceros: A Wave Function Collapse plug-in by Subdigital";

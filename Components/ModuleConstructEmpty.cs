@@ -3,7 +3,7 @@ using System.Linq;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
-namespace WFCPlugin {
+namespace Monoceros {
     // TODO: Consider doing this entirely in Grasshopper as a user object / cluster
     /// <summary>
     /// <para>

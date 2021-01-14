@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
-namespace WFCPlugin {
+namespace Monoceros {
     public class ComponentConstructSlotWithAll : GH_Component {
         public ComponentConstructSlotWithAll( )
             : base("Construct Slot With All Modules Allowed",

@@ -7,7 +7,7 @@ using Rhino;
 using Rhino.DocObjects;
 using Rhino.Geometry;
 
-namespace WFCPlugin {
+namespace Monoceros {
     public class ComponentPreviewRules : GH_Component, IGH_PreviewObject, IGH_BakeAwareObject {
         private List<ExplicitLine> _explicitLines;
         private List<TypedLine> _typedLines;

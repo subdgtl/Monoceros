@@ -1,10 +1,10 @@
 ﻿using System;
 using Rhino.Geometry;
 
-namespace WFCPlugin {
+namespace Monoceros {
     /// <summary>
-    /// Submodule face direction consisting of <see cref="WFCPlugin.Axis"/> and
-    /// <see cref="WFCPlugin.Orientation"/>.
+    /// Submodule face direction consisting of <see cref="Monoceros.Axis"/> and
+    /// <see cref="Monoceros.Orientation"/>.
     /// </summary>
     [Serializable]
     public struct Direction {
@@ -23,7 +23,7 @@ namespace WFCPlugin {
         /// <summary>
         /// Determines whether the other <see cref="Direction"/> is opposite to
         /// the current. A <see cref="Direction"/> is opposite when the
-        /// <see cref="WFCPlugin.Axis"/> equals and <see cref="WFCPlugin.Orientation"/> does not.
+        /// <see cref="Monoceros.Axis"/> equals and <see cref="Monoceros.Orientation"/> does not.
         /// </summary>
         /// <param name="other">The other.</param>
         /// <returns>True if opposite.</returns>
@@ -33,8 +33,8 @@ namespace WFCPlugin {
         }
 
         /// <summary>
-        /// Returns flipped <see cref="Direction"/> - the <see cref="WFCPlugin.Axis"/>
-        /// remains the same, the <see cref="WFCPlugin.Orientation"/> flips.
+        /// Returns flipped <see cref="Direction"/> - the <see cref="Monoceros.Axis"/>
+        /// remains the same, the <see cref="Monoceros.Orientation"/> flips.
         /// </summary>
         /// <returns>A flipped Direction.</returns>
         public Direction ToFlipped( ) {

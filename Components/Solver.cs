@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Grasshopper.Kernel;
 
-namespace WFCPlugin {
+namespace Monoceros {
     public class ComponentSolver : GH_Component {
         public ComponentSolver( ) : base("Monoceros WFC Solver",
                                          "WFC",
@@ -782,7 +782,7 @@ namespace WFCPlugin {
     }
 
     internal class Native {
-        [DllImport("wfc", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("monoceros-1.0-wfc.dll", CallingConvention = CallingConvention.StdCall)]
         internal static extern unsafe WfcInitResult wfc_init(IntPtr* wfc_ptr,
                                                              AdjacencyRule* adjacency_rules_ptr,
                                                              UIntPtr adjacency_rules_len,
@@ -792,18 +792,18 @@ namespace WFCPlugin {
                                                              ulong rngSeedLow,
                                                              ulong rngSeedHigh);
 
-        [DllImport("wfc", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("monoceros-1.0-wfc.dll", CallingConvention = CallingConvention.StdCall)]
         internal static extern void wfc_free(IntPtr wfc);
 
-        [DllImport("wfc", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("monoceros-1.0-wfc.dll", CallingConvention = CallingConvention.StdCall)]
         internal static extern uint wfc_observe(IntPtr wfc, uint max_attempts);
 
-        [DllImport("wfc", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("monoceros-1.0-wfc.dll", CallingConvention = CallingConvention.StdCall)]
         internal static extern unsafe WfcWorldStateSetResult wfc_world_state_set(IntPtr wfc,
                                                                                  SlotState* world_state_ptr,
                                                                                  UIntPtr world_state_len);
 
-        [DllImport("wfc", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("monoceros-1.0-wfc.dll", CallingConvention = CallingConvention.StdCall)]
         internal static extern unsafe void wfc_world_state_get(IntPtr wfc,
                                                                SlotState* world_state_ptr,
                                                                UIntPtr world_state_len);

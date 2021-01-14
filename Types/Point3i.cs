@@ -1,7 +1,7 @@
 ﻿using System;
 using Rhino.Geometry;
 
-namespace WFCPlugin {
+namespace Monoceros {
     /// <summary>
     /// Used as a relative discrete coordinate of a slot or a submodule center
     /// in the orthogonal 3D voxel-like grid, which describes the Monoceros World.

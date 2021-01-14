@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Grasshopper.Kernel;
 
-namespace WFCPlugin {
+namespace Monoceros {
     // TODO: Consider doing this entirely in Grasshopper as a user object / cluster
     public class ComponentRuleIndifferentUnused : GH_Component {
         public ComponentRuleIndifferentUnused( )

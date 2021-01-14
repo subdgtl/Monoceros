@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Linq;
 using Grasshopper.Kernel;
 
-namespace WFCPlugin {
+namespace Monoceros {
     public class ComponentCollectRules : GH_Component {
         public ComponentCollectRules( ) : base("Collect Rules",
                                                "CollectRules",
@@ -87,24 +87,6 @@ namespace WFCPlugin {
                                   "Some of the disallowed rules are null or invalid.");
             }
 
-            var disallowedExplicit = disallowed.Where(rule => rule != null && rule.IsExplicit);
-            var disallowedTyped = disallowed
-                .Where(rule => rule != null && rule.IsTyped)
-                .Select(rule => rule.Typed);
-            var disallowedTypedUnwrapped = disallowedTyped
-                .SelectMany(ruleTyped => ruleTyped.ToRulesExplicit(disallowedTyped, modulesClean))
-                .Select(ruleExplicit => new Rule(ruleExplicit));
-
-            var disallowedProcessed = disallowedExplicit
-                .Concat(disallowedTypedUnwrapped)
-                .Distinct();
-
-
-            var allowedExplicit = new List<Rule>();
-            var allowedTypedUnwrapped = new List<Rule>();
-            var allowedTypedWrapped = new List<Rule>();
-
-
             Module.GenerateEmptySingleModule(Config.OUTER_MODULE_NAME,
                                              Config.INDIFFERENT_TAG,
                                              new Rhino.Geometry.Vector3d(1, 1, 1),
@@ -116,54 +98,49 @@ namespace WFCPlugin {
             modulesClean.Add(moduleOut);
 
             var allowedTyped = allowed
-                .Where(rule => rule != null && rule.IsTyped)
+                .Where(rule => rule != null && rule.IsTyped && rule.IsValidWithModules(modulesClean))
                 .Select(rule => rule.Typed);
 
+            var allAllowed = new List<RuleExplicit>();
             foreach (var rule in allowed) {
-                if (rule == null || !rule.IsValid) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The rule is null or invalid.");
-                    continue;
-                }
-
-                if (rule.IsExplicit) {
-                    allowedExplicit.Add(rule);
-                    continue;
-                }
-                if (rule.IsTyped) {
-                    var typed = rule.Typed;
-                    if (
-                        disallowedProcessed.Any(ruleDisallowed =>
-                            ruleDisallowed.IsExplicit &&
-                            (ruleDisallowed.Explicit.SourceModuleName == typed.ModuleName &&
-                             ruleDisallowed.Explicit.SourceConnectorIndex == typed.ConnectorIndex) ||
-                            (ruleDisallowed.Explicit.TargetModuleName == typed.ModuleName &&
-                             ruleDisallowed.Explicit.TargetConnectorIndex == typed.ConnectorIndex)
-                            )
-                        ) {
-                        var typedUnwrapped = typed
-                            .ToRulesExplicit(allowedTyped, modulesClean)
-                            .Select(ruleExplicit => new Rule(ruleExplicit));
-                        allowedTypedUnwrapped.AddRange(typedUnwrapped);
-                    } else {
-                        allowedTypedWrapped.Add(rule);
+                if (rule != null && rule.IsValid && rule.IsValidWithModules(modulesClean)) {
+                    if (rule.IsExplicit) {
+                        allAllowed.Add(rule.Explicit);
+                    }
+                    if (rule.IsTyped) {
+                        allAllowed.AddRange(rule.Typed.ToRulesExplicit(allowedTyped, modulesClean));
                     }
                 }
             }
 
-            var allowedProcessed = allowedExplicit
-                .Concat(allowedTypedUnwrapped)
-                .Concat(allowedTypedWrapped)
-                .Distinct();
+            var disallowedTyped = disallowed
+                .Where(rule => rule != null && rule.IsTyped && rule.IsValidWithModules(modulesClean))
+                .Select(rule => rule.Typed);
 
-            var rules = allowedProcessed.Except(disallowedProcessed);
+            var allDisallowed = new List<RuleExplicit>();
+            foreach (var rule in disallowed) {
+                if (rule != null && rule.IsValid && rule.IsValidWithModules(modulesClean)) {
+                    if (rule.IsExplicit) {
+                        allDisallowed.Add(rule.Explicit);
+                    }
+                    if (rule.IsTyped) {
+                        allAllowed.AddRange(rule.Typed.ToRulesExplicit(disallowedTyped, modulesClean));
+                    }
+                }
+            }
 
-            foreach (var rule in rules) {
+            var outExplicit = allAllowed
+                .Distinct()
+                .Except(allDisallowed.Distinct());
+            var outRules = outExplicit.Select(explicitRule => new Rule(explicitRule));
+
+            foreach (var rule in outRules) {
                 if (!rule.IsValid) {
                     AddRuntimeMessage(GH_RuntimeMessageLevel.Error, rule.IsValidWhyNot);
                 }
             }
 
-            DA.SetDataList(0, rules);
+            DA.SetDataList(0, outRules);
         }
 
         /// <summary>

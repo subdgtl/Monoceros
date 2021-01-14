@@ -10,7 +10,7 @@ using Rhino;
 using Rhino.DocObjects;
 using Rhino.Geometry;
 
-namespace WFCPlugin {
+namespace Monoceros {
     /// <summary>
     /// <para>
     /// The <see cref="Slot"/> is a basic unit of the Monoceros World. It has s

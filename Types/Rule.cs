@@ -4,7 +4,7 @@ using System.Linq;
 using GH_IO.Serialization;
 using Grasshopper.Kernel.Types;
 
-namespace WFCPlugin {
+namespace Monoceros {
     /// <summary>
     /// <para>
     /// The wrapper class for <see cref="Explicit"/> and <see cref="Typed"/>. 

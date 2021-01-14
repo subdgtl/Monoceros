@@ -9,7 +9,7 @@ using Rhino;
 using Rhino.DocObjects;
 using Rhino.Geometry;
 
-namespace WFCPlugin {
+namespace Monoceros {
     public class ComponentMaterializeSlots : GH_Component, IGH_BakeAwareObject {
 
         private List<List<GeometryBase>> _moduleGeometry;

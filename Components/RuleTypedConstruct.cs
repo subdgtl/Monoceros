@@ -1,7 +1,7 @@
 ﻿using System;
 using Grasshopper.Kernel;
 
-namespace WFCPlugin {
+namespace Monoceros {
 
     public class ComponentConstructRuleTyped : GH_Component {
         public ComponentConstructRuleTyped( )

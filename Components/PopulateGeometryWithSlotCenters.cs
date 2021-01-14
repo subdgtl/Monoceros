@@ -5,7 +5,7 @@ using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
 using Rhino.Geometry;
 
-namespace WFCPlugin {
+namespace Monoceros {
     public class ComponentPopulateGeometryWithSlotCenters : GH_Component {
         public ComponentPopulateGeometryWithSlotCenters( )
             : base("Populate Geometry With Slot Centers",
@@ -141,65 +141,52 @@ namespace WFCPlugin {
             // Orient to the world coordinate system
             var worldAlignmentTransform = Transform.PlaneToPlane(basePlane, Plane.WorldXY);
 
-            var submoduleCentersNormalized = new List<Point3i>();
-            var geometryOnBoundary = false;
+            var centersNormalized = new List<Point3i>();
 
             foreach (var goo in geometryClean) {
                 var geometry = goo.Duplicate();
                 if (geometry.Transform(normalizationTransform) &&
                     geometry.Transform(worldAlignmentTransform)) {
-                    if (method == 0 || method == 2) {
-                        var populatePoints = PopulateSurface(precision, geometry);
-                        foreach (var geometryPoint in populatePoints) {
-                            if (IsOnEdge(geometryPoint, diagonal)) {
-                                geometryOnBoundary = true;
+                    var isMesh = goo.ObjectType == Rhino.DocObjects.ObjectType.Mesh;
+                    switch (method) {
+                        case (int)PopulateMethod.Surface:
+                            if (isMesh) {
+                                centersNormalized.AddRange(CentersFromMeshSurface(precision, (Mesh)geometry));
                             } else {
-                                // Round point locations
-                                // Slot dimension is for the sake of this calculation 1,1,1
-                                var slotCenterPoint = new Point3i(geometryPoint);
-                                // Deduplicate
-                                if (!submoduleCentersNormalized.Contains(slotCenterPoint)) {
-                                    submoduleCentersNormalized.Add(slotCenterPoint);
-                                }
+                                centersNormalized.AddRange(CentersFrom1D(precision, geometry));
+                                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
+                                  "Test points matching the Slot grid may have been skipped due to ambiguity.");
                             }
-                        }
-                    }
-                    if ((method == 1 || method == 2) &&
-                        goo.ObjectType == Rhino.DocObjects.ObjectType.Mesh) {
-                        var mesh = (Mesh)geometry;
-                        var pointsInsideMesh = PopulateMeshVolumeUnit(mesh);
-                        foreach (var geometryPoint in pointsInsideMesh) {
-                            if (IsOnEdge(geometryPoint, diagonal)) {
-                                geometryOnBoundary = true;
+                            break;
+                        case (int)PopulateMethod.Volume:
+                            if (isMesh && ((Mesh)geometry).IsClosed) {
+                                centersNormalized.AddRange(CentersFromMeshVolume((Mesh)geometry));
+                            }
+                            break;
+                        case (int)PopulateMethod.SurfaceAndVolume:
+                            if (isMesh && ((Mesh)geometry).IsClosed) {
+                                centersNormalized.AddRange(CentersFromMeshVolumeAndSurface((Mesh)geometry));
                             } else {
-                                // Round point locations
-                                // Slot dimension is for the sake of this calculation 1,1,1
-                                var slotCenterPoint = new Point3i(geometryPoint);
-                                // Deduplicate
-                                if (!submoduleCentersNormalized.Contains(slotCenterPoint)) {
-                                    submoduleCentersNormalized.Add(slotCenterPoint);
-                                }
+                                centersNormalized.AddRange(CentersFrom1D(precision, geometry));
+                                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
+                                  "Test points matching the Slot grid may have been skipped due to ambiguity.");
                             }
-                        }
+                            break;
                     }
                 }
             }
 
-            if (!submoduleCentersNormalized.Any()) {
+            if (!centersNormalized.Any()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "Failed to collect any Slot centers from the given geometry.");
                 return;
             }
 
-            if (geometryOnBoundary) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
-                                  "Some geometry touches the boundary of a Slot.");
-            }
-
             var baseAlignmentTransform = Transform.PlaneToPlane(Plane.WorldXY, basePlane);
             var scalingTransform = Transform.Scale(basePlane, diagonal.X, diagonal.Y, diagonal.Z);
 
-            var submoduleCenters = submoduleCentersNormalized
+            var centers = centersNormalized
+                .Distinct()
                 .Select(centerNormalized => {
                     var center = centerNormalized.ToPoint3d();
                     center.Transform(baseAlignmentTransform);
@@ -207,15 +194,13 @@ namespace WFCPlugin {
                     return center;
                 });
 
-
-
-            DA.SetDataList(0, submoduleCenters);
+            DA.SetDataList(0, centers);
         }
 
-        private static bool IsOnEdge(Point3d geometryPoint, Vector3d diagonal) {
-            return Math.Abs(geometryPoint.X % diagonal.X - (diagonal.X / 2)) <= Rhino.RhinoMath.SqrtEpsilon
-                || Math.Abs(geometryPoint.Y % diagonal.Y - (diagonal.Y / 2)) <= Rhino.RhinoMath.SqrtEpsilon
-                || Math.Abs(geometryPoint.Z % diagonal.Z - (diagonal.Z / 2)) <= Rhino.RhinoMath.SqrtEpsilon;
+        private static bool IsOnEdgeUnitized(Point3d geometryPoint) {
+            return Math.Abs(Math.Abs(geometryPoint.X % 1) - 0.5) <= Rhino.RhinoMath.SqrtEpsilon
+                || Math.Abs(Math.Abs(geometryPoint.Y % 1) - 0.5) <= Rhino.RhinoMath.SqrtEpsilon
+                || Math.Abs(Math.Abs(geometryPoint.Z % 1) - 0.5) <= Rhino.RhinoMath.SqrtEpsilon;
         }
 
         /// <summary>
@@ -224,21 +209,52 @@ namespace WFCPlugin {
         /// <param name="distance">The distance.</param>
         /// <param name="goo">The goo.</param>
         /// <returns>A list of Point3ds.</returns>
-        private static IEnumerable<Point3d> PopulateSurface(double distance, GeometryBase goo) {
+        private static IEnumerable<Point3i> PopulateSurface(double distance, GeometryBase goo) {
+            if (goo.ObjectType == Rhino.DocObjects.ObjectType.Mesh) {
+                var mesh = (Mesh)goo;
+                return CentersFromMeshSurface(distance, mesh);
+            } else {
+                return CentersFrom1D(distance, goo);
+            }
+        }
+
+        /// <summary>
+        /// Populates the surface of various geometries with points.
+        /// </summary>
+        /// <param name="distance">The distance.</param>
+        /// <param name="goo">The goo.</param>
+        /// <returns>A list of Point3ds.</returns>
+        private static IEnumerable<Point3i> CentersFromMeshSurface(double distance, Mesh mesh) {
+            return PopulateMeshSurface(distance, mesh)
+                .Where(geometryPoint => !IsOnEdgeUnitized(geometryPoint))
+                .Select(geometryPoint => new Point3i(geometryPoint));
+        }
+
+        /// <summary>
+        /// Populates the surface of various geometries with points.
+        /// </summary>
+        /// <param name="distance">The distance.</param>
+        /// <param name="goo">The goo.</param>
+        /// <returns>A list of Point3ds.</returns>
+        private static IEnumerable<Point3i> CentersFrom1D(double distance, GeometryBase goo) {
             var type = goo.ObjectType;
+            IEnumerable<Point3d> populatePoints;
             switch (type) {
                 case Rhino.DocObjects.ObjectType.Point:
                     var point = (Point)goo;
-                    return Enumerable.Repeat(point.Location, 1);
+                    populatePoints = Enumerable.Repeat(point.Location, 1);
+                    break;
                 case Rhino.DocObjects.ObjectType.Curve:
                     var curve = (Curve)goo;
-                    return PopulateCurve(distance, curve);
-                case Rhino.DocObjects.ObjectType.Mesh:
-                    var mesh = (Mesh)goo;
-                    return PopulateMeshSurface(distance, mesh);
+                    populatePoints = PopulateCurve(distance, curve);
+                    break;
                 default:
-                    return Enumerable.Empty<Point3d>();
+                    populatePoints = Enumerable.Empty<Point3d>();
+                    break;
             }
+            return populatePoints
+                .Where(geometryPoint => !IsOnEdgeUnitized(geometryPoint))
+                .Select(geometryPoint => new Point3i(geometryPoint));
         }
 
         /// <summary>
@@ -257,7 +273,7 @@ namespace WFCPlugin {
                                                      mesh.Vertices[face.A],
                                                      mesh.Vertices[face.B],
                                                      mesh.Vertices[face.C]);
-                if (!face.IsTriangle) {
+                if (face.IsTriangle) {
                     return firstTriangle;
 
                 } else {
@@ -297,20 +313,49 @@ namespace WFCPlugin {
         /// <param name="mesh">The mesh.</param>
         /// <returns>A list of Point3ds representing unit boxes centers that are
         ///     entirely inside mesh volume.</returns>
-        private static List<Point3d> PopulateMeshVolumeUnit(Mesh mesh) {
-            var pointsInsideMesh = new List<Point3d>();
+        private static List<Point3i> CentersFromMeshVolume(Mesh mesh) {
+            var pointsInsideMesh = new List<Point3i>();
             var boundingBox = mesh.GetBoundingBox(false);
             var slotInterval = new Interval(-0.5, 0.5);
-            for (var z = Math.Round(boundingBox.Min.Z - 1); z < Math.Round(boundingBox.Max.Z + 1); z++) {
-                for (var y = Math.Round(boundingBox.Min.Y - 1); y < Math.Round(boundingBox.Max.Y + 1); y++) {
-                    for (var x = Math.Round(boundingBox.Min.X - 1); x < Math.Round(boundingBox.Max.X + 1); x++) {
+            for (var z = Math.Floor(boundingBox.Min.Z - 1); z < Math.Ceiling(boundingBox.Max.Z + 1); z++) {
+                for (var y = Math.Floor(boundingBox.Min.Y - 1); y < Math.Ceiling(boundingBox.Max.Y + 1); y++) {
+                    for (var x = Math.Floor(boundingBox.Min.X - 1); x < Math.Ceiling(boundingBox.Max.X + 1); x++) {
                         var testSlotCenter = new Point3d(x, y, z);
                         var plane = Plane.WorldXY;
                         plane.Origin = testSlotCenter;
                         var box = new Box(plane, slotInterval, slotInterval, slotInterval);
                         var boxPoints = box.GetCorners();
                         if (boxPoints.All(point => mesh.IsPointInside(point, Rhino.RhinoMath.SqrtEpsilon, false))) {
-                            pointsInsideMesh.Add(testSlotCenter);
+                            pointsInsideMesh.Add(new Point3i(testSlotCenter));
+                        }
+                    }
+
+                }
+            }
+            return pointsInsideMesh;
+        }
+
+
+        /// <summary>
+        /// Populates the mesh volume and surface with unit boxes.
+        /// </summary>
+        /// <param name="mesh">The mesh.</param>
+        /// <returns>A list of Point3ds representing unit boxes centers that are
+        ///     entirely inside mesh volume.</returns>
+        private static List<Point3i> CentersFromMeshVolumeAndSurface(Mesh mesh) {
+            var pointsInsideMesh = new List<Point3i>();
+            var boundingBox = mesh.GetBoundingBox(false);
+            var slotInterval = new Interval(-0.5, 0.5);
+            for (var z = Math.Floor(boundingBox.Min.Z - 1); z < Math.Ceiling(boundingBox.Max.Z + 1); z++) {
+                for (var y = Math.Floor(boundingBox.Min.Y - 1); y < Math.Ceiling(boundingBox.Max.Y + 1); y++) {
+                    for (var x = Math.Floor(boundingBox.Min.X - 1); x < Math.Ceiling(boundingBox.Max.X + 1); x++) {
+                        var testSlotCenter = new Point3d(x, y, z);
+                        var plane = Plane.WorldXY;
+                        plane.Origin = testSlotCenter;
+                        var box = new Box(plane, slotInterval, slotInterval, slotInterval);
+                        var boxPoints = box.GetCorners();
+                        if (boxPoints.Any(point => mesh.IsPointInside(point, Rhino.RhinoMath.SqrtEpsilon, false))) {
+                            pointsInsideMesh.Add(new Point3i(testSlotCenter));
                         }
                     }
 
@@ -412,5 +457,11 @@ namespace WFCPlugin {
         /// will partially fail during loading.
         /// </summary>
         public override Guid ComponentGuid => new Guid("F4CB7062-F85C-4E92-8215-034C4CC3941C");
+    }
+
+    internal enum PopulateMethod : int {
+        Surface = 0,
+        Volume = 1,
+        SurfaceAndVolume = 2,
     }
 }

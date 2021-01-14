@@ -4,7 +4,7 @@ using System.Linq;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
-namespace WFCPlugin {
+namespace Monoceros {
     /// <summary>
     /// <para>
     /// Grasshopper component: Monoceros Deconstruct Module To Components

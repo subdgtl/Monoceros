@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
 using System.Linq;
 
-namespace WFCPlugin {
+namespace Monoceros {
     /// <summary>
     /// The Monoceros configuration and constants.
     /// </summary>

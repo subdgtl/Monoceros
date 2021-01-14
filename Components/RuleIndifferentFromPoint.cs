@@ -4,7 +4,7 @@ using System.Linq;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
-namespace WFCPlugin {
+namespace Monoceros {
     public class ComponentRuleIndifferentFromPoint : GH_Component {
         public ComponentRuleIndifferentFromPoint( )
             : base("Rule Typed Indifferent From Point Tag",

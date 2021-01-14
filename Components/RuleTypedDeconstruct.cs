@@ -1,7 +1,7 @@
 ﻿using System;
 using Grasshopper.Kernel;
 
-namespace WFCPlugin {
+namespace Monoceros {
     // TODO: Consider making one Deconstruct for both types of Rule
     public class ComponentDeconstructRuleTyped : GH_Component {
         public ComponentDeconstructRuleTyped( )

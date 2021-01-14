@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Linq;
 using Grasshopper.Kernel;
 
-namespace WFCPlugin {
+namespace Monoceros {
     public class ComponentUnwrapRules : GH_Component {
         public ComponentUnwrapRules( )
             : base("Unwrap Typed Rules",

@@ -5,7 +5,7 @@ using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
 using Rhino.Geometry;
 
-namespace WFCPlugin {
+namespace Monoceros {
     /// <summary>
     /// <para>
     /// Grasshopper component: Monoceros Construct Module

@@ -4,7 +4,7 @@ using System.Linq;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
-namespace WFCPlugin {
+namespace Monoceros {
 
     public class ComponentDeconstructSlot : GH_Component {
         public ComponentDeconstructSlot( )

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using GH_IO.Serialization;
 using Grasshopper.Kernel.Types;
 
-namespace WFCPlugin {
+namespace Monoceros {
     // TODO: Consider this to be a wrapper around an UID instead of an arbitrary string name
     /// <summary>
     /// <para>

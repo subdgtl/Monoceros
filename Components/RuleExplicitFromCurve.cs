@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
-namespace WFCPlugin {
+namespace Monoceros {
 
     public class ComponentRuleExplicitFromCurve : GH_Component {
         public ComponentRuleExplicitFromCurve( )

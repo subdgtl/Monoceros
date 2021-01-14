@@ -1,7 +1,7 @@
 ﻿using System;
 using Grasshopper.Kernel;
 
-namespace WFCPlugin {
+namespace Monoceros {
     // TODO: Consider making this part of Deconstruct
     public class ComponentIsRuleExplicit : GH_Component {
         public ComponentIsRuleExplicit( ) : base("Is Rule Explicit", "IsRuleExp",

@@ -4,7 +4,7 @@ using System.Linq;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
-namespace WFCPlugin {
+namespace Monoceros {
     public class ComponentRuleOuterFromPoint : GH_Component {
         public ComponentRuleOuterFromPoint( )
             : base("Rule Allow Out From Point Tag",
