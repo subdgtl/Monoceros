@@ -13,7 +13,7 @@ namespace Monoceros {
     public class ComponentMaterializeSlots : GH_Component, IGH_BakeAwareObject {
 
         private List<List<GeometryBase>> _moduleGeometry;
-        private List<Point3d> _moduleOrigins;
+        private List<List<Guid>> _moduleGuids;
         private List<string> _moduleNames;
         private List<List<Transform>> _moduleTransforms;
         public ComponentMaterializeSlots( ) : base("Materialize Slots",
@@ -74,7 +74,7 @@ namespace Monoceros {
             var geometry = new DataTree<GeometryBase>();
 
             _moduleGeometry = new List<List<GeometryBase>>();
-            _moduleOrigins = new List<Point3d>();
+            _moduleGuids = new List<List<Guid>>();
             _moduleNames = new List<string>();
             _moduleTransforms = new List<List<Transform>>();
 
@@ -97,19 +97,21 @@ namespace Monoceros {
                     if (slot.AllowedSubmoduleNames.Count == 1 &&
                         slot.AllowedSubmoduleNames[0] == module.PivotSubmoduleName) {
                         var transform = Transform.PlaneToPlane(module.Pivot, slot.Pivot);
-                        var slotGeometry = module.Geometry.Select(geo => {
-                            var placedGeometry = geo.Duplicate();
-                            placedGeometry.Transform(transform);
-                            return placedGeometry;
-                        });
+                        var slotGeometry = module.Geometry.Concat(module.ReferencedGeometry)
+                            .Select(geo => {
+                                var placedGeometry = geo.Duplicate();
+                                placedGeometry.Transform(transform);
+                                return placedGeometry;
+                            });
                         currentModuleTransforms.Add(transform);
                         geometry.AddRange(slotGeometry, new GH_Path(new int[] { moduleIndex, slotIndex }));
                     }
 
                 }
                 transforms.AddRange(currentModuleTransforms, new GH_Path(new int[] { moduleIndex }));
-                _moduleGeometry.Add(module.Geometry);
-                _moduleOrigins.Add(module.Pivot.Origin);
+                var enumerable = module.Geometry.Concat(module.ReferencedGeometry);
+                _moduleGeometry.Add(enumerable.ToList());
+                _moduleGuids.Add(module.ReferencedGeometryGuids);
                 _moduleTransforms.Add(currentModuleTransforms);
                 _moduleNames.Add(module.Name);
             }
@@ -149,17 +151,27 @@ namespace Monoceros {
         public override void BakeGeometry(RhinoDoc doc, ObjectAttributes att, List<Guid> obj_ids) {
             // Bake as blocks to save memory, file size and make it possible to edit all at once
             for (var i = 0; i < _moduleGeometry.Count; i++) {
-                var geometry = _moduleGeometry[i];
-                var origin = _moduleOrigins[i];
+                var directGeometry = _moduleGeometry[i];
+                var directAttributes = Enumerable.Repeat(att.Duplicate(), directGeometry.Count);
+                var referencedObjects = doc.Objects.Where(obj => _moduleGuids[i].Contains(obj.Id));
+                var referencedGeometry = referencedObjects.Select(obj => obj.Geometry);
+                var referencedAttributes = referencedObjects.Select(obj => obj.Attributes);
+                var geometry = directGeometry.Concat(referencedGeometry).ToList();
+                var attributes = directAttributes.Concat(referencedAttributes).ToList();
                 var name = _moduleNames[i];
                 var transforms = _moduleTransforms[i];
-
                 // Only bake if the module appears in any slots
                 if (transforms.Count > 0) {
-                    var instanceIndex = doc.InstanceDefinitions.Add(name,
+                    var newName = name;
+                    while (doc.InstanceDefinitions.Any(inst => inst.Name == newName)) {
+                        newName += "_1";
+                    }
+
+                    var instanceIndex = doc.InstanceDefinitions.Add(newName,
                                                                     "Geometry of module " + name,
                                                                     Point3d.Origin,
-                                                                    geometry);
+                                                                    geometry,
+                                                                    attributes);
                     foreach (var transfrom in transforms) {
                         obj_ids.Add(
                             doc.Objects.AddInstanceObject(instanceIndex, transfrom)

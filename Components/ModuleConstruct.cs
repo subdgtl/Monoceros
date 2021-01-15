@@ -173,6 +173,7 @@ namespace Monoceros {
                 return;
             }
 
+
             if (Config.RESERVED_NAMES.Contains(name)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "The module name cannot be \"" + name +
@@ -213,20 +214,34 @@ namespace Monoceros {
             }).Distinct()
             .ToList();
 
-            var productionGeometryClean = productionGeometryRaw
-               .Where(goo => goo != null)
+            var gooClean = productionGeometryRaw
+                           .Where(goo => goo != null);
+            var productionGeometryClean = gooClean
+               .Where(goo => !goo.IsReferencedGeometry)
+               .Select(ghGeo => {
+                   var geo = ghGeo.Duplicate();
+                   return GH_Convert.ToGeometryBase(geo);
+               });
+            var productionGeometryReferencedClean = gooClean
+               .Where(goo => goo.IsReferencedGeometry)
                .Select(ghGeo => {
                    var geo = ghGeo.Duplicate();
                    return GH_Convert.ToGeometryBase(geo);
                });
 
+            var guidsClean = gooClean
+               .Where(goo => goo.IsReferencedGeometry)
+               .Select(ghGeo => ghGeo.ReferenceID);
+
             var module = new Module(name,
                                     productionGeometryClean,
+                                    productionGeometryReferencedClean,
+                                    guidsClean,
                                     basePlane,
                                     submoduleCenters,
                                     slotDiagonal);
 
-            if (module.Geometry.Count != productionGeometryRaw.Count) {
+            if (module.Geometry.Count + module.ReferencedGeometry.Count != productionGeometryRaw.Count) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Some geometry was not used.");
             }
 

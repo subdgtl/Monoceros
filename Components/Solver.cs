@@ -104,7 +104,7 @@ namespace Monoceros {
                 }
             }
 
-            if (slotsClean.Any()) {
+            if (!slotsClean.Any()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Slots collected.");
                 return;
             }
@@ -118,7 +118,7 @@ namespace Monoceros {
                 }
             }
 
-            if (modulesClean.Any()) {
+            if (!modulesClean.Any()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Modules collected.");
                 return;
             }
@@ -132,7 +132,7 @@ namespace Monoceros {
                 }
             }
 
-            if (rulesClean.Any()) {
+            if (!rulesClean.Any()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Modules collected.");
                 return;
             }

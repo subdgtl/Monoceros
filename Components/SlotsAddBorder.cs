@@ -2,12 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using Grasshopper;
 using Grasshopper.Kernel;
-using Grasshopper.Kernel.Data;
-using Rhino;
-using Rhino.DocObjects;
-using Rhino.Geometry;
 
 namespace Monoceros {
     public class ComponentAddSlotsBoundary : GH_Component {

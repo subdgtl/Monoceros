@@ -50,6 +50,18 @@ namespace Monoceros {
         public List<GeometryBase> Geometry;
 
         /// <summary>
+        /// Geometry to be placed into the corresponding world
+        /// <see cref="Slot"/>s.
+        /// </summary>
+        public List<GeometryBase> ReferencedGeometry;
+
+        /// <summary>
+        /// Guids of referenced geometry to be placed into the corresponding
+        /// world <see cref="Slot"/>s.
+        /// </summary>
+        public List<Guid> ReferencedGeometryGuids;
+
+        /// <summary>
         /// Base plane defining the module's coordinate system.
         /// </summary>
         public Plane BasePlane;
@@ -140,6 +152,8 @@ namespace Monoceros {
         /// <param name="slotDiagonal">Dimension of a single world slot.</param>
         public Module(string name,
                       IEnumerable<GeometryBase> geometry,
+                      IEnumerable<GeometryBase> referencedGeometry,
+                      IEnumerable<Guid> geometryGuids,
                       Plane basePlane,
                       List<Point3i> submoduleCenters,
                       Vector3d slotDiagonal) {
@@ -162,6 +176,8 @@ namespace Monoceros {
 
             Name = name.ToLower();
             Geometry = geometry.ToList();
+            ReferencedGeometry = referencedGeometry.ToList();
+            ReferencedGeometryGuids = geometryGuids.ToList();
             BasePlane = basePlane.Clone();
             SubmoduleCenters = submoduleCenters;
 
@@ -477,6 +493,8 @@ namespace Monoceros {
         public bool IsValid =>
             Connectors != null &&
             Geometry != null &&
+            ReferencedGeometry != null &&
+            ReferencedGeometryGuids != null &&
             InternalRules != null &&
             Name != null &&
             Pivot != null &&
@@ -694,6 +712,8 @@ namespace Monoceros {
             module = new Module(
                 name,
                 new List<GeometryBase>(),
+                new List<GeometryBase>(),
+                new List<Guid>(),
                 basePlane,
                 new List<Point3i> { new Point3i(0, 0, 0) },
                 slotDiagonal
@@ -710,7 +730,8 @@ namespace Monoceros {
         /// </summary>
         /// <param name="args">Viewport arguments.</param>
         public void DrawViewportWires(GH_PreviewWireArgs args) {
-            foreach (var geo in Geometry) {
+            var geometry = Geometry.Concat(ReferencedGeometry);
+            foreach (var geo in geometry) {
                 if (geo.ObjectType == ObjectType.Point) {
                     // Draw those geometries of the module that are a point
                     args.Pipeline.DrawPoint(((Point)geo).Location, args.Color);
@@ -751,7 +772,8 @@ namespace Monoceros {
         /// </summary>
         /// <param name="args">Viewport arguments.</param>
         public void DrawViewportMeshes(GH_PreviewMeshArgs args) {
-            foreach (var geo in Geometry) {
+            var geometry = Geometry.Concat(ReferencedGeometry);
+            foreach (var geo in geometry) {
                 if (geo.ObjectType == ObjectType.Brep) {
                     args.Pipeline.DrawBrepShaded((Brep)geo, args.Material);
                 }
