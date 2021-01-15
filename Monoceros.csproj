@@ -56,6 +56,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\SlotsAreBorder.cs" />
     <Compile Include="Components\ModuleConstructEmpty.cs" />
     <Compile Include="Components\ModuleConstruct.cs" />
     <Compile Include="Components\ModuleDeconstruct.cs" />

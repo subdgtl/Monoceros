@@ -4,7 +4,8 @@ using Rhino.Geometry;
 namespace Monoceros {
     /// <summary>
     /// Used as a relative discrete coordinate of a slot or a submodule center
-    /// in the orthogonal 3D voxel-like grid, which describes the Monoceros World.
+    /// in the orthogonal 3D voxel-like grid, which describes the Monoceros
+    /// World.
     /// </summary>
     [Serializable]
     public struct Point3i {
@@ -104,6 +105,18 @@ namespace Monoceros {
         /// <returns>A Vector3d.</returns>
         public Vector3d ToVector3d( ) {
             return new Vector3d(X, Y, Z);
+        }
+
+        /// <summary>
+        /// Checks if two discrete points are neighbors in one of the 6
+        /// directions in the discrete grid world.
+        /// </summary>
+        /// <param name="other">The other point.</param>
+        /// <returns>True if neighbors</returns>
+        public bool IsNeighbor(Point3i other) {
+            return (Math.Abs(X - other.X) == 1 && Y == other.Y && Z == other.Z) ||
+                (X == other.X && Math.Abs(Y - other.Y) == 1 && Z == other.Z) ||
+                (X == other.X && Y == other.Y && (Math.Abs(Z - other.Z) == 1));
         }
 
     }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
+using Rhino;
+using Rhino.DocObjects;
 using Rhino.Geometry;
 
 namespace Monoceros {
@@ -38,11 +40,12 @@ namespace Monoceros {
                GH_ParamAccess.item,
                new Vector3d(1.0, 1.0, 1.0)
                );
-            pManager.AddIntegerParameter("Fill",
+            pManager.AddIntegerParameter("Fill Method",
                                          "F",
-                                         "0 = only wrap geometry surface, " +
-                                         "1 = only fill geometry volume, " +
-                                         "2 = wrap surface and fill volume",
+                                         "0 = wrap geometry surface, " +
+                                         "1 = fill geometry volume, " +
+                                         "2 = wrap surface and fill volume, " +
+                                         "3 = wrap geometry surface (experimental)",
                                          GH_ParamAccess.item,
                                          2);
             pManager.AddNumberParameter("Precision",
@@ -102,6 +105,12 @@ namespace Monoceros {
                 return;
             }
 
+            if (method < 0 || method > 3) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  "Unknown Fill Method (F).");
+                return;
+            }
+
             var geometryClean = geometryRaw
                .Where(goo => goo != null)
                .Select(goo => {
@@ -142,38 +151,55 @@ namespace Monoceros {
             var worldAlignmentTransform = Transform.PlaneToPlane(basePlane, Plane.WorldXY);
 
             var centersNormalized = new List<Point3i>();
-
+            var ambiguityWarning = false;
             foreach (var goo in geometryClean) {
                 var geometry = goo.Duplicate();
                 if (geometry.Transform(normalizationTransform) &&
                     geometry.Transform(worldAlignmentTransform)) {
-                    var isMesh = goo.ObjectType == Rhino.DocObjects.ObjectType.Mesh;
-                    switch (method) {
-                        case (int)PopulateMethod.Surface:
-                            if (isMesh) {
-                                centersNormalized.AddRange(CentersFromMeshSurface(precision, (Mesh)geometry));
-                            } else {
-                                centersNormalized.AddRange(CentersFrom1D(precision, geometry));
-                                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
-                                  "Test points matching the Slot grid may have been skipped due to ambiguity.");
-                            }
-                            break;
-                        case (int)PopulateMethod.Volume:
-                            if (isMesh && ((Mesh)geometry).IsClosed) {
-                                centersNormalized.AddRange(CentersFromMeshVolume((Mesh)geometry));
-                            }
-                            break;
-                        case (int)PopulateMethod.SurfaceAndVolume:
-                            if (isMesh && ((Mesh)geometry).IsClosed) {
-                                centersNormalized.AddRange(CentersFromMeshVolumeAndSurface((Mesh)geometry));
-                            } else {
-                                centersNormalized.AddRange(CentersFrom1D(precision, geometry));
-                                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
-                                  "Test points matching the Slot grid may have been skipped due to ambiguity.");
-                            }
-                            break;
+                    var objectType = goo.ObjectType;
+                    var isMesh = objectType == ObjectType.Mesh;
+                    if ((method == 0 || method == 2 || method == 3) && objectType == ObjectType.Point) {
+                        var p = ((Point)geometry).Location;
+                        if (!IsOnEdgeUnitized(p)) {
+                            centersNormalized.Add(new Point3i(p));
+                        } else {
+                            ambiguityWarning = true;
+                        }
+                    }
+                    if ((method == 0 || method == 2 || method == 3) && objectType == ObjectType.Curve) {
+                        centersNormalized.AddRange(PopulateCurve(precision, (Curve)geometry)
+                                                    .Where(p => !IsOnEdgeUnitized(p))
+                                                    .Select(p => new Point3i(p))
+                                                    .Distinct());
+                        ambiguityWarning = true;
+                    }
+                    if (objectType == ObjectType.Mesh
+                        && (method == 0
+                            || ((method == 2 || method == 3)
+                                && !((Mesh)geometry).IsClosed))) {
+                        centersNormalized.AddRange(PopulateMeshSurface(precision, (Mesh)geometry)
+                                                    .Where(p => !IsOnEdgeUnitized(p))
+                                                    .Select(p => new Point3i(p))
+                                                    .Distinct());
+                        ambiguityWarning = true;
+                    }
+                    if (method == 1 && objectType == ObjectType.Mesh && ((Mesh)geometry).IsClosed) {
+                        centersNormalized.AddRange(CentersFromMeshVolume((Mesh)geometry));
+                    }
+                    if (method == 2 && objectType == ObjectType.Mesh && ((Mesh)geometry).IsClosed) {
+                        centersNormalized.AddRange(CentersFromMeshVolumeAndSurface((Mesh)geometry));
+                    }
+                    if (method == 3 && objectType == ObjectType.Mesh && ((Mesh)geometry).IsClosed) {
+                        centersNormalized.AddRange(CentersFromMeshSurface((Mesh)geometry));
                     }
                 }
+            }
+
+            if (ambiguityWarning) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
+                                      "Test points matching the Slot grid may have been skipped due to ambiguity.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
+                                      "Slightly move, scale or remodel the geometry where Slot centers are missing.");
             }
 
             if (!centersNormalized.Any()) {
@@ -198,63 +224,9 @@ namespace Monoceros {
         }
 
         private static bool IsOnEdgeUnitized(Point3d geometryPoint) {
-            return Math.Abs(Math.Abs(geometryPoint.X % 1) - 0.5) <= Rhino.RhinoMath.SqrtEpsilon
-                || Math.Abs(Math.Abs(geometryPoint.Y % 1) - 0.5) <= Rhino.RhinoMath.SqrtEpsilon
-                || Math.Abs(Math.Abs(geometryPoint.Z % 1) - 0.5) <= Rhino.RhinoMath.SqrtEpsilon;
-        }
-
-        /// <summary>
-        /// Populates the surface of various geometries with points.
-        /// </summary>
-        /// <param name="distance">The distance.</param>
-        /// <param name="goo">The goo.</param>
-        /// <returns>A list of Point3ds.</returns>
-        private static IEnumerable<Point3i> PopulateSurface(double distance, GeometryBase goo) {
-            if (goo.ObjectType == Rhino.DocObjects.ObjectType.Mesh) {
-                var mesh = (Mesh)goo;
-                return CentersFromMeshSurface(distance, mesh);
-            } else {
-                return CentersFrom1D(distance, goo);
-            }
-        }
-
-        /// <summary>
-        /// Populates the surface of various geometries with points.
-        /// </summary>
-        /// <param name="distance">The distance.</param>
-        /// <param name="goo">The goo.</param>
-        /// <returns>A list of Point3ds.</returns>
-        private static IEnumerable<Point3i> CentersFromMeshSurface(double distance, Mesh mesh) {
-            return PopulateMeshSurface(distance, mesh)
-                .Where(geometryPoint => !IsOnEdgeUnitized(geometryPoint))
-                .Select(geometryPoint => new Point3i(geometryPoint));
-        }
-
-        /// <summary>
-        /// Populates the surface of various geometries with points.
-        /// </summary>
-        /// <param name="distance">The distance.</param>
-        /// <param name="goo">The goo.</param>
-        /// <returns>A list of Point3ds.</returns>
-        private static IEnumerable<Point3i> CentersFrom1D(double distance, GeometryBase goo) {
-            var type = goo.ObjectType;
-            IEnumerable<Point3d> populatePoints;
-            switch (type) {
-                case Rhino.DocObjects.ObjectType.Point:
-                    var point = (Point)goo;
-                    populatePoints = Enumerable.Repeat(point.Location, 1);
-                    break;
-                case Rhino.DocObjects.ObjectType.Curve:
-                    var curve = (Curve)goo;
-                    populatePoints = PopulateCurve(distance, curve);
-                    break;
-                default:
-                    populatePoints = Enumerable.Empty<Point3d>();
-                    break;
-            }
-            return populatePoints
-                .Where(geometryPoint => !IsOnEdgeUnitized(geometryPoint))
-                .Select(geometryPoint => new Point3i(geometryPoint));
+            return Math.Abs(Math.Abs(geometryPoint.X % 1) - 0.5) <= RhinoMath.SqrtEpsilon
+                || Math.Abs(Math.Abs(geometryPoint.Y % 1) - 0.5) <= RhinoMath.SqrtEpsilon
+                || Math.Abs(Math.Abs(geometryPoint.Z % 1) - 0.5) <= RhinoMath.SqrtEpsilon;
         }
 
         /// <summary>
@@ -365,6 +337,36 @@ namespace Monoceros {
         }
 
         /// <summary>
+        /// Populates the mesh surface with unit boxes.
+        /// </summary>
+        /// <param name="mesh">The mesh.</param>
+        /// <returns>A list of Point3ds representing unit boxes centers that are
+        ///     entirely inside mesh volume.</returns>
+        private static List<Point3i> CentersFromMeshSurface(Mesh mesh) {
+            var pointsInsideMesh = new List<Point3i>();
+            var boundingBox = mesh.GetBoundingBox(false);
+            var slotInterval = new Interval(-0.5, 0.5);
+            for (var z = Math.Floor(boundingBox.Min.Z - 1); z < Math.Ceiling(boundingBox.Max.Z + 1); z++) {
+                for (var y = Math.Floor(boundingBox.Min.Y - 1); y < Math.Ceiling(boundingBox.Max.Y + 1); y++) {
+                    for (var x = Math.Floor(boundingBox.Min.X - 1); x < Math.Ceiling(boundingBox.Max.X + 1); x++) {
+                        var testSlotCenter = new Point3d(x, y, z);
+                        var plane = Plane.WorldXY;
+                        plane.Origin = testSlotCenter;
+                        var box = new Box(plane, slotInterval, slotInterval, slotInterval);
+                        var boxPoints = box.GetCorners();
+                        var boxcornersInside = boxPoints
+                            .Count(point => mesh.IsPointInside(point, RhinoMath.SqrtEpsilon, false));
+                        if (boxcornersInside > 0 && boxcornersInside < 6) {
+                            pointsInsideMesh.Add(new Point3i(testSlotCenter));
+                        }
+                    }
+
+                }
+            }
+            return pointsInsideMesh;
+        }
+
+        /// <summary>
         /// Evenly populate a triangle with points.
         /// </summary>
         /// <param name="aPoint">The first point of the triangle in world
@@ -457,11 +459,5 @@ namespace Monoceros {
         /// will partially fail during loading.
         /// </summary>
         public override Guid ComponentGuid => new Guid("F4CB7062-F85C-4E92-8215-034C4CC3941C");
-    }
-
-    internal enum PopulateMethod : int {
-        Surface = 0,
-        Volume = 1,
-        SurfaceAndVolume = 2,
     }
 }

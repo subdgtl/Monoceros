@@ -209,7 +209,7 @@ namespace Monoceros {
                 var current = stack[i];
                 for (var j = 0; j < centers.Count; j++) {
                     var other = centers[j];
-                    if (AreNeighbors(current, other) && !visited[j]) {
+                    if (current.IsNeighbor(other) && !visited[j]) {
                         stack.Add(other);
                         visited[j] = true;
                     }
@@ -217,12 +217,6 @@ namespace Monoceros {
                 i++;
             }
             return visited.All(wasVisited => wasVisited);
-        }
-
-        private bool AreNeighbors(Point3i a, Point3i b) {
-            return (Math.Abs(a.X - b.X) == 1 && a.Y == b.Y && a.Z == b.Z) ||
-                (a.X == b.X && Math.Abs(a.Y - b.Y) == 1 && a.Z == b.Z) ||
-                (a.X == b.X && a.Y == b.Y && (Math.Abs(a.Z - b.Z) == 1));
         }
 
         /// <summary>

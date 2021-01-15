@@ -104,6 +104,11 @@ namespace Monoceros {
                 }
             }
 
+            if (slotsClean.Any()) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Slots collected.");
+                return;
+            }
+
             var modulesClean = new List<Module>();
             foreach (var module in modulesRaw) {
                 if (module == null || !module.IsValid) {
@@ -113,6 +118,11 @@ namespace Monoceros {
                 }
             }
 
+            if (modulesClean.Any()) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Modules collected.");
+                return;
+            }
+
             var rulesClean = new List<Rule>();
             foreach (var rule in rulesRaw) {
                 if (rule == null || !rule.IsValid) {
@@ -120,6 +130,11 @@ namespace Monoceros {
                 } else {
                     rulesClean.Add(rule);
                 }
+            }
+
+            if (rulesClean.Any()) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Modules collected.");
+                return;
             }
 
             var diagonal = slotsClean.First().Diagonal;
@@ -138,7 +153,7 @@ namespace Monoceros {
                 return;
             }
 
-            if (!AreSlotLocationsUnique(slotsClean)) {
+            if (!Slot.AreSlotLocationsUnique(slotsClean)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Slot centers are not unique.");
                 return;
             }
@@ -448,17 +463,6 @@ namespace Monoceros {
             for (var i = 0; i < modules.Count; i++) {
                 for (var j = i + 1; j < modules.Count; j++) {
                     if (modules[i].Name == modules[j].Name) {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
-
-        private bool AreSlotLocationsUnique(List<Slot> slots) {
-            for (var i = 0; i < slots.Count; i++) {
-                for (var j = i + 1; j < slots.Count; j++) {
-                    if (slots[i].RelativeCenter.Equals(slots[j].RelativeCenter)) {
                         return false;
                     }
                 }

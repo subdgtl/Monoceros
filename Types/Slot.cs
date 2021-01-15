@@ -677,5 +677,16 @@ namespace Monoceros {
             }
         }
 
+        public static bool AreSlotLocationsUnique(List<Slot> slots) {
+            for (var i = 0; i < slots.Count; i++) {
+                for (var j = i + 1; j < slots.Count; j++) {
+                    if (slots[i].RelativeCenter.Equals(slots[j].RelativeCenter)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
     }
 }
