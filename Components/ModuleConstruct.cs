@@ -169,21 +169,20 @@ namespace Monoceros {
             var name = nameRaw.Name.ToLower();
 
             if (name.Length == 0) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Module name is empty.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Monoceros Module name is empty.");
                 return;
             }
 
+            if (name.Contains("\n") || name.Contains(":") || name.Contains("=")) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Monoceros Module name contains " +
+                    "a forbidden content: :, ->, = or newline.");
+                return;
+            }
 
             if (Config.RESERVED_NAMES.Contains(name)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  "The module name cannot be \"" + name +
+                                  "The Monoceros Module name cannot be \"" + name +
                                   "\" because it is reserved by Monoceros.");
-                return;
-            }
-
-            if (name.Contains(":") || name.Contains("=")) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  "The module name cannot contain \":\" or \"=\"");
                 return;
             }
 

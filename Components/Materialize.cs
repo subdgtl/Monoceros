@@ -159,7 +159,7 @@ namespace Monoceros {
         /// </summary>
         public override Guid ComponentGuid => new Guid("1E4C296E-8E3D-4979-AF34-C1DDFB73ED47");
 
-        public override bool IsBakeCapable => true;
+        public override bool IsBakeCapable => IsInstantiated;
 
         public override void BakeGeometry(RhinoDoc doc, List<Guid> obj_ids) {
             BakeGeometry(doc, new ObjectAttributes(), obj_ids);
@@ -170,11 +170,21 @@ namespace Monoceros {
             for (var i = 0; i < _moduleGeometry.Count; i++) {
                 var directGeometry = _moduleGeometry[i];
                 var directAttributes = Enumerable.Repeat(att.Duplicate(), directGeometry.Count);
-                var referencedObjects = doc.Objects.Where(obj => _moduleGuids[i].Contains(obj.Id));
+                var referencedObjects = _moduleGuids[i].Select(guid => doc.Objects.FindId(guid)).Where(obj => obj != null);
                 var referencedGeometry = referencedObjects.Select(obj => obj.Geometry);
                 var referencedAttributes = referencedObjects.Select(obj => obj.Attributes);
+                var referencedNewAttributes = referencedAttributes.Select(originalAttributes => {
+                    var mainAttributesDuplicate = att.Duplicate();
+                    mainAttributesDuplicate.ObjectColor = originalAttributes.ObjectColor;
+                    mainAttributesDuplicate.ColorSource = originalAttributes.ColorSource;
+                    mainAttributesDuplicate.MaterialIndex = originalAttributes.MaterialIndex;
+                    mainAttributesDuplicate.MaterialSource = originalAttributes.MaterialSource;
+                    mainAttributesDuplicate.LinetypeIndex = originalAttributes.LinetypeIndex;
+                    mainAttributesDuplicate.LinetypeSource = originalAttributes.LinetypeSource;
+                    return mainAttributesDuplicate;
+                });
                 var geometry = directGeometry.Concat(referencedGeometry).ToList();
-                var attributes = directAttributes.Concat(referencedAttributes).ToList();
+                var attributes = directAttributes.Concat(referencedNewAttributes).ToList();
                 var name = _moduleNames[i];
                 var transforms = _moduleTransforms[i];
                 // Only bake if the module appears in any slots
@@ -195,9 +205,17 @@ namespace Monoceros {
                             );
                     }
                 }
-
             }
 
+
         }
+        private bool IsInstantiated => _moduleGeometry != null
+                                       && _moduleGuids != null
+                                       && _moduleNames != null
+                                       && _moduleTransforms != null
+                                       && _moduleGeometry.All(x => x != null)
+                                       && _moduleGuids.All(x => x != null)
+                                       && _moduleNames.All(x => x != null)
+                                       && _moduleTransforms.All(x => x != null);
     }
 }

@@ -79,6 +79,14 @@ namespace Monoceros {
 
             var allowedModules = allowedModulesRaw.Select(name => name.Name).ToList();
 
+            if (allowedModules.Any(name => name.Contains("\n")
+                || name.Contains(":")
+                || name.Contains("="))) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Input text contains " +
+                    "a forbidden content: :, ->, = or newline.");
+                return;
+            }
+
             if (diagonal.X <= 0 || diagonal.Y <= 0 || diagonal.Z <= 0) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "One or more slot dimensions are not larger than 0.");

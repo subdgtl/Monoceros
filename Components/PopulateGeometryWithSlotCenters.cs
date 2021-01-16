@@ -297,7 +297,7 @@ namespace Monoceros {
                         plane.Origin = testSlotCenter;
                         var box = new Box(plane, slotInterval, slotInterval, slotInterval);
                         var boxPoints = box.GetCorners();
-                        if (boxPoints.All(point => mesh.IsPointInside(point, Rhino.RhinoMath.SqrtEpsilon, false))) {
+                        if (boxPoints.All(point => mesh.IsPointInside(point, RhinoMath.SqrtEpsilon, false))) {
                             pointsInsideMesh.Add(new Point3i(testSlotCenter));
                         }
                     }

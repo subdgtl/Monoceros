@@ -72,7 +72,9 @@ namespace Monoceros {
                                   "Some of the rules are null or invalid.");
             }
 
-            var rulesTyped = rulesInput
+            var rulesClean = rulesInput.Where(rule => rule.IsValidWithModules(modulesClean));
+
+            var rulesTyped = rulesClean
                 .Where(rule => rule != null && rule.IsTyped)
                 .Select(rule => rule.Typed);
 
@@ -88,9 +90,10 @@ namespace Monoceros {
                 .SelectMany(ruleTyped => ruleTyped.ToRulesExplicit(rulesTyped, modulesClean))
                 .Select(ruleExplicit => new Rule(ruleExplicit));
 
-            var rulesExplicit = rulesInput.Where(rule => rule != null && rule.IsExplicit);
+            var rulesExplicit = rulesClean.Where(rule => rule != null && rule.IsExplicit);
 
-            var rules = rulesExplicit.Concat(rulesTypedUnwrapped).Distinct();
+            var rules = rulesExplicit.Concat(rulesTypedUnwrapped).Distinct().ToList();
+            rules.Sort();
 
             foreach (var rule in rules) {
                 if (!rule.IsValid) {

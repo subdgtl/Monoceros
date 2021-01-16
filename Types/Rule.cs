@@ -16,7 +16,7 @@ namespace Monoceros {
     /// <see cref="Typed"/> properties. The other one is <c>null</c>.
     /// </para>
     /// </summary>
-    public class Rule : IGH_Goo {
+    public class Rule : IGH_Goo, IComparable<Rule> {
         private RuleExplicit _ruleExplicit;
         private RuleTyped _ruleTyped;
 
@@ -396,6 +396,36 @@ namespace Monoceros {
             }
             return false;
         }
+
+        public int CompareTo(Rule other) {
+            if (IsExplicit && other.IsExplicit) {
+                return Explicit.CompareTo(other.Explicit);
+            }
+            if (IsTyped && other.IsTyped) {
+                return Typed.CompareTo(other.Typed);
+            }
+            if (IsTyped && other.IsExplicit) {
+                var result = Typed.ModuleName.CompareTo(other.Explicit.SourceModuleName);
+                if (result == 0) {
+                    result = Typed.ConnectorIndex.CompareTo(other.Explicit.SourceConnectorIndex);
+                    if(result == 0) {
+                        result = -1;
+                    }
+                }
+                return result;
+            }
+            if (IsExplicit && other.IsTyped) {
+                var result = Explicit.SourceModuleName.CompareTo(other.Typed.ModuleName);
+                if (result == 0) {
+                    result = Explicit.SourceConnectorIndex.CompareTo(other.Typed.ConnectorIndex);
+                    if (result == 0) {
+                        result = 1;
+                    }
+                }
+                return result;
+            }
+            return 0;
+        }
     }
 
     /// <summary>
@@ -442,7 +472,7 @@ namespace Monoceros {
     /// the <see cref="ComponentSolver"/>.
     /// </para>
     /// </remarks>
-    public class RuleExplicit {
+    public class RuleExplicit : IComparable<RuleExplicit>{
         /// <summary>
         /// Name (unique identifier) of the first module, which is allowed to
         /// touch the second module.
@@ -621,6 +651,20 @@ namespace Monoceros {
             }
             return false;
         }
+
+        public int CompareTo(RuleExplicit other) {
+            var result = SourceModuleName.CompareTo(other.SourceModuleName);
+            if (result == 0) {
+                result = TargetModuleName.CompareTo(other.TargetModuleName);
+                if (result == 0) {
+                    result = SourceConnectorIndex.CompareTo(other.SourceConnectorIndex);
+                    if (result == 0) {
+                        result = TargetConnectorIndex.CompareTo(other.TargetConnectorIndex);
+                    }
+                }
+            }
+            return result;
+        }
     }
 
     /// <summary>
@@ -659,7 +703,7 @@ namespace Monoceros {
     /// <see cref="RuleForSolver"/>.
     /// </para>
     /// </remarks>
-    public class RuleTyped {
+    public class RuleTyped : IComparable<RuleTyped> {
         /// <summary>
         /// Name (unique identifier) of a <see cref="Module"/>, which is allowed
         /// to touch another <see cref="Module"/> with a
@@ -835,6 +879,17 @@ namespace Monoceros {
                 return false;
             }
             return true;
+        }
+
+        public int CompareTo(RuleTyped other) {
+            var result = ModuleName.CompareTo(other.ModuleName);
+            if (result == 0) {
+                result = ConnectorIndex.CompareTo(other.ConnectorIndex);
+                if (result == 0) {
+                    result = ConnectorType.CompareTo(other.ConnectorType);
+                }
+            }
+            return result;
         }
     }
 

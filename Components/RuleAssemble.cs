@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Linq;
 using Grasshopper;
 using Grasshopper.Kernel;
-using Grasshopper.Kernel.Data;
 using Rhino;
 using Rhino.DocObjects;
 using Rhino.Geometry;
@@ -12,20 +11,19 @@ using Rhino.Geometry;
 namespace Monoceros {
     public class ComponentAssembleRule : GH_Component, IGH_BakeAwareObject {
 
-        //private List<GeometryBase> _sourceModuleGeometry;
-        //private List<Guid> _sourceModuleGuids;
-        //private string _sourceModuleName;
-        //private Transform _sourceModuleTransform;
-        //private List<GeometryBase> _targetModuleGeometry;
-        //private List<Guid> _targetModuleGuids;
-        //private string _targetModuleName;
-        //private Transform _targetModuleTransform;
+        private List<GeometryBase> _sourceModuleGeometry;
+        private List<GeometryBase> _sourceModuleReferencedGeometry;
+        private List<Guid> _sourceModuleGuids;
+        private List<GeometryBase> _targetModuleGeometry;
+        private List<GeometryBase> _targetModuleReferencedGeometry;
+        private List<Guid> _targetModuleGuids;
+        private string _ruleString;
 
-        public ComponentAssembleRule( ) : base("Assemble Single Rule",
-                                                   "AssembleRule",
-                                                   "Materialize single Monoceros Rule.",
-                                                   "Monoceros",
-                                                   "Main") {
+        public ComponentAssembleRule( ) : base("Assemble Rule",
+                                               "AssembleRule",
+                                               "Materialize Monoceros Rule.",
+                                               "Monoceros",
+                                               "Main") {
         }
 
         /// <summary>
@@ -150,25 +148,48 @@ namespace Monoceros {
             //_sourceModuleGeometry = sourceModule.Geometry;
             //_sourceModuleGuids = sourceModule.ReferencedGeometryGuids;
             var sourceModuleTransform = Transform.PlaneToPlane(sourceModule.Pivot, basePlane);
-            var allSourceModuleGeometry = sourceModule.Geometry
-                .Concat(sourceModule.ReferencedGeometry)
-                .Select(geo => {
-                    var placedGeometry = geo.Duplicate();
-                    placedGeometry.Transform(sourceModuleTransform);
-                    return placedGeometry;
-                }).ToList();
+            var sourceModuleGeometry = sourceModule.Geometry.Select(geo => {
+                var placedGeometry = geo.Duplicate();
+                placedGeometry.Transform(sourceModuleTransform);
+                return placedGeometry;
+            }).ToList();
+            var sourceModuleReferencedGeometry = sourceModule.ReferencedGeometry.Select(geo => {
+                var placedGeometry = geo.Duplicate();
+                placedGeometry.Transform(sourceModuleTransform);
+                return placedGeometry;
+            }).ToList();
+            var allSourceModuleGeometry = sourceModuleGeometry
+                .Concat(sourceModuleReferencedGeometry)
+                .ToList();
+
             var transformedSourceConnectorPlane = sourceConnector.AnchorPlane.Clone();
             transformedSourceConnectorPlane.Transform(sourceModuleTransform);
             transformedSourceConnectorPlane.Flip();
             var targetModuleTransform = Transform.PlaneToPlane(targetConnector.AnchorPlane,
                                                                transformedSourceConnectorPlane);
-            var allTargetModuleGeometry = targetModule.Geometry
-                .Concat(targetModule.ReferencedGeometry)
-                .Select(geo => {
-                    var placedGeometry = geo.Duplicate();
-                    placedGeometry.Transform(targetModuleTransform);
-                    return placedGeometry;
-                }).ToList();
+            var targetModuleGeometry = targetModule.Geometry.Select(geo => {
+                var placedGeometry = geo.Duplicate();
+                placedGeometry.Transform(targetModuleTransform);
+                return placedGeometry;
+            }).ToList();
+            var targetModuleReferencedGeometry = targetModule.ReferencedGeometry.Select(geo => {
+                var placedGeometry = geo.Duplicate();
+                placedGeometry.Transform(targetModuleTransform);
+                return placedGeometry;
+            }).ToList();
+            var allTargetModuleGeometry = targetModuleGeometry
+                .Concat(targetModuleReferencedGeometry)
+                .ToList();
+
+            _sourceModuleGeometry = sourceModuleGeometry;
+            _sourceModuleReferencedGeometry = sourceModuleReferencedGeometry;
+            _sourceModuleGuids = sourceModule.ReferencedGeometryGuids;
+
+            _targetModuleGeometry = targetModuleGeometry;
+            _targetModuleReferencedGeometry = targetModuleReferencedGeometry;
+            _targetModuleGuids = targetModule.ReferencedGeometryGuids;
+
+            _ruleString = rule.ToString();
 
             DA.SetDataList(0, allSourceModuleGeometry);
             DA.SetDataList(1, allTargetModuleGeometry);
@@ -181,13 +202,13 @@ namespace Monoceros {
         /// GH_Exposure.obscure flag, which ensures the component will only be
         /// visible on panel dropdowns.
         /// </summary>
-        public override GH_Exposure Exposure => GH_Exposure.primary;
+        public override GH_Exposure Exposure => GH_Exposure.secondary;
 
         /// <summary>
         /// Provides an Icon for every component that will be visible in the
         /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override Bitmap Icon => Properties.Resources.M;
+        protected override Bitmap Icon => Properties.Resources.R;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it.  It is vital
@@ -196,44 +217,89 @@ namespace Monoceros {
         /// </summary>
         public override Guid ComponentGuid => new Guid("6DA78B0E-0328-418B-8A08-5956CC3E51CE");
 
-        public override bool IsBakeCapable => true;
+        public override bool IsBakeCapable => IsInstantiated;
 
         public override void BakeGeometry(RhinoDoc doc, List<Guid> obj_ids) {
             BakeGeometry(doc, new ObjectAttributes(), obj_ids);
         }
 
         public override void BakeGeometry(RhinoDoc doc, ObjectAttributes att, List<Guid> obj_ids) {
-            // Bake as blocks to save memory, file size and make it possible to edit all at once
-            //for (var i = 0; i < _sourceModuleGeometry.Count; i++) {
-            //    var directGeometry = _sourceModuleGeometry[i];
-            //    var directAttributes = Enumerable.Repeat(att.Duplicate(), directGeometry.Count);
-            //    var referencedObjects = doc.Objects.Where(obj => _sourceModuleGuids[i].Contains(obj.Id));
-            //    var referencedGeometry = referencedObjects.Select(obj => obj.Geometry);
-            //    var referencedAttributes = referencedObjects.Select(obj => obj.Attributes);
-            //    var geometry = directGeometry.Concat(referencedGeometry).ToList();
-            //    var attributes = directAttributes.Concat(referencedAttributes).ToList();
-            //    var name = _moduleNames[i];
-            //    var transforms = _moduleTransforms[i];
-            //    // Only bake if the module appears in any slots
-            //    if (transforms.Count > 0) {
-            //        var newName = name;
-            //        while (doc.InstanceDefinitions.Any(inst => inst.Name == newName)) {
-            //            newName += "_1";
-            //        }
+            // TODO: Bakes into "Default" layer for some reason
+            var sourceReferencedObjects = _sourceModuleGuids
+                .Select(guid => doc.Objects.FindId(guid))
+                .Where(obj => obj != null);
+            var sourceReferencedAttributes = sourceReferencedObjects.Select(obj => obj.Attributes);
+            var sourceNewAttributes = sourceReferencedAttributes.Select(originalAttributes => {
+                var mainAttributesDuplicate = att.Duplicate();
+                mainAttributesDuplicate.ObjectColor = originalAttributes.ObjectColor;
+                mainAttributesDuplicate.ColorSource = originalAttributes.ColorSource;
+                mainAttributesDuplicate.MaterialIndex = originalAttributes.MaterialIndex;
+                mainAttributesDuplicate.MaterialSource = originalAttributes.MaterialSource;
+                mainAttributesDuplicate.LinetypeIndex = originalAttributes.LinetypeIndex;
+                mainAttributesDuplicate.LinetypeSource = originalAttributes.LinetypeSource;
+                return mainAttributesDuplicate;
+            });
+            var sourceData = _sourceModuleReferencedGeometry
+                .Zip(sourceNewAttributes, (geo, attrib) => new { geo, attrib });
 
-            //        var instanceIndex = doc.InstanceDefinitions.Add(newName,
-            //                                                        "Geometry of module " + name,
-            //                                                        Point3d.Origin,
-            //                                                        geometry,
-            //                                                        attributes);
-            //        foreach (var transfrom in transforms) {
-            //            obj_ids.Add(
-            //                doc.Objects.AddInstanceObject(instanceIndex, transfrom)
-            //                );
-            //        }
-            //    }
+            var sourceGroupId = doc.Groups.Add(_ruleString + " Source");
+            foreach (var geometry in _sourceModuleGeometry) {
+                var geomId = doc.Objects.Add(geometry, att);
+                doc.Groups.AddToGroup(sourceGroupId, geomId);
+                obj_ids.Add(geomId);
+            }
+
+            foreach (var item in sourceData) {
+                var geometry = item.geo;
+                var attributes = item.attrib;
+                var geomId = doc.Objects.Add(geometry, attributes);
+                doc.Groups.AddToGroup(sourceGroupId, geomId);
+                obj_ids.Add(geomId);
+            }
+
+            var targetReferencedObjects = _targetModuleGuids
+                .Select(guid => doc.Objects.FindId(guid))
+                .Where(obj => obj != null);
+            var targetReferencedAttributes = targetReferencedObjects.Select(obj => obj.Attributes);
+            var targetNewAttributes = targetReferencedAttributes.Select(originalAttributes => {
+                var mainAttributesDuplicate = att.Duplicate();
+                mainAttributesDuplicate.ObjectColor = originalAttributes.ObjectColor;
+                mainAttributesDuplicate.ColorSource = originalAttributes.ColorSource;
+                mainAttributesDuplicate.MaterialIndex = originalAttributes.MaterialIndex;
+                mainAttributesDuplicate.MaterialSource = originalAttributes.MaterialSource;
+                mainAttributesDuplicate.LinetypeIndex = originalAttributes.LinetypeIndex;
+                mainAttributesDuplicate.LinetypeSource = originalAttributes.LinetypeSource;
+                return mainAttributesDuplicate;
+            });
+            var targetData = _targetModuleReferencedGeometry
+                .Zip(targetNewAttributes, (geo, attrib) => new { geo, attrib });
+
+            var targetGroupId = doc.Groups.Add(_ruleString + " Target");
+            foreach (var geometry in _targetModuleGeometry) {
+                var geomId = doc.Objects.Add(geometry, att);
+                doc.Groups.AddToGroup(targetGroupId, geomId);
+                obj_ids.Add(geomId);
+            }
+
+            foreach (var item in targetData) {
+                var geometry = item.geo;
+                var attributes = item.attrib;
+                var geomId = doc.Objects.Add(geometry, attributes);
+                doc.Groups.AddToGroup(targetGroupId, geomId);
+                obj_ids.Add(geomId);
+
+            }
 
         }
 
+        private bool IsInstantiated => _sourceModuleGeometry != null
+                                       && _sourceModuleGuids != null
+                                       && _targetModuleGeometry != null
+                                       && _targetModuleGuids != null
+                                       && _ruleString != null
+                                       && _sourceModuleGeometry.All(x => x != null)
+                                       && _sourceModuleGuids.All(x => x != null)
+                                       && _targetModuleGeometry.All(x => x != null)
+                                       && _targetModuleGuids.All(x => x != null);
     }
 }

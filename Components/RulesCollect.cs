@@ -82,10 +82,6 @@ namespace Monoceros {
                                   "Some of the allowed rules are null or invalid.");
             }
 
-            if (disallowed.Any(rule => rule == null)) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  "Some of the disallowed rules are null or invalid.");
-            }
 
             Module.GenerateEmptySingleModule(Config.OUTER_MODULE_NAME,
                                              Config.INDIFFERENT_TAG,
@@ -97,12 +93,24 @@ namespace Monoceros {
                 );
             modulesClean.Add(moduleOut);
 
-            var allowedTyped = allowed
+            var allowedClean = allowed.Where(rule => rule.IsValidWithModules(modulesClean));
+
+            if(disallowed == null || !disallowed.Any()) {
+                DA.SetDataList(0, allowedClean);
+                return;
+            }
+
+            if (disallowed.Any(rule => rule == null)) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  "Some of the disallowed rules are null or invalid.");
+            }
+
+            var allowedTyped = allowedClean
                 .Where(rule => rule != null && rule.IsTyped && rule.IsValidWithModules(modulesClean))
                 .Select(rule => rule.Typed);
 
             var allAllowed = new List<RuleExplicit>();
-            foreach (var rule in allowed) {
+            foreach (var rule in allowedClean) {
                 if (rule != null && rule.IsValid && rule.IsValidWithModules(modulesClean)) {
                     if (rule.IsExplicit) {
                         allAllowed.Add(rule.Explicit);
@@ -124,7 +132,7 @@ namespace Monoceros {
                         allDisallowed.Add(rule.Explicit);
                     }
                     if (rule.IsTyped) {
-                        allAllowed.AddRange(rule.Typed.ToRulesExplicit(disallowedTyped, modulesClean));
+                        allDisallowed.AddRange(rule.Typed.ToRulesExplicit(disallowedTyped, modulesClean));
                     }
                 }
             }
@@ -132,7 +140,8 @@ namespace Monoceros {
             var outExplicit = allAllowed
                 .Distinct()
                 .Except(allDisallowed.Distinct());
-            var outRules = outExplicit.Select(explicitRule => new Rule(explicitRule));
+            var outRules = outExplicit.Select(explicitRule => new Rule(explicitRule)).ToList();
+            outRules.Sort();
 
             foreach (var rule in outRules) {
                 if (!rule.IsValid) {
