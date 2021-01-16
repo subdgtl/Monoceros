@@ -387,6 +387,7 @@ namespace Monoceros {
         /// <param name="modules">The modules.</param>
         /// <returns>True if valid.</returns>
         public bool IsValidWithModules(List<Module> modules) {
+            // TODO: Check for collisions
             if (IsExplicit) {
                 return Explicit.IsValidWithGivenModules(modules);
             }
@@ -608,18 +609,17 @@ namespace Monoceros {
         public bool IsValidWithGivenModules(IEnumerable<Module> modules) {
             var sourceModule = modules.FirstOrDefault(module => module.Name == SourceModuleName);
             var targetModule = modules.FirstOrDefault(module => module.Name == TargetModuleName);
-            var sourceConnector = sourceModule.Connectors.ElementAtOrDefault(SourceConnectorIndex);
-            var targetConnector = targetModule.Connectors.ElementAtOrDefault(TargetConnectorIndex);
-
-            // Invalid if modules do not exist or if the direction of the connectors is not opposite
-            if (sourceModule == null ||
-                targetModule == null ||
-                sourceConnector.Equals(default(ModuleConnector)) ||
-                targetConnector.Equals(default(ModuleConnector)) ||
-                !sourceConnector.Direction.IsOpposite(targetConnector.Direction)) {
-                return false;
+            if (sourceModule != null && targetModule != null) {
+                var sourceConnector = sourceModule.Connectors.ElementAtOrDefault(SourceConnectorIndex);
+                var targetConnector = targetModule.Connectors.ElementAtOrDefault(TargetConnectorIndex);
+                // Invalid if modules do not exist or if the direction of the connectors is not opposite
+                if (!sourceConnector.Equals(default(ModuleConnector)) &&
+                    !targetConnector.Equals(default(ModuleConnector)) &&
+                    sourceConnector.Direction.IsOpposite(targetConnector.Direction)) {
+                    return true;
+                }
             }
-            return true;
+            return false;
         }
     }
 
