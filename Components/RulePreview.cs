@@ -112,8 +112,8 @@ namespace Monoceros {
 
             foreach (var ruleExplicit in rulesExplicit) {
                 // TODO: Consider displaying Out connections somehow too
-                if (!Config.RESERVED_NAMES.Contains(ruleExplicit.SourceModuleName) &&
-                    !Config.RESERVED_NAMES.Contains(ruleExplicit.TargetModuleName)) {
+                if (ruleExplicit.SourceModuleName != Config.OUTER_MODULE_NAME
+                    && ruleExplicit.TargetModuleName != Config.OUTER_MODULE_NAME) {
                     GetLineFromExplicitRule(modulesClean,
                                             ruleExplicit,
                                             out var line,
@@ -127,8 +127,8 @@ namespace Monoceros {
 
                 foreach (var ruleExplicit in rulesExplicitComputed) {
                     // TODO: Consider displaying Out connections somehow too
-                    if (!Config.RESERVED_NAMES.Contains(ruleExplicit.SourceModuleName) &&
-                        !Config.RESERVED_NAMES.Contains(ruleExplicit.TargetModuleName)) {
+                    if (ruleExplicit.SourceModuleName != Config.OUTER_MODULE_NAME
+                        && ruleExplicit.TargetModuleName != Config.OUTER_MODULE_NAME) {
                         GetLineFromExplicitRule(modulesClean,
                                                 ruleExplicit,
                                                 out var line,

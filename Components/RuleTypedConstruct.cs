@@ -63,6 +63,17 @@ namespace Monoceros {
 
             var moduleName = moduleNameRaw.Name;
 
+            if (moduleName.Contains("\n")
+                || moduleName.Contains(":")
+                || moduleName.Contains("=")
+                || type.Contains("\n")
+                || type.Contains(":")
+                || type.Contains("=")) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Input text contains " +
+                    "a forbidden content: :, ->, = or newline.");
+                return;
+            }
+
             var rule = new Rule(moduleName, connector, type);
 
             if (!rule.IsValid) {

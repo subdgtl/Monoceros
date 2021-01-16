@@ -59,45 +59,64 @@ namespace Monoceros {
         /// <param name="DA">The DA object can be used to retrieve data from
         ///     input parameters and to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA) {
-            var modules = new List<Module>();
-            var slots = new List<Slot>();
+            var modulesRaw = new List<Module>();
+            var slotsRaw = new List<Slot>();
 
-            if (!DA.GetDataList(0, modules)) {
+            if (!DA.GetDataList(0, modulesRaw)) {
                 return;
             }
 
-            if (!DA.GetDataList(1, slots)) {
+            if (!DA.GetDataList(1, slotsRaw)) {
                 return;
             }
 
             var transforms = new DataTree<Transform>();
             var geometry = new DataTree<GeometryBase>();
 
+            var slotsClean = new List<Slot>();
+            foreach (var slot in slotsRaw) {
+                if (slot == null || !slot.IsValid) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Slot is null or invalid.");
+                } else {
+                    slotsClean.Add(slot);
+                }
+            }
+
+            if (!slotsClean.Any()) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Slots collected.");
+                return;
+            }
+
+            var modulesClean = new List<Module>();
+            foreach (var module in modulesRaw) {
+                if (module == null || !module.IsValid) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Module is null or invalid.");
+                } else {
+                    modulesClean.Add(module);
+                }
+            }
+
+            if (!modulesClean.Any()) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Modules collected.");
+                return;
+            }
+
             _moduleGeometry = new List<List<GeometryBase>>();
             _moduleGuids = new List<List<Guid>>();
             _moduleNames = new List<string>();
             _moduleTransforms = new List<List<Transform>>();
 
-            for (var moduleIndex = 0; moduleIndex < modules.Count; moduleIndex++) {
-                var module = modules[moduleIndex];
-                if (module == null || !module.IsValid) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The module is null or invalid.");
-                    return;
-                }
-
+            for (var moduleIndex = 0; moduleIndex < modulesClean.Count; moduleIndex++) {
+                var module = modulesClean[moduleIndex];
                 var currentModuleTransforms = new List<Transform>();
-                for (var slotIndex = 0; slotIndex < slots.Count; slotIndex++) {
-                    var slot = slots[slotIndex];
-                    if (slot == null || !slot.IsValid) {
-                        AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The slot is null or invalid.");
-                        continue;
-                    }
-
+                var allModuleGeometry = module.Geometry.Concat(module.ReferencedGeometry);
+                for (var slotIndex = 0; slotIndex < slotsClean.Count; slotIndex++) {
+                    var slot = slotsClean[slotIndex];
                     // TODO: Think about how to display bake contradictory and non-deterministic slots.
                     if (slot.AllowedSubmoduleNames.Count == 1 &&
                         slot.AllowedSubmoduleNames[0] == module.PivotSubmoduleName) {
                         var transform = Transform.PlaneToPlane(module.Pivot, slot.Pivot);
-                        var slotGeometry = module.Geometry.Concat(module.ReferencedGeometry)
+                        var slotGeometry = allModuleGeometry
                             .Select(geo => {
                                 var placedGeometry = geo.Duplicate();
                                 placedGeometry.Transform(transform);
@@ -106,11 +125,9 @@ namespace Monoceros {
                         currentModuleTransforms.Add(transform);
                         geometry.AddRange(slotGeometry, new GH_Path(new int[] { moduleIndex, slotIndex }));
                     }
-
                 }
                 transforms.AddRange(currentModuleTransforms, new GH_Path(new int[] { moduleIndex }));
-                var enumerable = module.Geometry.Concat(module.ReferencedGeometry);
-                _moduleGeometry.Add(enumerable.ToList());
+                _moduleGeometry.Add(module.Geometry.ToList());
                 _moduleGuids.Add(module.ReferencedGeometryGuids);
                 _moduleTransforms.Add(currentModuleTransforms);
                 _moduleNames.Add(module.Name);
@@ -142,7 +159,7 @@ namespace Monoceros {
         /// </summary>
         public override Guid ComponentGuid => new Guid("1E4C296E-8E3D-4979-AF34-C1DDFB73ED47");
 
-        public override bool IsBakeCapable => true;
+        public override bool IsBakeCapable => IsInstantiated;
 
         public override void BakeGeometry(RhinoDoc doc, List<Guid> obj_ids) {
             BakeGeometry(doc, new ObjectAttributes(), obj_ids);
@@ -153,11 +170,21 @@ namespace Monoceros {
             for (var i = 0; i < _moduleGeometry.Count; i++) {
                 var directGeometry = _moduleGeometry[i];
                 var directAttributes = Enumerable.Repeat(att.Duplicate(), directGeometry.Count);
-                var referencedObjects = doc.Objects.Where(obj => _moduleGuids[i].Contains(obj.Id));
+                var referencedObjects = _moduleGuids[i].Select(guid => doc.Objects.FindId(guid)).Where(obj => obj != null);
                 var referencedGeometry = referencedObjects.Select(obj => obj.Geometry);
                 var referencedAttributes = referencedObjects.Select(obj => obj.Attributes);
+                var referencedNewAttributes = referencedAttributes.Select(originalAttributes => {
+                    var mainAttributesDuplicate = att.Duplicate();
+                    mainAttributesDuplicate.ObjectColor = originalAttributes.ObjectColor;
+                    mainAttributesDuplicate.ColorSource = originalAttributes.ColorSource;
+                    mainAttributesDuplicate.MaterialIndex = originalAttributes.MaterialIndex;
+                    mainAttributesDuplicate.MaterialSource = originalAttributes.MaterialSource;
+                    mainAttributesDuplicate.LinetypeIndex = originalAttributes.LinetypeIndex;
+                    mainAttributesDuplicate.LinetypeSource = originalAttributes.LinetypeSource;
+                    return mainAttributesDuplicate;
+                });
                 var geometry = directGeometry.Concat(referencedGeometry).ToList();
-                var attributes = directAttributes.Concat(referencedAttributes).ToList();
+                var attributes = directAttributes.Concat(referencedNewAttributes).ToList();
                 var name = _moduleNames[i];
                 var transforms = _moduleTransforms[i];
                 // Only bake if the module appears in any slots
@@ -178,9 +205,17 @@ namespace Monoceros {
                             );
                     }
                 }
-
             }
 
+
         }
+        private bool IsInstantiated => _moduleGeometry != null
+                                       && _moduleGuids != null
+                                       && _moduleNames != null
+                                       && _moduleTransforms != null
+                                       && _moduleGeometry.All(x => x != null)
+                                       && _moduleGuids.All(x => x != null)
+                                       && _moduleNames.All(x => x != null)
+                                       && _moduleTransforms.All(x => x != null);
     }
 }
