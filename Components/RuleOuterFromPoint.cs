@@ -7,10 +7,10 @@ using Rhino.Geometry;
 namespace Monoceros {
     public class ComponentRuleOuterFromPoint : GH_Component {
         public ComponentRuleOuterFromPoint( )
-            : base("Rule Allow Out From Point Tag",
+            : base("Rule To Out From Point",
                    "RuleOutPt",
-                   "Allow the Monoceros Moudle's connector marked with a Point to connect to an " +
-                   "Out Module. All Out module's connectors are Indifferent.",
+                   "Monoceros Moudle's connector marked with a Point connects to an " +
+                   "Out Module (beyond Slot boundary). All Out module's connectors are Indifferent.",
                    "Monoceros",
                    "Rule") {
         }
@@ -139,7 +139,7 @@ namespace Monoceros {
         /// Provides an Icon for every component that will be visible in the
         /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.R;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.rule_out;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it.  It is vital

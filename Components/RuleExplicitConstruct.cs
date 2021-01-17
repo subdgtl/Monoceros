@@ -108,13 +108,13 @@ namespace Monoceros {
         /// GH_Exposure.obscure flag, which ensures the component will only be
         /// visible on panel dropdowns.
         /// </summary>
-        public override GH_Exposure Exposure => GH_Exposure.secondary;
+        public override GH_Exposure Exposure => GH_Exposure.primary;
 
         /// <summary>
         /// Provides an Icon for every component that will be visible in the
         /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.R;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.rule_explicit_construct;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it.  It is vital

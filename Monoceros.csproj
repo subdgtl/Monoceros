@@ -57,8 +57,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Components\RuleAssemble.cs" />
-    <Compile Include="Components\SlotsAddBorder.cs" />
-    <Compile Include="Components\SlotsAreBorder.cs" />
+    <Compile Include="Components\SlotsAddBoundary.cs" />
+    <Compile Include="Components\SlotsAreBoundary.cs" />
     <Compile Include="Components\ModuleConstructEmpty.cs" />
     <Compile Include="Components\ModuleConstruct.cs" />
     <Compile Include="Components\ModuleDeconstruct.cs" />
@@ -82,16 +82,16 @@
     <Compile Include="Components\RuleExplicitFromCurve.cs" />
     <Compile Include="Parameters\ModuleNameParameter.cs" />
     <Compile Include="Parameters\SlotParameter.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Types\Point3i.cs" />
     <Compile Include="Types\ModuleName.cs" />
     <Compile Include="Types\Slot.cs" />
     <Compile Include="Types\Direction.cs">
       <LastGenOutput>GridDirection1.cs</LastGenOutput>
-    </Compile>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Components\RuleTypedConstruct.cs" />
     <Compile Include="Components\RuleExplicitConstruct.cs" />
@@ -105,33 +105,57 @@
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
-    <None Include="Icons\W.png" />
-    <None Include="Icons\S.png" />
-    <None Include="Icons\M.png" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Icons\WFC.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="DynamicLinkingDependencies\GH_IO.dll" />
     <Content Include="DynamicLinkingDependencies\Grasshopper.dll" />
     <Content Include="DynamicLinkingDependencies\RhinoCommon.dll" />
-    <None Include="Icons\SP.png" />
-    <None Include="Icons\RP.png" />
-    <None Include="Icons\NP.png" />
-    <None Include="Icons\MP.png" />
+    <None Include="Resources\module-name-parameter.png" />
+    <None Include="Resources\module-parameter.png" />
+    <None Include="Resources\slot-parameter.png" />
+    <None Include="Resources\module-deconstruct.png" />
+    <None Include="Resources\module-construct.png" />
+    <None Include="Resources\module-empty.png" />
+    <None Include="Resources\populate.png" />
+    <None Include="Resources\module-transparent.png" />
+    <None Include="Resources\slot-construct.png" />
+    <None Include="Resources\slot-deconstruct.png" />
+    <None Include="Resources\slot-add-boundary-2.png" />
+    <None Include="Resources\slot-add-boundary.png" />
+    <None Include="Resources\slot-are-boundary.png" />
+    <None Include="Resources\slot-all.png" />
+    <None Include="Resources\slot-transparent.png" />
+    <None Include="Resources\rule-typed-construct.png" />
+    <None Include="Resources\rule-typed-deconstruct.png" />
+    <None Include="Resources\rule-is-typed.png" />
+    <None Include="Resources\rule-indifferent-unused.png" />
+    <None Include="Resources\rule-indifferent.png" />
+    <None Include="Resources\rule-typed-transparent.png" />
+    <None Include="Resources\rule-general-parameter.png" />
+    <None Include="Resources\rule-explicit-deconstruct.png" />
+    <None Include="Resources\rule-explicit-construct.png" />
+    <None Include="Resources\rule-is-explicit.png" />
+    <None Include="Resources\rule-out.png" />
+    <None Include="Resources\rule-explicit-transparent.png" />
+    <None Include="Resources\rules-unwrap.png" />
+    <None Include="Resources\rules-collect.png" />
+    <None Include="Resources\rule-assemble.png" />
+    <None Include="Resources\rule-general-transparent.png" />
+    <None Include="Resources\materialize.png" />
+    <None Include="Resources\solver.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

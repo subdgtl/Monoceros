@@ -9,7 +9,7 @@ namespace Monoceros {
         public override string Name => "Monoceros";
         public override Bitmap Icon =>
                 //Return a 24x24 pixel bitmap to represent this GHA library.
-                Monoceros.Properties.Resources.WFC;
+                Monoceros.Properties.Resources.solver;
         public override string Description =>
                 //Return a short string describing the purpose of this GHA library.
                 "Monoceros: A Wave Function Collapse plug-in by Subdigital";

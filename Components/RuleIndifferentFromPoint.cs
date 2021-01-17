@@ -7,9 +7,9 @@ using Rhino.Geometry;
 namespace Monoceros {
     public class ComponentRuleIndifferentFromPoint : GH_Component {
         public ComponentRuleIndifferentFromPoint( )
-            : base("Rule Typed Indifferent From Point Tag",
+            : base("Indifferent Rule From Point",
                    "RuleIndiffPt",
-                   "Allow connectors of a Monoceros Module marked with a Point to connect to any opposite " +
+                   "Connectors of a Monoceros Module marked with a Point connect to any opposite " +
                    "indifferent connector of any Monoceros Module.",
                    "Monoceros",
                    "Rule") {
@@ -101,7 +101,7 @@ namespace Monoceros {
         /// Provides an Icon for every component that will be visible in the
         /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.R;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.rule_indifferent;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it.  It is vital

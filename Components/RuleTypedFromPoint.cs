@@ -8,7 +8,7 @@ namespace Monoceros {
 
     public class ComponentRuleTypedFromPoint : GH_Component {
         public ComponentRuleTypedFromPoint( )
-            : base("Typed Rule From Point Tag",
+            : base("Typed Rule From Point",
                    "RuleTypPt",
                    "Create a Monoceros Typed Rule (connector-to-all-same-type-connectors) from " +
                    "a Point tag. The connector Type will be converted to lowercase.",
@@ -118,7 +118,7 @@ namespace Monoceros {
         /// Provides an Icon for every component that will be visible in the
         /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.R;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.rule_typed_transparent;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it.  It is vital

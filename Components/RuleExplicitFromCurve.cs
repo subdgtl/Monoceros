@@ -7,7 +7,7 @@ namespace Monoceros {
 
     public class ComponentRuleExplicitFromCurve : GH_Component {
         public ComponentRuleExplicitFromCurve( )
-            : base("Create Explicit Rule From Curve",
+            : base("Explicit Rule From Curve",
                    "RuleExpCrv",
                    "Create an Monoceros Explicit Rule (connector-to-connector) " +
                    "from a curve connecting two opposite connectors.",
@@ -117,7 +117,7 @@ namespace Monoceros {
         /// Provides an Icon for every component that will be visible in the
         /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.R;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.rule_explicit_transparent;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it.  It is vital

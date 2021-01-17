@@ -118,34 +118,100 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="N" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\N.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="materialize" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\materialize.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="R" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\R.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="module_construct" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\module-construct.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="M" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\M.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="module_deconstruct" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\module-deconstruct.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="S" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\S.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="module_empty" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\module-empty.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="W" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\W.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="module_name_parameter" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\module-name-parameter.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="WFC" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\WFC.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="module_parameter" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\module-parameter.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="MP" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\MP.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="module_transparent" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\module-transparent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="NP" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\NP.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="populate" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\populate.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="RP" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\RP.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="rules_collect" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\rules-collect.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="SP" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icons\SP.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="rules_unwrap" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\rules-unwrap.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="rule_assemble" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\rule-assemble.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="rule_explicit_construct" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\rule-explicit-construct.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="rule_explicit_deconstruct" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\rule-explicit-deconstruct.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="rule_explicit_transparent" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\rule-explicit-transparent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="rule_general_parameter" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\rule-general-parameter.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="rule_general_transparent" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\rule-general-transparent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="rule_indifferent" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\rule-indifferent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="rule_indifferent_unused" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\rule-indifferent-unused.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="rule_is_explicit" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\rule-is-explicit.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="rule_is_typed" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\rule-is-typed.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="rule_out" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\rule-out.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="rule_typed_construct" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\rule-typed-construct.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="rule_typed_deconstruct" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\rule-typed-deconstruct.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="rule_typed_transparent" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\rule-typed-transparent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="slot_add_boundary_2" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\slot-add-boundary-2.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="slot_all" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\slot-all.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="slot_are_boundary" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\slot-are-boundary.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="slot_construct" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\slot-construct.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="slot_deconstruct" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\slot-deconstruct.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="slot_parameter" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\slot-parameter.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="slot_transparent" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\slot-transparent.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="solver" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\solver.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

@@ -20,7 +20,7 @@ namespace Monoceros {
                                                    "Materialize",
                                                    "Materialize Monoceros Modules into Monoceros Slots.",
                                                    "Monoceros",
-                                                   "Main") {
+                                                   "Postprocess") {
         }
 
         /// <summary>
@@ -150,7 +150,7 @@ namespace Monoceros {
         /// Provides an Icon for every component that will be visible in the
         /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override Bitmap Icon => Properties.Resources.M;
+        protected override Bitmap Icon => Properties.Resources.materialize;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it.  It is vital

@@ -8,7 +8,7 @@ namespace Monoceros {
     public class ComponentCollectRules : GH_Component {
         public ComponentCollectRules( ) : base("Collect Rules",
                                                "CollectRules",
-                                               "Collect, convert to Explicit, deduplicate and " +
+                                               "Collect, convert to Explicit, deduplicate, sort and " +
                                                "remove disallowed Monoceros Rules. Automatically " +
                                                "generates an Out Module and its Rules.",
                                                "Monoceros",
@@ -22,17 +22,17 @@ namespace Monoceros {
             pManager.AddParameter(new ModuleParameter(),
                                   "Module",
                                   "M",
-                                  "Monoceros module for indifferent rule generation",
+                                  "All Monoceros Modules",
                                   GH_ParamAccess.list);
             pManager.AddParameter(new RuleParameter(),
                                   "Rules Allowed",
                                   "RA",
-                                  "All allowed Monoceros rules",
+                                  "All allowed Monoceros Rules",
                                   GH_ParamAccess.list);
             pManager.AddParameter(new RuleParameter(),
                                   "Rules Disallowed",
                                   "RD",
-                                  "All disallowed Monoceros rules (optional)",
+                                  "All disallowed Monoceros Rules (optional)",
                                   GH_ParamAccess.list);
             pManager[2].Optional = true;
         }
@@ -95,7 +95,7 @@ namespace Monoceros {
 
             var allowedClean = allowed.Where(rule => rule.IsValidWithModules(modulesClean));
 
-            if(disallowed == null || !disallowed.Any()) {
+            if (disallowed == null || !disallowed.Any()) {
                 DA.SetDataList(0, allowedClean);
                 return;
             }
@@ -159,13 +159,13 @@ namespace Monoceros {
         /// GH_Exposure.obscure flag, which ensures the component will only be
         /// visible on panel dropdowns.
         /// </summary>
-        public override GH_Exposure Exposure => GH_Exposure.primary;
+        public override GH_Exposure Exposure => GH_Exposure.secondary;
 
         /// <summary>
         /// Provides an Icon for every component that will be visible in the
         /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override Bitmap Icon => Properties.Resources.R;
+        protected override Bitmap Icon => Properties.Resources.rules_collect;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it.  It is vital

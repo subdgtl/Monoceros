@@ -17,7 +17,7 @@ namespace Monoceros {
 
         public override Guid ComponentGuid => new Guid("DD1A1FA6-ACD4-4202-8B1A-9840949644B3");
 
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.WFC;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.solver;
 
         /// <summary>
         /// Registers all the input parameters for this component.

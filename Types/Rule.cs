@@ -408,7 +408,7 @@ namespace Monoceros {
                 var result = Typed.ModuleName.CompareTo(other.Explicit.SourceModuleName);
                 if (result == 0) {
                     result = Typed.ConnectorIndex.CompareTo(other.Explicit.SourceConnectorIndex);
-                    if(result == 0) {
+                    if (result == 0) {
                         result = -1;
                     }
                 }
@@ -472,7 +472,7 @@ namespace Monoceros {
     /// the <see cref="ComponentSolver"/>.
     /// </para>
     /// </remarks>
-    public class RuleExplicit : IComparable<RuleExplicit>{
+    public class RuleExplicit : IComparable<RuleExplicit> {
         /// <summary>
         /// Name (unique identifier) of the first module, which is allowed to
         /// touch the second module.

@@ -7,7 +7,7 @@ using Grasshopper.Kernel;
 namespace Monoceros {
     public class ComponentAddSlotsBoundary : GH_Component {
 
-        public ComponentAddSlotsBoundary( ) : base("Add Slot Boundary Layer",
+        public ComponentAddSlotsBoundary( ) : base("Add Boundary Layer",
                                                    "AddSlotBound",
                                                    "Add one layer of Monoceros Slots around the existing boundaries.",
                                                    "Monoceros",
@@ -122,7 +122,7 @@ namespace Monoceros {
         /// Provides an Icon for every component that will be visible in the
         /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override Bitmap Icon => Properties.Resources.S;
+        protected override Bitmap Icon => Properties.Resources.slot_add_boundary_2;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it.  It is vital

@@ -7,9 +7,9 @@ namespace Monoceros {
     // TODO: Consider doing this entirely in Grasshopper as a user object / cluster
     public class ComponentRuleIndifferentUnused : GH_Component {
         public ComponentRuleIndifferentUnused( )
-            : base("Rule Typed Indifferent For Unused Connectors",
+            : base("Indifferent Rules For Unused Connectors",
                    "RuleIndiffUnused",
-                   "Allow unused connectors of a Monoceros Module to connect to any opposite " +
+                   "Unused connectors of Monoceros Modules connect to any opposite " +
                    "indifferent connector of any Monoceros Module.",
                    "Monoceros",
                    "Rule") {
@@ -117,13 +117,13 @@ namespace Monoceros {
         /// GH_Exposure.obscure flag, which ensures the component will only be
         /// visible on panel dropdowns.
         /// </summary>
-        public override GH_Exposure Exposure => GH_Exposure.tertiary;
+        public override GH_Exposure Exposure => GH_Exposure.quarternary;
 
         /// <summary>
         /// Provides an Icon for every component that will be visible in the
         /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.R;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.rule_indifferent_unused;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it.  It is vital

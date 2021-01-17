@@ -8,7 +8,7 @@ namespace Monoceros {
 
     public class ComponentConstructSlotWithModules : GH_Component {
         public ComponentConstructSlotWithModules( )
-            : base("Construct Slot With Module Names",
+            : base("Construct Slot With Listed Modules Allowed",
                    "SlotModules",
                    "Construct a Monoceros Slot with allowed Monoceros Module names.",
                    "Monoceros",
@@ -135,7 +135,7 @@ namespace Monoceros {
         /// Provides an Icon for every component that will be visible in the
         /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.S;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.slot_construct;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it.  It is vital

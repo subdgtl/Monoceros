@@ -10,13 +10,13 @@ using Rhino.Geometry;
 namespace Monoceros {
     public class ComponentPopulateGeometryWithSlotCenters : GH_Component {
         public ComponentPopulateGeometryWithSlotCenters( )
-            : base("Populate Geometry With Slot Centers",
-                   "PopSlots",
+            : base("Slice Geometry",
+                   "Slice",
                    "Populate geometry with points ready to be " +
                    "used as Monoceros Slot and Monoceros Module centers. Supports Point, Curve, " +
                    "Brep, Mesh.",
                    "Monoceros",
-                   "Main") {
+                   "Postprocess") {
         }
 
         /// <summary>
@@ -445,13 +445,13 @@ namespace Monoceros {
         /// GH_Exposure.obscure flag, which ensures the component will only be
         /// visible on panel dropdowns.
         /// </summary>
-        public override GH_Exposure Exposure => GH_Exposure.secondary;
+        public override GH_Exposure Exposure => GH_Exposure.primary;
 
         /// <summary>
         /// Provides an Icon for every component that will be visible in the
         /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.W;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.populate;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it.  It is vital

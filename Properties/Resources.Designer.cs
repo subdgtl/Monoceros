@@ -63,9 +63,9 @@ namespace Monoceros.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap M {
+        internal static System.Drawing.Bitmap materialize {
             get {
-                object obj = ResourceManager.GetObject("M", resourceCulture);
+                object obj = ResourceManager.GetObject("materialize", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -73,9 +73,9 @@ namespace Monoceros.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap MP {
+        internal static System.Drawing.Bitmap module_construct {
             get {
-                object obj = ResourceManager.GetObject("MP", resourceCulture);
+                object obj = ResourceManager.GetObject("module_construct", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -83,9 +83,9 @@ namespace Monoceros.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap N {
+        internal static System.Drawing.Bitmap module_deconstruct {
             get {
-                object obj = ResourceManager.GetObject("N", resourceCulture);
+                object obj = ResourceManager.GetObject("module_deconstruct", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -93,9 +93,9 @@ namespace Monoceros.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap NP {
+        internal static System.Drawing.Bitmap module_empty {
             get {
-                object obj = ResourceManager.GetObject("NP", resourceCulture);
+                object obj = ResourceManager.GetObject("module_empty", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -103,9 +103,9 @@ namespace Monoceros.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap R {
+        internal static System.Drawing.Bitmap module_name_parameter {
             get {
-                object obj = ResourceManager.GetObject("R", resourceCulture);
+                object obj = ResourceManager.GetObject("module_name_parameter", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -113,9 +113,9 @@ namespace Monoceros.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap RP {
+        internal static System.Drawing.Bitmap module_parameter {
             get {
-                object obj = ResourceManager.GetObject("RP", resourceCulture);
+                object obj = ResourceManager.GetObject("module_parameter", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -123,9 +123,9 @@ namespace Monoceros.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap S {
+        internal static System.Drawing.Bitmap module_transparent {
             get {
-                object obj = ResourceManager.GetObject("S", resourceCulture);
+                object obj = ResourceManager.GetObject("module_transparent", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -133,9 +133,9 @@ namespace Monoceros.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap SP {
+        internal static System.Drawing.Bitmap populate {
             get {
-                object obj = ResourceManager.GetObject("SP", resourceCulture);
+                object obj = ResourceManager.GetObject("populate", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -143,9 +143,9 @@ namespace Monoceros.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap W {
+        internal static System.Drawing.Bitmap rule_assemble {
             get {
-                object obj = ResourceManager.GetObject("W", resourceCulture);
+                object obj = ResourceManager.GetObject("rule_assemble", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -153,9 +153,229 @@ namespace Monoceros.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap WFC {
+        internal static System.Drawing.Bitmap rule_explicit_construct {
             get {
-                object obj = ResourceManager.GetObject("WFC", resourceCulture);
+                object obj = ResourceManager.GetObject("rule_explicit_construct", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap rule_explicit_deconstruct {
+            get {
+                object obj = ResourceManager.GetObject("rule_explicit_deconstruct", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap rule_explicit_transparent {
+            get {
+                object obj = ResourceManager.GetObject("rule_explicit_transparent", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap rule_general_parameter {
+            get {
+                object obj = ResourceManager.GetObject("rule_general_parameter", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap rule_general_transparent {
+            get {
+                object obj = ResourceManager.GetObject("rule_general_transparent", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap rule_indifferent {
+            get {
+                object obj = ResourceManager.GetObject("rule_indifferent", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap rule_indifferent_unused {
+            get {
+                object obj = ResourceManager.GetObject("rule_indifferent_unused", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap rule_is_explicit {
+            get {
+                object obj = ResourceManager.GetObject("rule_is_explicit", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap rule_is_typed {
+            get {
+                object obj = ResourceManager.GetObject("rule_is_typed", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap rule_out {
+            get {
+                object obj = ResourceManager.GetObject("rule_out", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap rule_typed_construct {
+            get {
+                object obj = ResourceManager.GetObject("rule_typed_construct", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap rule_typed_deconstruct {
+            get {
+                object obj = ResourceManager.GetObject("rule_typed_deconstruct", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap rule_typed_transparent {
+            get {
+                object obj = ResourceManager.GetObject("rule_typed_transparent", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap rules_collect {
+            get {
+                object obj = ResourceManager.GetObject("rules_collect", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap rules_unwrap {
+            get {
+                object obj = ResourceManager.GetObject("rules_unwrap", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap slot_add_boundary_2 {
+            get {
+                object obj = ResourceManager.GetObject("slot_add_boundary_2", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap slot_all {
+            get {
+                object obj = ResourceManager.GetObject("slot_all", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap slot_are_boundary {
+            get {
+                object obj = ResourceManager.GetObject("slot_are_boundary", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap slot_construct {
+            get {
+                object obj = ResourceManager.GetObject("slot_construct", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap slot_deconstruct {
+            get {
+                object obj = ResourceManager.GetObject("slot_deconstruct", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap slot_parameter {
+            get {
+                object obj = ResourceManager.GetObject("slot_parameter", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap slot_transparent {
+            get {
+                object obj = ResourceManager.GetObject("slot_transparent", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap solver {
+            get {
+                object obj = ResourceManager.GetObject("solver", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

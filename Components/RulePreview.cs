@@ -17,7 +17,7 @@ namespace Monoceros {
                    "RulePreview",
                    "Preview Monoceros Rules as lines connecting individual connectors of Monoceros Modules.",
                    "Monoceros",
-                   "Rule") {
+                   "Postprocess") {
         }
 
         /// <summary>
@@ -258,7 +258,7 @@ namespace Monoceros {
         /// Provides an Icon for every component that will be visible in the
         /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override Bitmap Icon => Properties.Resources.W;
+        protected override Bitmap Icon => Properties.Resources.rule_general_transparent;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it.  It is vital
