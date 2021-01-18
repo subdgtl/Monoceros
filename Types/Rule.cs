@@ -588,12 +588,25 @@ namespace Monoceros {
         /// </summary>
         /// <returns>An int.</returns>
         public override int GetHashCode( ) {
-            var hashCode = -1103775584;
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(SourceModuleName);
-            hashCode = hashCode * -1521134295 + SourceConnectorIndex.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(TargetModuleName);
-            hashCode = hashCode * -1521134295 + TargetConnectorIndex.GetHashCode();
-            return hashCode;
+            var isFirstLower = SourceModuleName.CompareTo(TargetModuleName);
+            if (isFirstLower == 0) {
+                isFirstLower = SourceConnectorIndex.CompareTo(TargetConnectorIndex);
+            }
+            if (isFirstLower < 0) {
+                var hashCode = -1103775584;
+                hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(SourceModuleName);
+                hashCode = hashCode * -1521134295 + SourceConnectorIndex.GetHashCode();
+                hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(TargetModuleName);
+                hashCode = hashCode * -1521134295 + TargetConnectorIndex.GetHashCode();
+                return hashCode;
+            } else {
+                var hashCode = -1103775584;
+                hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(TargetModuleName);
+                hashCode = hashCode * -1521134295 + TargetConnectorIndex.GetHashCode();
+                hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(SourceModuleName);
+                hashCode = hashCode * -1521134295 + SourceConnectorIndex.GetHashCode();
+                return hashCode;
+            }
         }
 
         /// <summary>
@@ -653,14 +666,14 @@ namespace Monoceros {
         }
 
         public int CompareTo(RuleExplicit other) {
+            if (Equals(other)) {
+                return 0;
+            }
             var result = SourceModuleName.CompareTo(other.SourceModuleName);
             if (result == 0) {
                 result = TargetModuleName.CompareTo(other.TargetModuleName);
                 if (result == 0) {
                     result = SourceConnectorIndex.CompareTo(other.SourceConnectorIndex);
-                    if (result == 0) {
-                        result = TargetConnectorIndex.CompareTo(other.TargetConnectorIndex);
-                    }
                 }
             }
             return result;
@@ -882,12 +895,12 @@ namespace Monoceros {
         }
 
         public int CompareTo(RuleTyped other) {
+            if (Equals(other)) {
+                return 0;
+            }
             var result = ModuleName.CompareTo(other.ModuleName);
             if (result == 0) {
                 result = ConnectorIndex.CompareTo(other.ConnectorIndex);
-                if (result == 0) {
-                    result = ConnectorType.CompareTo(other.ConnectorType);
-                }
             }
             return result;
         }

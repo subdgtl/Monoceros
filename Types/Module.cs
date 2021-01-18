@@ -410,7 +410,7 @@ namespace Monoceros {
                 }
 
                 var isInternalZNegative = submoduleCenters
-                    .Any(o => center.Z - o.Z == 1 && center.X == o.X && center.X == o.X);
+                    .Any(o => center.Z - o.Z == 1 && center.X == o.X && center.Y == o.Y);
                 if (!isInternalZNegative) {
                     var faceCenterZNegative = submoduleCenter + zNegativeVectorUnit * 0.5;
                     faceCenterZNegative.Transform(baseAlignmentTransform);
