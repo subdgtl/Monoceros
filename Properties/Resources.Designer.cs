@@ -133,6 +133,16 @@ namespace Monoceros.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap monoceros24 {
+            get {
+                object obj = ResourceManager.GetObject("monoceros24", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap populate {
             get {
                 object obj = ResourceManager.GetObject("populate", resourceCulture);

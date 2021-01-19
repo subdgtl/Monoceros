@@ -640,10 +640,10 @@ namespace Monoceros {
         /// </remarks>
         /// <returns>A string description of the module.</returns>
         public override string ToString( ) {
-            var slotCount = PartCenters.Count;
+            var partCount = PartCenters.Count;
             var diagonal = new GH_Vector(PartDiagonal);
             return "Module \"" + Name + "\" has " + Connectors.Count + " connectors and " +
-                    "occupies " + slotCount + (slotCount == 1 ? " slot" : " slots") +
+                    "has " + partCount + (partCount == 1 ? " part" : " parts") +
                     " with dimensions " + diagonal + ". " +
                     (Compact ?
                     "The module is compact." :

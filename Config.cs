@@ -43,91 +43,91 @@ namespace Monoceros {
         /// Preview and baking color a <see cref="Module"/> cage and
         /// <see cref="ModuleConnector.Face"/>.
         /// </summary>
-        public static Color CAGE_COLOR = Color.FromArgb(128, 255, 255, 255);
+        public static Color CAGE_COLOR = Color.FromArgb(192, 255, 255, 255);
 
         /// <summary>
         /// Preview and baking color an erroneous <see cref="Module"/> cage and
         /// <see cref="ModuleConnector.Face"/>.
         /// </summary>
-        public static Color CAGE_ERROR_COLOR = Color.FromArgb(128, 255, 0, 0);
+        public static Color CAGE_ERROR_COLOR = Color.FromArgb(192, 238, 33, 67);
 
         /// <summary>
         /// Preview and baking color for <see cref="Slot"/>s with unknown
         /// entropy.
         /// </summary>
-        public static Color CAGE_UNKNOWN_COLOR = Color.FromArgb(128, 0, 128, 255);
+        public static Color CAGE_UNKNOWN_COLOR = Color.FromArgb(192, 28, 141, 157);
 
         /// <summary>
         /// Preview and baking color for <see cref="Slot"/>s with full entropy.
         /// </summary>
-        public static Color CAGE_EVERYTHING_COLOR = Color.FromArgb(128, 255, 255, 255);
+        public static Color CAGE_EVERYTHING_COLOR = Color.FromArgb(192, 255, 255, 255);
 
         /// <summary>
         /// Preview and baking color for <see cref="Slot"/>s with entropy = 2.
         /// Used for arbitrary entropy gradient.
         /// </summary>
-        public static Color CAGE_TWO_COLOR = Color.FromArgb(128, 0, 0, 0);
+        public static Color CAGE_TWO_COLOR = Color.FromArgb(192, 0, 0, 0);
 
         /// <summary>
         /// Preview and baking color for deterministic <see cref="Slot"/>s with
         /// entropy = 1. 
         /// </summary>
-        public static Color CAGE_ONE_COLOR = Color.FromArgb(128, 0, 255, 0);
+        public static Color CAGE_ONE_COLOR = Color.FromArgb(192, 28, 157, 104);
 
         /// <summary>
         /// Preview and baking color for contradictory <see cref="Slot"/>s with
         /// entropy = 0. 
         /// </summary>
-        public static Color CAGE_NONE_COLOR = Color.FromArgb(128, 255, 0, 0);
+        public static Color CAGE_NONE_COLOR = Color.FromArgb(192, 238, 33, 67);
 
         /// <summary>
         /// Preview and baking color of a text dot marking an index and a
         /// position of a connector in X <see cref="Axis"/>.
         /// </summary>
-        public static Color X_DOT_COLOR = Color.FromArgb(32, 255, 0, 0);
+        public static Color X_DOT_COLOR = Color.FromArgb(128, 238, 33, 67);
 
         /// <summary>
         /// Preview and baking color of a text dot marking an index and a
         /// position of a connector in Y <see cref="Axis"/>.
         /// </summary>
-        public static Color Y_DOT_COLOR = Color.FromArgb(32, 0, 255, 0);
+        public static Color Y_DOT_COLOR = Color.FromArgb(128, 28, 157, 104);
 
         /// <summary>
         /// Preview and baking color of a text dot marking an index and a
         /// position of a connector in Z <see cref="Axis"/>.
         /// </summary>
-        public static Color Z_DOT_COLOR = Color.FromArgb(32, 0, 0, 255);
+        public static Color Z_DOT_COLOR = Color.FromArgb(128, 28, 101, 157);
 
 
         /// <summary>
         /// Preview and baking color of geometry marking a connector in X
         /// <see cref="Axis"/>.
         /// </summary>
-        public static Color X_COLOR = Color.FromArgb(128, 255, 0, 0);
+        public static Color X_COLOR = Color.FromArgb(192, 238, 33, 67);
 
         /// <summary>
         /// Preview and baking color of geometry marking a connector in Y
         /// <see cref="Axis"/>.
         /// </summary>
-        public static Color Y_COLOR = Color.FromArgb(128, 0, 255, 0);
+        public static Color Y_COLOR = Color.FromArgb(192, 28, 157, 104);
 
         /// <summary>
         /// Preview and baking color of geometry marking a connector in Z
         /// <see cref="Axis"/>.
         /// </summary>
-        public static Color Z_COLOR = Color.FromArgb(128, 0, 0, 255);
+        public static Color Z_COLOR = Color.FromArgb(192, 28, 101, 157);
 
         /// <summary>
         /// Preview color of a dot marking a connector in positive
         /// <see cref="Orientation"/>.
         /// </summary>
-        public static Color POSITIVE_COLOR = Color.FromArgb(128, 255, 255, 255);
+        public static Color POSITIVE_COLOR = Color.FromArgb(192, 255, 255, 255);
 
         /// <summary>
         /// Preview color of a dot marking a connector in negative
         /// <see cref="Orientation"/>.
         /// </summary>
-        public static Color NEGATIVE_COLOR = Color.FromArgb(128, 0, 0, 0);
+        public static Color NEGATIVE_COLOR = Color.FromArgb(192, 0, 0, 0);
 
         /// <summary>
         /// <para>
@@ -142,6 +142,7 @@ namespace Monoceros {
         /// </para>
         /// </summary>
         public static readonly double SLOT_SHRINK_FACTOR = 0.025;
+        internal static readonly int RULE_PREVIEW_THICKNESS = 3;
 
         /// <summary>
         /// Converts <see cref="Direction"/> to a dot background color.

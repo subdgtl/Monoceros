@@ -27,16 +27,16 @@ namespace Monoceros {
         /// Registers all the output parameters for this component.
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
-            pManager.AddPointParameter("Slot Center",
+            pManager.AddPointParameter("Center",
                                        "Pt",
                                        "Center point of the slot",
                                        GH_ParamAccess.list);
-            pManager.AddPlaneParameter("Base plane",
+            pManager.AddPlaneParameter("Base Plane",
                                        "B",
                                        "Grid space base plane. Defines orientation of the grid.",
                                        GH_ParamAccess.list);
             pManager.AddVectorParameter(
-               "Grid Slot Diagonal",
+               "Diagonal",
                "D",
                "World grid slot diagonal vector specifying single grid slot dimension " +
                "in base-plane-aligned XYZ axes",

@@ -64,14 +64,13 @@ namespace Monoceros {
                                        "Grid space base plane. Defines orientation of the grid.",
                                        GH_ParamAccess.item,
                                        Plane.WorldXY);
-            pManager.AddVectorParameter(
-               "Grid Slot Diagonal",
-               "D",
-               "World grid slot diagonal vector specifying single grid slot dimension in " +
-               "base-plane-aligned XYZ axes",
-               GH_ParamAccess.item,
-               new Vector3d(1.0, 1.0, 1.0)
-               );
+            pManager.AddVectorParameter("Module Part Diagonal",
+                                        "D",
+                                        "Vector specifying single Module Part dimensions" +
+                                        "in base-plane-aligned XYZ axes. The Module Part Diagonal " +
+                                        "must match Envelope's Slot diagonals.",
+                                        GH_ParamAccess.item,
+                                        new Vector3d(1.0, 1.0, 1.0));
         }
 
         /// <summary>

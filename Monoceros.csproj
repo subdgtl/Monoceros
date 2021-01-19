@@ -121,6 +121,7 @@
     <Content Include="DynamicLinkingDependencies\GH_IO.dll" />
     <Content Include="DynamicLinkingDependencies\Grasshopper.dll" />
     <Content Include="DynamicLinkingDependencies\RhinoCommon.dll" />
+    <None Include="Resources\monoceros24.png" />
     <None Include="Resources\module-name-parameter.png" />
     <None Include="Resources\module-parameter.png" />
     <None Include="Resources\slot-parameter.png" />

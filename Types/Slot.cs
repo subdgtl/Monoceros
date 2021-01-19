@@ -294,6 +294,12 @@ namespace Monoceros {
                 return true;
             }
 
+            if (typeof(T) == typeof(GH_Vector)) {
+                var diagonal = new GH_Vector(Diagonal);
+                target = (T)diagonal.Duplicate();
+                return true;
+            }
+
             if (typeof(T) == typeof(GH_Box)) {
                 var box = new GH_Box(Cage);
                 target = (T)box.Duplicate();
@@ -538,8 +544,8 @@ namespace Monoceros {
                     containment = count + " modules";
                 }
             }
-            return "Slot allows placement of " + containment + ". Slot dimensions " + diagonal +
-                ", center at " + pt + ", base plane " + plane + ".";
+            return "Slot allows placement of " + containment + ". Slot dimensions are " + diagonal +
+                ", center is at " + pt + ", base plane is " + plane + ".";
         }
 
         /// <summary>

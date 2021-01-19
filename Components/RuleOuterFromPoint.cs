@@ -7,10 +7,11 @@ using Rhino.Geometry;
 namespace Monoceros {
     public class ComponentRuleOuterFromPoint : GH_Component {
         public ComponentRuleOuterFromPoint( )
-            : base("Rule To Out From Point",
-                   "RuleOutPt",
-                   "Monoceros Moudle's connector marked with a Point connects to an " +
-                   "Out Module (beyond Slot boundary). All Out module's connectors are Indifferent.",
+            : base("Rule At Boundary From Point",
+                   "RuleBoundPt",
+                   "Rule allowing the Monoceros Module to touch the boundary of the Envelope with " +
+                   "a Connector marked with a Point. All connectors with an Indifferent Rule can " +
+                   "automatically touch the boundary.",
                    "Monoceros",
                    "Rule") {
         }

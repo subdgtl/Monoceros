@@ -100,9 +100,10 @@ namespace Monoceros {
                                   "Module name (except '" + Config.RESERVED_TO_STRING + "'). " +
                                   "The Name will be converted to lowercase.",
                                   GH_ParamAccess.item);
-            pManager.AddPointParameter("Slot Points",
+            pManager.AddPointParameter("Module Part Points",
                                        "Pt",
-                                       "Points inside the slot to be occupied by the module",
+                                       "Points inside the Module Parts. Module parts will be fit" +
+                                       " into the Slots of the Envelope.",
                                        GH_ParamAccess.list);
             pManager.AddGeometryParameter("Production Geometry",
                                           "G",
@@ -117,10 +118,11 @@ namespace Monoceros {
                                        "Grid space base plane. Defines orientation of the grid.",
                                        GH_ParamAccess.item,
                                        Plane.WorldXY);
-            pManager.AddVectorParameter("Grid Slot Diagonal",
+            pManager.AddVectorParameter("Module Part Diagonal",
                                         "D",
-                                        "World grid slot diagonal vector specifying single grid " +
-                                        "slot dimension in base-plane-aligned XYZ axes.",
+                                        "Vector specifying single Module Part dimensions" +
+                                        "in base-plane-aligned XYZ axes. The Module Part Diagonal " +
+                                        "must match Envelope's Slot diagonals.",
                                         GH_ParamAccess.item,
                                         new Vector3d(1.0, 1.0, 1.0));
         }

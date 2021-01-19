@@ -52,9 +52,10 @@ namespace Monoceros {
                                   "N",
                                   "Module name (converted to lowercase).",
                                   GH_ParamAccess.list);
-            pManager.AddPointParameter("Slot Centers",
+            pManager.AddPointParameter("Module Part Center Points",
                                        "Pt",
-                                       "Used slots centers to be used for module reconstruction.",
+                                       "Points in the center of Module Parts. Module parts will be fit" +
+                                       " into the Slots of the Envelope.",
                                        GH_ParamAccess.list);
             pManager.AddGeometryParameter("Geometry",
                                           "G",
@@ -64,19 +65,20 @@ namespace Monoceros {
                                        "B",
                                        "Grid space base plane. Defines orientation of the grid.",
                                        GH_ParamAccess.list);
-            pManager.AddVectorParameter("Grid Slot Diagonal",
+            pManager.AddVectorParameter("Module Part Diagonal",
                                         "D",
-                                        "Grid slot diagonal vector specifying slot dimension in " +
-                                        "base-plane-aligned axes.",
-                                        GH_ParamAccess.list);
+                                        "Vector specifying single Module Part dimensions" +
+                                        "in base-plane-aligned XYZ axes. The Module Part Diagonal " +
+                                        "must match Envelope's Slot diagonals.",
+                                        GH_ParamAccess.item);
             pManager.AddPlaneParameter("Connectors",
                                        "CP",
                                        "Connector planes",
                                        GH_ParamAccess.list);
-            pManager.AddVectorParameter("Connector Direction",
+            pManager.AddVectorParameter("Connector Directions",
                                         "CD",
-                                        "Connector direction base-plane-aligned axis vector - " +
-                                        "a list parallel to C.",
+                                        "Directions of connectors as unit vectors aligned to the " +
+                                        "base plane - a list parallel to C.",
                                         GH_ParamAccess.list);
             pManager.AddBooleanParameter("Connector Use Pattern",
                                         "CP",

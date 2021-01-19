@@ -197,11 +197,11 @@ namespace Monoceros {
 
         public override void DrawViewportWires(IGH_PreviewArgs args) {
             foreach (var line in _explicitLines) {
-                args.Display.DrawLine(line.Line, line.Color, 2);
+                args.Display.DrawLine(line.Line, line.Color, Config.RULE_PREVIEW_THICKNESS);
             }
 
             foreach (var line in _typedLines) {
-                args.Display.DrawLine(line.Line, line.Color, 2);
+                args.Display.DrawLine(line.Line, line.Color, Config.RULE_PREVIEW_THICKNESS);
 
                 var middlePoint = (line.Line.To + line.Line.From) / 2;
                 args.Display.DrawDot(middlePoint, line.Type, Config.POSITIVE_COLOR, line.Color);
@@ -235,13 +235,13 @@ namespace Monoceros {
                 lineAttributes.LayerIndex = layerIndex;
                 obj_ids.Add(doc.Objects.AddLine(line.Line, lineAttributes));
 
-                var middlePoint = (line.Line.To + line.Line.From) / 2;
+                var oneThirdPoint = (line.Line.To + line.Line.From) / 3;
 
                 var dotAttributes = att.Duplicate();
                 dotAttributes.ObjectColor = line.Color;
                 dotAttributes.ColorSource = ObjectColorSource.ColorFromObject;
                 dotAttributes.LayerIndex = layerIndex;
-                obj_ids.Add(doc.Objects.AddTextDot(line.Type, middlePoint, dotAttributes));
+                obj_ids.Add(doc.Objects.AddTextDot(line.Type, oneThirdPoint, dotAttributes));
             }
         }
 

@@ -1,0 +1,23 @@
+---
+name: Monoceros
+version: 1.0.2
+authors:
+- Subdigital
+- Jan Pernecky
+- Jan Toth
+description: >
+  Monoceros is a Grasshopper plug-in implementing
+  Wave Function Collapse algorithm that fills the entire 
+  envelope with discrete Modules respecting the given Rules.
+url: https://sub.digital
+keywords:
+- Wave
+- Function
+- Collapse
+- WFC
+- Subdigital
+- discrete
+- aggregation
+- growth
+- assembly
+icon_url: "https://monoceros.sub.digital/monoceros-icon.png"
