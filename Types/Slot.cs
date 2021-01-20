@@ -44,17 +44,16 @@ namespace Monoceros {
     /// cell by the <see cref="ComponentSolver"/> and the
     /// <see cref="ComponentMaterializeSlot"/>. The Grasshopper API only reveals
     /// the list of <see cref="AllowedModuleNames"/> (because the concept of
-    /// submodules is repressed). Before the <see cref="Slot"/> can be processed
-    /// by the <see cref="ComponentSolver"/> or
+    /// parts is repressed). Before the <see cref="Slot"/> can be processed by
+    /// the <see cref="ComponentSolver"/> or
     /// <see cref="ComponentMaterializeSlot"/>, it has to unwrap
-    /// <see cref="AllowedSubmoduleNames"/> from a given list of
+    /// <see cref="AllowedPartNames"/> from a given list of
     /// <see cref="Module"/>s. The <see cref="ComponentSolver"/> then should
-    /// reduce the number of allowed submodules to one. If the remaining
-    /// submodule is <see cref="Module.PivotSubmoduleName"/> (the one that
-    /// triggers the entire module placement), the submodule's parent
-    /// <see cref="Module"/> will be oriented from its own
-    /// <see cref="Module.Pivot"/> onto <see cref="Slot.Pivot"/> by the
-    /// <see cref="ComponentMaterializeSlot"/>.
+    /// reduce the number of allowed parts to one. If the remaining part is
+    /// <see cref="Module.PivotPartName"/> (the one that triggers the entire
+    /// module placement), the part's parent <see cref="Module"/> will be
+    /// oriented from its own <see cref="Module.Pivot"/> onto
+    /// <see cref="Slot.Pivot"/> by the <see cref="ComponentMaterializeSlot"/>.
     /// </para>
     /// <para>
     /// In Grasshopper the <see cref="Slot"/> can be instantiated with a list of
@@ -69,10 +68,10 @@ namespace Monoceros {
     /// </para>
     /// <para>
     /// In a special case, the <see cref="Slot"/> can be defined as containing
-    /// the "Out" module, which is a <see cref="Module"/> with a single
-    /// submodule, no geometry and predefined external <see cref="Rule"/>s typed
-    /// as Indifferent. The "Out" <see cref="Slot"/> can be created only
-    /// internally ad it is not possible to instantiate it from Grasshopper.
+    /// the "Out" module, which is a <see cref="Module"/> with a single part, no
+    /// geometry and predefined external <see cref="Rule"/>s typed as
+    /// Indifferent. The "Out" <see cref="Slot"/> can be created only internally
+    /// ad it is not possible to instantiate it from Grasshopper.
     /// </para>
     /// </summary>
     [Serializable]
@@ -109,32 +108,32 @@ namespace Monoceros {
         /// An explicit list of <see cref="Module"/> names that can be placed
         /// into the <see cref="Slot"/>. The Grasshopper API only reveals the
         /// list of <see cref="AllowedModuleNames"/> (because the concept of
-        /// submodules is repressed). Before the <see cref="Slot"/> can be
-        /// processed by the <see cref="ComponentSolver"/> or
+        /// parts is repressed). Before the <see cref="Slot"/> can be processed
+        /// by the <see cref="ComponentSolver"/> or
         /// <see cref="ComponentMaterializeSlot"/>, it has to unwrap
-        /// <see cref="AllowedSubmoduleNames"/> from a given list of
+        /// <see cref="AllowedPartNames"/> from a given list of
         /// <see cref="Module"/>s.
         /// </summary>
         public List<string> AllowedModuleNames;
 
         /// <summary>
-        /// An explicit list of submodule names that can be placed into the
+        /// An explicit list of part names that can be placed into the
         /// <see cref="Slot"/>. The Grasshopper API only reveals the list of
-        /// <see cref="AllowedModuleNames"/> (because the concept of submodules
-        /// is repressed). Before the <see cref="Slot"/> can be processed by the
+        /// <see cref="AllowedModuleNames"/> (because the concept of parts is
+        /// repressed). Before the <see cref="Slot"/> can be processed by the
         /// <see cref="ComponentSolver"/> or
         /// <see cref="ComponentMaterializeSlot"/>, it has to unwrap
-        /// <see cref="AllowedSubmoduleNames"/> from a given list of
+        /// <see cref="AllowedPartNames"/> from a given list of
         /// <see cref="Module"/>s. This is always done internally.
         /// </summary>
-        public List<string> AllowedSubmoduleNames;
+        public List<string> AllowedPartNames;
 
         /// <summary>
-        /// Holds the number of existing submodules in the solution for viewport
+        /// Holds the number of existing parts in the solution for viewport
         /// display purposes.  The color of the slot represents its entropy
-        /// (number of allowed submodules).
+        /// (number of allowed parts).
         /// </summary>
-        public int AllSubmodulesCount;
+        public int AllPartsCount;
 
 
         /// <summary>
@@ -153,24 +152,24 @@ namespace Monoceros {
         /// <param name="diagonal">The <see cref="Slot"/> diagonal - has to
         ///     match with the other <see cref="Slot"/>s of the World and with
         ///     all <see cref="Module"/>s</param>
-        /// <param name="allowAnyModule">If true, any submodule can be placed
-        ///     into the <see cref="Slot"/>.</param>
+        /// <param name="allowAnyModule">If true, any part can be placed into
+        ///     the <see cref="Slot"/>.</param>
         /// <param name="allowedModules">The allowed modules.</param>
-        /// <param name="allowedSubModules">The allowed submodules.</param>
-        /// <param name="allSubmodulesCount">The all submodules count.</param>
+        /// <param name="allowedParts">The allowed parts.</param>
+        /// <param name="allPartsCount">The all parts count.</param>
         public Slot(Plane basePlane,
                     Point3i relativeCenter,
                     Vector3d diagonal,
                     bool allowAnyModule,
                     List<string> allowedModules,
-                    List<string> allowedSubModules,
-                    int allSubmodulesCount) {
+                    List<string> allowedParts,
+                    int allPartsCount) {
             if (diagonal.X <= 0 || diagonal.Y <= 0 || diagonal.Z <= 0) {
                 throw new Exception("One or more slot dimensions are not larger than 0.");
             }
 
-            if (allSubmodulesCount < 0) {
-                throw new Exception("All submodules count is lower than 0.");
+            if (allPartsCount < 0) {
+                throw new Exception("All parts count is lower than 0.");
             }
 
             Diagonal = diagonal;
@@ -178,8 +177,8 @@ namespace Monoceros {
             RelativeCenter = relativeCenter;
             AllowsAnyModule = allowAnyModule;
             AllowedModuleNames = allowedModules;
-            AllowedSubmoduleNames = allowedSubModules;
-            AllSubmodulesCount = allSubmodulesCount;
+            AllowedPartNames = allowedParts;
+            AllPartsCount = allPartsCount;
         }
 
         /// <summary>
@@ -197,54 +196,52 @@ namespace Monoceros {
                         Diagonal,
                         AllowsAnyModule,
                         moduleNames,
-                        AllowedSubmoduleNames,
-                        AllSubmodulesCount
+                        AllowedPartNames,
+                        AllPartsCount
                         );
         }
 
         /// <summary>
-        /// Duplicates the <see cref="Slot"/> with
-        /// <see cref="AllSubmodulesCount"/> specified. Useful for already
-        /// unwrapped <see cref="Slot"/>s that do not yet know how to display
-        /// themselves.
+        /// Duplicates the <see cref="Slot"/> with <see cref="AllPartsCount"/>
+        /// specified. Useful for already unwrapped <see cref="Slot"/>s that do
+        /// not yet know how to display themselves.
         /// </summary>
-        /// <param name="allSubmodulesCount">The number of all submodules in the
-        ///     solution.</param>
+        /// <param name="allPartsCount">The number of all parts in the solution.
+        ///     </param>
         /// <returns>A Slot.</returns>
-        public Slot DuplicateWithSubmodulesCount(int allSubmodulesCount) {
+        public Slot DuplicateWithPartsCount(int allPartsCount) {
             return new Slot(
                         BasePlane,
                         RelativeCenter,
                         Diagonal,
                         AllowsAnyModule,
                         AllowedModuleNames,
-                        AllowedSubmoduleNames,
-                        allSubmodulesCount
+                        AllowedPartNames,
+                        allPartsCount
                         );
         }
 
         /// <summary>
-        /// Duplicates the <see cref="Slot"/> with allowed submodule names and
-        /// <see cref="AllSubmodulesCount"/> specified. Useful for assigning
-        /// <see cref="AllowedSubmoduleNames"/> to <see cref="Slot"/>s that only
-        /// have user defined <see cref="AllowedModuleNames"/> when the number
-        /// of all submodules in the solution is already known.
+        /// Duplicates the <see cref="Slot"/> with allowed part names and
+        /// <see cref="AllPartsCount"/> specified. Useful for assigning
+        /// <see cref="AllowedPartNames"/> to <see cref="Slot"/>s that only have
+        /// user defined <see cref="AllowedModuleNames"/> when the number of all
+        /// parts in the solution is already known.
         /// </summary>
-        /// <param name="allSubmodulesCount">The number of all submodules in the
-        ///     solution.</param>
-        /// <param name="submoduleNames">The new
-        ///     <see cref="AllowedSubmoduleNames"/>.</param>
+        /// <param name="allPartsCount">The number of all parts in the solution.
+        ///     </param>
+        /// <param name="partNames">The new <see cref="AllowedPartNames"/>.
+        ///     </param>
         /// <returns>A Slot.</returns>
-        public Slot DuplicateWithSubmodulesCountAndNames(int allSubmodulesCount,
-                                                                  List<string> submoduleNames) {
+        public Slot DuplicateWithPartsCountAndNames(int allPartsCount, List<string> partNames) {
             return new Slot(
                         BasePlane,
                         RelativeCenter,
                         Diagonal,
                         false,
                         AllowedModuleNames,
-                        submoduleNames,
-                        allSubmodulesCount
+                        partNames,
+                        allPartsCount
                         );
         }
 
@@ -253,20 +250,7 @@ namespace Monoceros {
         /// to be calculated from the <see cref="BasePlane"/>,
         /// <see cref="Diagonal"/> and <see cref="RelativeCenter"/>.
         /// </summary>
-        public Point3d AbsoluteCenter {
-            get {
-                var baseAlignmentTransform = Transform.PlaneToPlane(Plane.WorldXY, BasePlane);
-                var scalingTransform = Transform.Scale(BasePlane,
-                                                             Diagonal.X,
-                                                             Diagonal.Y,
-                                                             Diagonal.Z);
-
-                var submoduleCenter = RelativeCenter.ToPoint3d();
-                submoduleCenter.Transform(baseAlignmentTransform);
-                submoduleCenter.Transform(scalingTransform);
-                return submoduleCenter;
-            }
-        }
+        public Point3d AbsoluteCenter => RelativeCenter.ToCartesian(BasePlane, Diagonal);
 
         /// <summary>
         /// Required by Grasshopper.
@@ -352,8 +336,8 @@ namespace Monoceros {
                         Diagonal = slot.Diagonal;
                         AllowsAnyModule = slot.AllowsAnyModule;
                         AllowedModuleNames = slot.AllowedModuleNames;
-                        AllowedSubmoduleNames = slot.AllowedSubmoduleNames;
-                        AllSubmodulesCount = slot.AllSubmodulesCount;
+                        AllowedPartNames = slot.AllowedPartNames;
+                        AllPartsCount = slot.AllPartsCount;
                         return true;
                     } catch (SerializationException e) {
                         throw e;
@@ -396,8 +380,8 @@ namespace Monoceros {
         ///     <item>
         ///         <term><see cref="Config.CAGE_UNKNOWN_COLOR"/></term>
         ///         <description>Impossible to determine the entropy, either
-        ///             because <see cref="AllowedSubmoduleNames"/> has not been
-        ///             unwrapped or the <see cref="AllSubmodulesCount"/> is yet
+        ///             because <see cref="AllowedPartNames"/> has not been
+        ///             unwrapped or the <see cref="AllPartsCount"/> is yet
         ///             unknown.</description>
         ///     </item>
         ///     <item>
@@ -417,8 +401,8 @@ namespace Monoceros {
         ///     <item>
         ///         <term><see cref="Config.CAGE_ONE_COLOR"/></term>
         ///         <description>The <see cref="Slot"/> is deterministic and
-        ///             allows only single submodule (and therefore also a
-        ///             single <see cref="Module"/>) to be placed onto its
+        ///             allows only single part (and therefore also a single
+        ///             <see cref="Module"/>) to be placed onto its
         ///             <see cref="Pivot"/>. This is the desired state.
         ///             </description>
         ///     </item>
@@ -428,7 +412,7 @@ namespace Monoceros {
         ///         <description>The <see cref="Slot"/> is not deterministic
         ///             (allows placement of multiple <see cref="Module"/>s)to
         ///             be placed).  The color from the gradient hints the level
-        ///             of entropy (number of submodules still allowed).
+        ///             of entropy (number of parts still allowed).
         ///             </description>
         ///     </item>
         /// </list>
@@ -445,14 +429,14 @@ namespace Monoceros {
                 color = Config.CAGE_NONE_COLOR;
             }
 
-            var submodulesCount = AllowedSubmoduleNames.Count;
+            var partsCount = AllowedPartNames.Count;
 
-            if (submodulesCount == 1 && AllSubmodulesCount != 0) {
+            if (partsCount == 1 && AllPartsCount != 0) {
                 color = Config.CAGE_ONE_COLOR;
             }
 
-            if (submodulesCount > 1 && AllSubmodulesCount != 0) {
-                var t = (double)submodulesCount / AllSubmodulesCount;
+            if (partsCount > 1 && AllPartsCount != 0) {
+                var t = (double)partsCount / AllPartsCount;
                 color = InterpolateColor(Config.CAGE_TWO_COLOR, Config.CAGE_EVERYTHING_COLOR, t);
             }
 
@@ -470,7 +454,7 @@ namespace Monoceros {
 
         /// <summary>
         /// True if the <see cref="Slot"/> is contradictory and therefore does
-        /// not allow placement of any submodule and therefore also any
+        /// not allow placement of any part and therefore also any
         /// <see cref="Module"/>.
         /// </summary>
         public bool AllowsNothing => !(AllowsAnyModule || AllowedModuleNames.Any());
@@ -485,7 +469,7 @@ namespace Monoceros {
         public bool IsValid => BasePlane != null &&
                     Diagonal != null &&
                     AllowedModuleNames != null &&
-                    AllowedSubmoduleNames != null &&
+                    AllowedPartNames != null &&
                     (AllowsAnyModule || AllowedModuleNames.Count > 0);
 
         /// <summary>
@@ -504,8 +488,8 @@ namespace Monoceros {
                 if (AllowedModuleNames == null) {
                     reasons += "Allowed module names is null. ";
                 }
-                if (AllowedSubmoduleNames == null) {
-                    reasons += "Allowed submodule names is null. ";
+                if (AllowedPartNames == null) {
+                    reasons += "Allowed part names is null. ";
                 }
                 if (!(AllowsAnyModule || AllowedModuleNames.Any())) {
                     reasons += "Allowed module names are empty and the Slot does not allow any module. ";
@@ -600,14 +584,14 @@ namespace Monoceros {
                 color = Config.CAGE_NONE_COLOR;
             }
 
-            var submodulesCount = AllowedSubmoduleNames.Count;
+            var partsCount = AllowedPartNames.Count;
 
-            if (submodulesCount == 1 && AllSubmodulesCount != 0) {
+            if (partsCount == 1 && AllPartsCount != 0) {
                 color = Config.CAGE_ONE_COLOR;
             }
 
-            if (submodulesCount != 1 && AllSubmodulesCount != 0) {
-                var t = (double)submodulesCount / AllSubmodulesCount;
+            if (partsCount != 1 && AllPartsCount != 0) {
+                var t = (double)partsCount / AllPartsCount;
                 color = InterpolateColor(Config.CAGE_TWO_COLOR, Config.CAGE_EVERYTHING_COLOR, t);
             }
 
@@ -686,6 +670,16 @@ namespace Monoceros {
                 }
             }
             return true;
+        }
+
+        public static bool AreSlotBasePlanesCompatible(List<Slot> slots) {
+            var slotBasePlane = slots.First().BasePlane;
+            return slots.All(slot => slot.BasePlane == slotBasePlane);
+        }
+
+        public static bool AreSlotDiagonalsCompatible(List<Slot> slots) {
+            var diagonal = slots.First().Diagonal;
+            return slots.All(slot => slot.Diagonal == diagonal);
         }
 
     }

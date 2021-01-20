@@ -16,14 +16,14 @@ namespace Monoceros {
     /// Monoceros Module type.
     /// </para>
     /// <para>
-    /// The Module is a collection of cuboid submodules that should be placed
-    /// into <see cref="Slot"/>s of the world, complying the specified
-    /// <see cref="Rule"/>s. The existence of submodules is hidden from the
+    /// The Module is a collection of cuboid parts that should be placed into
+    /// <see cref="Slot"/>s of the world, complying the specified
+    /// <see cref="Rule"/>s. The existence of parts is hidden from the
     /// Grasshopper API. Instead, the Module appears to be a collection of
     /// geometries (0, 1 or n) wrapped into cuboid voxels. 
     /// </para>
     /// <para>
-    /// In practice, the geometry and the submodules are not related and can
+    /// In practice, the geometry and the parts are not related and can
     /// significantly differ and do not have to occupy the same space.
     /// </para>
     /// <para>
@@ -67,58 +67,58 @@ namespace Monoceros {
         public Plane BasePlane;
 
         /// <summary>
-        /// Computed centers of submodules for module deconstruction and
+        /// Computed centers of parts for module deconstruction and
         /// reconstruction.
         /// </summary>
-        public List<Point3i> SubmoduleCenters;
+        public List<Point3i> PartCenters;
 
         /// <summary>
-        /// Computed submodule names for the purposes of
+        /// Computed part names for the purposes of
         /// <see cref="ComponentSolver"/> and
         /// <see cref="ComponentMaterializeSlot"/>.
         /// </summary>
-        public List<string> SubmoduleNames;
+        public List<string> PartNames;
 
         /// <summary>
         /// Computed source plane for geometry placement. The Pivot is located
-        /// in the center of the first submodule and oriented so that the
-        /// geometry can be Oriented from the Pivot to the target
-        /// <see cref="Slot"/> center plane.
+        /// in the center of the first part and oriented so that the geometry
+        /// can be Oriented from the Pivot to the target <see cref="Slot"/>
+        /// center plane.
         /// </summary>
         public Plane Pivot;
 
         /// <summary>
-        /// Computed name of the submodule containing the Pivot. The entire
-        /// contained geometry will be placed onto the center plane of a
+        /// Computed name of the part containing the Pivot. The entire contained
+        /// geometry will be placed onto the center plane of a
         /// <see cref="Slot"/>, which allows the placement of solely the
-        /// PivotSubmoduleName.
+        /// PivotpartName.
         /// </summary>
-        public string PivotSubmoduleName;
+        public string PivotPartName;
 
         // TODO: Consider squishing the modules to fit the world's slot dimensions.
         /// <summary>
-        /// Dimensions of a single submodule - a cuboid voxel encapsulating the
+        /// Dimensions of a single part - a cuboid voxel encapsulating the
         /// module. The filed's purpose is to check compatibility of various
         /// modules with the world they should populate.
         /// </summary>
-        public Vector3d SlotDiagonal;
+        public Vector3d PartDiagonal;
 
         /// <summary>
         /// Computed information about module connectors - those of the 6 faces
-        /// of each submodule that are external. The <see cref="Module"/>s may
+        /// of each part that are external. The <see cref="Module"/>s may
         /// connect to each other via the <see cref="Connectors"/>. 
         /// </summary>
         /// <remarks>
         /// The connectors appear to belong to the main module.  The concept of
-        /// submodules is not revealed in the Grasshopper API. 
+        /// parts is not revealed in the Grasshopper API. 
         /// </remarks>
         public List<ModuleConnector> Connectors;
 
         /// <summary>
-        /// Rules in the solver format describing connections of submodules
-        /// through their internal connectors (faces).  The internal rules hold
-        /// the module's submodules together. The existence of the internal
-        /// rules is hidden from the Grasshopper API. 
+        /// Rules in the solver format describing connections of parts through
+        /// their internal connectors (faces).  The internal rules hold the
+        /// module's parts together. The existence of the internal rules is
+        /// hidden from the Grasshopper API. 
         /// </summary>
         public List<RuleForSolver> InternalRules;
 
@@ -137,83 +137,72 @@ namespace Monoceros {
         /// <param name="name">Module name to be used as its unique identifier.
         ///     </param>
         /// <param name="geometry">Contains geometry to be placed into the
-        ///     module.  The geometry is not related to the module's submodules,
+        ///     module.  The geometry is not related to the module's parts,
         ///     which means it does not have to respect the module boundaries,
-        ///     nor fill all submodules.</param>
+        ///     nor fill all parts.</param>
         /// <param name="basePlane">The base plane of the module, defining its
-        ///     coordinate system.  It will be used to display submodule cages
-        ///     and to orient the geometry into the Monoceros world slots.
-        ///     </param>
-        /// <param name="submoduleCenters">Centers of the submodules in integer
-        ///     coordinate system.  Each unit represents one slot. The
-        ///     coordinate system origin and orientation is defined by the
-        ///     basePlane. submoduleCenters are the only source of information
-        ///     about the module's dimensions and occupied submodules.</param>
-        /// <param name="slotDiagonal">Dimension of a single world slot.</param>
+        ///     coordinate system.  It will be used to display part cages and to
+        ///     orient the geometry into the Monoceros world slots.</param>
+        /// <param name="partCenters">Centers of the parts in integer coordinate
+        ///     system.  Each unit represents one slot. The coordinate system
+        ///     origin and orientation is defined by the basePlane. partCenters
+        ///     are the only source of information about the module's dimensions
+        ///     and occupied parts.</param>
+        /// <param name="partDiagonal">Dimension of a single world slot.</param>
         public Module(string name,
                       IEnumerable<GeometryBase> geometry,
                       IEnumerable<GeometryBase> referencedGeometry,
                       IEnumerable<Guid> geometryGuids,
                       Plane basePlane,
-                      List<Point3i> submoduleCenters,
-                      Vector3d slotDiagonal) {
-            // Check if any submodule centers are defined
-            if (!submoduleCenters.Any()) {
-                throw new Exception("Submodule centers list is empty");
+                      List<Point3i> partCenters,
+                      Vector3d partDiagonal) {
+            // Check if any part centers are defined
+            if (!partCenters.Any()) {
+                throw new Exception("part centers list is empty");
             }
 
-            // Check if all the submodules are unique
-            if (submoduleCenters.Count != submoduleCenters.Distinct().ToList().Count) {
-                throw new Exception("Submodule centers are repetitive");
+            // Check if all the parts are unique
+            if (partCenters.Count != partCenters.Distinct().ToList().Count) {
+                throw new Exception("Part centers are repetitive");
             }
 
             // Check if the slot diagonal is valid for the purposes of Monoceros
-            if (slotDiagonal.X <= 0 || slotDiagonal.Y <= 0 || slotDiagonal.Z <= 0) {
+            if (partDiagonal.X <= 0 || partDiagonal.Y <= 0 || partDiagonal.Z <= 0) {
                 throw new Exception("One or more slot dimensions are not larger than 0");
             }
 
-            SlotDiagonal = slotDiagonal;
+            PartDiagonal = partDiagonal;
 
             Name = name.ToLower();
             Geometry = geometry.ToList();
             ReferencedGeometry = referencedGeometry.ToList();
             ReferencedGeometryGuids = geometryGuids.ToList();
             BasePlane = basePlane.Clone();
-            SubmoduleCenters = submoduleCenters;
+            PartCenters = partCenters;
 
-            // Generate submodule names to be used as module names by the Monoceros solver
-            SubmoduleNames = new List<string>();
-            for (var i = 0; i < submoduleCenters.Count; i++) {
-                SubmoduleNames.Add(name + i);
+            // Generate part names to be used as module names by the Monoceros solver
+            PartNames = new List<string>();
+            for (var i = 0; i < partCenters.Count; i++) {
+                PartNames.Add(name + i);
             }
 
-            // Place the pivot into the first submodule and orient is according to the base plane 
-            var pivot = basePlane.Clone();
-            var pivotOrigin = submoduleCenters[0].ToPoint3d();
+            // Place the pivot into the first part and orient is according to the base plane 
+            var pivot = BasePlane.Clone();
 
-            // Orient to the base coordinate system
-            var baseAlignmentTransform = Transform.PlaneToPlane(Plane.WorldXY, basePlane);
-            // Scale up to slot size
-            var scalingTransform = Transform.Scale(basePlane,
-                                                         slotDiagonal.X,
-                                                         slotDiagonal.Y,
-                                                         slotDiagonal.Z);
-            pivotOrigin.Transform(baseAlignmentTransform);
-            pivotOrigin.Transform(scalingTransform);
-            pivot.Origin = pivotOrigin;
+            pivot.Origin = PartCenters[0].ToCartesian(BasePlane, PartDiagonal);
             Pivot = pivot;
-            // The name of the first submodule which should trigger the geometry placement
-            PivotSubmoduleName = Name + 0;
+            // The name of the first part which should trigger the geometry placement
+            PivotPartName = Name + 0;
 
-            // The connectors describe faces of submodules and their relation to the entire module
-            Connectors = ComputeModuleConnectors(submoduleCenters,
-                                                 SubmoduleNames,
-                                                 name,
-                                                 slotDiagonal,
-                                                 basePlane);
+            // The connectors describe faces of parts and their relation to the entire module
+            Connectors = ComputeModuleConnectors(PartCenters,
+                                                 PartNames,
+                                                 Name,
+                                                 PartDiagonal,
+                                                 BasePlane);
 
-            // Generates internal rules holding the module (its submodules) together
-            InternalRules = ComputeInternalRules(submoduleCenters, SubmoduleNames);
+            // Generates internal rules holding the module (its parts) together
+            InternalRules = ComputeInternalRules(PartCenters, PartNames);
         }
 
         private bool CheckConsistency(List<Point3i> centers) {
@@ -238,19 +227,19 @@ namespace Monoceros {
         /// <summary>
         /// Computes the module connectors.
         /// </summary>
-        /// <param name="submoduleCenters">The submodule centers.</param>
-        /// <param name="submoduleNames">The submodule names.</param>
+        /// <param name="partCenters">The part centers.</param>
+        /// <param name="partNames">The part names.</param>
         /// <param name="moduleName">The main module name.</param>
-        /// <param name="slotDiagonal">The slot diagonal.</param>
+        /// <param name="partDiagonal">The slot diagonal.</param>
         /// <param name="basePlane">Base plane defining the module's coordinate
         ///     system.</param>
         /// <returns>A list of ModuleConnectors.</returns>
-        private List<ModuleConnector> ComputeModuleConnectors(List<Point3i> submoduleCenters,
-                                                              List<string> submoduleNames,
+        private List<ModuleConnector> ComputeModuleConnectors(List<Point3i> partCenters,
+                                                              List<string> partNames,
                                                               string moduleName,
-                                                              Vector3d slotDiagonal,
+                                                              Vector3d partDiagonal,
                                                               Plane basePlane) {
-            var moduleConnectors = new List<ModuleConnector>(submoduleCenters.Count * 6);
+            var moduleConnectors = new List<ModuleConnector>(partCenters.Count * 6);
 
             // Precompute reusable values
             var directionXPositive = new Direction(Axis.X, Orientation.Positive);
@@ -260,6 +249,11 @@ namespace Monoceros {
             var directionYNegative = new Direction(Axis.Y, Orientation.Negative);
             var directionZNegative = new Direction(Axis.Z, Orientation.Negative);
 
+            var scalingTransform = Transform.Scale(basePlane,
+                                                   partDiagonal.X,
+                                                   partDiagonal.Y,
+                                                   partDiagonal.Z);
+
             // Precompute reusable values
             var xPositiveVectorUnit = directionXPositive.ToVector();
             var yPositiveVectorUnit = directionYPositive.ToVector();
@@ -268,48 +262,48 @@ namespace Monoceros {
             var yNegativeVectorUnit = directionYNegative.ToVector();
             var zNegativeVectorUnit = directionZNegative.ToVector();
 
+            xPositiveVectorUnit.Transform(scalingTransform);
+            yPositiveVectorUnit.Transform(scalingTransform);
+            zPositiveVectorUnit.Transform(scalingTransform);
+            xNegativeVectorUnit.Transform(scalingTransform);
+            yNegativeVectorUnit.Transform(scalingTransform);
+            zNegativeVectorUnit.Transform(scalingTransform);
+
             // Orient to the base coordinate system
             var baseAlignmentTransform = Transform.PlaneToPlane(Plane.WorldXY, basePlane);
             // Scale up to slot size
-            var scalingTransform = Transform.Scale(basePlane,
-                                                         slotDiagonal.X,
-                                                         slotDiagonal.Y,
-                                                         slotDiagonal.Z);
-
             // Connector numbering convention: 
-            // (submoduleIndex * 6) + faceIndex, where faceIndex is X=0, Y=1, Z=2, -X=3, -Y=4, -Z=5
-            // For each of the 6 submodule faces manually assign values
-            for (var submoduleIndex = 0; submoduleIndex < submoduleCenters.Count; submoduleIndex++) {
-                var center = submoduleCenters[submoduleIndex];
-                var submoduleName = submoduleNames[submoduleIndex];
-                var submoduleCenter = center.ToPoint3d();
+            // (partIndex * 6) + faceIndex, where faceIndex is X=0, Y=1, Z=2, -X=3, -Y=4, -Z=5
+            // For each of the 6 part faces manually assign values
+            for (var partIndex = 0; partIndex < partCenters.Count; partIndex++) {
+                var center = partCenters[partIndex];
+                var partName = partNames[partIndex];
+                var partCenter = center.ToCartesian(basePlane, partDiagonal);
 
-                // Compute values for submodule face in the positive X direction
+                // Compute values for part face in the positive X direction
 
                 // Determines whether the connector is internal (touches another connector of 
                 // the same module) or external (ready to touch a different instance of the same 
                 // or different module).
                 // Only store if external.
-                var isInternalXPositive = submoduleCenters
+                var isInternalXPositive = partCenters
                     .Any(o => center.X - o.X == -1 && center.Y == o.Y && center.Z == o.Z);
                 if (!isInternalXPositive) {
-                    var faceCenterXPositive = submoduleCenter + xPositiveVectorUnit * 0.5;
-                    faceCenterXPositive.Transform(baseAlignmentTransform);
-                    faceCenterXPositive.Transform(scalingTransform);
-                    // A plane oriented as the submodule face, placed in the face center
+                    var faceCenterXPositive = partCenter + xPositiveVectorUnit * 0.5;
+                    // A plane oriented as the part face, placed in the face center
                     var planeXPositive = new Plane(faceCenterXPositive,
                                                    basePlane.YAxis,
                                                    basePlane.ZAxis);
-                    // Rectangle around the submodule face. 
+                    // Rectangle around the part face. 
                     // To be used for point tag detection and to be displayed in the viewport.
                     var faceXPositive = new Rectangle3d(
                         planeXPositive,
-                        new Interval(slotDiagonal.Y * (-0.5), slotDiagonal.Y * 0.5),
-                        new Interval(slotDiagonal.Z * (-0.5), slotDiagonal.Z * 0.5));
+                        new Interval(partDiagonal.Y * (-0.5), partDiagonal.Y * 0.5),
+                        new Interval(partDiagonal.Z * (-0.5), partDiagonal.Z * 0.5));
                     // Construct the actual connector
                     var connectorXPositive = new ModuleConnector(
                         moduleName,
-                        submoduleName,
+                        partName,
                         directionXPositive,
                         planeXPositive,
                         faceXPositive);
@@ -318,22 +312,20 @@ namespace Monoceros {
                 }
 
                 // Continue with the remaining 5 connectors
-                var isInternalYPositive = submoduleCenters
+                var isInternalYPositive = partCenters
                     .Any(o => center.Y - o.Y == -1 && center.X == o.X && center.Z == o.Z);
                 if (!isInternalYPositive) {
-                    var faceCenterYPositive = submoduleCenter + yPositiveVectorUnit * 0.5;
-                    faceCenterYPositive.Transform(baseAlignmentTransform);
-                    faceCenterYPositive.Transform(scalingTransform);
+                    var faceCenterYPositive = partCenter + yPositiveVectorUnit * 0.5;
                     var planeYPositive = new Plane(faceCenterYPositive,
                                                    basePlane.XAxis * (-1),
                                                    basePlane.ZAxis);
                     var faceYPositive = new Rectangle3d(
                         planeYPositive,
-                        new Interval(slotDiagonal.X * (-0.5), slotDiagonal.X * 0.5),
-                        new Interval(slotDiagonal.Z * (-0.5), slotDiagonal.Z * 0.5));
+                        new Interval(partDiagonal.X * (-0.5), partDiagonal.X * 0.5),
+                        new Interval(partDiagonal.Z * (-0.5), partDiagonal.Z * 0.5));
                     var connectorYPositive = new ModuleConnector(
                         moduleName,
-                        submoduleName,
+                        partName,
                         directionYPositive,
                         planeYPositive,
                         faceYPositive);
@@ -341,22 +333,20 @@ namespace Monoceros {
                 }
 
 
-                var isInternalZPositive = submoduleCenters
+                var isInternalZPositive = partCenters
                     .Any(o => center.Z - o.Z == -1 && center.X == o.X && center.Y == o.Y);
                 if (!isInternalZPositive) {
-                    var faceCenterZPositive = submoduleCenter + zPositiveVectorUnit * 0.5;
-                    faceCenterZPositive.Transform(baseAlignmentTransform);
-                    faceCenterZPositive.Transform(scalingTransform);
+                    var faceCenterZPositive = partCenter + zPositiveVectorUnit * 0.5;
                     var planeZPositive = new Plane(faceCenterZPositive,
                                                    basePlane.XAxis,
                                                    basePlane.YAxis);
                     var faceZPositive = new Rectangle3d(
                         planeZPositive,
-                        new Interval(slotDiagonal.X * (-0.5), slotDiagonal.X * 0.5),
-                        new Interval(slotDiagonal.Y * (-0.5), slotDiagonal.Y * 0.5));
+                        new Interval(partDiagonal.X * (-0.5), partDiagonal.X * 0.5),
+                        new Interval(partDiagonal.Y * (-0.5), partDiagonal.Y * 0.5));
                     var connectorZPositive = new ModuleConnector(
                         moduleName,
-                        submoduleName,
+                        partName,
                         directionZPositive,
                         planeZPositive,
                         faceZPositive);
@@ -364,22 +354,20 @@ namespace Monoceros {
                 }
 
 
-                var isInternalXNegative = submoduleCenters
+                var isInternalXNegative = partCenters
                     .Any(o => center.X - o.X == 1 && center.Y == o.Y && center.Z == o.Z);
                 if (!isInternalXNegative) {
-                    var faceCenterXNegative = submoduleCenter + xNegativeVectorUnit * 0.5;
-                    faceCenterXNegative.Transform(baseAlignmentTransform);
-                    faceCenterXNegative.Transform(scalingTransform);
+                    var faceCenterXNegative = partCenter + xNegativeVectorUnit * 0.5;
                     var planeXNegative = new Plane(faceCenterXNegative,
                                                    basePlane.YAxis * (-1),
                                                    basePlane.ZAxis);
                     var faceXNegative = new Rectangle3d(
                         planeXNegative,
-                        new Interval(slotDiagonal.Y * (-0.5), slotDiagonal.Y * 0.5),
-                        new Interval(slotDiagonal.Z * (-0.5), slotDiagonal.Z * 0.5));
+                        new Interval(partDiagonal.Y * (-0.5), partDiagonal.Y * 0.5),
+                        new Interval(partDiagonal.Z * (-0.5), partDiagonal.Z * 0.5));
                     var connectorXNegative = new ModuleConnector(
                         moduleName,
-                        submoduleName,
+                        partName,
                         directionXNegative,
                         planeXNegative,
                         faceXNegative);
@@ -387,44 +375,40 @@ namespace Monoceros {
                 }
 
 
-                var isInternalYNegative = submoduleCenters
+                var isInternalYNegative = partCenters
                     .Any(o => center.Y - o.Y == 1 && center.X == o.X && center.Z == o.Z);
                 if (!isInternalYNegative) {
-                    var faceCenterYNegative = submoduleCenter + yNegativeVectorUnit * 0.5;
-                    faceCenterYNegative.Transform(baseAlignmentTransform);
-                    faceCenterYNegative.Transform(scalingTransform);
+                    var faceCenterYNegative = partCenter + yNegativeVectorUnit * 0.5;
                     var planeYNegative = new Plane(faceCenterYNegative,
                                                    basePlane.XAxis,
                                                    basePlane.ZAxis);
                     var faceYNegative = new Rectangle3d(
                         planeYNegative,
-                        new Interval(slotDiagonal.X * (-0.5), slotDiagonal.X * 0.5),
-                        new Interval(slotDiagonal.Z * (-0.5), slotDiagonal.Z * 0.5));
+                        new Interval(partDiagonal.X * (-0.5), partDiagonal.X * 0.5),
+                        new Interval(partDiagonal.Z * (-0.5), partDiagonal.Z * 0.5));
                     var connectorYNegative = new ModuleConnector(
                         moduleName,
-                        submoduleName,
+                        partName,
                         directionYNegative,
                         planeYNegative,
                         faceYNegative);
                     moduleConnectors.Add(connectorYNegative);
                 }
 
-                var isInternalZNegative = submoduleCenters
+                var isInternalZNegative = partCenters
                     .Any(o => center.Z - o.Z == 1 && center.X == o.X && center.Y == o.Y);
                 if (!isInternalZNegative) {
-                    var faceCenterZNegative = submoduleCenter + zNegativeVectorUnit * 0.5;
-                    faceCenterZNegative.Transform(baseAlignmentTransform);
-                    faceCenterZNegative.Transform(scalingTransform);
+                    var faceCenterZNegative = partCenter + zNegativeVectorUnit * 0.5;
                     var planeZNegative = new Plane(faceCenterZNegative,
                                                    basePlane.XAxis * (-1),
                                                    basePlane.YAxis);
                     var faceZNegative = new Rectangle3d(
                         planeZNegative,
-                        new Interval(slotDiagonal.X * (-0.5), slotDiagonal.X * 0.5),
-                        new Interval(slotDiagonal.Y * (-0.5), slotDiagonal.Y * 0.5));
+                        new Interval(partDiagonal.X * (-0.5), partDiagonal.X * 0.5),
+                        new Interval(partDiagonal.Y * (-0.5), partDiagonal.Y * 0.5));
                     var connectorZNegative = new ModuleConnector(
                         moduleName,
-                        submoduleName,
+                        partName,
                         directionZNegative,
                         planeZNegative,
                         faceZNegative);
@@ -436,49 +420,49 @@ namespace Monoceros {
         }
 
         /// <summary>
-        /// Computes the internal rules that hold the submodules of a module
+        /// Computes the internal rules that hold the parts of a module
         /// together.
         /// </summary>
-        /// <param name="submoduleCenters">The submodule centers.</param>
+        /// <param name="partCenters">The part centers.</param>
         /// <returns>A list of RuleExplicits to be used only in the
         ///     <see cref="ComponentSolver"/>.</returns>
-        private List<RuleForSolver> ComputeInternalRules(List<Point3i> submoduleCenters,
-                                                         List<string> submoduleNames) {
+        private List<RuleForSolver> ComputeInternalRules(List<Point3i> partCenters,
+                                                         List<string> partNames) {
             var rulesInternal = new List<RuleForSolver>();
 
-            // For each submodule
-            for (var thisIndex = 0; thisIndex < submoduleCenters.Count; thisIndex++) {
-                var center = submoduleCenters[thisIndex];
+            // For each part
+            for (var thisIndex = 0; thisIndex < partCenters.Count; thisIndex++) {
+                var center = partCenters[thisIndex];
 
                 // Positive X neighbor
-                // Check if there is a submodule in the positive X direction from the current submodule
-                var otherIndexXPositive = submoduleCenters
+                // Check if there is a part in the positive X direction from the current part
+                var otherIndexXPositive = partCenters
                     .FindIndex(o => center.X - o.X == -1 && center.Y == o.Y && center.Z == o.Z);
                 // Ff there is, then the current connector is internal
                 if (otherIndexXPositive != -1) {
-                    // Add internal rule, that the current submodule connects to the neighbor 
+                    // Add internal rule, that the current part connects to the neighbor 
                     // through its positive X connector (face)
                     rulesInternal.Add(new RuleForSolver(Axis.X,
-                                                        submoduleNames[thisIndex],
-                                                        submoduleNames[otherIndexXPositive]));
+                                                        partNames[thisIndex],
+                                                        partNames[otherIndexXPositive]));
                 }
 
                 // Positive Y neighbor
-                var otherIndexYPositive = submoduleCenters
+                var otherIndexYPositive = partCenters
                     .FindIndex(o => center.Y - o.Y == -1 && center.X == o.X && center.Z == o.Z);
                 if (otherIndexYPositive != -1) {
                     rulesInternal.Add(new RuleForSolver(Axis.Y,
-                                                        submoduleNames[thisIndex],
-                                                        submoduleNames[otherIndexYPositive]));
+                                                        partNames[thisIndex],
+                                                        partNames[otherIndexYPositive]));
                 }
 
                 // Positive Z neighbor
-                var otherIndexZPositive = submoduleCenters
+                var otherIndexZPositive = partCenters
                     .FindIndex(o => center.Z - o.Z == -1 && center.X == o.X && center.Y == o.Y);
                 if (otherIndexZPositive != -1) {
                     rulesInternal.Add(new RuleForSolver(Axis.Z,
-                                                        submoduleNames[thisIndex],
-                                                        submoduleNames[otherIndexZPositive]));
+                                                        partNames[thisIndex],
+                                                        partNames[otherIndexZPositive]));
                 }
             }
             // No need to check neighbors in the negative orientation because 
@@ -498,9 +482,9 @@ namespace Monoceros {
             InternalRules != null &&
             Name != null &&
             Pivot != null &&
-            PivotSubmoduleName != null &&
+            PivotPartName != null &&
             Connectors.Count > 0 &&
-            SubmoduleCenters.Count <= Config.MAX_SUBMODULES &&
+            PartCenters.Count <= Config.MAX_PARTS &&
             Compact;
 
         /// <summary>
@@ -512,10 +496,10 @@ namespace Monoceros {
                     return "Module \"" + Name + "\" is not compact, contains islands and therefore " +
                         "will not hold together.";
                 }
-                if (SubmoduleCenters.Count > Config.MAX_SUBMODULES) {
-                    return "Module \"" + Name + "\" alone occupies " + SubmoduleCenters.Count +
+                if (PartCenters.Count > Config.MAX_PARTS) {
+                    return "Module \"" + Name + "\" alone occupies " + PartCenters.Count +
                            " Slots. The Monoceros WFC Solver supports Modules occupying " +
-                           "up to " + Config.MAX_SUBMODULES + " Slots altogether.";
+                           "up to " + Config.MAX_PARTS + " Slots altogether.";
                 }
                 return "Some of the fields are null.";
             }
@@ -596,10 +580,10 @@ namespace Monoceros {
                         Name = module.Name;
                         Geometry = module.Geometry;
                         BasePlane = module.BasePlane;
-                        SubmoduleCenters = module.SubmoduleCenters;
+                        PartCenters = module.PartCenters;
                         Pivot = module.Pivot;
-                        PivotSubmoduleName = module.PivotSubmoduleName;
-                        SlotDiagonal = module.SlotDiagonal;
+                        PivotPartName = module.PivotPartName;
+                        PartDiagonal = module.PartDiagonal;
                         Connectors = module.Connectors;
                         InternalRules = module.InternalRules;
                         return true;
@@ -656,8 +640,8 @@ namespace Monoceros {
         /// </remarks>
         /// <returns>A string description of the module.</returns>
         public override string ToString( ) {
-            var slotCount = SubmoduleCenters.Count;
-            var diagonal = new GH_Vector(SlotDiagonal);
+            var slotCount = PartCenters.Count;
+            var diagonal = new GH_Vector(PartDiagonal);
             return "Module \"" + Name + "\" has " + Connectors.Count + " connectors and " +
                     "occupies " + slotCount + (slotCount == 1 ? " slot" : " slots") +
                     " with dimensions " + diagonal + ". " +
@@ -668,9 +652,9 @@ namespace Monoceros {
         }
 
         /// <summary>
-        /// Generates a named empty module with a single submodule. It is useful
-        /// to generate reserved special modules with no geometry, such as Out
-        /// and Empty.
+        /// Generates a named empty module with a single part. It is useful to
+        /// generate reserved special modules with no geometry, such as Out and
+        /// Empty.
         /// </summary>
         /// <param name="name">Module name.</param>
         /// <param name="connectorType">The connector type.</param>
@@ -692,9 +676,9 @@ namespace Monoceros {
         }
 
         /// <summary>
-        /// Generates a named empty module with a single submodule. It is useful
-        /// to generate reserved special modules with no geometry, such as Out
-        /// and Empty.
+        /// Generates a named empty module with a single part. It is useful to
+        /// generate reserved special modules with no geometry, such as Out and
+        /// Empty.
         /// </summary>
         /// <param name="name">Module name.</param>
         /// <param name="connectorType">The connector type.</param>
@@ -790,11 +774,11 @@ namespace Monoceros {
         public bool IsBakeCapable => IsValid;
 
         /// <summary>
-        /// Check if the module submodules create a continuous compact blob.  If
-        /// the module contains islands, then it is not compact and the module
-        /// will not hold together. 
+        /// Check if the module parts create a continuous compact blob.  If the
+        /// module contains islands, then it is not compact and the module will
+        /// not hold together. 
         /// </summary>
-        public bool Compact => CheckConsistency(SubmoduleCenters);
+        public bool Compact => CheckConsistency(PartCenters);
 
         /// <summary>
         /// Bakes the module helpers (cages and connector anchors). Required by
@@ -857,9 +841,9 @@ namespace Monoceros {
     }
 
     /// <summary>
-    /// The <see cref="Module"/>s and their submodules exist in a discrete 3D
-    /// grid - the World.  The connectors are rectangular faces of a submodule
-    /// cage. The connectors align with rectangular divisors of the World grid.
+    /// The <see cref="Module"/>s and their parts exist in a discrete 3D grid -
+    /// the World.  The connectors are rectangular faces of a part cage. The
+    /// connectors align with rectangular divisors of the World grid.
     /// <see cref="ModuleConnector"/> is a descriptor of a connector, that is
     /// able to connect (touch, became a neighbor of) to another connector.  It
     /// contains data to be used in <see cref="Rule"/> creation and parsing.
@@ -870,8 +854,8 @@ namespace Monoceros {
     ///             </description>
     ///     </item>
     ///     <item>
-    ///         <term><see cref="SubmoduleName"/></term>
-    ///         <description>Name of a submodule containing the connector
+    ///         <term><see cref="partName"/></term>
+    ///         <description>Name of a part containing the connector
     ///             </description>
     ///     </item>
     ///     <item>
@@ -899,16 +883,16 @@ namespace Monoceros {
     ///     <item>
     ///         <term><see cref="Face"/></term>
     ///         <description>A rectangle around the connector - a face of the
-    ///             cuboid representing the submodule</description>
+    ///             cuboid representing the part</description>
     ///     </item>
     /// </list>
     /// </summary>
     [Serializable]
     public struct ModuleConnector {
         /// <summary>
-        /// >Name of a submodule containing the connector
+        /// >Name of a part containing the connector
         /// </summary>
-        public string SubmoduleName;
+        public string PartName;
         /// <summary>
         /// Direction of the current connector in the orthogonal coordinate
         /// system
@@ -921,7 +905,7 @@ namespace Monoceros {
         public Plane AnchorPlane;
         /// <summary>
         /// A rectangle around the connector - a face of the cuboid representing
-        /// the submodule
+        /// the part
         /// </summary>
         public Rectangle3d Face;
 
@@ -929,16 +913,16 @@ namespace Monoceros {
         /// Initializes a new instance of the <see cref="ModuleConnector"/>
         /// class.
         /// </summary>
-        /// <param name="submoduleName">The current submodule name.</param>
+        /// <param name="partName">The current part name.</param>
         /// <param name="direction">The connector direction.</param>
         /// <param name="anchorPlane">The connector anchor plane.</param>
         /// <param name="face">The connector face rectangle.</param>
         public ModuleConnector(string moduleName,
-                               string submoduleName,
+                               string partName,
                                Direction direction,
                                Plane anchorPlane,
                                Rectangle3d face) {
-            SubmoduleName = submoduleName;
+            PartName = partName;
             Direction = direction;
             AnchorPlane = anchorPlane;
             Face = face;
@@ -961,7 +945,7 @@ namespace Monoceros {
         /// <returns>True if equal.</returns>
         public override bool Equals(object obj) {
             return obj is ModuleConnector connector &&
-                   SubmoduleName == connector.SubmoduleName &&
+                   PartName == connector.PartName &&
                    EqualityComparer<Direction>.Default.Equals(Direction, connector.Direction) &&
                    AnchorPlane.Equals(connector.AnchorPlane) &&
                    EqualityComparer<Rectangle3d>.Default.Equals(Face, connector.Face);
@@ -973,7 +957,7 @@ namespace Monoceros {
         /// <returns>An int.</returns>
         public override int GetHashCode( ) {
             var hashCode = -855668167;
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(SubmoduleName);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(PartName);
             hashCode = hashCode * -1521134295 + Direction.GetHashCode();
             hashCode = hashCode * -1521134295 + AnchorPlane.GetHashCode();
             hashCode = hashCode * -1521134295 + Face.GetHashCode();

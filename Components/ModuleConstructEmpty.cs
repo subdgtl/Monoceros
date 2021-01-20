@@ -11,9 +11,8 @@ namespace Monoceros {
     /// </para>
     /// <para>
     /// Construct the "Empty" module. "Empty" is a system reserved module, which
-    /// consists of a single submodule, has no geometry and all its connectors
-    /// are assigned a <see cref="RuleTyped"/> with "Indifferent" connector
-    /// type.
+    /// consists of a single part, has no geometry and all its connectors are
+    /// assigned a <see cref="RuleTyped"/> with "Indifferent" connector type.
     /// </para>
     /// <para>
     /// Grasshopper inputs:
@@ -42,8 +41,8 @@ namespace Monoceros {
     ///     </item>
     ///     <item>
     ///         <term><see cref="Rule"/> Rules</term>
-    ///         <description>Monoceros Rules making the Empty rule Indifferent. List
-    ///             access.</description>
+    ///         <description>Monoceros Rules making the Empty rule Indifferent.
+    ///             List access.</description>
     ///     </item>
     /// </list>
     /// </para>

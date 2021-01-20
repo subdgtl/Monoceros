@@ -117,21 +117,9 @@ namespace Monoceros {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The module is invalid.");
             }
 
-            var baseAlignmentTransform = Transform.PlaneToPlane(Plane.WorldXY, module.BasePlane);
-            var scalingTransform = Transform.Scale(module.BasePlane,
-                                                   module.SlotDiagonal.X,
-                                                   module.SlotDiagonal.Y,
-                                                   module.SlotDiagonal.Z);
-
-            var submoduleCentersNormalized = module
-                .SubmoduleCenters
-                .Select(center => center.ToPoint3d());
-            var submoduleCenters = submoduleCentersNormalized
-                .Select(center => {
-                    center.Transform(baseAlignmentTransform);
-                    center.Transform(scalingTransform);
-                    return center;
-                });
+            var partCenters = module
+                .PartCenters
+                .Select(center => center.ToCartesian(module.BasePlane, module.PartDiagonal));
 
             var connectorUsePattern = Enumerable.Repeat(false, module.Connectors.Count).ToList();
             foreach (var existingRule in existingRules) {
@@ -160,10 +148,10 @@ namespace Monoceros {
             }
 
             DA.SetDataList(0, new List<ModuleName> { new ModuleName(module.Name) });
-            DA.SetDataList(1, submoduleCenters);
+            DA.SetDataList(1, partCenters);
             DA.SetDataList(2, module.Geometry);
             DA.SetDataList(3, new List<Plane> { module.BasePlane });
-            DA.SetDataList(4, new List<Vector3d> { module.SlotDiagonal });
+            DA.SetDataList(4, new List<Vector3d> { module.PartDiagonal });
 
             var connectors = module.Connectors;
             DA.SetDataList(5, connectors.Select(connector => connector.AnchorPlane));

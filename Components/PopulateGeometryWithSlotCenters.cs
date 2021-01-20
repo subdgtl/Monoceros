@@ -197,9 +197,11 @@ namespace Monoceros {
 
             if (ambiguityWarning) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
-                                      "Test points matching the Slot grid may have been skipped due to ambiguity.");
+                                      "Test points matching the Slot grid may have been skipped " +
+                                      "due to ambiguity.");
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
-                                      "Slightly move, scale or remodel the geometry where Slot centers are missing.");
+                                      "Slightly move, scale or remodel the geometry where Slot " +
+                                      "centers are missing.");
             }
 
             if (!centersNormalized.Any()) {
@@ -208,17 +210,9 @@ namespace Monoceros {
                 return;
             }
 
-            var baseAlignmentTransform = Transform.PlaneToPlane(Plane.WorldXY, basePlane);
-            var scalingTransform = Transform.Scale(basePlane, diagonal.X, diagonal.Y, diagonal.Z);
-
             var centers = centersNormalized
                 .Distinct()
-                .Select(centerNormalized => {
-                    var center = centerNormalized.ToPoint3d();
-                    center.Transform(baseAlignmentTransform);
-                    center.Transform(scalingTransform);
-                    return center;
-                });
+                .Select(centerNormalized => centerNormalized.ToCartesian(basePlane, diagonal));
 
             DA.SetDataList(0, centers);
         }

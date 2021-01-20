@@ -7,7 +7,8 @@ using Rhino.Geometry;
 
 namespace Monoceros {
     /// <summary>
-    /// Wraps <see cref="Slot"/> type so that it can be used in Grasshopper as an input, output or a floating parameter.
+    /// Wraps <see cref="Slot"/> type so that it can be used in Grasshopper as
+    /// an input, output or a floating parameter.
     /// </summary>
     public class SlotParameter : GH_PersistentParam<Slot>, IGH_PreviewObject, IGH_BakeAwareObject {
         public SlotParameter( )

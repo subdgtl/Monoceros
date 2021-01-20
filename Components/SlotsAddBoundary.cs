@@ -61,16 +61,22 @@ namespace Monoceros {
                 return;
             }
 
-            var diagonal = slotsClean.First().Diagonal;
-
-            if (slotsClean.Any(slot => slot.Diagonal != diagonal)) {
+            if (!Slot.AreSlotDiagonalsCompatible(slotsClean)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "Slots are not defined with the same diagonal.");
                 return;
             }
+            var diagonal = slotsClean.First().Diagonal;
+
+            if (!Slot.AreSlotBasePlanesCompatible(slotsClean)) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  "Slots are not defined with the same base plane.");
+                return;
+            }
+            var basePlane = slotsClean.First().BasePlane;
 
             if (!Slot.AreSlotLocationsUnique(slotsClean)) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Slot locations are not unique.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Slot centers are not unique.");
                 return;
             }
 
@@ -104,7 +110,9 @@ namespace Monoceros {
                 }
             }
 
-            var newNeighborCentersP3d = newNeighborCenters.Distinct().Select(p => p.ToPoint3d());
+            var newNeighborCentersP3d = newNeighborCenters
+                .Distinct()
+                .Select(p3i => p3i.ToCartesian(basePlane, diagonal));
 
             DA.SetDataList(0, newNeighborCentersP3d);
         }

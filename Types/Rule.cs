@@ -467,7 +467,7 @@ namespace Monoceros {
     /// <para>
     /// The <see cref="RuleExplicit"/> describes also
     /// <see cref="Module.InternalRules"/>, in which case the rule allows
-    /// connection of two submodules of the same <see cref="Module"/>. This is,
+    /// connection of two parts of the same <see cref="Module"/>. This is,
     /// however, hidden from the Grasshopper API and is used only internally by
     /// the <see cref="ComponentSolver"/>.
     /// </para>
@@ -634,11 +634,11 @@ namespace Monoceros {
             // Ensure positive direction (lower-to-higher order)
             ruleForSolver = sourceConnector.Direction.Orientation == Orientation.Positive ?
                             new RuleForSolver(sourceConnector.Direction.Axis,
-                                              sourceConnector.SubmoduleName,
-                                              targetConnector.SubmoduleName) :
+                                              sourceConnector.PartName,
+                                              targetConnector.PartName) :
                             new RuleForSolver(targetConnector.Direction.Axis,
-                                              targetConnector.SubmoduleName,
-                                              sourceConnector.SubmoduleName);
+                                              targetConnector.PartName,
+                                              sourceConnector.PartName);
             return true;
         }
 
@@ -916,17 +916,17 @@ namespace Monoceros {
     ///             </description>
     ///     </item>
     ///     <item>
-    ///         <term><see cref="LowerSubmoduleName"/></term>
+    ///         <term><see cref="LowerPartName"/></term>
     ///         <description>Unique string identifier of a source (lower X or Y
-    ///             or Z coordinate) submodule (size of a single
-    ///             <see cref="Slot"/>).</description>
+    ///             or Z coordinate) part (size of a single <see cref="Slot"/>).
+    ///             </description>
     ///     </item>
     ///     ///
     ///     <item>
-    ///         <term><see cref="HigherSubmoduleName"/></term>
+    ///         <term><see cref="HigherPartName"/></term>
     ///         <description>Unique string identifier of a target (higher X or Y
-    ///             or Z coordinate) submodule (size of a single
-    ///             <see cref="Slot"/>).</description>
+    ///             or Z coordinate) part (size of a single <see cref="Slot"/>).
+    ///             </description>
     ///     </item>
     /// </list>
     /// </summary>
@@ -938,28 +938,28 @@ namespace Monoceros {
         public Axis Axis;
         /// <summary>
         /// Unique string identifier of a source (lower X or Y or Z coordinate)
-        /// submodule (size of a single <see cref="Slot"/>).
+        /// part (size of a single <see cref="Slot"/>).
         /// </summary>
-        public string LowerSubmoduleName;
+        public string LowerPartName;
         /// <summary>
         /// Unique string identifier of a target (higher X or Y or Z coordinate)
-        /// submodule (size of a single <see cref="Slot"/>).
+        /// part (size of a single <see cref="Slot"/>).
         /// </summary>
-        public string HigherSubmoduleName;
+        public string HigherPartName;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RuleForSolver"/> class.
         /// </summary>
         /// <param name="axialDirection">The axial direction: "<c>x</c>" or
         ///     "<c>y</c>" or "<c>z</c>".</param>
-        /// <param name="lowerSubmoduleName">The lower submodule name.</param>
-        /// <param name="higherSubmoduleName">The higher submodule name.</param>
+        /// <param name="lowerPartName">The lower part name.</param>
+        /// <param name="higherPartName">The higher part name.</param>
         public RuleForSolver(Axis axialDirection,
-                             string lowerSubmoduleName,
-                             string higherSubmoduleName) {
+                             string lowerPartName,
+                             string higherPartName) {
             Axis = axialDirection;
-            LowerSubmoduleName = lowerSubmoduleName;
-            HigherSubmoduleName = higherSubmoduleName;
+            LowerPartName = lowerPartName;
+            HigherPartName = higherPartName;
         }
 
         /// <summary>
@@ -971,8 +971,8 @@ namespace Monoceros {
         public override bool Equals(object obj) {
             return obj is RuleForSolver rule &&
                    Axis == rule.Axis &&
-                   LowerSubmoduleName == rule.LowerSubmoduleName &&
-                   HigherSubmoduleName == rule.HigherSubmoduleName;
+                   LowerPartName == rule.LowerPartName &&
+                   HigherPartName == rule.HigherPartName;
         }
 
         /// <summary>
@@ -982,8 +982,8 @@ namespace Monoceros {
         public override int GetHashCode( ) {
             var hashCode = 747929822;
             hashCode = hashCode * -1521134295 + Axis.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(LowerSubmoduleName);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(HigherSubmoduleName);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(LowerPartName);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(HigherPartName);
             return hashCode;
         }
     }

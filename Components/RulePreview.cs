@@ -89,11 +89,11 @@ namespace Monoceros {
                     continue;
                 }
                 modulesClean.Add(module);
-                var minSize = module.SlotDiagonal.MinimumCoordinate;
+                var minSize = module.PartDiagonal.MinimumCoordinate;
                 if (minSize < minimumSlotDimension) {
                     minimumSlotDimension = minSize;
                 }
-                averageSlotDiagonal += module.SlotDiagonal;
+                averageSlotDiagonal += module.PartDiagonal;
             }
 
             averageSlotDiagonal /= modulesClean.Count;

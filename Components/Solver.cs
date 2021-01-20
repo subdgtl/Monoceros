@@ -137,30 +137,30 @@ namespace Monoceros {
                 return;
             }
 
-            var diagonal = slotsClean.First().Diagonal;
-
-            if (slotsClean.Any(slot => slot.Diagonal != diagonal)) {
+            // TODO: Consider smarter compatibility check or non-uniform scaling
+            if (!Slot.AreSlotDiagonalsCompatible(slotsClean)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "Slots are not defined with the same diagonal.");
                 return;
             }
+            var diagonal = slotsClean.First().Diagonal;
 
             // TODO: Consider smarter compatibility check or base plane conversion
-            var slotBasePlane = slotsClean.First().BasePlane;
-            if (slotsClean.Any(slot => slot.BasePlane != slotBasePlane)) {
+            if (!Slot.AreSlotBasePlanesCompatible(slotsClean)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "Slots are not defined with the same base plane.");
                 return;
             }
+            var slotBasePlane = slotsClean.First().BasePlane;
 
             if (!Slot.AreSlotLocationsUnique(slotsClean)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Slot centers are not unique.");
                 return;
             }
 
-            var moduleDiagonal = modulesClean.First().SlotDiagonal;
+            var moduleDiagonal = modulesClean.First().PartDiagonal;
 
-            if (modulesClean.Any(module => module.SlotDiagonal != moduleDiagonal)) {
+            if (modulesClean.Any(module => module.PartDiagonal != moduleDiagonal)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "Modules are not defined with the same diagonal.");
                 return;
@@ -220,13 +220,13 @@ namespace Monoceros {
                 return;
             }
 
-            var allSubmodulesCount = modulesUsable
-                .Aggregate(0, (sum, module) => sum + module.SubmoduleCenters.Count);
+            var allPartsCount = modulesUsable
+                .Aggregate(0, (sum, module) => sum + module.PartCenters.Count);
 
-            if (allSubmodulesCount > Config.MAX_SUBMODULES) {
+            if (allPartsCount > Config.MAX_PARTS) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                    "The Modules occupy too many Slots: " + allSubmodulesCount + ". Maximum allowed :" +
-                    Config.MAX_SUBMODULES + ".");
+                    "The Modules occupy too many Slots: " + allPartsCount + ". Maximum allowed :" +
+                    Config.MAX_PARTS + ".");
                 return;
             }
 
@@ -295,23 +295,23 @@ namespace Monoceros {
                                              false,
                                              new List<string>() { moduleOut.Name },
                                              new List<string>(),
-                                             allSubmodulesCount);
+                                             allPartsCount);
                 }
             }
 
-            // Unwrap module names to submodule names for all slots
+            // Unwrap module names to part names for all slots
             var worldForSolver = worldSlots.Select(slotRaw => {
-                if (slotRaw.AllowedSubmoduleNames.Count != 0) {
-                    return slotRaw.DuplicateWithSubmodulesCount(allSubmodulesCount);
+                if (slotRaw.AllowedPartNames.Count != 0) {
+                    return slotRaw.DuplicateWithPartsCount(allPartsCount);
                 }
 
-                var submoduleNames = new List<string>();
+                var partNames = new List<string>();
                 foreach (var moduleName in slotRaw.AllowedModuleNames) {
                     var module = modulesUsable.Find(m => m.Name == moduleName);
-                    submoduleNames.AddRange(module.SubmoduleNames);
+                    partNames.AddRange(module.PartNames);
                 }
-                return slotRaw.DuplicateWithSubmodulesCountAndNames(allSubmodulesCount,
-                                                                    submoduleNames);
+                return slotRaw.DuplicateWithPartsCountAndNames(allPartsCount,
+                                                                    partNames);
             });
 
             foreach (var slot in worldForSolver) {
@@ -348,7 +348,7 @@ namespace Monoceros {
                                 worldForSolver.ToList(),
                                 randomSeed,
                                 maxAttempts,
-                                out var solvedSlotSubmodules,
+                                out var solvedSlotParts,
                                 out var report);
 
             if (!success) {
@@ -357,26 +357,26 @@ namespace Monoceros {
                 return;
             }
 
-            // Remember module name for each submodule name
-            var submoduleToModuleName = new Dictionary<string, string>();
+            // Remember module name for each part name
+            var partToModuleName = new Dictionary<string, string>();
             foreach (var module in modulesUsable) {
-                foreach (var submoduleName in module.SubmoduleNames) {
-                    submoduleToModuleName.Add(submoduleName, module.Name);
+                foreach (var partName in module.PartNames) {
+                    partToModuleName.Add(partName, module.Name);
                 }
             }
 
             // Sort slots into the same order as they were input
             var slotsSolved = slotOrder.Select(index => {
-                var allowedSubmodule = solvedSlotSubmodules[index];
-                var allowedModule = submoduleToModuleName[allowedSubmodule];
+                var allowedPart = solvedSlotParts[index];
+                var allowedModule = partToModuleName[allowedPart];
                 // Convert world from solver format into slots 
                 return new Slot(slotBasePlane,
                                 From1DTo3D(index, worldMin, worldMax),
                                 diagonal,
                                 false,
                                 new List<string>() { allowedModule },
-                                new List<string>() { allowedSubmodule },
-                                allSubmodulesCount);
+                                new List<string>() { allowedPart },
+                                allPartsCount);
             });
 
             DA.SetData(0, report);
@@ -475,10 +475,10 @@ namespace Monoceros {
                            List<Slot> slots,
                            int randomSeed,
                            int maxAttemptsInt,
-                           out List<string> worldSlotSubmodules,
+                           out List<string> worldSlotParts,
                            out string report) {
             var stats = new Stats();
-            worldSlotSubmodules = new List<string>();
+            worldSlotParts = new List<string>();
 
             // -- Adjacency rules --
             //
@@ -489,41 +489,41 @@ namespace Monoceros {
             // We need to check ahead of time, if there are at most 256 modules
             // altogether in the input, otherwise the `nextModule` variable will
             // overflow and cause a dictionary error.
-            var allSubmodules = new HashSet<string>();
+            var allParts = new HashSet<string>();
 
             foreach (var rule in rules) {
-                allSubmodules.Add(rule.LowerSubmoduleName);
-                allSubmodules.Add(rule.HigherSubmoduleName);
+                allParts.Add(rule.LowerPartName);
+                allParts.Add(rule.HigherPartName);
             }
 
-            byte nextSubmodule = 0;
-            var nameToSubmodule = new Dictionary<string, byte>();
-            var submoduleToName = new Dictionary<byte, string>();
+            byte nextPart = 0;
+            var nameToPart = new Dictionary<string, byte>();
+            var partToName = new Dictionary<byte, string>();
             var adjacencyRules = new AdjacencyRule[rules.Count];
 
             for (var i = 0; i < rules.Count; ++i) {
-                var lowStr = rules[i].LowerSubmoduleName;
-                var highStr = rules[i].HigherSubmoduleName;
+                var lowStr = rules[i].LowerPartName;
+                var highStr = rules[i].HigherPartName;
                 var kind = rules[i].Axis;
 
                 byte low;
-                if (nameToSubmodule.ContainsKey(lowStr)) {
-                    nameToSubmodule.TryGetValue(lowStr, out low);
+                if (nameToPart.ContainsKey(lowStr)) {
+                    nameToPart.TryGetValue(lowStr, out low);
                 } else {
-                    low = nextSubmodule;
-                    nameToSubmodule.Add(lowStr, low);
-                    submoduleToName.Add(low, lowStr);
-                    nextSubmodule++;
+                    low = nextPart;
+                    nameToPart.Add(lowStr, low);
+                    partToName.Add(low, lowStr);
+                    nextPart++;
                 }
 
                 byte high;
-                if (nameToSubmodule.ContainsKey(highStr)) {
-                    nameToSubmodule.TryGetValue(highStr, out high);
+                if (nameToPart.ContainsKey(highStr)) {
+                    nameToPart.TryGetValue(highStr, out high);
                 } else {
-                    high = nextSubmodule;
-                    nameToSubmodule.Add(highStr, high);
-                    submoduleToName.Add(high, highStr);
-                    nextSubmodule++;
+                    high = nextPart;
+                    nameToPart.Add(highStr, high);
+                    partToName.Add(high, highStr);
+                    nextPart++;
                 }
 
                 var rule = new AdjacencyRule() {
@@ -561,13 +561,13 @@ namespace Monoceros {
             }
 
             for (var slotIndex = 0; slotIndex < slots.Count; ++slotIndex) {
-                var submoduleStrings = slots[slotIndex].AllowedSubmoduleNames;
-                foreach (var submoduleString in submoduleStrings) {
-                    if (nameToSubmodule.TryGetValue(submoduleString, out var submoduleByte)) {
+                var partStrings = slots[slotIndex].AllowedPartNames;
+                foreach (var partString in partStrings) {
+                    if (nameToPart.TryGetValue(partString, out var partByte)) {
                         Debug.Assert(slotIndex < worldState.Length);
 
-                        var blkIndex = (byte)(submoduleByte / 64u);
-                        var bitIndex = (byte)(submoduleByte % 64u);
+                        var blkIndex = (byte)(partByte / 64u);
+                        var bitIndex = (byte)(partByte % 64u);
                         var mask = 1ul << bitIndex;
 
                         Debug.Assert(blkIndex < 4);
@@ -684,32 +684,32 @@ namespace Monoceros {
             // being set here and can therefore produce a flat list on output.
             for (var i = 0; i < worldState.Length; ++i) {
                 // Assume the result is deterministic and only take the first set bit
-                var submodule = short.MinValue;
-                for (var blkIndex = 0; blkIndex < 4 && submodule == short.MinValue; ++blkIndex) {
-                    for (var bitIndex = 0; bitIndex < 64 && submodule == short.MinValue; ++bitIndex) {
+                var part = short.MinValue;
+                for (var blkIndex = 0; blkIndex < 4 && part == short.MinValue; ++blkIndex) {
+                    for (var bitIndex = 0; bitIndex < 64 && part == short.MinValue; ++bitIndex) {
                         var mask = 1ul << bitIndex;
                         unsafe {
                             if ((worldState[i].slot_state[blkIndex] & mask) != 0) {
-                                submodule = (short)(64 * blkIndex + bitIndex);
+                                part = (short)(64 * blkIndex + bitIndex);
                             }
                         }
                     }
                 }
 
-                if (submodule >= 0) {
-                    Debug.Assert(submodule <= byte.MaxValue);
-                    var valid = submoduleToName.TryGetValue((byte)submodule, out var submoduleStr);
+                if (part >= 0) {
+                    Debug.Assert(part <= byte.MaxValue);
+                    var valid = partToName.TryGetValue((byte)part, out var partStr);
                     if (valid) {
-                        worldSlotSubmodules.Add(submoduleStr);
+                        worldSlotParts.Add(partStr);
                     } else {
-                        report = "Monoceros Solver returned a non-existing submodule.";
+                        report = "Monoceros Solver returned a non-existing part.";
                         return false;
                     }
                 }
             }
 
             stats.ruleCount = (uint)rules.Count;
-            stats.submoduleCount = (uint)submoduleToName.Count;
+            stats.partCount = (uint)partToName.Count;
             stats.solveAttempts = attempts;
 
             report = stats.ToString();
@@ -759,7 +759,7 @@ namespace Monoceros {
 
     internal struct Stats {
         public uint ruleCount;
-        public uint submoduleCount;
+        public uint partCount;
         public uint solveAttempts;
         public bool worldNotCanonical;
 
@@ -769,8 +769,8 @@ namespace Monoceros {
             //b.Append("Rule count: ");
             //b.Append(ruleCount);
             //b.AppendLine();
-            //b.Append("Submodule count: ");
-            //b.Append(submoduleCount);
+            //b.Append("Part count: ");
+            //b.Append(partCount);
             //b.AppendLine();
             b.Append("Solve attempts: ");
             b.Append(solveAttempts);

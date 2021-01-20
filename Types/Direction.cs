@@ -3,7 +3,7 @@ using Rhino.Geometry;
 
 namespace Monoceros {
     /// <summary>
-    /// Submodule face direction consisting of <see cref="Monoceros.Axis"/> and
+    /// Part face direction consisting of <see cref="Monoceros.Axis"/> and
     /// <see cref="Monoceros.Orientation"/>.
     /// </summary>
     [Serializable]
@@ -23,7 +23,8 @@ namespace Monoceros {
         /// <summary>
         /// Determines whether the other <see cref="Direction"/> is opposite to
         /// the current. A <see cref="Direction"/> is opposite when the
-        /// <see cref="Monoceros.Axis"/> equals and <see cref="Monoceros.Orientation"/> does not.
+        /// <see cref="Monoceros.Axis"/> equals and
+        /// <see cref="Monoceros.Orientation"/> does not.
         /// </summary>
         /// <param name="other">The other.</param>
         /// <returns>True if opposite.</returns>
@@ -33,8 +34,9 @@ namespace Monoceros {
         }
 
         /// <summary>
-        /// Returns flipped <see cref="Direction"/> - the <see cref="Monoceros.Axis"/>
-        /// remains the same, the <see cref="Monoceros.Orientation"/> flips.
+        /// Returns flipped <see cref="Direction"/> - the
+        /// <see cref="Monoceros.Axis"/> remains the same, the
+        /// <see cref="Monoceros.Orientation"/> flips.
         /// </summary>
         /// <returns>A flipped Direction.</returns>
         public Direction ToFlipped( ) {
@@ -81,7 +83,7 @@ namespace Monoceros {
     }
 
     /// <summary>
-    /// Submodule face axis within a grid: <c>X</c> or <c>Y</c> or <c>Z</c>.
+    /// Part face axis within a grid: <c>X</c> or <c>Y</c> or <c>Z</c>.
     /// </summary>
     [Serializable]
     public enum Axis : uint {
@@ -91,8 +93,7 @@ namespace Monoceros {
     }
 
     /// <summary>
-    /// Submodule face orientation within a grid: <c>Positive</c> or
-    /// <c>Negative</c>.
+    /// Part face orientation within a grid: <c>Positive</c> or <c>Negative</c>.
     /// </summary>
     [Serializable]
     public enum Orientation {

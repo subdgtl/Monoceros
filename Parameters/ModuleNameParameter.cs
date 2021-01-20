@@ -4,7 +4,8 @@ using Grasshopper.Kernel;
 
 namespace Monoceros {
     /// <summary>
-    /// Wraps <see cref="ModuleName"/> type so that it can be used in Grasshopper as an input, output or a floating parameter.
+    /// Wraps <see cref="ModuleName"/> type so that it can be used in
+    /// Grasshopper as an input, output or a floating parameter.
     /// </summary>
     class ModuleNameParameter : GH_PersistentParam<ModuleName> {
         public ModuleNameParameter( ) : base("Module Name",

@@ -95,12 +95,12 @@ namespace Monoceros {
         }
 
         /// <summary>
-        /// Converts the <see cref="Direction"/> to a submodule connector index,
-        /// according to the convention: (submoduleIndex * 6) + faceIndex, where
+        /// Converts the <see cref="Direction"/> to a part connector index,
+        /// according to the convention: (partIndex * 6) + faceIndex, where
         /// faceIndex is X=0, Y=1, Z=2, -X=3, -Y=4, -Z=5. This method is the
         /// source of truth.
         /// </summary>
-        /// <returns>Submodule connector index.</returns>
+        /// <returns>Part connector index.</returns>
         private int DirectionToSingleModuleConnectorIndex(Direction direction) {
             // Connector numbering convention: 
             // faceIndex is X=0, Y=1, Z=2, -X=3, -Y=4, -Z=5

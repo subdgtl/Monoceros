@@ -3,24 +3,23 @@ using Rhino.Geometry;
 
 namespace Monoceros {
     /// <summary>
-    /// Used as a relative discrete coordinate of a slot or a submodule center
-    /// in the orthogonal 3D voxel-like grid, which describes the Monoceros
-    /// World.
+    /// Used as a relative discrete coordinate of a slot or a part center in the
+    /// orthogonal 3D voxel-like grid, which describes the Monoceros World.
     /// </summary>
     [Serializable]
     public struct Point3i {
         /// <summary>
-        /// The X coordinate of a slot or submodule center in the orthogonal
+        /// The X coordinate of a slot or part center in the orthogonal
         /// voxel-like grid, which describes the Monoceros world.
         /// </summary>
         public int X;
         /// <summary>
-        /// The Y coordinate of a slot or submodule center in the orthogonal
+        /// The Y coordinate of a slot or part center in the orthogonal
         /// voxel-like grid, which describes the Monoceros world.
         /// </summary>
         public int Y;
         /// <summary>
-        /// The Z coordinate of a slot or submodule center in the orthogonal
+        /// The Z coordinate of a slot or part center in the orthogonal
         /// voxel-like grid, which describes the Monoceros world.
         /// </summary>
         public int Z;
@@ -117,6 +116,19 @@ namespace Monoceros {
             return (Math.Abs(X - other.X) == 1 && Y == other.Y && Z == other.Z) ||
                 (X == other.X && Math.Abs(Y - other.Y) == 1 && Z == other.Z) ||
                 (X == other.X && Y == other.Y && (Math.Abs(Z - other.Z) == 1));
+        }
+
+        public Point3d ToCartesian(Plane basePlane, Vector3d diagonal) {
+            var baseAlignmentTransform = Transform.PlaneToPlane(Plane.WorldXY, basePlane);
+            var scalingTransform = Transform.Scale(basePlane,
+                                                   diagonal.X,
+                                                   diagonal.Y,
+                                                   diagonal.Z);
+
+            var partCenter = ToPoint3d();
+            partCenter.Transform(baseAlignmentTransform);
+            partCenter.Transform(scalingTransform);
+            return partCenter;
         }
 
     }

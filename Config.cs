@@ -32,9 +32,9 @@ namespace Monoceros {
             .Aggregate("", (accum, name) => accum + ", " + name);
 
         /// <summary>
-        /// Maximum number of submodules supported by the current solver.
+        /// Maximum number of parts supported by the current solver.
         /// </summary>
-        public static readonly int MAX_SUBMODULES = 256;
+        public static readonly int MAX_PARTS = 256;
 
         public static readonly string FONT_FACE = "Mark Pro";
         public static readonly int MODULE_NAME_FONT_HEIGHT = 50;

@@ -113,8 +113,8 @@ namespace Monoceros {
                 for (var slotIndex = 0; slotIndex < slotsClean.Count; slotIndex++) {
                     var slot = slotsClean[slotIndex];
                     // TODO: Think about how to display bake contradictory and non-deterministic slots.
-                    if (slot.AllowedSubmoduleNames.Count == 1 &&
-                        slot.AllowedSubmoduleNames[0] == module.PivotSubmoduleName) {
+                    if (slot.AllowedPartNames.Count == 1 &&
+                        slot.AllowedPartNames[0] == module.PivotPartName) {
                         var transform = Transform.PlaneToPlane(module.Pivot, slot.Pivot);
                         var slotGeometry = allModuleGeometry
                             .Select(geo => {

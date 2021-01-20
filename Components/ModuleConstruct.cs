@@ -11,15 +11,15 @@ namespace Monoceros {
     /// Grasshopper component: Monoceros Construct Module
     /// </para>
     /// <para>
-    /// Construct a Monoceros <see cref="Module"/> from <see cref="Point3d"/>s inside
-    /// World grid cells marking those that should become submodules of the
+    /// Construct a Monoceros <see cref="Module"/> from <see cref="Point3d"/>s
+    /// inside World grid cells marking those that should become parts of the
     /// created <see cref="Module"/>.  The <see cref="Point3d"/>s can be
     /// generated independently in Grasshopper or using
     /// <see cref="ComponentPopulateGeometryWithSlotCenters"/>. Redundant
     /// <see cref="Point3d"/>s will be removed. Production
     /// <see cref="GeometryBase"/> will be used by the
-    /// <see cref="ComponentMaterializeSlot"/> to materialize the result of the Monoceros
-    /// <see cref="ComponentSolver"/>. The production
+    /// <see cref="ComponentMaterializeSlot"/> to materialize the result of the
+    /// Monoceros <see cref="ComponentSolver"/>. The production
     /// <see cref="GeometryBase"/> is unrelated to the <see cref="Module"/> cage
     /// and <see cref="Slot"/>s it may occupy. 
     /// </para>
@@ -35,9 +35,9 @@ namespace Monoceros {
     ///             </description>
     ///     </item>
     ///     <item>
-    ///         <term><see cref="Point3d"/> Submodule Points</term>
+    ///         <term><see cref="Point3d"/> Part Points</term>
     ///         <description><see cref="Point3d"/>s inside World grid cells
-    ///             marking those that should become submodules of the created
+    ///             marking those that should become parts of the created
     ///             <see cref="Module"/>. The <see cref="Point3d"/>s can be
     ///             generated independently in Grasshopper or using
     ///             <see cref="ComponentPopulateGeometryWithSlotCenters"/>.
@@ -47,9 +47,9 @@ namespace Monoceros {
     ///     <item>
     ///         <term><see cref="GeometryBase"/> Production Geometry</term>
     ///         <description><see cref="GeometryBase"/> used by the
-    ///             <see cref="ComponentMaterializeSlot"/> to materialize the result
-    ///             of the Monoceros <see cref="ComponentSolver"/>. Production
-    ///             Geometry does not have to fit into the generated
+    ///             <see cref="ComponentMaterializeSlot"/> to materialize the
+    ///             result of the Monoceros <see cref="ComponentSolver"/>.
+    ///             Production Geometry does not have to fit into the generated
     ///             <see cref="Module"/> cages and can be larger, smaller,
     ///             different or none.  Supports any geometry. List access. No
     ///             default. Optional.</description>
@@ -74,8 +74,8 @@ namespace Monoceros {
     /// <list type="bullet">
     ///     <item>
     ///         <term><see cref="Module"/> Module</term>
-    ///         <description>Monoceros Module encapsulating the input geometry and
-    ///             containing the same input geometry. Item access.
+    ///         <description>Monoceros Module encapsulating the input geometry
+    ///             and containing the same input geometry. Item access.
     ///             </description>
     ///     </item>
     /// </list>
@@ -206,7 +206,7 @@ namespace Monoceros {
             // Orient to the world coordinate system
             var worldAlignmentTransform = Transform.PlaneToPlane(basePlane, Plane.WorldXY);
             // Slot dimension is for the sake of this calculation 1,1,1
-            var submoduleCenters = slotCenters.Select(center => {
+            var partCenters = slotCenters.Select(center => {
                 center.Transform(normalizationTransform);
                 center.Transform(worldAlignmentTransform);
                 return new Point3i(center);
@@ -237,7 +237,7 @@ namespace Monoceros {
                                     productionGeometryReferencedClean,
                                     guidsClean,
                                     basePlane,
-                                    submoduleCenters,
+                                    partCenters,
                                     slotDiagonal);
 
             if (module.Geometry.Count + module.ReferencedGeometry.Count != productionGeometryRaw.Count) {
