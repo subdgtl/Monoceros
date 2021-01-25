@@ -99,7 +99,7 @@ Monoceros serves to fill the entire world with Modules, respecting the given Rul
 ## 1.4. Development notes
 This repository contains the Grasshopper wrapper for the main WFC solver and comprehensive supplemental tools.
 
-*The solver itself was developed in Rust and compiled as a `.dll` library linked to this wrapper. The source code of the solver and a simple wrapper component for Grasshopper is in a separate [repository](https://github.com/subdgtl/wfc-solvers).*
+*The solver itself was developed in Rust and compiled as a `.dll` library linked to this wrapper. The source code of the solver and a simple wrapper component for Grasshopper is in a separate [repository](https://github.com/subdgtl/WFC).*
 
 The Monoceros Grasshopper plug-in is written in C# and revolves around three main data types:
 
