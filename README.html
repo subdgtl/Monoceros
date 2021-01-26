@@ -171,7 +171,7 @@
 <p>Monoceros serves to fill the entire world with Modules, respecting the given Rules. The plug-in wraps WFC into a layer of abstraction, which makes WFC easily implemented in architectural or industrial design. It honors the principles of WFC and Grasshopper at the same time - offering a full control of the input and output data in a Grasshopper way and their processing with a pure WFC.</p>
 <h2 id="14-development-notes">1.4. Development notes</h2>
 <p>This repository contains the Grasshopper wrapper for the main WFC solver and comprehensive supplemental tools.</p>
-<p><em>The solver itself was developed in Rust and compiled as a <code>.dll</code> library linked to this wrapper. The source code of the solver and a simple wrapper component for Grasshopper is in a separate <a href="https://github.com/subdgtl/wfc-solvers">repository</a>.</em></p>
+<p><em>The solver itself was developed in Rust and compiled as a <code>.dll</code> library linked to this wrapper. The source code of the solver and a simple wrapper component for Grasshopper is in a separate <a href="https://github.com/subdgtl/WFC">repository</a>.</em></p>
 <p>The Monoceros Grasshopper plug-in is written in C# and revolves around three main data types:</p>
 <ol>
 <li><strong>Slot</strong> is the basic cuboid unit of a discrete world. The Slots can be embedded with Modules or their parts. Initially the Slots allow containment of multiple Modules until the WFC solver reduces the list of allowed Modules to a single Module for each Slot according to given Rules.</li>
