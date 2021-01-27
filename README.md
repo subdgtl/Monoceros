@@ -1,8 +1,9 @@
-Monoceros ![Monoceros](./readme-assets/monoceros32.png) a Wave Function Collapse plug-in for Grasshopper by Subdigital
+![Monoceros](./readme-assets/monoceros32.png) **Monoceros**: a Wave Function Collapse plug-in for Grasshopper by Subdigital
 
 # 1. Authors
-- Ján Pernecký: [jan@sub.digital](mailto:jan@sub.digital), [sub.digital](https://www.sub.digtial), [GitHub](https://github.com/subdgtl)
+- Ján Pernecký: [jan@sub.digital](mailto:jan@sub.digital)
 - Ján Tóth: [GitHub](https://yanchith.github.io)
+- **Subdigital**: [sub.digital](https://www.sub.digtial), [GitHub](https://github.com/subdgtl)
 
 # 2. Tl;dr
 **Monoceros is a Grasshopper plug-in that fills the entire world with Modules, respecting the given Rules.**
@@ -79,11 +80,11 @@ Monoceros ![Monoceros](./readme-assets/monoceros32.png) a Wave Function Collapse
     - [9.1.2. Definition](#912-definition)
     - [9.1.3. Breakdown](#913-breakdown)
   - [9.2. Defining more Modules and Explicit Rules](#92-defining-more-modules-and-explicit-rules)
-    - [9.1.1. Pseudo code (almost) without data trees](#911-pseudo-code-almost-without-data-trees)
-    - [9.2.1. Definition (almost) without data trees](#921-definition-almost-without-data-trees)
-    - [9.1.1. Pseudo code with data trees](#911-pseudo-code-with-data-trees)
-    - [9.2.1. Definition with data trees](#921-definition-with-data-trees)
-    - [9.2.1. Result](#921-result)
+    - [9.2.1. Pseudo code (almost) without data trees](#921-pseudo-code-almost-without-data-trees)
+    - [9.2.2. Definition (almost) without data trees](#922-definition-almost-without-data-trees)
+    - [9.2.3. Pseudo code with data trees](#923-pseudo-code-with-data-trees)
+    - [9.2.4. Definition with data trees](#924-definition-with-data-trees)
+    - [9.2.5. Result](#925-result)
   - [9.3. Indifferent Rules](#93-indifferent-rules)
   - [9.4. Typed Rules](#94-typed-rules)
   - [9.5. Disallowing Rules](#95-disallowing-rules)
@@ -391,7 +392,7 @@ Just like any other Rule, Typed or Explicit, also the Indifferent Rule can be as
  5. [Materialize Slots](#1751-materialize-slots) components places Input Modules' [Geometry](#1623-module-geometry) into Input Slots into which they belong.
 
 ## 9.2. Defining more Modules and Explicit Rules
-### 9.1.1. Pseudo code (almost) without data trees
+### 9.2.1. Pseudo code (almost) without data trees
 - construct Slots
 - construct each Module individually with one or more Geometry
 - define Explicit Rules from Curves
@@ -400,10 +401,10 @@ Just like any other Rule, Typed or Explicit, also the Indifferent Rule can be as
 - run Monoceros WFC Solver
 - Materialize the result
 
-### 9.2.1. Definition (almost) without data trees
+### 9.2.2. Definition (almost) without data trees
 ![Without trees](readme-assets/multiple-modules-explicit-rules.png)
 
-### 9.1.1. Pseudo code with data trees
+### 9.2.3. Pseudo code with data trees
 - construct Slots
 - graft list of Module names so that each name ends up in a separate branch
 - merge Module Part Points and graft so that each Point ends up in a separate branch (if a Module consists of multiple Parts, process the Points like the Geometry in the following steps)
@@ -416,49 +417,30 @@ Just like any other Rule, Typed or Explicit, also the Indifferent Rule can be as
 - run Monoceros WFC Solver
 - Materialize the result
 
-### 9.2.1. Definition with data trees
+### 9.2.4. Definition with data trees
 ![Without trees](readme-assets/multiple-modules-tree-explicit-rules.png)
-### 9.2.1. Result
+### 9.2.5. Result
 ![Pitchforks setup](readme-assets/multiple-modules-tree-explicit-rules-a.jpg)
 ![Pitchforks](readme-assets/multiple-modules-tree-explicit-rules-b.jpg)
 
 ## 9.3. Indifferent Rules
-
 ## 9.4. Typed Rules
-
 ## 9.5. Disallowing Rules
-
 ## 9.6. Modules with more Parts
-
 ## 9.7. Module points from Module geometry
-
 ## 9.8. Empty Module
-
 ## 9.9. Allowing an Empty neighbor
-
 ## 9.10. Choosing boundary Modules
-
 ## 9.11. Slots from geometry
-
 ## 9.12. Extreme Slot Envelopes
-
 ## 9.13. Allowing certain Modules in certain Slots
-
 ## 9.14. Disallowing certain Modules from certain Slots
-
 ## 9.15. Setting fixed Modules
-
 ## 9.16. Materializing results
-
 ## 9.17. Proto-results and custom materialization
-
 ## 9.18. What makes a good Module
-
 ## 9.19. Random seed and attempts count
-
 ## 9.20. Making a valid Envelope
-
-
 
 # 10. MIT License
 Copyright (c) 2021 Subdigital | Jan Pernecky, Jan Toth
