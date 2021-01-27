@@ -44,6 +44,7 @@
         - [1.6.3.2.3. Typed Rule Viewport preview and baking](#16323-typed-rule-viewport-preview-and-baking)
       - [1.6.3.3. Indifferent Typed Rule](#1633-indifferent-typed-rule)
   - [1.7. Solver](#17-solver)
+    - [1.7.1. Canonical World State](#17-canonical-world-state)
   - [1.7. Components](#17-components)
     - [1.7.1. Slot-related](#171-slot-related)
       - [1.7.1.1. Construct Slot With All Modules Allowed](#1711-construct-slot-with-all-modules-allowed)
@@ -401,6 +402,29 @@ desugaring and reconstruction on the C# side of the language boundary. In the
 Monoceros Solver component, Modules are deconstructed into Parts (vanilla
 Modules) prior to being sent to the Rust WFC solver over the C API, and are
 reconstructed from the Rust solver's output after it finishes successfully.
+
+### 1.7.1 Canonical World State
+
+Because Monoceros allows us to modify and customize the initial state of the
+world and vanilla WFC has an opinion on how valid world state looks like, the
+Rust solver needs to detect whether the world is Canonical (valid in terms of
+vanilla WFC).
+
+A world is Canonical if:
+
+- Every Slot allows every Module (this is the initial WFC world state),
+
+- The world is a result of applying both the observation and subsequent
+  constraint propagation phases on an already Canonical world.
+
+For example, runnning an observation without subsequently propagating does not
+produce a Canonical world and WFC does not define how this world should behave
+if observed or propagated any further.
+
+Setting the state of the world manually rarely produces a Canonical
+world. Therefore the Rust solver always Canonicalizes the world before running
+an observe/propagate operation. It also notifies the Grasshopper solver
+component that this happened, so that it can in turn notify the user.
 
 ## 1.7. Components
 
