@@ -382,7 +382,7 @@ multiple Modules) to deterministic (allowing exactly one Module). This iterative
 process happens in the Solver component, where the Slots are observed guided by
 seeded pseudo-random numbers until either every Slot ends up in a deterministic
 state (success), or any Slot ends up in a contradictory state (failure). If the
-result is contradicotry, the Solver component internally re-tries up to a
+result is contradictory, the Solver component internally re-tries up to a
 predefined number of attempts, each attempt using the already modified PRGN
 state and thus producing a different result each try.
 
