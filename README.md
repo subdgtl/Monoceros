@@ -13,6 +13,7 @@
   - [1.1. Tl;dr](#11-tldr)
   - [1.2. Table of contents](#12-table-of-contents)
   - [1.3. Meet Monoceros](#13-meet-monoceros)
+  - [1.4. Wave Function Collapse](#14-wave-function-collapse)
   - [1.4. Development notes](#14-development-notes)
   - [1.5. Architecture of Monoceros Grasshopper plug-in](#15-architecture-of-monoceros-grasshopper-plug-in)
   - [1.6. Data types](#16-data-types)
@@ -96,6 +97,66 @@ It is also a plug-in for [Grasshopper](https://www.grasshopper3d.com), which is 
 ![grasshopper panel](readme-assets/grasshopper-panel.png)
 
 Monoceros serves to fill the entire world with Modules, respecting the given Rules. The plug-in wraps WFC into a layer of abstraction, which makes WFC easily implemented in architectural or industrial design. It honors the principles of WFC and Grasshopper at the same time - offering a full control of the input and output data in a Grasshopper way and their processing with a pure WFC.
+
+
+## 1.4. Wave Function Collapse
+
+Before we delve deeper, let's shortly explain the WFC algorithm itself. Note
+that Monoceros extends some concepts over the original WFC, but it is very
+helpful to understand the simplified version of the algorithm first. To that
+end, it might also be helpful to watch the excellent [explanatory talk by Oskar
+Stålberg at EPC2018](https://www.youtube.com/watch?v=0bcZb-SsnrA).
+
+Wave Function Collapse (WFC) is an procedural generation algorithm that
+essentially attempts to satisfy constraints on a world (see
+[CSP](https://en.wikipedia.org/wiki/Constraint_satisfaction_problem) for
+more). Its name is inspired by quantum mechanics, but the similarity is just at
+the surface level - WFC is runs completely deterministically.
+
+In its simplest form the algorithm works on an orthogonal grid. We initially
+have:
+
+- A world defined by a [mathematical
+  graph](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)), in our
+  case represented as an orthogonal 3D grid.
+
+- A set of Rules describing what can occupy each tile on the grid depending on
+  what its neighbors are.
+
+The grid tiles are graph nodes, also called Slots in WFC (and in
+Monoceros). Graph edges are implicitly derived from slot neighborhood: two Slots
+are connected by an edge, if they are adjacent to each other on the grid. Every
+Slot contains a list of Modules (conceptually geometry in case of Monoceros)
+that are allowed to reside in it. The algorithm is defined as follows:
+
+1) Initialize the world to a fully non-deterministic state, where every Slot
+   allows every defined Module.
+
+2) Repeat following steps until every Slot allows exactly one Module (a valid,
+   deterministic result), or any Slot allows zero modules (a contradiction):
+
+  a) **Observation (Slot choice):** Pick a Slot at random from the set of Slots
+     with the smallest Module count that are still in non-deterministic state
+     (allow more than one Module),
+
+  b) **Observation (Module choice):** Randomly pick a Module from the set of
+     still available Modules for the chosen Slot and remove all other Modules
+     from this Slot, making it deterministic (allowing exactly one Module),
+
+  c) **Constraint Progagation:** Remove Modules from neighboring Slots based on
+     the Rules. Repeat recursively in [depth-first
+     order](https://en.wikipedia.org/wiki/Depth-first_search) for each Slot
+     modified this way.
+
+3) If WFC generated a contradictory result, start over again with a different
+   random state.
+
+WFC does not necessarily always find a solution. If (and how easily) a valid
+solution is computed very much depends on the set of provided Rules. There are
+sets of Rules for which WFC always converges regardless of the random state, but
+also sets of Rules for which the simulation always results in a contradictory
+world state. Rule design is one of the more challenging parts of working with
+Wave Function Collapse.
 
 ## 1.4. Development notes
 This repository contains the Grasshopper wrapper for the main WFC solver and comprehensive supplemental tools.
