@@ -2,7 +2,7 @@
 ![Monoceros](./readme-assets/monoceros32.png) A Wave Function Collapse plug-in for Grasshopper by Subdigital
 ### 1.0.1. Authors
 - Ján Pernecký: [jan@sub.digital](mailto:jan@sub.digital), [sub.digital](https://www.sub.digtial), [GitHub](https://github.com/subdgtl)
-- Ján Tóth: [GitHub](https://yanchith.github.io)
+- Ján Tóth: [yanchi.toth@gmail.com](mailto:yanchi.toth@gmail.com), [yanchith](https://yanchith.github.io), [GitHub](https://github.com/yanchith)
 
 ## 1.1. Tl;dr
 **Monoceros is a Grasshopper plug-in that fills the entire world with Modules, respecting the given Rules.**
@@ -42,6 +42,7 @@
         - [1.6.3.2.2. Typed Rule casts](#16322-typed-rule-casts)
         - [1.6.3.2.3. Typed Rule Viewport preview and baking](#16323-typed-rule-viewport-preview-and-baking)
       - [1.6.3.3. Indifferent Typed Rule](#1633-indifferent-typed-rule)
+  - [1.7. Solver](#17-solver)
   - [1.7. Components](#17-components)
     - [1.7.1. Slot-related](#171-slot-related)
       - [1.7.1.1. Construct Slot With All Modules Allowed](#1711-construct-slot-with-all-modules-allowed)
@@ -90,7 +91,7 @@
 >Monoceros is a legendary animal living in the huge mountains in the interior of India. Monoceros has the body of a horse, the head of a stag, the feet of an elephant and the tail of a boar. [from Unicorn Wiki](https://karkadann.fandom.com/wiki/Monoceros)
 
 
-It is also a plug-in for [Grasshopper](https://www.grasshopper3d.com), which is a visual programming platform for [Rhinoceros](https://www.rhino3d.com) 3D CAD software. Monoceros was developed at studio [Subdigital](https://www.sub.digital) by Ján Toth and Ján Pernecký. Monoceros is an implementation of the Wave Function Collapse (WFC) algorithm developed for game design by [Maxim Gumin](https://github.com/mxgmn/WaveFunctionCollapse) and extended and promoted by [Oskar Stålberg](oskarstalberg.com/) with his game [Townscaper](https://store.steampowered.com/app/1291340/Townscaper/).
+It is also a plug-in for [Grasshopper](https://www.grasshopper3d.com), which is a visual programming platform for [Rhinoceros](https://www.rhino3d.com) 3D CAD software. Monoceros was developed at studio [Subdigital](https://www.sub.digital) by Ján Toth and Ján Pernecký. Monoceros is an implementation of the Wave Function Collapse (WFC) algorithm developed for game design by [Maxim Gumin](https://github.com/mxgmn/WaveFunctionCollapse) and extended and promoted by [Oskar Stålberg](https://oskarstalberg.com) with his game [Townscaper](https://store.steampowered.com/app/1291340/Townscaper/).
 
 ![grasshopper panel](readme-assets/grasshopper-panel.png)
 
@@ -99,7 +100,7 @@ Monoceros serves to fill the entire world with Modules, respecting the given Rul
 ## 1.4. Development notes
 This repository contains the Grasshopper wrapper for the main WFC solver and comprehensive supplemental tools.
 
-*The solver itself was developed in Rust and compiled as a `.dll` library linked to this wrapper. The source code of the solver and a simple wrapper component for Grasshopper is in a separate [repository](https://github.com/subdgtl/WFC).*
+*The solver itself is written in Rust and compiled as a `.dll` library linked to this wrapper. The source code of the solver and a simple wrapper component for Grasshopper lives in a separate [repository](https://github.com/subdgtl/WFC).*
 
 The Monoceros Grasshopper plug-in is written in C# and revolves around three main data types:
 
@@ -110,11 +111,11 @@ The Monoceros Grasshopper plug-in is written in C# and revolves around three mai
 The Monoceros plug-in offers various Grasshopper **components** (functions) for constructing and parsing the data, the solver itself and postprocessing and rendering tools.
 
 ## 1.5. Architecture of Monoceros Grasshopper plug-in
-The core of Monoceros is a Wave Function Collapse (WFC) solver. WFC is an algorithm, that fills the entire discrete envelope with Modules with no remaining empty Slot. In case of Monoceros, the envelope is a collection of rectangular cuboid Slots, each with 6 neighbors in orthogonal directions, not taking diagonal neighbors into account.  
-In the original WFC algorithm, the Modules are exactly the size of a single Slot. The WFC then picks which Module should be placed into which Slot, leaving no Slot non-deterministic (with more than one Module allowed to be placed into the Slot) or empty / contradictory (no Module allowed to be placed into the Slot). Usually, there is less Modules (Module types) than Slots, which means each Module can be placed into Slots more times or not at all.  
+The core of Monoceros is a Wave Function Collapse (WFC) solver. WFC is an algorithm that fills the entire discrete envelope with Modules with no remaining empty Slot. In case of Monoceros, the envelope is a collection of rectangular cuboid Slots, each with 6 neighbors in orthogonal directions, not taking diagonal neighbors into account.
+In the original WFC algorithm, the Modules are exactly the size of a single Slot. WFC then picks which Module should be placed into which Slot, leaving no Slot non-deterministic (with more than one Module allowed to be placed into the Slot) or empty / contradictory (no Module allowed to be placed into the Slot). Usually, there are less Modules (Module types) than Slots, which means each Module can be placed into Slots more times or not at all.
 The Monoceros implementation of WFC internally works like this too, on the outside it presents the Modules as a continuous coherent compact collection of such cuboid cages (Module Parts), each fitting into one Slot.
 
-Like Grasshopper itself, also Monoceros revolves around data and serves for its immutable processing. Immutability means, that no existing data is being changed but rather transformed and returned as a new instance of the data. In most cases it is even possible to construct the data with valid values right away with no need to re-define already existing data.  
+Like Grasshopper itself, also Monoceros revolves around data and serves for its immutable processing. Immutability means, that no existing data is being changed but rather transformed and returned as a new instance of the data. In most cases it is even possible to construct the data with valid values right away with no need to re-define already existing data.
 There are three main data types: **Slot**s, **Module**s and **Rule**s.
 
 Slot and Rule both reference to Module, its Part or its Connector. This reference is done only through user defined strings (for Modules and their Parts) or integer indices (for Module Connectors). This is an intention, so that the data sets (Modules, Rules or Slots) can be replaced or shared across more Monoceros setups.
@@ -127,7 +128,7 @@ Slot and Rule both reference to Module, its Part or its Connector. This referenc
 |             |        |   Aggregate    |        |                 |
 |             |        |    Preview     |        |                 |
 
-Most of the Monoceros plug-in components serve for constructing, analyzing and processing data. The components try not to bring redundancy, therefore it does not do anything, that could be easily done with vanilla Grasshopper components. The three new Monoceros data types are seamlessly integrated into Grasshopper and cast from and to all relevant existing data types. All Monoceros components are compatible with the existing Grasshopper data types and ready to be used with existing Grasshopper components.  
+Most of the Monoceros plug-in components serve for constructing, analyzing and processing data. The components try not to bring redundancy, therefore it does not do anything that could be easily done with vanilla Grasshopper components. The three new Monoceros data types are seamlessly integrated into Grasshopper and cast from and to all relevant existing data types. All Monoceros components are compatible with the existing Grasshopper data types and ready to be used with existing Grasshopper components.
 
 ## 1.6. Data types
 
@@ -154,9 +155,9 @@ The Monoceros implementation of the WFC algorithm can automatically clean a Non-
 - **Allows Nothing** is a flag determining whether the Slot allows placement of no Module or its Part. Such Slot is invalid and prevents the WFC Solver from reducing other Slots from non-deterministic to deterministic state.
 
 #### 1.6.1.3. Automatic Envelope wrapping
-The WFC algorithm (the original one and the Monoceros implementation) work with a full regular three-dimensional box-like Envelope. Monoceros allows the user to define any set of Slots (as long as they are compatible and non-repetitive), which form any arbitrary blob. 
+The WFC algorithm (the original one and the Monoceros implementation) work with a full regular three-dimensional box-like Envelope. Monoceros allows the user to define any set of Slots (as long as they are compatible and non-repetitive), which form any arbitrary blob.
 
-Therefore the Monoceros WFC Solver component automatically wraps the user-defined Slots into a slightly larger bounding box and adds the missing Slots. These Slots are dubbed Out-enabled and are pre-determined to allow only one type of a Module to be placed inside them: the Out Module. Out Module is automatically generated by the Monoceros WFC Solver, it has the same diagonal as the Envelope Slots, has just a single Part and contains no geometry. The Out Module has all connectors defined as Indifferent, therefore it is allowed to be a neighbor with itself and with any other Module Indifferent in the respective direction. The Out Module and an Empty Module are distinguished so that it is possible to set a Rule for a Module Connector to be a neighbor of Out Module (while not being Indifferent), which allows the Module to be placed at the boundary of the Envelope. 
+Therefore the Monoceros WFC Solver component automatically wraps the user-defined Slots into a slightly larger bounding box and adds the missing Slots. These Slots are dubbed Out-enabled and are pre-determined to allow only one type of a Module to be placed inside them: the Out Module. Out Module is automatically generated by the Monoceros WFC Solver, it has the same diagonal as the Envelope Slots, has just a single Part and contains no geometry. The Out Module has all connectors defined as Indifferent, therefore it is allowed to be a neighbor with itself and with any other Module Indifferent in the respective direction. The Out Module and an Empty Module are distinguished so that it is possible to set a Rule for a Module Connector to be a neighbor of Out Module (while not being Indifferent), which allows the Module to be placed at the boundary of the Envelope.
 
 All boundary Slots are ensured to be surrounded by Out-enabled Slots. The Out-enabled Slots are not being displayed in the Rhinoceros viewport.
 
@@ -164,15 +165,15 @@ All boundary Slots are ensured to be surrounded by Out-enabled Slots. The Out-en
 The Monoceros Modules may consist of more Parts. Each Part is of the size of a single Slot, therefore a larger Module occupies more Slots. For valid Modules it is ensured that the Module Parts always hold together and all of the Module Parts are always placed into Slots in the original order. Internally, the Slots refer to Module Parts, for the user of Monoceros Grasshopper plug-in are the Module Parts inaccessible and the Module appears as the smallest unbreakable unit. Therefore it is only possible to define entire Modules to be allowed by a Slot, even when such Module consists of more Parts. Internally this means, that all Parts of the Module are allowed to be placed into a Slot. In practice this should not cause any problems or imprecisions. It is being automatically handled by the WFC Solver and offers some buffer zone for complex Module placement.
 
 #### 1.6.1.5. Viewport preview and baking
-A Slot renders in the viewport as a wire frame box. The box is slightly smaller than the actual Slot, so that it is possible to distinguish colors of two adjacent Slots from one another. 
+A Slot renders in the viewport as a wire frame box. The box is slightly smaller than the actual Slot, so that it is possible to distinguish colors of two adjacent Slots from one another.
 
 A slot bakes as a regular Rhino box, with dimensions matching the Slot size.
 
 A Slot renders and bakes in different colors, indicating the level of Slot's entropy:
 - **Red** - the Slot does not allow placement of any Module or its Part, therefore is empty and invalid.
-- **White** - the Slot allows placement of any Module or its Part that enters the Monoceros WFC Solver. 
+- **White** - the Slot allows placement of any Module or its Part that enters the Monoceros WFC Solver.
 - **Blue** - the Slot allows placement of more than one Module or its Part but the overall number of Modules is unknown to the Slot. This is a valid state for Slots defined by enumerating the allowed Modules. A Slot is blue even when all Modules are allowed, but they have been listed namely instead of using the Allow all constructor.
-- **Green** - the Slot allows placement of exactly one Module Part and is ready to be Materialized. This is currently only possible for Slots processed by the Monoceros WFC Solver. Green color denotes the desired state of a Slot. 
+- **Green** - the Slot allows placement of exactly one Module Part and is ready to be Materialized. This is currently only possible for Slots processed by the Monoceros WFC Solver. Green color denotes the desired state of a Slot.
 - **Grey** - the Slot allows placement of some Modules or their Parts and the overall number of Modules and their Parts is known. Bright color indicates a high level of entropy - more Modules or their Parts are (still) allowed to be placed into the Slot. Dark grey means the Slot has a lower entropy and is closer to a solution.
 
 #### 1.6.1.6. Slot casts to
@@ -215,14 +216,14 @@ A Module has a fixed orientation. When it is being placed into Slots it is only 
 - **Geometry** - geometry to be placed into Slots with Materialize component.
 - **Base Plane** defining Module's coordinate system. The discrete world coordinate system's origin and axial orientation matches that of the Base Plane. For a Module to be compatible with Slots, their Base Planes must match.
 - **Module Part Diagonal** - defining Module Part's dimensions in X, Y and Z directions as defined by the Base Plane. For a Module to be compatible with Slots, their Diagonals must match.
-- **Connectors** - reveals the Module Connectors as Planes tangent to the Connector rectangle, with Normal pointing outwards and origin at the Connector center. The Connector Indices (or their order in this list) does not represent their direction. 
+- **Connectors** - reveals the Module Connectors as Planes tangent to the Connector rectangle, with Normal pointing outwards and origin at the Connector center. The Connector Indices (or their order in this list) does not represent their direction.
 - **Connector Directions** - unit vectors aligned to the base plane indicating the direction of connector's normal (i.e. positive X direction is always {1, 0, 0}, negative Z is always {0, 0, -1}). Returns a list parallel to the list of Connectors.
 - **Connector Use Pattern** - is a boolean list computed from the Module and the list all Rules indicating whether the Connectors have been already described by any Rule. The Monoceros WFC Solver requires each Module Connector to be described by at least one Rule, therefore it is important to generate some Rules for all unused Connectors before attempting to find a solution. Returns a list parallel to the list of Connectors.
 - **Is Compact** - single boolean value indicating whether the Module Parts create a coherent compact continuous blob. If there are any gaps or Parts touching only with edges or corners, the Module is not compact. Such module would not hold together in the WFC solution and therefore is automatically skipped by the Monoceros WFC Solver. It is allowed to construct such Module and to preview it in the viewport, so that the user can manually adjust the input parameters and construct a compact Module.
 - **Is Valid** - internally, there are many reasons why a Module could be invalid, but only one reason is allowed to happen in Grasshopper: if a Module consists of too many Parts. The current upper limit is 256 parts for all Modules combined. If a single Module outreaches this value, it is marked as invalid. It is allowed to construct such Module and to preview it in the viewport, so that the user can manually adjust the input parameters and construct a valid Module.
 
 #### 1.6.2.6. Special Modules: Out and Empty
-There are two reserved Module names in Monoceros: **Out** and **Empty**. It is not allowed to manually construct a Module with such name, because they are being constructed automatically. 
+There are two reserved Module names in Monoceros: **Out** and **Empty**. It is not allowed to manually construct a Module with such name, because they are being constructed automatically.
 
 The Out module is present in each solution. It is a Module with a single part, exactly the size of a single Slot and holds no Geometry. It is automatically placed into Slots outside the user-defined Envelope. All Out Module Connectors are marked with Indifferent Rules, so any Module with an Indifferent Rule marked Connectors can be placed next to it - in other words, it enables the Indifferent modules to be on the boundary of the Envelope. The Out Module does not render in preview, nor bakes.
 
@@ -232,7 +233,7 @@ The Empty Module with a single part, exactly the size of a single Slot, no Geome
 Module preview renders in Rhinoceros viewport with many helper items:
 - **Cage** - boundary Connectors of Module Parts render and bake as wire frame rectangles. The Cage is white when the Module is valid, red when it is invalid because it is no compact or consists of too many Parts.
 - **Name** - renders as a large text, green if the Module is valid, red it is invalid. The Module Name bakes as a text dot with the Name as a label.
-- **Connectors** - render and bake as text dots with Connector Index as a label. The dots are placed in the center of the Connector rectangle. The dots render in colors indicating their direction: 
+- **Connectors** - render and bake as text dots with Connector Index as a label. The dots are placed in the center of the Connector rectangle. The dots render in colors indicating their direction:
   - Red = X
   - Green = Y
   - Blue = Z
@@ -246,7 +247,7 @@ The purpose of Module baking is to provide helper geometry and anchors for defin
 
 #### 1.6.2.8. Module casts
 Module casts help using the Module directly as an input to various components, even when they require a Module name, i.e. Rule or Slot Constructors.
-- **Module Name** - is a special Monoceros data type that wraps a string name of a Module. Direct cast to a string is already taken by the user-friendly report, therefore the Module first casts its name to Module Name type, which then casts into text (string) for user-friendly report. Monoceros components, however, expect the Module Name type. This way it is possible to use the Module as an input where a Module Name is expected and there is no need to deconstruct the Module to its properties. 
+- **Module Name** - is a special Monoceros data type that wraps a string name of a Module. Direct cast to a string is already taken by the user-friendly report, therefore the Module first casts its name to Module Name type, which then casts into text (string) for user-friendly report. Monoceros components, however, expect the Module Name type. This way it is possible to use the Module as an input where a Module Name is expected and there is no need to deconstruct the Module to its properties.
 - **Text** (string) - returns a human-friendly report of the Module's properties in format: `Module "XY" has XY connectors and has XY parts with dimensions XYZ.` and either `The module is compact.` or `WARNING: The module is not compact, contains islands and therefore will not hold together.`
 
 ### 1.6.3. Rule
@@ -263,7 +264,7 @@ In some cases the Modules cannot connect even though a Rule allows it because th
 #### 1.6.3.1. Explicit Rule
 Explicit Rule is closest to the original WFC rule. It refers to a Connector of one Module that can connector to a Connector of another module. Its textual representation follows a pattern `module:connector -> module:connector`, i.e. `pipe:1 -> bulb:4`, which translates to: *module "pipe" can become a neighbor of module "bulb" if their connectors 1 and 4 touch*.
 
-An Explicit Rule should only allow connection of two non-opposing Connectors, which makes the Rule invalid. Because Connector indices do not indicate their direction, it is only possible to check this when the respective Modules are provided. Therefore a full validity check is performed only when both data is available, most importantly in the Monoceros WFC Solver. When the Explicit Rule is created, it is only checked whether it refers to two different Connectors. 
+An Explicit Rule should only allow connection of two non-opposing Connectors, which makes the Rule invalid. Because Connector indices do not indicate their direction, it is only possible to check this when the respective Modules are provided. Therefore a full validity check is performed only when both data is available, most importantly in the Monoceros WFC Solver. When the Explicit Rule is created, it is only checked whether it refers to two different Connectors.
 
 Explicit Rule is bi-directional, therefore `a:1 -> b:4` equals `b:4 -> a:1`.
 
@@ -278,7 +279,7 @@ An Explicit Rule can be cast from a text (string) that has format identical to t
 An Explicit Rule does not casts to any other data type.
 
 ##### 1.6.3.1.3. Explicit Rule Viewport preview and baking
-An Explicit Rule cannot be displayed on its own. Following a precedent of Vector display component in Grasshopper, there is a Rule Preview component in Monoceros. When provided with all Modules, it displays an Explicit Rule as a line between the connectors described by the Rule. The color of the line indicates the direction of the connectors (and therefore also of the Rule): red means the connectors are facing X direction, green represents Y direction and blue indicates Z direction. 
+An Explicit Rule cannot be displayed on its own. Following a precedent of Vector display component in Grasshopper, there is a Rule Preview component in Monoceros. When provided with all Modules, it displays an Explicit Rule as a line between the connectors described by the Rule. The color of the line indicates the direction of the connectors (and therefore also of the Rule): red means the connectors are facing X direction, green represents Y direction and blue indicates Z direction.
 
 An Explicit Rule preview can be baked.
 
@@ -305,6 +306,40 @@ A Typed Rule cannot be displayed on its own. Following a precedent of Vector dis
 A Typed Rule preview can be baked.
 
 #### 1.6.3.3. Indifferent Typed Rule
+
+
+## 1.7. Solver
+
+TODO(jp): Renumber titles and table of contents
+
+TODO(jp): Generate HTML docs
+
+Over the course of multiple iterations (called observations), Wave Function
+Collapse gradually changes the state of Slots from non-deterministic (allowing
+multiple Modules) to deterministic (allowing exactly one Module). This iterative
+process happens in the Solver component, where the Slots are observed guided by
+seeded pseudo-random numbers until either every Slot ends up in a deterministic
+state (success), or any Slot ends up in a contradictory state (failure). If the
+result is contradicotry, the Solver component internally re-tries up to a
+predefined number of attempts, each attempt using the already modified PRGN
+state and thus producing a different result each try.
+
+As mentioned earlier, Monoceros builds on top of the original WFC algorithm to
+make it more useful for architecture and industrial design. The essence of the
+extension Monoceros brings to the table is how it treats Modules. In vanilla
+Wave Function Collapse as described by [Stålberg's EPC2018
+talk](https://www.youtube.com/watch?v=0bcZb-SsnrA) a Module always has the
+dimensions to occupy exactly one Slot. While Monoceros Modules are aligned to
+the discrete grid, they can span multiple Slots and be of any voxel-based shape
+as long as their Parts connect in a continuous fashion (i.e. they touch with
+faces and not just edges). A Monoceros Module Part (not available as public data
+type) is equivalent to vanilla WFC Module.
+
+For clearer separation of concerns, this is internally implemented with
+desugaring and reconstruction on the C# side of the language boundary. In the
+Monoceros Solver component, Modules are deconstructed into Parts (vanilla
+Modules) prior to being sent to the Rust WFC solver over the C API, and are
+reconstructed from the Rust solver's output after it finishes successfully.
 
 ## 1.7. Components
 
@@ -355,9 +390,9 @@ A Typed Rule preview can be baked.
 
 #### 1.8.1.2. Definition
 
-![Bare minimum](readme-assets/bare-minimum.png)  
+![Bare minimum](readme-assets/bare-minimum.png)
 ![Bare minimum](readme-assets/bare-minimum-screenshot.jpg)
- 
+
  #### 1.8.1.3. Breakdown
  1. [Construct Slot With Listed Modules Allowed](#1712-construct-slot-with-listed-modules-allowed) constructs Monoceros [Slots](#161-slot) that [allows placement of any](#1611-states) Monoceros [Module](#162-module). Input Points collects points placed inside the created Slots. If two of such points are inside the same Slot, such Slot will be constructed twice. Therefore it is advised to deduplicate input points. The Output contains as many Slots as there are input points.
  2. [Construct Module](#1721-construct-module) constructs a single Monoceros [Module](#162-module). Input Name collects unique Module name. Input Points collects points inside Module [Parts](#1621-monoceros-module-parts). The points do not need to be deduplicated. Input Geometry collects geometry that should be [placed](#1624-orientation-and-placement) into respective Slots by the [Materialize Slots](#1751-materialize-slots) component.
