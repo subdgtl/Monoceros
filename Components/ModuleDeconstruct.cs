@@ -81,7 +81,7 @@ namespace Monoceros {
                                         "base plane - a list parallel to C.",
                                         GH_ParamAccess.list);
             pManager.AddBooleanParameter("Connector Use Pattern",
-                                        "CP",
+                                        "UP",
                                         "Connector use pattern - a list parallel to C. " +
                                         "(only if R are provided)",
                                         GH_ParamAccess.list);

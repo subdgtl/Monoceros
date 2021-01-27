@@ -133,11 +133,15 @@ namespace Monoceros {
         /// <param name="obj">The other object.</param>
         /// <returns>True if equal.</returns>
         public override bool Equals(object obj) {
-            if (IsExplicit) {
-                return Explicit.Equals(obj);
+            if (obj.GetType() != typeof(Rule)) {
+                return false;
             }
-            if (IsTyped) {
-                return Typed.Equals(obj);
+            var other = (Rule)obj;
+            if (IsExplicit && other.IsExplicit) {
+                return Explicit.Equals(other.Explicit);
+            }
+            if (IsTyped && other.IsTyped) {
+                return Typed.Equals(other.Typed);
             }
             return false;
         }
@@ -540,21 +544,18 @@ namespace Monoceros {
         /// <param name="obj">The other object.</param>
         /// <returns>True if equal.</returns>
         public override bool Equals(object obj) {
-            return obj is RuleExplicit other &&
-                   (
-                       (
-                            SourceModuleName == other.SourceModuleName &&
-                            SourceConnectorIndex == other.SourceConnectorIndex &&
-                            TargetModuleName == other.TargetModuleName &&
-                            TargetConnectorIndex == other.TargetConnectorIndex
-                        ) ||
-                        (
-                            SourceModuleName == other.TargetModuleName &&
-                            SourceConnectorIndex == other.TargetConnectorIndex &&
-                            TargetModuleName == other.SourceModuleName &&
-                            TargetConnectorIndex == other.SourceConnectorIndex
-                        )
-                   );
+            if (obj.GetType() != typeof(RuleExplicit)) {
+                return false;
+            }
+            var other = (RuleExplicit)obj;
+            return (SourceModuleName == other.SourceModuleName
+                    && SourceConnectorIndex == other.SourceConnectorIndex
+                    && TargetModuleName == other.TargetModuleName
+                    && TargetConnectorIndex == other.TargetConnectorIndex)
+                   || (SourceModuleName == other.TargetModuleName
+                    && SourceConnectorIndex == other.TargetConnectorIndex
+                    && TargetModuleName == other.SourceModuleName
+                    && TargetConnectorIndex == other.SourceConnectorIndex);
         }
 
         /// <summary>
@@ -771,12 +772,13 @@ namespace Monoceros {
         /// <param name="obj">The other object.</param>
         /// <returns>True if equal.</returns>
         public override bool Equals(object obj) {
-            return obj is RuleTyped other &&
-                   (
-                    ModuleName == other.ModuleName &&
+            if (obj.GetType() != typeof(RuleTyped)) {
+                return false;
+            }
+            var other = (RuleTyped)obj;
+            return (ModuleName == other.ModuleName &&
                     ConnectorIndex == other.ConnectorIndex &&
-                    ConnectorType == other.ConnectorType
-                   );
+                    ConnectorType == other.ConnectorType);
         }
 
         /// <summary>
