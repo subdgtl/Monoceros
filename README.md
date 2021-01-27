@@ -130,26 +130,26 @@ are connected by an edge, if they are adjacent to each other on the grid. Every
 Slot contains a list of Modules (conceptually geometry in case of Monoceros)
 that are allowed to reside in it. The algorithm is defined as follows:
 
-1) Initialize the world to a fully non-deterministic state, where every Slot
+1. Initialize the world to a fully non-deterministic state, where every Slot
    allows every defined Module.
 
-2) Repeat following steps until every Slot allows exactly one Module (a valid,
+2. Repeat following steps until every Slot allows exactly one Module (a valid,
    deterministic result), or any Slot allows zero modules (a contradiction):
 
-  a) **Observation (Slot choice):** Pick a Slot at random from the set of Slots
-     with the smallest Module count that are still in non-deterministic state
-     (allow more than one Module),
+    1. **Observation (Slot choice):** Pick a Slot at random from the set of
+       Slots with the smallest Module count that are still in non-deterministic
+       state (allow more than one Module),
 
-  b) **Observation (Module choice):** Randomly pick a Module from the set of
-     still available Modules for the chosen Slot and remove all other Modules
-     from this Slot, making it deterministic (allowing exactly one Module),
+    2. **Observation (Module choice):** Randomly pick a Module from the set of
+       still available Modules for the chosen Slot and remove all other Modules
+       from this Slot, making it deterministic (allowing exactly one Module),
 
-  c) **Constraint Progagation:** Remove Modules from neighboring Slots based on
-     the Rules. Repeat recursively in [depth-first
-     order](https://en.wikipedia.org/wiki/Depth-first_search) for each Slot
-     modified this way.
+    3. **Constraint Progagation:** Remove Modules from neighboring Slots based
+       on the Rules. Repeat recursively in [depth-first
+       order](https://en.wikipedia.org/wiki/Depth-first_search) for each Slot
+       modified this way.
 
-3) If WFC generated a contradictory result, start over again with a different
+3. If WFC generated a contradictory result, start over again with a different
    random state.
 
 WFC does not necessarily always find a solution. If (and how easily) a valid
