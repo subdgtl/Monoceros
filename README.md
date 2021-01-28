@@ -382,15 +382,16 @@ TODO(jp): Renumber titles and table of contents
 
 TODO(jp): Generate HTML docs
 
-Over the course of multiple iterations (called observations), Wave Function
-Collapse gradually changes the state of Slots from non-deterministic (allowing
-multiple Modules) to deterministic (allowing exactly one Module). This iterative
-process happens in the Solver component, where the Slots are observed based on
-pseudo-random numbers until either every Slot ends up in a deterministic state
-(success), or any Slot ends up in a contradictory state (failure). If the result
-is contradictory, the Solver component internally re-tries up to a predefined
-number of attempts, each attempt using the already modified random state and thus
-producing a different result each try.
+Over the course of multiple iterations (called observations) occuring internally 
+inside the WFC Solver, Wave Function Collapse gradually changes the state of 
+Slots from non-deterministic (allowing multiple Modules) to deterministic 
+(allowing exactly one Module). This iterative process happens in the Solver 
+component, where the Slots are observed based on pseudo-random numbers until 
+either every Slot ends up in a deterministic state (success), or any Slot ends 
+up in a contradictory state (failure). If the result is contradictory, the Solver 
+component internally re-tries up to a predefined number of attempts, each attempt 
+using the already modified random state and thus producing a different result 
+each try.
 
 As mentioned earlier, Monoceros builds on top of the original [Wave Function
 Collapse](#14-wave-function-collapse) to make it more useful for architecture
@@ -404,14 +405,14 @@ is equivalent to a vanilla WFC Module.
 
 ### 1.7.1. Rule and Module Lowering
 
-Because it is not immedietly clear how to implement a solver for Modules as
-defined by Monoceros, we use a technique called lowering (sometimes also called
-desugaring) to change their representation into lower-level, vanilla WFC Modules
-and also produce metadata necessary to reconstruct the Monoceros Modules from
-the vanilla Modules.
+Because it is not immediately clear how to implement a solver for Modules as
+defined by Monoceros, Monoceros utilizes a technique called lowering 
+(sometimes also called desugaring) to change their representation into 
+lower-level, vanilla WFC Modules and also produce metadata necessary to 
+reconstruct the Monoceros Modules from the vanilla Modules.
 
 Even though not visible to the user, Module Parts are carefully tracked
-throughout the plugin, and since Rules effectively work with Module Parts
+throughout the plug-in, and since Rules effectively work with Module Parts
 already, the Grasshopper Solver lowers the Module and Rule definitions into
 their low-level forms and feeds those into the Rust solver over the C API. After
 the Rust solver finishes successfully, Monoceros Modules are reconstructed from
