@@ -43,8 +43,9 @@
         - [1.6.3.2.2. Typed Rule casts](#16322-typed-rule-casts)
         - [1.6.3.2.3. Typed Rule Viewport preview and baking](#16323-typed-rule-viewport-preview-and-baking)
       - [1.6.3.3. Indifferent Typed Rule](#1633-indifferent-typed-rule)
-  - [1.7. Solver](#17-solver)
-    - [1.7.1. Canonical World State](#17-canonical-world-state)
+  - [1.7. Monoceros WFC Solver](#17-monoceros-wfc-solver)
+    - [1.7.1. Canonical World State](#171-lowering)
+    - [1.7.2. Canonical World State](#172-canonical-world-state)
   - [1.7. Components](#17-components)
     - [1.7.1. Slot-related](#171-slot-related)
       - [1.7.1.1. Construct Slot With All Modules Allowed](#1711-construct-slot-with-all-modules-allowed)
@@ -103,12 +104,12 @@ Monoceros serves to fill the entire world with Modules, respecting the given Rul
 ## 1.4. Wave Function Collapse
 
 Before we delve deeper, let's shortly explain the WFC algorithm itself. Note
-that Monoceros extends some concepts over the original WFC, but it is very
-helpful to understand the simplified version of the algorithm first. To that
-end, it might also be helpful to watch the excellent [explanatory talk by Oskar
+that Monoceros extends some concepts over the vanilla WFC, but it is very
+helpful to understand the original version of the algorithm first. To that end,
+it might also be helpful to watch the excellent [explanatory talk by Oskar
 Stålberg at EPC2018](https://www.youtube.com/watch?v=0bcZb-SsnrA).
 
-Wave Function Collapse (WFC) is an procedural generation algorithm that
+Wave Function Collapse (WFC) is a procedural generation algorithm that
 essentially attempts to satisfy constraints on a world (see
 [CSP](https://en.wikipedia.org/wiki/Constraint_satisfaction_problem) for
 more). Its name is inspired by quantum mechanics, but the similarity is just at
@@ -127,8 +128,12 @@ have:
 The grid tiles are graph nodes, also called Slots in WFC (and in
 Monoceros). Graph edges are implicitly derived from slot neighborhood: two Slots
 are connected by an edge, if they are adjacent to each other on the grid. Every
-Slot contains a list of Modules (conceptually geometry in case of Monoceros)
-that are allowed to reside in it. The algorithm is defined as follows:
+Slot contains a list of Modules that are allowed to reside in it. Conceptually,
+Modules could have any meaning that we assign to them, some usual meanings being
+that the Slots populated by them contain geometry, images, navigation meshes, or
+other high-level descriptions of a space.
+
+The algorithm is defined as follows:
 
 1. Initialize the world to a fully non-deterministic state, where every Slot
    allows every defined Module.
@@ -152,12 +157,13 @@ that are allowed to reside in it. The algorithm is defined as follows:
 3. If WFC generated a contradictory result, start over again with a different
    random state.
 
-WFC does not necessarily always find a solution. If (and how easily) a valid
-solution is computed very much depends on the set of provided Rules. There are
-sets of Rules for which WFC always converges regardless of the random state, but
-also sets of Rules for which the simulation always results in a contradictory
-world state. Rule design is one of the more challenging parts of working with
-Wave Function Collapse.
+**WFC does not necessarily always find a solution**. If (and how quickly) a
+valid solution is computed very much depends on the set of provided Rules. There
+are sets of Rules for which WFC always converges in just a single attempt
+regardless of the random state, but also sets of Rules for which the simulation
+always results in a contradictory world state, and also everything in
+between. Rule design is a challenging part of working with Wave Function
+Collapse.
 
 ## 1.4. Development notes
 This repository contains the Grasshopper wrapper for the main WFC solver and comprehensive supplemental tools.
@@ -370,7 +376,7 @@ A Typed Rule preview can be baked.
 #### 1.6.3.3. Indifferent Typed Rule
 
 
-## 1.7. Solver
+## 1.7. Monoceros WFC Solver
 
 TODO(jp): Renumber titles and table of contents
 
@@ -379,31 +385,39 @@ TODO(jp): Generate HTML docs
 Over the course of multiple iterations (called observations), Wave Function
 Collapse gradually changes the state of Slots from non-deterministic (allowing
 multiple Modules) to deterministic (allowing exactly one Module). This iterative
-process happens in the Solver component, where the Slots are observed guided by
-seeded pseudo-random numbers until either every Slot ends up in a deterministic
-state (success), or any Slot ends up in a contradictory state (failure). If the
-result is contradictory, the Solver component internally re-tries up to a
-predefined number of attempts, each attempt using the already modified PRGN
-state and thus producing a different result each try.
+process happens in the Solver component, where the Slots are observed based on
+pseudo-random numbers until either every Slot ends up in a deterministic state
+(success), or any Slot ends up in a contradictory state (failure). If the result
+is contradictory, the Solver component internally re-tries up to a predefined
+number of attempts, each attempt using the already modified random state and thus
+producing a different result each try.
 
-As mentioned earlier, Monoceros builds on top of the original WFC algorithm to
-make it more useful for architecture and industrial design. The essence of the
-extension Monoceros brings to the table is how it treats Modules. In vanilla
-Wave Function Collapse as described by [Stålberg's EPC2018
-talk](https://www.youtube.com/watch?v=0bcZb-SsnrA) a Module always has the
-dimensions to occupy exactly one Slot. While Monoceros Modules are aligned to
-the discrete grid, they can span multiple Slots and be of any voxel-based shape
-as long as their Parts connect in a continuous fashion (i.e. they touch with
-faces and not just edges). A Monoceros Module Part (not available as public data
-type) is equivalent to vanilla WFC Module.
+As mentioned earlier, Monoceros builds on top of the original [Wave Function
+Collapse](#14-wave-function-collapse) to make it more useful for architecture
+and industrial design. The essence of the Monoceros extension is how it treats
+Modules. In original Wave Function Collapse a Module always has the dimensions
+to occupy exactly one Slot. While Monoceros Modules are aligned to the same
+discrete grid, they can span multiple Slots and be of any voxel-based shape as
+long as their Parts connect in a continuous fashion - i.e. they touch with faces
+and not just edges. A Monoceros Module Part (not available as public data type)
+is equivalent to a vanilla WFC Module.
 
-For clearer separation of concerns, this is internally implemented with
-desugaring and reconstruction on the C# side of the language boundary. In the
-Monoceros Solver component, Modules are deconstructed into Parts (vanilla
-Modules) prior to being sent to the Rust WFC solver over the C API, and are
-reconstructed from the Rust solver's output after it finishes successfully.
+### 1.7.1. Rule and Module Lowering
 
-### 1.7.1 Canonical World State
+Because it is not immedietly clear how to implement a solver for Modules as
+defined by Monoceros, we use a technique called lowering (sometimes also called
+desugaring) to change their representation into lower-level, vanilla WFC Modules
+and also produce metadata necessary to reconstruct the Monoceros Modules from
+the vanilla Modules.
+
+Even though not visible to the user, Module Parts are carefully tracked
+throughout the plugin, and since Rules effectively work with Module Parts
+already, the Grasshopper Solver lowers the Module and Rule definitions into
+their low-level forms and feeds those into the Rust solver over the C API. After
+the Rust solver finishes successfully, Monoceros Modules are reconstructed from
+its output thanks to the backwards mapping metadata generated by lowering.
+
+### 1.7.2 Canonical World State
 
 Because Monoceros allows us to modify and customize the initial state of the
 world and vanilla WFC has an opinion on how valid world state looks like, the
@@ -423,8 +437,11 @@ if observed or propagated any further.
 
 Setting the state of the world manually rarely produces a Canonical
 world. Therefore the Rust solver always Canonicalizes the world before running
-an observe/propagate operation. It also notifies the Grasshopper solver
-component that this happened, so that it can in turn notify the user.
+an observe/propagate operation. Canonicalization is implemented by starting the
+constraint propagation phase on every Slot as though it was just observed. This
+process can in theory be expensive, but fortunately needs to run just once per
+invokation of the Solver component. The Rust solver provides the information
+whether the world needed canonicalizing as part of its output.
 
 ## 1.7. Components
 
