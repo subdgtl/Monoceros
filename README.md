@@ -113,7 +113,7 @@ Wave Function Collapse (WFC) is a procedural generation algorithm that
 essentially attempts to satisfy constraints on a world (see
 [CSP](https://en.wikipedia.org/wiki/Constraint_satisfaction_problem) for
 more). Its name is inspired by quantum mechanics, but the similarity is just at
-the surface level - WFC is runs completely deterministically.
+the surface level - WFC runs completely deterministically.
 
 In its simplest form the algorithm works on an orthogonal grid. We initially
 have:
