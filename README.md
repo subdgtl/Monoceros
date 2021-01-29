@@ -99,9 +99,10 @@ respecting the given Rules.**
     - [11.2.4. Definition: with data trees](#1124-definition-with-data-trees)
     - [11.2.5. Result](#1125-result)
   - [11.3. Slots and Module Parts with non-uniforms dimensions](#113-slots-and-module-parts-with-non-uniforms-dimensions)
+    - [Definition](#definition)
+    - [Result](#result)
   - [11.4. Modules and Envelope with individual base planes](#114-modules-and-envelope-with-individual-base-planes)
   - [11.5. Indifferent Rules](#115-indifferent-rules)
-    - [11.5.1. Notes](#1151-notes)
     - [11.5.2. Definition: Indifferent Rules for unused Connectors](#1152-definition-indifferent-rules-for-unused-connectors)
     - [11.5.3. Definition: Indifferent Rules manual assignment](#1153-definition-indifferent-rules-manual-assignment)
     - [11.5.4. Definition: Indifferent Rules literal assignment](#1154-definition-indifferent-rules-literal-assignment)
@@ -996,11 +997,24 @@ whether the world needed canonicalizing as part of its output.
 
 ### 11.3. Slots and Module Parts with non-uniforms dimensions
 
+If the Module geometry does not naturally fit into cubic grid, it is possible to define a non-uniform grid for Module Parts as well as for the Slots. The dimensions of Part and Slot are defined as a Vector representing a diagonal of the basic grid unit. The axial dimensions of the Vector are aligned with the Module's or Slot's Base Plane.
+
+The Diagonal also defines the discrete step of the world, in which the Modules and Slots reside. Therefore components [Construct Module](#1021-construct-module), [Construct Slot with all Modules allowed](#1011-construct-slot-with-all-modules-allowed), [Construct Slot with listed Modules allowed](#1012-construct-slot-with-listed-modules-allowed) and [Slice Geometry](#1061-slice-geometry) consider the defined Base Plane as the world origin and orientation and the Diagonal as the basic unit, into which they should slice the WFC data. 
+
+**All Modules and Slots used in one solution must have identical Diagonal dimensions!**
+
+#### Definition
+
+![Viewport](readme-assets/non-uniform.png)
+
+#### Result
+
+![Viewport](readme-assets/non-uniform-process.jpg)
+![Viewport](readme-assets/non-uniform-result.jpg)
+
 ### 11.4. Modules and Envelope with individual base planes
 
 ### 11.5. Indifferent Rules
-
-#### 11.5.1. Notes
 
 Indifferent Rules are ordinary Typed Rules with a predefined Type `indifferent`.
 It is a reserved Type because the [Out](#826-special-modules-out-and-empty) and

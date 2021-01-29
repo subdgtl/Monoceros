@@ -24,6 +24,9 @@ namespace Monoceros {
                                   "M",
                                   "Module name",
                                   GH_ParamAccess.item);
+            // TODO: Make a custom type to prevent casting from Point to avoid mistaking this 
+            // component with ComponentRuleTypedFromPoint because the user does not get notified 
+            // about the mistake and gets seemingly correct (yet wrong) results.
             pManager.AddIntegerParameter("Connector", "C", "Connector number", GH_ParamAccess.item);
             pManager.AddTextParameter("Type", "T", "Connector type", GH_ParamAccess.item);
         }
@@ -46,14 +49,14 @@ namespace Monoceros {
         ///     input parameters and to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA) {
             var moduleNameRaw = new ModuleName();
-            var connector = 0;
+            var connectorIndex = 0;
             var type = "";
 
             if (!DA.GetData(0, ref moduleNameRaw)) {
                 return;
             }
 
-            if (!DA.GetData(1, ref connector)) {
+            if (!DA.GetData(1, ref connectorIndex)) {
                 return;
             }
 
@@ -74,7 +77,7 @@ namespace Monoceros {
                 return;
             }
 
-            var rule = new Rule(moduleName, connector, type);
+            var rule = new Rule(moduleName, connectorIndex, type);
 
             if (!rule.IsValid) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, rule.IsValidWhyNot);
