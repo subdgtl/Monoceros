@@ -525,6 +525,12 @@ namespace Monoceros {
                 foreach (var connector in Connectors) {
                     unionBox.Union(connector.Face.BoundingBox);
                 }
+                foreach (var geometry in Geometry) {
+                    unionBox.Union(geometry.GetBoundingBox(false));
+                }
+                foreach (var geometry in ReferencedGeometry) {
+                    unionBox.Union(geometry.GetBoundingBox(false));
+                }
                 return unionBox;
             }
         }
@@ -565,6 +571,79 @@ namespace Monoceros {
         }
 
         /// <summary>
+        /// Serialization. Required by Grasshopper for data internalization.
+        /// </summary>
+        /// <param name="writer">The writer.</param>
+        /// <returns>True when successful.</returns>
+        public bool Write(GH_IWriter writer) {
+            var formatter = new BinaryFormatter();
+
+            writer.SetString("Name", Name);
+
+            using (var dataStream = new System.IO.MemoryStream()) {
+                var allGeometry = Geometry.Concat(ReferencedGeometry);
+                try {
+                    formatter.Serialize(dataStream, allGeometry.ToArray());
+                    writer.SetByteArray("Geometry", dataStream.ToArray());
+                } catch (SerializationException e) {
+                    throw e;
+                }
+            }
+
+            using (var dataStream = new System.IO.MemoryStream()) {
+                try {
+                    formatter.Serialize(dataStream, BasePlane.Clone());
+                    writer.SetByteArray("BasePlane", dataStream.ToArray());
+                } catch (SerializationException e) {
+                    throw e;
+                }
+            }
+
+            using (var dataStream = new System.IO.MemoryStream()) {
+                try {
+                    formatter.Serialize(dataStream, PartCenters.ToArray());
+                    writer.SetByteArray("PartCenters", dataStream.ToArray());
+                } catch (SerializationException e) {
+                    throw e;
+                }
+            }
+
+            using (var dataStream = new System.IO.MemoryStream()) {
+                try {
+                    formatter.Serialize(dataStream, Pivot.Clone());
+                    writer.SetByteArray("Pivot", dataStream.ToArray());
+                } catch (SerializationException e) {
+                    throw e;
+                }
+            }
+
+            writer.SetString("PivotPartName", PivotPartName);
+
+            writer.SetPoint3D("PartDiagonal", new GH_IO.Types.GH_Point3D(PartDiagonal.X,
+                                                                         PartDiagonal.Y,
+                                                                         PartDiagonal.Z));
+            using (var dataStream = new System.IO.MemoryStream()) {
+                try {
+                    formatter.Serialize(dataStream, Connectors.ToArray());
+                    writer.SetByteArray("Connectors", dataStream.ToArray());
+                } catch (SerializationException e) {
+                    throw e;
+                }
+            }
+
+            using (var dataStream = new System.IO.MemoryStream()) {
+                try {
+                    formatter.Serialize(dataStream, InternalRules.ToArray());
+                    writer.SetByteArray("InternalRules", dataStream.ToArray());
+                } catch (SerializationException e) {
+                    throw e;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// De-serialization. Required by Grasshopper for data internalization.
         /// </summary>
         /// <param name="reader">The reader.</param>
@@ -572,47 +651,113 @@ namespace Monoceros {
         public bool Read(GH_IReader reader) {
             var formatter = new BinaryFormatter();
 
-            if (reader.ItemExists("ModuleData")) {
-                var moduleData = reader.GetByteArray("ModuleData");
-                using (var moduleDataStream = new System.IO.MemoryStream(moduleData)) {
+            if (reader.ItemExists("Name")) {
+                Name = reader.GetString("Name");
+            } else {
+                return false;
+            }
+
+            if (reader.ItemExists("Geometry")) {
+                var geometryData = reader.GetByteArray("Geometry");
+                using (var geometryStream = new System.IO.MemoryStream(geometryData)) {
                     try {
-                        var module = (Module)formatter.Deserialize(moduleDataStream);
-                        Name = module.Name;
-                        Geometry = module.Geometry;
-                        BasePlane = module.BasePlane;
-                        PartCenters = module.PartCenters;
-                        Pivot = module.Pivot;
-                        PivotPartName = module.PivotPartName;
-                        PartDiagonal = module.PartDiagonal;
-                        Connectors = module.Connectors;
-                        InternalRules = module.InternalRules;
-                        return true;
+                        var geometry = (GeometryBase[])formatter.Deserialize(geometryStream);
+                        Geometry = geometry.ToList();
                     } catch (SerializationException e) {
                         throw e;
                     }
                 }
+            } else {
+                return false;
             }
 
-            return false;
-        }
-
-        /// <summary>
-        /// Serialization. Required by Grasshopper for data internalization.
-        /// </summary>
-        /// <param name="writer">The writer.</param>
-        /// <returns>True when successful.</returns>
-        public bool Write(GH_IWriter writer) {
-            var formatter = new BinaryFormatter();
-            var module = Duplicate();
-            using (var dataStream = new System.IO.MemoryStream()) {
-                try {
-                    formatter.Serialize(dataStream, module);
-                    writer.SetByteArray("ModuleData", dataStream.ToArray());
-                    return true;
-                } catch (SerializationException e) {
-                    throw e;
+            if (reader.ItemExists("BasePlane")) {
+                var basePlaneData = reader.GetByteArray("BasePlane");
+                using (var basePlaneStream = new System.IO.MemoryStream(basePlaneData)) {
+                    try {
+                        var basePlane = (Plane)formatter.Deserialize(basePlaneStream);
+                        BasePlane = basePlane;
+                    } catch (SerializationException e) {
+                        throw e;
+                    }
                 }
+            } else {
+                return false;
             }
+
+            if (reader.ItemExists("PartCenters")) {
+                var partCentersData = reader.GetByteArray("PartCenters");
+                using (var partCentersStream = new System.IO.MemoryStream(partCentersData)) {
+                    try {
+                        var partCenters = (Point3i[])formatter.Deserialize(partCentersStream);
+                        PartCenters = partCenters.ToList();
+                    } catch (SerializationException e) {
+                        throw e;
+                    }
+                }
+            } else {
+                return false;
+            }
+
+            if (reader.ItemExists("Pivot")) {
+                var pivotData = reader.GetByteArray("Pivot");
+                using (var pivotStream = new System.IO.MemoryStream(pivotData)) {
+                    try {
+                        var pivot = (Plane)formatter.Deserialize(pivotStream);
+                        Pivot = pivot;
+                    } catch (SerializationException e) {
+                        throw e;
+                    }
+                }
+            } else {
+                return false;
+            }
+
+            if (reader.ItemExists("PivotPartName")) {
+                PivotPartName = reader.GetString("PivotPartName");
+            } else {
+                return false;
+            }
+
+            if (reader.ItemExists("PartDiagonal")) {
+                var partDiagonal = reader.GetPoint3D("PartDiagonal");
+                PartDiagonal = new Vector3d(partDiagonal.x, partDiagonal.y, partDiagonal.z);
+            } else {
+                return false;
+            }
+
+            if (reader.ItemExists("Connectors")) {
+                var connectorsData = reader.GetByteArray("Connectors");
+                using (var connectorsStream = new System.IO.MemoryStream(connectorsData)) {
+                    try {
+                        var connectors = (ModuleConnector[])formatter.Deserialize(connectorsStream);
+                        Connectors = connectors.ToList();
+                    } catch (SerializationException e) {
+                        throw e;
+                    }
+                }
+            } else {
+                return false;
+            }
+
+            if (reader.ItemExists("InternalRules")) {
+                var insternalRulesData = reader.GetByteArray("InternalRules");
+                using (var insternalRulesStream = new System.IO.MemoryStream(insternalRulesData)) {
+                    try {
+                        var insternalRules = (RuleForSolver[])formatter.Deserialize(insternalRulesStream);
+                        InternalRules = insternalRules.ToList();
+                    } catch (SerializationException e) {
+                        throw e;
+                    }
+                }
+            } else {
+                return false;
+            }
+
+            ReferencedGeometry = new List<GeometryBase>();
+            ReferencedGeometryGuids = new List<Guid>();
+
+            return true;
         }
 
         /// <summary>
