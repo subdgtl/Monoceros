@@ -90,18 +90,19 @@ namespace Monoceros {
                 .SelectMany(ruleTyped => ruleTyped.ToRulesExplicit(rulesTyped, modulesClean))
                 .Select(ruleExplicit => new Rule(ruleExplicit));
 
-            var rulesExplicit = rulesClean.Where(rule => rule != null && rule.IsExplicit);
+            var rulesExplicit = rulesClean
+                .Where(rule => rule != null && rule.IsExplicit);
 
-            var rules = rulesExplicit.Concat(rulesTypedUnwrapped).Distinct().ToList();
-            rules.Sort();
+            var rulesDeduplicated = rulesExplicit.Concat(rulesTypedUnwrapped).Distinct().ToList();
+            rulesDeduplicated.Sort();
 
-            foreach (var rule in rules) {
+            foreach (var rule in rulesDeduplicated) {
                 if (!rule.IsValid) {
                     AddRuntimeMessage(GH_RuntimeMessageLevel.Error, rule.IsValidWhyNot);
                 }
             }
 
-            DA.SetDataList(0, rules);
+            DA.SetDataList(0, rulesDeduplicated);
         }
 
         /// <summary>
