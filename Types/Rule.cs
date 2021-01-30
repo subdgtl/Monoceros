@@ -580,7 +580,7 @@ namespace Monoceros {
         /// <summary>
         /// Returns a message why is the rule invalid.
         /// </summary>
-        public string IsValidWhyNot => ToString() + " The connector connects to itself!";
+        public string IsValidWhyNot => ToString() + " The Rule is invalid.";
 
 
         /// <summary>
@@ -800,7 +800,7 @@ namespace Monoceros {
         /// <summary>
         /// Should never be called.
         /// </summary>
-        public string IsValidWhyNot => "Connector Index out of range";
+        public string IsValidWhyNot => ToString() + " Connector Index out is of range.";
 
         /// <summary>
         /// Provides a user-friendly description of the rule. Required by
