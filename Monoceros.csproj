@@ -80,6 +80,7 @@
     <Compile Include="Components\RuleIndifferentFromPoint.cs" />
     <Compile Include="Components\RuleTypedFromPoint.cs" />
     <Compile Include="Components\RuleExplicitFromCurve.cs" />
+    <Compile Include="Parameters\ConnectorIndexParameter.cs" />
     <Compile Include="Parameters\ModuleNameParameter.cs" />
     <Compile Include="Parameters\SlotParameter.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -87,6 +88,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Types\ConnectorIndex.cs" />
     <Compile Include="Types\Point3i.cs" />
     <Compile Include="Types\ModuleName.cs" />
     <Compile Include="Types\Slot.cs" />
@@ -121,8 +123,9 @@
     <Content Include="DynamicLinkingDependencies\GH_IO.dll" />
     <Content Include="DynamicLinkingDependencies\Grasshopper.dll" />
     <Content Include="DynamicLinkingDependencies\RhinoCommon.dll" />
-    <None Include="Resources\monoceros24.png" />
+    <None Include="Resources\connector-index-parameter.png" />
     <None Include="Resources\module-name-parameter.png" />
+    <None Include="Resources\monoceros24.png" />
     <None Include="Resources\module-parameter.png" />
     <None Include="Resources\slot-parameter.png" />
     <None Include="Resources\module-deconstruct.png" />

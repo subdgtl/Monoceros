@@ -23,19 +23,21 @@ namespace Monoceros {
                                   "SM",
                                   "Source module name",
                                   GH_ParamAccess.item);
-            pManager.AddIntegerParameter("Source Connector Index",
-                                         "SC",
-                                         "Source connector number",
-                                         GH_ParamAccess.item);
+            pManager.AddParameter(new ConnectorIndexParameter(),
+                                  "Source Connector Index",
+                                  "SC",
+                                  "Source connector number",
+                                  GH_ParamAccess.item);
             pManager.AddParameter(new ModuleNameParameter(),
                                   "Target Module",
                                   "TM",
                                   "Target module name",
                                   GH_ParamAccess.item);
-            pManager.AddIntegerParameter("Target Connector Index",
-                                         "TC",
-                                         "Target connector number",
-                                         GH_ParamAccess.item);
+            pManager.AddParameter(new ConnectorIndexParameter(),
+                                  "Target Connector Index",
+                                  "TC",
+                                  "Target connector number",
+                                  GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -56,25 +58,27 @@ namespace Monoceros {
         ///     input parameters and to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA) {
             var sourceNameRaw = new ModuleName();
-            var sourceConnector = 0;
+            var sourceConnectorParam = new ConnectorIndex();
             var targetNameRaw = new ModuleName();
-            var targetConnector = 0;
+            var targetConnectorParam = new ConnectorIndex();
 
             if (!DA.GetData(0, ref sourceNameRaw)) {
                 return;
             }
 
-            if (!DA.GetData(1, ref sourceConnector)) {
+            if (!DA.GetData(1, ref sourceConnectorParam)) {
                 return;
             }
+            var sourceConnector = sourceConnectorParam.Index;
 
             if (!DA.GetData(2, ref targetNameRaw)) {
                 return;
             }
 
-            if (!DA.GetData(3, ref targetConnector)) {
+            if (!DA.GetData(3, ref targetConnectorParam)) {
                 return;
             }
+            var targetConnector = targetConnectorParam.Index;
 
             var sourceName = sourceNameRaw.Name;
             var targetName = targetNameRaw.Name;

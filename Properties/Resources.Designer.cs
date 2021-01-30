@@ -63,6 +63,16 @@ namespace Monoceros.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap connector_index_parameter {
+            get {
+                object obj = ResourceManager.GetObject("connector_index_parameter", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap materialize {
             get {
                 object obj = ResourceManager.GetObject("materialize", resourceCulture);

@@ -849,7 +849,7 @@ namespace Monoceros {
                 );
             rulesExternal = new List<RuleTyped>(6);
             for (var i = 0; i < 6; i++) {
-                rulesExternal.Add(new RuleTyped(name, i, connectorType));
+                rulesExternal.Add(new RuleTyped(name, (uint)i, connectorType));
             }
         }
 

@@ -142,7 +142,7 @@ namespace Monoceros {
         /// <summary>
         /// Gets the type description. Required by Grasshopper.
         /// </summary>
-        public string TypeDescription => "Name of a Monoceros module.";
+        public string TypeDescription => "Name of a Monoceros Module.";
 
         /// <summary>
         /// Converts the module name into a string. Required by Grasshopper for

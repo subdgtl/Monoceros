@@ -24,7 +24,11 @@ namespace Monoceros {
                                   "M",
                                   "Module name",
                                   GH_ParamAccess.item);
-            pManager.AddIntegerParameter("Connector", "C", "Connector number", GH_ParamAccess.item);
+            pManager.AddParameter(new ConnectorIndexParameter(),
+                                  "Connector Index",
+                                  "C",
+                                  "Connector number",
+                                  GH_ParamAccess.item);
             pManager.AddTextParameter("Type", "T", "Connector type", GH_ParamAccess.item);
         }
 
@@ -46,16 +50,17 @@ namespace Monoceros {
         ///     input parameters and to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA) {
             var moduleNameRaw = new ModuleName();
-            var connector = 0;
+            var connectorParam = new ConnectorIndex();
             var type = "";
 
             if (!DA.GetData(0, ref moduleNameRaw)) {
                 return;
             }
 
-            if (!DA.GetData(1, ref connector)) {
+            if (!DA.GetData(1, ref connectorParam)) {
                 return;
             }
+            var connector = connectorParam.Index;
 
             if (!DA.GetData(2, ref type)) {
                 return;

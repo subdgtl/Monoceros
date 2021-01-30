@@ -72,7 +72,7 @@ namespace Monoceros {
                     if (connector.ContaininsPoint(point)) {
                         rules.Add(
                             new Rule(module.Name,
-                                     connectorIndex,
+                                     (uint)connectorIndex,
                                      targetName,
                                      DirectionToSingleModuleConnectorIndex(
                                          connector.Direction.ToFlipped()))
@@ -102,7 +102,7 @@ namespace Monoceros {
         /// source of truth.
         /// </summary>
         /// <returns>Part connector index.</returns>
-        private int DirectionToSingleModuleConnectorIndex(Direction direction) {
+        private uint DirectionToSingleModuleConnectorIndex(Direction direction) {
             // Connector numbering convention: 
             // faceIndex is X=0, Y=1, Z=2, -X=3, -Y=4, -Z=5
             if (direction.Axis == Axis.X && direction.Orientation == Orientation.Positive) {
@@ -124,7 +124,7 @@ namespace Monoceros {
                 return 5;
             }
             // Never
-            return -1;
+            return uint.MaxValue;
         }
 
         /// <summary>
