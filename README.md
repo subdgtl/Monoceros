@@ -92,26 +92,35 @@ respecting the given Rules.**
     - [11.1.1. Pseudo code](#1111-pseudo-code)
     - [11.1.2. Definition](#1112-definition)
     - [11.1.3. Breakdown](#1113-breakdown)
-  - [11.2. Defining more Modules and Explicit Rules](#112-defining-more-modules-and-explicit-rules)
-    - [11.2.1. Pseudo code: (almost) without data trees](#1121-pseudo-code-almost-without-data-trees)
-    - [11.2.2. Definition: (almost) without data trees](#1122-definition-almost-without-data-trees)
-    - [11.2.3. Pseudo code: with data trees](#1123-pseudo-code-with-data-trees)
-    - [11.2.4. Definition: with data trees](#1124-definition-with-data-trees)
-    - [11.2.5. Result](#1125-result)
-  - [11.3. Slots and Module Parts with non-uniforms dimensions](#113-slots-and-module-parts-with-non-uniforms-dimensions)
-    - [Definition](#definition)
-    - [Result](#result)
-  - [11.4. Modules and Envelope with individual base planes](#114-modules-and-envelope-with-individual-base-planes)
-  - [11.5. Indifferent Rules](#115-indifferent-rules)
-    - [11.5.2. Definition: Indifferent Rules for unused Connectors](#1152-definition-indifferent-rules-for-unused-connectors)
-    - [11.5.3. Definition: Indifferent Rules manual assignment](#1153-definition-indifferent-rules-manual-assignment)
-    - [11.5.4. Definition: Indifferent Rules literal assignment](#1154-definition-indifferent-rules-literal-assignment)
-  - [11.6. Typed Rules](#116-typed-rules)
-  - [11.7. Disallowing Rules](#117-disallowing-rules)
-  - [11.8. Modules with more Parts](#118-modules-with-more-parts)
-  - [11.9. Module points from Module geometry](#119-module-points-from-module-geometry)
-  - [11.10. Empty Module](#1110-empty-module)
-  - [11.11. Allowing an Empty neighbor](#1111-allowing-an-empty-neighbor)
+  - [11.2. Explicit Rules](#112-explicit-rules)
+    - [11.2.1. Definition: Explicit Rule from a literal](#1121-definition-explicit-rule-from-a-literal)
+    - [11.2.2. Definition: Explicit Rule from components](#1122-definition-explicit-rule-from-components)
+    - [11.2.3. Definition: Explicit Rule from curve](#1123-definition-explicit-rule-from-curve)
+  - [11.3. Typed Rules](#113-typed-rules)
+    - [11.3.1. Definition: Typed Rule from a literal](#1131-definition-typed-rule-from-a-literal)
+    - [11.3.2. Definition: Typed Rule from components](#1132-definition-typed-rule-from-components)
+    - [11.3.3. Definition: {Typed Rule from Point tag](#1133-definition-typed-rule-from-point-tag)
+  - [11.4. Indifferent Rules](#114-indifferent-rules)
+    - [11.4.1. Definition: Indifferent Rules for unused Connectors](#1141-definition-indifferent-rules-for-unused-connectors)
+    - [11.4.2. Definition: Indifferent Rules manual assignment](#1142-definition-indifferent-rules-manual-assignment)
+    - [11.4.3. Definition: Indifferent Rules literal assignment](#1143-definition-indifferent-rules-literal-assignment)
+  - [11.5. Defining more Modules at once](#115-defining-more-modules-at-once)
+    - [11.5.1. Pseudo code: (almost) without data trees](#1151-pseudo-code-almost-without-data-trees)
+    - [11.5.2. Definition: (almost) without data trees](#1152-definition-almost-without-data-trees)
+    - [11.5.3. Pseudo code: with data trees](#1153-pseudo-code-with-data-trees)
+    - [11.5.4. Definition: with data trees](#1154-definition-with-data-trees)
+    - [11.5.5. Result](#1155-result)
+  - [11.6. Slots and Module Parts with non-uniforms dimensions](#116-slots-and-module-parts-with-non-uniforms-dimensions)
+    - [11.6.1. Definition](#1161-definition)
+    - [11.6.2. Result](#1162-result)
+  - [11.7. Modules and Envelope with individual base planes](#117-modules-and-envelope-with-individual-base-planes)
+  - [11.8. Disallowing Rules](#118-disallowing-rules)
+  - [11.9. Definition](#119-definition)
+  - [11.10. Modules with more Parts](#1110-modules-with-more-parts)
+    - [11.10.1. Definition: Module Part Points created manually](#11101-definition-module-part-points-created-manually)
+    - [11.10.2. Definition: Module Part Points created manually from geometry](#11102-definition-module-part-points-created-manually-from-geometry)
+    - [11.10.3. Definition: Module Part Points created with Slice Geometry](#11103-definition-module-part-points-created-with-slice-geometry)
+  - [11.11. Empty Module and allowing an Empty neighbor](#1111-empty-module-and-allowing-an-empty-neighbor)
   - [11.12. Choosing boundary Modules](#1112-choosing-boundary-modules)
   - [11.13. Slots from points](#1113-slots-from-points)
   - [11.14. Preventing duplicate Slots from points](#1114-preventing-duplicate-slots-from-points)
@@ -122,9 +131,11 @@ respecting the given Rules.**
   - [11.19. Setting fixed Modules](#1119-setting-fixed-modules)
   - [11.20. Materializing results](#1120-materializing-results)
   - [11.21. Proto-results and custom materialization](#1121-proto-results-and-custom-materialization)
-  - [11.22. What makes a good Module](#1122-what-makes-a-good-module)
-  - [11.23. Random seed and attempts count](#1123-random-seed-and-attempts-count)
-  - [11.24. Making a valid Envelope](#1124-making-a-valid-envelope)
+  - [11.22. Using the transform data to materialize the result](#1122-using-the-transform-data-to-materialize-the-result)
+  - [11.23. What makes a good Module](#1123-what-makes-a-good-module)
+  - [11.24. Random seed and attempts count](#1124-random-seed-and-attempts-count)
+  - [11.25. Making a valid Envelope](#1125-making-a-valid-envelope)
+  - [11.26. Why does the Slice Geometry component give invalid results](#1126-why-does-the-slice-geometry-component-give-invalid-results)
 - [12. Partners](#12-partners)
 - [13. MIT License](#13-mit-license)
 
@@ -179,12 +190,12 @@ have:
   what its neighbors are.
 
 The grid tiles are graph nodes, also called Slots in WFC (and in Monoceros).
-Graph edges are implicitly derived from slot neighborhood: two Slots are
-connected by an edge, if they are adjacent to each other on the grid. Every Slot
-contains a list of Modules that are allowed to reside in it. Conceptually,
-Modules could have any meaning that we assign to them, some usual meanings being
-that the Slots populated by them contain geometry, images, navigation meshes, or
-other high-level descriptions of a space.
+Graph edges are implicitly derived from Slot adjacency: two Slots are connected
+by an edge, if they are adjacent to each other on the grid. Every Slot contains
+a list of Modules that are allowed to reside in it. Conceptually, Modules could
+have any meaning that we assign to them, some usual meanings being that the
+Slots populated by them contain geometry, images, navigation meshes, or other
+high-level descriptions of a space.
 
 The algorithm is defined as follows:
 
@@ -192,7 +203,7 @@ The algorithm is defined as follows:
    allows every defined Module.
 
 2. Repeat following steps until every Slot allows exactly one Module (a valid,
-   deterministic result), or any Slot allows zero modules (a contradiction):
+   deterministic result), or any Slot allows zero Modules (a contradiction):
 
     1. **Observation (Slot choice):** Pick a Slot at random from the set of
        Slots with the smallest Module count that are still in non-deterministic
@@ -226,7 +237,8 @@ comprehensive supplemental tools.
 this wrapper. The source code of the solver and a simple wrapper component for
 Grasshopper lives in a separate [repository](https://github.com/subdgtl/WFC).*
 
-The Monoceros Grasshopper plug-in is written in C## and revolves around three main data types:
+The Monoceros Grasshopper plug-in is written in C## and revolves around three
+main data types:
 
 1. **Slot** is the basic cuboid unit of a discrete world. The Slots can be
    embedded with Modules or their Parts. Initially the Slots allow containment
@@ -379,7 +391,8 @@ possible to set a Rule for a Module Connector to be adjacent to Out Module
 (while not being Indifferent), which allows the Module to be placed at the
 boundary of the Envelope.
 
-All boundary Slots are ensured to be surrounded by Out-enabled Slots. The Out-enabled Slots are not being displayed in the Rhinoceros viewport.
+All boundary Slots are ensured to be surrounded by Out-enabled Slots. The
+Out-enabled Slots are not being displayed in the Rhinoceros viewport.
 
 #### 8.1.4. Modules and their Parts
 
@@ -436,7 +449,7 @@ input Slots of a Slot constructor component.
 - **Vector** - representing the Diagonal of the Slot
 - **Text** (string) - returns a human-friendly report of the Slot's properties
   in format:
-  `Slot allows placement of XY modules. Slot dimensions are XYZ, center is at XYZ, base plane is XYZ X Y.`
+  `Slot allows placement of XY Modules. Slot dimensions are XYZ, center is at XYZ, Base Plane is XYZ X Y.`
 
 ### 8.2. Module
 
@@ -574,7 +587,7 @@ exactly the size of a single Slot and holds no Geometry. It is automatically
 placed into Slots outside the user-defined Envelope. All Out Module Connectors
 are marked with Indifferent Rules, so any Module with an Indifferent Rule marked
 Connectors can be placed next to it - in other words, it enables the Indifferent
-modules to be on the boundary of the Envelope. The Out Module does not render in
+Modules to be on the boundary of the Envelope. The Out Module does not render in
 preview, nor bakes.
 
 The Empty Module with a single Part, exactly the size of a single Slot, no
@@ -950,71 +963,64 @@ whether the world needed canonicalizing as part of its output.
     Modules' [Geometry](#1623-module-geometry) into Input Slots into which they
     belong.
 
-### 11.2. Defining more Modules and Explicit Rules
+### 11.2. Explicit Rules
 
-#### 11.2.1. Pseudo code: (almost) without data trees
+[Explicit Rules](#831-explicit-rule) describe a one-to-one connection between
+two Module Connectors. The Connectors may come from a single or from more
+Modules.
 
-- construct Slots
-- construct each Module individually with one or more Geometry
-- define Explicit Rules from Curves
-- define Indifferent Rules for unused Connectors
-- merge and flatten all Rules
-- run Monoceros WFC Solver
-- Materialize the result
+An Explicit Rule is valid when the two Connectors are opposite in the
+same axis (i.e. positive X connects to negative X). The validity check is only
+performed in components that require both, Modules and Rules as an input.
+Invalid Rules are being omitted.
 
-#### 11.2.2. Definition: (almost) without data trees
+An Explicit Rule can be constructed as a literal (from Grasshopper text Panel),
+from its components (source and target Module and Connector Index) using
+[Construct Explicit Rule](#1031-construct-explicit-rule) component, from a Curve
+connecting source and target Connector using
+[Explicit Rule from Curve](#1039-explicit-rule-from-curve) component or with
+[Rule at boundary from Point](#10311-rule-at-boundary-from-point) component,
+that [creates an Explicit Rule](#1112-choosing-boundary-modules) connecting the
+Module Connector with an implicit
+[Out Module](#826-special-modules-out-and-empty) residing outside the
+[Envelope](#813-automatic-envelope-wrapping).
 
-![Without trees](readme-assets/multiple-modules-explicit-rules.png)
+#### 11.2.1. Definition: Explicit Rule from a literal
 
-#### 11.2.3. Pseudo code: with data trees
+#### 11.2.2. Definition: Explicit Rule from components
 
-- construct Slots
-- graft list of Module names so that each name ends up in a separate branch
-- merge Module Part Points and graft so that each Point ends up in a separate
-  branch (if a Module consists of multiple Parts, process the Points like the
-  Geometry in the following steps)
-- if one or more Modules should contain more Geometry items, group each Geometry
-  items belonging to each Module (do this also for single Geometry items), then
-  merge to get a list of groups and ungroup so that each list of Geometries ends
-  up in a separate branch
-- construct Modules at once using the parallel data trees of Names, Points and
-  Geometries
-- flatten the list of Modules
-- define Explicit Rules from Curves
-- define Indifferent Rules for unused Connectors
-- merge and flatten all Rules
-- run Monoceros WFC Solver
-- Materialize the result
+#### 11.2.3. Definition: Explicit Rule from curve
 
-#### 11.2.4. Definition: with data trees
+### 11.3. Typed Rules
 
-![Without trees](readme-assets/multiple-modules-tree-explicit-rules.png)
+[Monoceros WFC Solver](#1041-monoceros-wfc-solver),
+[Unwrap Typed Rules](#1037-unwrap-typed-rules) and
+[Collect Rules](#1038-collect-rules) generate
+[Explicit Rules](#831-explicit-rule) for all opposing Module Connectors marked
+with the same connection Type in the set of [Typed Rules](#832-typed-rule).
 
-#### 11.2.5. Result
+A Typed Rule is valid if it reffers to an existing Module and its Connectors.
+The validity check is only performed in components that require both, Modules
+and Rules as an input. Invalid Rules are being omitted.
 
-![Pitchforks setup](readme-assets/multiple-modules-tree-explicit-rules-a.jpg)
-![Pitchforks](readme-assets/multiple-modules-tree-explicit-rules-b.jpg)
+Typed Rules can be constructed from a literal (Grasshopper text Panel), from its
+components (name, Connector Index, connection Type) using
+[Construct Typed Rule](#1034-construct-typed-rule), from a Point tag (point
+inside the geometry of a Connector) using
+[Typed Rule from Point](#10310-typed-rule-from-point) or with
+[shortcut components](#114-indifferent-rules)
+[Indifferent Rule from Point](#10312-indifferent-rule-from-point) and
+[Indifferent Rule for unused Connectors](#10313-indifferent-rules-for-unused-connectors).
+The second output of the [Construct Empty Module](#1022-construct-empty-module)
+component is also a [list of Typed (Indifferent) Rules](#1110-empty-module).
 
-### 11.3. Slots and Module Parts with non-uniforms dimensions
+#### 11.3.1. Definition: Typed Rule from a literal
 
-If the Module geometry does not naturally fit into cubic grid, it is possible to define a non-uniform grid for Module Parts as well as for the Slots. The dimensions of Part and Slot are defined as a Vector representing a diagonal of the basic grid unit. The axial dimensions of the Vector are aligned with the Module's or Slot's Base Plane.
+#### 11.3.2. Definition: Typed Rule from components
 
-The Diagonal also defines the discrete step of the world, in which the Modules and Slots reside. Therefore components [Construct Module](#1021-construct-module), [Construct Slot with all Modules allowed](#1011-construct-slot-with-all-modules-allowed), [Construct Slot with listed Modules allowed](#1012-construct-slot-with-listed-modules-allowed) and [Slice Geometry](#1061-slice-geometry) consider the defined Base Plane as the world origin and orientation and the Diagonal as the basic unit, into which they should slice the WFC data. 
+#### 11.3.3. Definition: {Typed Rule from Point tag
 
-**All Modules and Slots used in one solution must have identical Diagonal dimensions!**
-
-#### Definition
-
-![Viewport](readme-assets/non-uniform.png)
-
-#### Result
-
-![Viewport](readme-assets/non-uniform-process.jpg)
-![Viewport](readme-assets/non-uniform-result.jpg)
-
-### 11.4. Modules and Envelope with individual base planes
-
-### 11.5. Indifferent Rules
+### 11.4. Indifferent Rules
 
 Indifferent Rules are ordinary Typed Rules with a predefined Type `indifferent`.
 It is a reserved Type because the [Out](#826-special-modules-out-and-empty) and
@@ -1043,29 +1049,201 @@ For the [Monoceros WFC Solver](#1041-monoceros-wfc-solver) component you need to
 ones with the [generated Indifferent](#115-indifferent-rules) and Rules coming
 along with the [Empty Module](#1022-construct-empty-module).
 
-#### 11.5.2. Definition: Indifferent Rules for unused Connectors
+#### 11.4.1. Definition: Indifferent Rules for unused Connectors
 
 ![Using component](./readme-assets/indifferent_rules-component.png)
 
-#### 11.5.3. Definition: Indifferent Rules manual assignment
+#### 11.4.2. Definition: Indifferent Rules manual assignment
 
 ![Using component](./readme-assets/indifferent_rules-manual.png)
 
-#### 11.5.4. Definition: Indifferent Rules literal assignment
+#### 11.4.3. Definition: Indifferent Rules literal assignment
 
 ![Using component](./readme-assets/indifferent_rules-literal.png)
 
-### 11.6. Typed Rules
+### 11.5. Defining more Modules at once
 
-### 11.7. Disallowing Rules
+#### 11.5.1. Pseudo code: (almost) without data trees
 
-### 11.8. Modules with more Parts
+- construct Slots
+- construct each Module individually with one or more Geometry
+- define Explicit Rules from Curves
+- define Indifferent Rules for unused Connectors
+- merge and flatten all Rules
+- run Monoceros WFC Solver
+- Materialize the result
 
-### 11.9. Module points from Module geometry
+#### 11.5.2. Definition: (almost) without data trees
 
-### 11.10. Empty Module
+![Without trees](readme-assets/multiple-modules-explicit-rules.png)
 
-### 11.11. Allowing an Empty neighbor
+#### 11.5.3. Pseudo code: with data trees
+
+- construct Slots
+- graft list of Module names so that each name ends up in a separate branch
+- merge Module Part Points and graft so that each Point ends up in a separate
+  branch (if a Module consists of multiple Parts, process the Points like the
+  Geometry in the following steps)
+- if one or more Modules should contain more Geometry items, group each Geometry
+  items belonging to each Module (do this also for single Geometry items), then
+  merge to get a list of groups and ungroup so that each list of Geometries ends
+  up in a separate branch
+- construct Modules at once using the parallel data trees of Names, Points and
+  Geometries
+- flatten the list of Modules
+- define Explicit Rules from Curves
+- define Indifferent Rules for unused Connectors
+- merge and flatten all Rules
+- run Monoceros WFC Solver
+- Materialize the result
+
+#### 11.5.4. Definition: with data trees
+
+![Without trees](readme-assets/multiple-modules-tree-explicit-rules.png)
+
+#### 11.5.5. Result
+
+![Pitchforks setup](readme-assets/multiple-modules-tree-explicit-rules-a.jpg)
+![Pitchforks](readme-assets/multiple-modules-tree-explicit-rules-b.jpg)
+
+### 11.6. Slots and Module Parts with non-uniforms dimensions
+
+If the Module geometry does not naturally fit into cubic grid, it is possible to
+define a non-uniform grid for Module Parts as well as for the Slots. The
+dimensions of Part and Slot are defined as a Vector representing a diagonal of
+the basic grid unit. The axial dimensions of the Vector are aligned with the
+Module's or Slot's Base Plane.
+
+The Diagonal also defines the discrete step of the world, in which the Modules
+and Slots reside. Therefore components
+[Construct Module](#1021-construct-module),
+[Construct Slot with all Modules allowed](#1011-construct-slot-with-all-modules-allowed),
+[Construct Slot with listed Modules allowed](#1012-construct-slot-with-listed-modules-allowed)
+and [Slice Geometry](#1061-slice-geometry) consider the defined Base Plane as
+the world origin and orientation and the Diagonal as the basic unit, into which
+they should slice the WFC data.
+
+**All Modules and Slots used in one solution must have identical Diagonal dimensions!**
+
+#### 11.6.1. Definition
+
+![Viewport](readme-assets/non-uniform.png)
+
+#### 11.6.2. Result
+
+![Viewport](readme-assets/non-uniform-process.jpg)
+![Viewport](readme-assets/non-uniform-result.jpg)
+
+### 11.7. Modules and Envelope with individual base planes
+
+A Base Plane defines element's (Module or Slot) coordinate system origin and
+orientation. All their coordinates and directions will be measured from the Base
+Plane.
+
+During [Materialization](#1051-materialize-slots) of the solution, the Module
+[Geometry](#823-module-geometry) will be oriented from the Module Parts' Pivots
+(planes in the center of Module Parts aligned to the Module's Base Plane) to the
+respective Slot's Pivot (plane in the center of the Slot aligned to the common
+Base Plane of all Slots).
+
+Even though in Monoceros it is possible to set individual Base Planes for each
+element, **all [Slots](#81-slot) entering the
+Plane**. The [Modules](#82-module) can have individual Base Planes that do not
+[Monoceros WFC Solver](#1041-monoceros-wfc-solver) must share an identical Base
+need to be identical across the solution.
+
+### 11.8. Disallowing Rules
+
+The [Monoceros WFC Solver](#1041-monoceros-wfc-solver) only works with allowed
+Rules, however sometimes it may be useful to disallow certain connection. This
+is especially useful when [Typed](#832-typed-rule) or
+[Indifferent](#833-indifferent-typed-rule) Rules are being used. Such rules
+[unwrap](#1037-unwrap-typed-rules) into one or more
+[Explicit Rules](#1039-explicit-rule-from-curve), out of which some may be
+unwanted. In such case it is possible to **remove the unwanted Rules from the
+rule set using the [Collect Rules](#1038-collect-rules) component** and
+effectively disallowing them. If a Rule is not present in the collection of
+allowed Rules, it is not necessary to manually disallow it.
+
+To disallow a Rule, it first needs to be created. Only then it is decided,
+whether the Rule will be allowed or disallowed:
+
+- If a Rule should be allowed, it may be passed directly into the Monoceros WFC
+  Solver or into the Allowed Rules input (and must not be passed into the
+  Disallowed Rules input) of the Collect Rules component.
+- If a Rule should be disallowed, it cannot be listed in the Rule set passed
+  directly into the Monoceros WFC Solver. To ensure its removal from the list of
+  allowed Rules, it should be passed into the Disallowed Rules input of the
+  Collect Rules component, while all allowed Rules are being passed into the
+  Allowed Rules input. The Collect Rules component first unwraps and validates
+  all allowed and disallowed Rules and then removes (if present) the disallowed
+  Rules from the list of allowed Rules.
+
+Both, Explicit and Typed Rules can be disallowed. The Collect Rules component
+can be used repeatedly but in most cases it is enough to use it right before
+passing the Rules into the Monoceros WFC Solver because at hat time the list of
+all allowed Rules should be already complete.
+
+**The output of the Collect Rules component completely replaces any previous
+Rule set and should not be merged with any previous lists of Rules.**
+
+**The Monoceros WFC Solver requires all Module Connectors to be described by at
+least one Rule. Disallowing Rules may result in removing all Rules for certain
+Connectors, which makes the solution impossible. In such case the Monoceros WFC
+Solver throws an error.**
+
+### 11.9. Definition
+
+### 11.10. Modules with more Parts
+
+A [Module](#82-module) can consist of more [Parts](#821-monoceros-module-parts)
+which always hold together in [Materialized](#1051-materialize-slots) result of
+the [Monoceros WFC Solver](#1041-monoceros-wfc-solver). Each Part should occupy
+one [Slot](#81-slot) of the world [Envelope](#813-automatic-envelope-wrapping).
+The [Construct Module](#1021-construct-module) component requires a list of
+Module Part Points inside the created Module Parts.
+
+Potential Module Parts are boxes of a size specified as
+[Diagonal](#825-module-properties) filling the entire world, starting with a
+Part which has its center at the world origin defined by the Module's
+[Base Plane](#825-module-properties), aligned to match the Base Plane
+orientation. Those **potential Parts, which contain one or more
+[Module Part Points](#1021-construct-module) will become Parts** of the created
+Module. It means, that even more Points may mark a single Module Part and
+therefore the **Points do not have to be deduplicated**.
+
+The Module Parts and therefore also the Module Part **Points do not need to match the [Module Geometry](#823-module-geometry)**. In many cases the Module Geometry extends, occupies only some Module Parts or does not exist at all.
+
+Module Part Points can be created manually, come from manually populated input
+geometry or from [Slice Geometry](#1061-slice-geometry) component. It is advised
+to **create the Module Part Points manually whenever possible** because it is
+the conscious way, whereas the Slice Geometry component is a brute force
+approach with
+[many limitations](#1128-why-does-the-slice-geometry-component-give-invalid-results)
+and potentially inconsistent results.
+
+It is advised to **keep the number of Module Parts meaningfully low**. Too many
+Parts result in slow performance of the Monoceros WFC Solver and lower
+probability of finding a valid solution. The current version of the Monoceros
+WFC Solver also only **supports solutions with maximum of 256 Parts** from all
+Modules together. If this number is exceeded with a single Module, the Module is
+marked Invalid an the user gets notified by the
+[Constructor](#1021-construct-module) and by all components and floating
+parameters receiving the invalid Module. If this number is exceeded only when
+all Modules are passed into the Monoceros WFC Solver, the user gets notified by
+the Solver component.
+
+#### 11.10.1. Definition: Module Part Points created manually
+
+#### 11.10.2. Definition: Module Part Points created manually from geometry
+
+#### 11.10.3. Definition: Module Part Points created with Slice Geometry
+
+### 11.11. Empty Module and allowing an Empty neighbor
+
+If the Modules consist of more [Module Parts](#821-monoceros-module-parts) it is often possible that the [Modules](#82-module) cannot be stacked together without leaving blank [Slots](#81-slot), which is considered a [contradictory](#5-wave-function-collapse) and therefore invalid result.
+
+Monoceros therefore introduces a convenient [Empty Module](#826-special-modules-out-and-empty) [constructor](#1022-construct-empty-module). It is a shortcut for creating a Module named `empty` with a single [Part](#821-monoceros-module-parts), with no [Geometry](#823-module-geometry) and all [Connectors](#822-connectors) described as [Indifferent](#833-indifferent-typed-rule). *Note: This can be also achieved manually and in some cases may be useful, when more types of empty modules are required.*
 
 ### 11.12. Choosing boundary Modules
 
@@ -1087,11 +1265,15 @@ along with the [Empty Module](#1022-construct-empty-module).
 
 ### 11.21. Proto-results and custom materialization
 
-### 11.22. What makes a good Module
+### 11.22. Using the transform data to materialize the result
 
-### 11.23. Random seed and attempts count
+### 11.23. What makes a good Module
 
-### 11.24. Making a valid Envelope
+### 11.24. Random seed and attempts count
+
+### 11.25. Making a valid Envelope
+
+### 11.26. Why does the Slice Geometry component give invalid results
 
 ## 12. Partners
 
