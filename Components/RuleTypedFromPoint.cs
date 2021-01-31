@@ -86,7 +86,7 @@ namespace Monoceros {
                 for (var connectorIndex = 0; connectorIndex < module.Connectors.Count; connectorIndex++) {
                     var connector = module.Connectors[connectorIndex];
                     if (connector.ContaininsPoint(point)) {
-                        rules.Add(new Rule(module.Name, connectorIndex, type));
+                        rules.Add(new Rule(module.Name, (uint)connectorIndex, type));
                     }
                 }
             }

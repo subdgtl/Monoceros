@@ -98,7 +98,7 @@ namespace Monoceros {
             for (var connectorIndex = 0; connectorIndex < connectorUsePattern.Count; connectorIndex++) {
                 var used = connectorUsePattern[connectorIndex];
                 if (!used) {
-                    var rule = new Rule(module.Name, connectorIndex, type);
+                    var rule = new Rule(module.Name, (uint)connectorIndex, type);
                     if (rule.IsValid) {
                         rules.Add(rule);
                     } else {

@@ -39,9 +39,9 @@ namespace Monoceros {
         ///     </param>
         public Rule(
             string sourceModuleName,
-            int sourceConnectorIndex,
+            uint sourceConnectorIndex,
             string targetModuleName,
-            int targetConnectorIndex
+            uint targetConnectorIndex
         ) {
             Explicit = new RuleExplicit(sourceModuleName,
                                         sourceConnectorIndex,
@@ -70,7 +70,7 @@ namespace Monoceros {
         /// <param name="connectorType">The connector type.</param>
         public Rule(
             string moduleName,
-            int connectorIndex,
+            uint connectorIndex,
             string connectorType
         ) {
             Typed = new RuleTyped(moduleName, connectorIndex, connectorType);
@@ -212,7 +212,10 @@ namespace Monoceros {
                     var connectorType = subTexts2[1].Trim();
                     try {
                         var connectorIndex = int.Parse(connectorIndexStr);
-                        Typed = new RuleTyped(moduleName, connectorIndex, connectorType);
+                        if (connectorIndex < uint.MinValue) {
+                            return false;
+                        }
+                        Typed = new RuleTyped(moduleName, (uint)connectorIndex, connectorType);
                         return true;
                     } catch {
                         return false;
@@ -240,10 +243,14 @@ namespace Monoceros {
                     try {
                         var sourceConnectorIndex = int.Parse(sourceConnectorIndexStr);
                         var targetConnectorIndex = int.Parse(targetConnectorIndexStr);
+                        if (sourceConnectorIndex < uint.MinValue
+                        || targetConnectorIndex < uint.MinValue) {
+                            return false;
+                        }
                         Explicit = new RuleExplicit(sourceModuleName,
-                                                    sourceConnectorIndex,
+                                                    (uint)sourceConnectorIndex,
                                                     targetModuleName,
-                                                    targetConnectorIndex);
+                                                    (uint)targetConnectorIndex);
                         return true;
                     } catch {
                         return false;
@@ -295,10 +302,14 @@ namespace Monoceros {
                     var sourceConnectorIndex = reader.GetInt32("SourceConnectorIndex");
                     var targetModuleName = reader.GetString("TargetModuleName");
                     var targetConnectorIndex = reader.GetInt32("TargetConnectorIndex");
+                    if (sourceConnectorIndex < uint.MinValue
+                        || targetConnectorIndex < uint.MinValue) {
+                        return false;
+                    }
                     var ruleExplicit = new RuleExplicit(sourceModuleName,
-                                                        sourceConnectorIndex,
+                                                        (uint)sourceConnectorIndex,
                                                         targetModuleName,
-                                                        targetConnectorIndex);
+                                                        (uint)targetConnectorIndex);
                     Explicit = ruleExplicit;
                     return true;
                 }
@@ -306,8 +317,11 @@ namespace Monoceros {
                     var moduleName = reader.GetString("ModuleName");
                     var connectorIndex = reader.GetInt32("ConnectorIndex");
                     var connectorType = reader.GetString("ConnectorType");
+                    if (connectorIndex < uint.MinValue) {
+                        return false;
+                    }
                     var ruleTyped = new RuleTyped(moduleName,
-                                                  connectorIndex,
+                                                  (uint)connectorIndex,
                                                   connectorType);
                     Typed = ruleTyped;
                     return true;
@@ -515,25 +529,19 @@ namespace Monoceros {
         ///     <see cref="Module"/>'s <see cref="ModuleConnector"/> index.
         ///     </param>
         public RuleExplicit(string sourceModuleName,
-                            int sourceConnectorIndex,
+                            uint sourceConnectorIndex,
                             string targetModuleName,
-                            int targetConnectorIndex) {
+                            uint targetConnectorIndex) {
             if (sourceModuleName.Length == 0) {
                 throw new Exception("Source module name is empty");
             }
             if (targetModuleName.Length == 0) {
                 throw new Exception("Target module name is empty");
             }
-            if (sourceConnectorIndex < 0) {
-                throw new Exception("Source connector index is negative");
-            }
-            if (targetConnectorIndex < 0) {
-                throw new Exception("Target connector index is negative");
-            }
             SourceModuleName = sourceModuleName.ToLower();
-            SourceConnectorIndex = sourceConnectorIndex;
+            SourceConnectorIndex = (int)sourceConnectorIndex;
             TargetModuleName = targetModuleName.ToLower();
-            TargetConnectorIndex = targetConnectorIndex;
+            TargetConnectorIndex = (int)targetConnectorIndex;
         }
 
         /// <summary>
@@ -564,13 +572,15 @@ namespace Monoceros {
         /// only possible when all modules are provided and can be done with
         /// <see cref="IsValidWithGivenModules(List{Module})"/>
         /// </summary>
-        public bool IsValid => !(SourceModuleName == TargetModuleName &&
-                                SourceConnectorIndex == TargetConnectorIndex);
+        public bool IsValid => !(SourceModuleName == TargetModuleName
+                                 && SourceConnectorIndex == TargetConnectorIndex)
+                               && SourceConnectorIndex >= uint.MinValue
+                               && TargetConnectorIndex >= uint.MinValue;
 
         /// <summary>
         /// Returns a message why is the rule invalid.
         /// </summary>
-        public string IsValidWhyNot => ToString() + " The connector connects to itself!";
+        public string IsValidWhyNot => ToString() + " The Rule is invalid.";
 
 
         /// <summary>
@@ -747,7 +757,7 @@ namespace Monoceros {
         ///     <see cref="ModuleConnector"/> index.</param>
         /// <param name="connectorType">The connector type - will be converted
         ///     to lowercase.</param>
-        public RuleTyped(string moduleName, int connectorIndex, string connectorType) {
+        public RuleTyped(string moduleName, uint connectorIndex, string connectorType) {
             if (moduleName.Length == 0) {
                 throw new Exception("Module name is empty");
             }
@@ -761,7 +771,7 @@ namespace Monoceros {
             }
 
             ModuleName = moduleName.ToLower();
-            ConnectorIndex = connectorIndex;
+            ConnectorIndex = (int)connectorIndex;
             ConnectorType = connectorType.ToLower();
         }
 
@@ -785,12 +795,12 @@ namespace Monoceros {
         /// Checks if the rule is initiated properly. Always valid due to the
         /// checks in the constructor.
         /// </summary>
-        public bool IsValid => true;
+        public bool IsValid => ConnectorIndex >= uint.MinValue;
 
         /// <summary>
         /// Should never be called.
         /// </summary>
-        public string IsValidWhyNot => "Unknown reason";
+        public string IsValidWhyNot => ToString() + " Connector Index out is of range.";
 
         /// <summary>
         /// Provides a user-friendly description of the rule. Required by
@@ -873,9 +883,9 @@ namespace Monoceros {
                 if (targetConnector.Direction.IsOpposite(sourceConnector.Direction)) {
                     rulesExplicit.Add(
                         new RuleExplicit(sourceModule.Name,
-                                         ConnectorIndex,
+                                         (uint)ConnectorIndex,
                                          targetModule.Name,
-                                         other.ConnectorIndex)
+                                         (uint)other.ConnectorIndex)
                         );
                 }
             }

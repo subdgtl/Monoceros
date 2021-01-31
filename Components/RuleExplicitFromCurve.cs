@@ -83,9 +83,9 @@ namespace Monoceros {
                                 var endConnector = endModule.Connectors[endConnectorIndex];
                                 if (endConnector.ContaininsPoint(curve.PointAtEnd)) {
                                     rules.Add(new Rule(startModule.Name,
-                                                       startConnectorIndex,
+                                                       (uint)startConnectorIndex,
                                                        endModule.Name,
-                                                       endConnectorIndex)
+                                                       (uint)endConnectorIndex)
                                     );
                                 }
                             }
