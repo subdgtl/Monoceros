@@ -99,7 +99,8 @@ respecting the given Rules.**
   - [11.3. Typed Rules](#113-typed-rules)
     - [11.3.1. Definition: Typed Rule from a literal](#1131-definition-typed-rule-from-a-literal)
     - [11.3.2. Definition: Typed Rule from components](#1132-definition-typed-rule-from-components)
-    - [11.3.3. Definition: {Typed Rule from Point tag](#1133-definition-typed-rule-from-point-tag)
+    - [11.3.3. Definition: Typed Rule from components using Module as Name](#1133-definition-typed-rule-from-components-using-module-as-name)
+    - [11.3.4. Definition: {Typed Rule from Point tag](#1134-definition-typed-rule-from-point-tag)
   - [11.4. Indifferent Rules](#114-indifferent-rules)
     - [11.4.1. Definition: Indifferent Rules for unused Connectors](#1141-definition-indifferent-rules-for-unused-connectors)
     - [11.4.2. Definition: Indifferent Rules manual assignment](#1142-definition-indifferent-rules-manual-assignment)
@@ -121,23 +122,41 @@ respecting the given Rules.**
     - [11.10.2. Definition: Module Part Points created manually from geometry](#11102-definition-module-part-points-created-manually-from-geometry)
     - [11.10.3. Definition: Module Part Points created with Slice Geometry](#11103-definition-module-part-points-created-with-slice-geometry)
   - [11.11. Empty Module and allowing an Empty neighbor](#1111-empty-module-and-allowing-an-empty-neighbor)
-  - [11.12. Choosing boundary Modules](#1112-choosing-boundary-modules)
-  - [11.13. Slots from points](#1113-slots-from-points)
+    - [11.11.1. Definition: Empty Module and additional Explicit Rules](#11111-definition-empty-module-and-additional-explicit-rules)
+    - [11.11.2. Definition: Explicit Rules with all Connectors of Empty](#11112-definition-explicit-rules-with-all-connectors-of-empty)
+    - [11.11.3. Definition: Multiple different Empty Modules](#11113-definition-multiple-different-empty-modules)
+  - [11.12. Allowing Modules to be at the boundary of the Envelope](#1112-allowing-modules-to-be-at-the-boundary-of-the-envelope)
+    - [11.12.1. Definition](#11121-definition)
+  - [11.13. Constructing Slots](#1113-constructing-slots)
+    - [11.13.1. Definition: Slots from manually generated points](#11131-definition-slots-from-manually-generated-points)
+    - [11.13.2. Definition: Slots from manually generated points from geometry](#11132-definition-slots-from-manually-generated-points-from-geometry)
+    - [11.13.3. Definition: Slots from Slice Geometry: Points](#11133-definition-slots-from-slice-geometry-points)
+    - [11.13.4. Definition: Slots from Slice Geometry: Curves](#11134-definition-slots-from-slice-geometry-curves)
+    - [11.13.5. Definition: Slots from Slice Geometry: Surfaces](#11135-definition-slots-from-slice-geometry-surfaces)
+    - [11.13.6. Definition: Slots from Slice Geometry: Mesh and Brep volumes](#11136-definition-slots-from-slice-geometry-mesh-and-brep-volumes)
+    - [11.13.7. Definition: Slots from Slice Geometry: Miscellaneous geometry](#11137-definition-slots-from-slice-geometry-miscellaneous-geometry)
   - [11.14. Preventing duplicate Slots from points](#1114-preventing-duplicate-slots-from-points)
-  - [11.15. Slots from geometry](#1115-slots-from-geometry)
-  - [11.16. Extreme Slot Envelopes](#1116-extreme-slot-envelopes)
-  - [11.17. Allowing certain Modules in certain Slots](#1117-allowing-certain-modules-in-certain-slots)
-  - [11.18. Disallowing certain Modules from certain Slots](#1118-disallowing-certain-modules-from-certain-slots)
-  - [11.19. Setting fixed Modules](#1119-setting-fixed-modules)
+    - [11.14.1. Definition](#11141-definition)
+  - [11.15. Allowing certain Modules in certain Slots](#1115-allowing-certain-modules-in-certain-slots)
+  - [11.16. Fixing Modules in Envelope before running the Solver](#1116-fixing-modules-in-envelope-before-running-the-solver)
+  - [11.17. Disallowing certain Modules from certain Slots](#1117-disallowing-certain-modules-from-certain-slots)
+  - [11.18. Allowing specific modules at the boundary of the Envelope](#1118-allowing-specific-modules-at-the-boundary-of-the-envelope)
+  - [11.19. Growing the boundary of the Envelope](#1119-growing-the-boundary-of-the-envelope)
   - [11.20. Materializing results](#1120-materializing-results)
   - [11.21. Proto-results and custom materialization](#1121-proto-results-and-custom-materialization)
   - [11.22. Using the transform data to materialize the result](#1122-using-the-transform-data-to-materialize-the-result)
-  - [11.23. What makes a good Module](#1123-what-makes-a-good-module)
-  - [11.24. Random seed and attempts count](#1124-random-seed-and-attempts-count)
-  - [11.25. Making a valid Envelope](#1125-making-a-valid-envelope)
-  - [11.26. Why does the Slice Geometry component give invalid results](#1126-why-does-the-slice-geometry-component-give-invalid-results)
-- [12. Partners](#12-partners)
-- [13. MIT License](#13-mit-license)
+  - [11.23. Random seed and attempts count](#1123-random-seed-and-attempts-count)
+- [12. FAQ](#12-faq)
+  - [12.1. What is a good exercise to start using Monoceros?](#121-what-is-a-good-exercise-to-start-using-monoceros)
+  - [12.2. What does the error "World state is contradictory" mean?](#122-what-does-the-error-world-state-is-contradictory-mean)
+  - [12.3. Why the Solver cannot find any solution even after 1000 attempts?](#123-why-the-solver-cannot-find-any-solution-even-after-1000-attempts)
+  - [12.4. What makes a good Module?](#124-what-makes-a-good-module)
+  - [12.5. What makes a good Envelope?](#125-what-makes-a-good-envelope)
+  - [12.6. Why does the Slice Geometry component give invalid results?](#126-why-does-the-slice-geometry-component-give-invalid-results)
+  - [12.7. How to set a Rule for a Module two or more Slots away?](#127-how-to-set-a-rule-for-a-module-two-or-more-slots-away)
+  - [12.8. Are block instances or groups supported by Monoceros?](#128-are-block-instances-or-groups-supported-by-monoceros)
+- [13. Partners](#13-partners)
+- [14. MIT License](#14-mit-license)
 
 ## 4. Meet Monoceros
 
@@ -999,9 +1018,9 @@ Module Connector with an implicit
 [Explicit Rules](#831-explicit-rule) for all opposing Module Connectors marked
 with the same connection Type in the set of [Typed Rules](#832-typed-rule).
 
-A Typed Rule is valid if it reffers to an existing Module and its Connectors.
-The validity check is only performed in components that require both, Modules
-and Rules as an input. Invalid Rules are being omitted.
+A Typed Rule is valid if it refers to an existing Module and its Connectors. The
+validity check is only performed in components that require both, Modules and
+Rules as an input. Invalid Rules are being omitted.
 
 Typed Rules can be constructed from a literal (Grasshopper text Panel), from its
 components (name, Connector Index, connection Type) using
@@ -1012,13 +1031,15 @@ inside the geometry of a Connector) using
 [Indifferent Rule from Point](#10312-indifferent-rule-from-point) and
 [Indifferent Rule for unused Connectors](#10313-indifferent-rules-for-unused-connectors).
 The second output of the [Construct Empty Module](#1022-construct-empty-module)
-component is also a [list of Typed (Indifferent) Rules](#1110-empty-module).
+component is also a list of [Typed (Indifferent) Rules](#1110-empty-module).
 
 #### 11.3.1. Definition: Typed Rule from a literal
 
 #### 11.3.2. Definition: Typed Rule from components
 
-#### 11.3.3. Definition: {Typed Rule from Point tag
+#### 11.3.3. Definition: Typed Rule from components using Module as Name
+
+#### 11.3.4. Definition: {Typed Rule from Point tag
 
 ### 11.4. Indifferent Rules
 
@@ -1212,7 +1233,9 @@ orientation. Those **potential Parts, which contain one or more
 Module. It means, that even more Points may mark a single Module Part and
 therefore the **Points do not have to be deduplicated**.
 
-The Module Parts and therefore also the Module Part **Points do not need to match the [Module Geometry](#823-module-geometry)**. In many cases the Module Geometry extends, occupies only some Module Parts or does not exist at all.
+The Module Parts and therefore also the Module Part **Points do not need to
+match the [Module Geometry](#823-module-geometry)**. In many cases the Module
+Geometry extends, occupies only some Module Parts or does not exist at all.
 
 Module Part Points can be created manually, come from manually populated input
 geometry or from [Slice Geometry](#1061-slice-geometry) component. It is advised
@@ -1241,25 +1264,161 @@ the Solver component.
 
 ### 11.11. Empty Module and allowing an Empty neighbor
 
-If the Modules consist of more [Module Parts](#821-monoceros-module-parts) it is often possible that the [Modules](#82-module) cannot be stacked together without leaving blank [Slots](#81-slot), which is considered a [contradictory](#5-wave-function-collapse) and therefore invalid result.
+If the Modules consist of more [Module Parts](#821-monoceros-module-parts) it is
+often possible that the [Modules](#82-module) cannot be stacked together without
+leaving blank [Slots](#81-slot), which is considered a
+[contradictory](#5-wave-function-collapse) and therefore invalid result.
 
-Monoceros therefore introduces a convenient [Empty Module](#826-special-modules-out-and-empty) [constructor](#1022-construct-empty-module). It is a shortcut for creating a Module named `empty` with a single [Part](#821-monoceros-module-parts), with no [Geometry](#823-module-geometry) and all [Connectors](#822-connectors) described as [Indifferent](#833-indifferent-typed-rule). *Note: This can be also achieved manually and in some cases may be useful, when more types of empty modules are required.*
+Monoceros therefore introduces a convenient
+[Empty Module](#826-special-modules-out-and-empty)
+[constructor](#1022-construct-empty-module). It is a shortcut for creating a
+Module named `empty` with a single [Part](#821-monoceros-module-parts), with no
+[Geometry](#823-module-geometry) and all [Connectors](#822-connectors) described
+as [Indifferent](#833-indifferent-typed-rule). Since the name `empty` of the
+default Empty Module cannot be changed, only one Empty Module can be used for a
+solution.
 
-### 11.12. Choosing boundary Modules
+*Note: An Empty Module with a different name can be also constructed manually,
+which in some cases may be useful, when more types of empty Modules are
+required.*
 
-### 11.13. Slots from points
+The Rules generated by the Empty Module constructor component need to be added
+to the Rule set.
+
+An Empty Module does have a geometrical representation and does appear in the
+Rhinoceros viewport just like any other Module. Its helper geometry (cage and
+Connector anchor points) can be baked and used to define additional Rules
+involving the Empty Module, i.e. an Explicit Rule allowing adjacency of the
+Empty Module to a specific (non-indifferent) Connector or a Typed Rule.
+
+*Note: It is advised to construct the Empty Module with a Base Plane shifted
+away from the world XY origin because in most cases there already is a custom
+module at {0,0,0} coordinate. If the Module inputs overlap, the Rules from
+Points or Curves may be mixed.*
+
+*Note: It is convenient to generate Explicit Rules from Curve from the desired
+Connectors to all six Connectors of the Empty Module. The Monoceros WFC Solver
+or other components will remove the invalid Rules that connect non-opposite
+Connectors.*
+
+#### 11.11.1. Definition: Empty Module and additional Explicit Rules
+
+#### 11.11.2. Definition: Explicit Rules with all Connectors of Empty
+
+#### 11.11.3. Definition: Multiple different Empty Modules
+
+If the Empty Module should be larger than a single Part, it is convenient to
+generate custom Modules with no geometry with the required properties and allow
+them to be adjacent to the Modules that require more Empty space next to them.
+
+### 11.12. Allowing Modules to be at the boundary of the Envelope
+
+The Envelope [Slots](#81-slot) are
+[automatically wrapped](#813-automatic-envelope-wrapping) into a layer of Slots
+containing exclusively an `out` Module. It is being generated
+[implicitly automatically](#826-special-modules-out-and-empty) in the
+[Monoceros WFC Solver](#1041-monoceros-wfc-solver) component and in
+[Unwrap Typed Rules](#1037-unwrap-typed-rules) and
+[Collect Rules](#1038-collect-rules) components. The Out Module has one Part and
+automatically comes with all 6 connectors described as
+[Indifferent](#833-indifferent-typed-rule).
+
+This way the [Out Module](#826-special-modules-out-and-empty) can be adjacent to
+itself and to all Indifferent [Connectors](#822-connectors). That means that all
+Modules with Indifferent Connectors can be at the boundary of the Envelope
+because their Indifferent Connectors can be adjacent to the Out Module, which is
+certainly placed outside of the Envelope.
+
+Some sets of Modules and Rule sets, however, require additional way of allowing
+some Modules to be at the boundary of the Envelope. THis typically happens when
+the Modules create an open linear (i.e. pipes) or a branching (i.e. growing
+tree) structure. Ins such case a Module that can appear in the middle of an
+assembly, should be also able to appear at its beginning and end - at the
+boundary of the Envelope. Such Module's Connector should not be described as
+Indifferent because then it could appear next to any other Indifferent
+Connector, which would break the structure of the aggregate. For such cases
+there is [Rule at boundary from Point](#10311-rule-at-boundary-from-point)
+component, which creates an Explicit Rule, allowing adjacency of a Connector
+tagged with the input Point and an opposite Out Module's Connector. This is the
+most convenient way of creating such Rule because there is no need to specify
+the correct opposite Connector of the Out Module.
+
+*Note: The Out Module module does not have any geometrical representation in the
+Rhinoceros viewport and therefore it is impossible to create an Explicit Rule
+from Curve with it.*
+
+It is also possible to disallow certain Indifferent Module Connectors from
+appearing at the boundary of the Envelope by generating respective rules with
+the Rule at boundary from Point component and disallow them using the
+[Collect Rules](#1038-collect-rules) component.
+
+#### 11.12.1. Definition
+
+### 11.13. Constructing Slots
+
+Monoceros [Slots](#81-slot) are cuboid (box-like) chunks of space, delimiting a
+single basic discrete gid unit, which can contain certain
+[Module Part](#821-monoceros-module-parts). A flat list of Slots forms an
+[Envelope](#813-automatic-envelope-wrapping). The Envelope can have any shape,
+be full or hollow, one, two or three-dimensional, form a single or multiple
+blobs.
+
+Each individual Slot is created by defining (any) point inside the respective
+chunk of space delimited by the potential Slot. Each input point generates one
+Slot, therefore
+[duplicate input points](#1114-preventing-duplicate-slots-from-points) create
+duplicate Slots.
+
+Slot input points can be constructed either manually, manually from geometry,
+using the [Slice Geometry](#1061-slice-geometry) component or employing a
+combination of these methods. It is advised to **generate the input points
+manually or manually from geometry whenever possible** because it offers better
+control. The Slice Geometry component is a brute force approach with
+[many limitations](#1128-why-does-the-slice-geometry-component-give-invalid-results)
+and potentially inconsistent results.
+
+#### 11.13.1. Definition: Slots from manually generated points
+
+#### 11.13.2. Definition: Slots from manually generated points from geometry
+
+#### 11.13.3. Definition: Slots from Slice Geometry: Points
+
+#### 11.13.4. Definition: Slots from Slice Geometry: Curves
+
+#### 11.13.5. Definition: Slots from Slice Geometry: Surfaces
+
+#### 11.13.6. Definition: Slots from Slice Geometry: Mesh and Brep volumes
+
+#### 11.13.7. Definition: Slots from Slice Geometry: Miscellaneous geometry
 
 ### 11.14. Preventing duplicate Slots from points
 
-### 11.15. Slots from geometry
+Monoceros [Slots](#81-slot) are constructed via components
+[Construct Slot with all Modules allowed](#1011-construct-slot-with-all-modules-allowed)
+or
+[Construct Slot with listed Modules allowed](#1012-construct-slot-with-listed-modules-allowed)
+per single Slot. That means each input point generates one Slot even if a Slot
+at that discrete grid position already exists. That will not only result in too
+many Slots but also cause an error of the
+[Monoceros WFC Solver](#1041-monoceros-wfc-solver). To prevent that, the input
+points need to be properly deduplicated, so that each Slot is marked by a single
+point, located unambiguously inside the Slot.
 
-### 11.16. Extreme Slot Envelopes
+This can be done manually, but more conveniently it is possible to use the
+[Slice Geometry](#1061-slice-geometry) component to process the input collection
+of points into a list of distinct Slot centers.
 
-### 11.17. Allowing certain Modules in certain Slots
+#### 11.14.1. Definition
 
-### 11.18. Disallowing certain Modules from certain Slots
+### 11.15. Allowing certain Modules in certain Slots
 
-### 11.19. Setting fixed Modules
+### 11.16. Fixing Modules in Envelope before running the Solver
+
+### 11.17. Disallowing certain Modules from certain Slots
+
+### 11.18. Allowing specific modules at the boundary of the Envelope
+
+### 11.19. Growing the boundary of the Envelope
 
 ### 11.20. Materializing results
 
@@ -1267,15 +1426,77 @@ Monoceros therefore introduces a convenient [Empty Module](#826-special-modules-
 
 ### 11.22. Using the transform data to materialize the result
 
-### 11.23. What makes a good Module
+### 11.23. Random seed and attempts count
 
-### 11.24. Random seed and attempts count
+## 12. FAQ
 
-### 11.25. Making a valid Envelope
+### 12.1. What is a good exercise to start using Monoceros?
 
-### 11.26. Why does the Slice Geometry component give invalid results
+### 12.2. What does the error "World state is contradictory" mean?
 
-## 12. Partners
+### 12.3. Why the Solver cannot find any solution even after 1000 attempts?
+
+### 12.4. What makes a good Module?
+
+### 12.5. What makes a good Envelope?
+
+### 12.6. Why does the Slice Geometry component give invalid results?
+
+### 12.7. How to set a Rule for a Module two or more Slots away?
+
+**It is not possible.** The
+[Monoceros Wave Function Collapse implementation](#9-monoceros-wfc-solver)
+allows to specify only [immediate adjacency](#83-rule).
+
+For specific cases of 1D and 2D aggregates it is possible to use the remaining
+dimension to specify [Modules](#82-module) with no
+[Geometry](#823-module-geometry) spanning over more
+[Parts](#821-monoceros-module-parts) / [Slots](#81-slot) with [Rules](#83-rule)
+at [Connectors](#822-connectors) farther apart.
+
+### 12.8. Are block instances or groups supported by Monoceros?
+
+**No.** These data types are not part of the usual geometrical hierarchy in
+Grasshopper.
+
+[Construct Module](#1021-construct-module) and
+[Slice Geometry](#1061-slice-geometry) components support the following geometry
+types and their derivatives:
+
+- Point
+- Curve (and Line, Arc, Circle etc.)
+- Surface (and Sphere etc.)
+- Brep / Polysurface (and Box etc.)
+- Mesh
+
+The
+[architecture of Monoceros](#7-architecture-of-monoceros-grasshopper-plug-in)
+expects a small number of lightweight [Modules](#82-module). In such case it
+should not be a performance problem to embed the
+[geometry](#823-module-geometry) into the Modules. The geometry itself is not
+being used for any calculations until the Modules reach the
+[Materialize Slots](#1051-materialize-slots) component.
+
+Two things are happening in the Materialize Slots component:
+
+- it outputs the Module Geometry in a data tree. Each branch path represents
+  `{Module index, Slot index}`, where `Module index` is the order in which the
+  Modules were passed into the Materialize Slots component and `Slot index` is
+  the order in which the Slots were passed into the Materialize Slots component.
+  Each branch contains a complete list of geometry brought by the respective
+  Module into its Slot. *Note: Only the Slots containing the first
+  [Part](#821-monoceros-module-parts) of each Module contain the Module Geometry
+  to prevent duplicate geometry entries for multi-part Modules.* Displaying all
+  materialized geometry in Rhinoceros viewport may be slow, therefore **it is
+  recommenced to disable preview for the Materialize Slots component**. The
+  output geometry may be used for further Grasshopper processing or evaluation.
+- it bakes the module geometry as block instances. This means the geometry
+  exists in Rhinoceros only once and all its instances are just references to
+  the original block. This way it is possible to modify all instances of
+  geometry of each Module type at once by modifying any of the blocks. In most
+  cases it also means a significantly smaller Rhinoceors `.3dm` file.
+
+## 13. Partners
 
 Developed at [Subdigital](https://sub.digtial).
 
@@ -1283,7 +1504,7 @@ Supported using public funding by Slovak Arts Council.
 
 ![FPU](readme-assets/fpu.jpg)
 
-## 13. MIT License
+## 14. MIT License
 
 Copyright (c) 2021 Subdigital | Ján Pernecký, Ján Tóth
 
