@@ -85,6 +85,7 @@ respecting the given Rules.**
   - [10.5. Post processing](#105-post-processing)
     - [10.5.1. Materialize Slots](#1051-materialize-slots)
     - [10.5.2. Assemble Rule](#1052-assemble-rule)
+    - [10.5.3. Rule Preview](#1053-rule-preview)
   - [10.6. Supplemental](#106-supplemental)
     - [10.6.1. Slice Geometry](#1061-slice-geometry)
 - [11. Examples](#11-examples)
@@ -157,9 +158,17 @@ respecting the given Rules.**
   - [11.18. Growing the boundary of the Envelope](#1118-growing-the-boundary-of-the-envelope)
     - [11.18.1. Definition](#11181-definition)
   - [11.19. Materializing results](#1119-materializing-results)
+    - [11.19.1. Definition](#11191-definition)
   - [11.20. Proto-results and custom materialization](#1120-proto-results-and-custom-materialization)
+    - [11.20.1. Definition](#11201-definition)
   - [11.21. Using the transform data to materialize the result](#1121-using-the-transform-data-to-materialize-the-result)
+    - [11.21.1. Definition](#11211-definition)
   - [11.22. Random seed and attempts count](#1122-random-seed-and-attempts-count)
+  - [11.23. Visualizing Rules](#1123-visualizing-rules)
+    - [11.23.1. Definition](#11231-definition)
+  - [11.24. Visualizing allowed Module couples](#1124-visualizing-allowed-module-couples)
+    - [11.24.1. Definition: Visualizing one Module couple](#11241-definition-visualizing-one-module-couple)
+    - [11.24.2. Definition: Visualizing a catalog of Module couples](#11242-definition-visualizing-a-catalog-of-module-couples)
 - [12. FAQ](#12-faq)
   - [12.1. What is a good exercise to start using Monoceros?](#121-what-is-a-good-exercise-to-start-using-monoceros)
   - [12.2. What does the error "World state is contradictory" mean?](#122-what-does-the-error-world-state-is-contradictory-mean)
@@ -167,7 +176,7 @@ respecting the given Rules.**
   - [12.4. What makes a good Module?](#124-what-makes-a-good-module)
   - [12.5. What makes a good Envelope?](#125-what-makes-a-good-envelope)
   - [12.6. Why does the Slice Geometry component give invalid results?](#126-why-does-the-slice-geometry-component-give-invalid-results)
-  - [12.7. How to set a Rule for a Module two or more Slots away?](#127-how-to-set-a-rule-for-a-module-two-or-more-slots-away)
+  - [12.7. How to set a Rule for a Module distant two or more Slots?](#127-how-to-set-a-rule-for-a-module-distant-two-or-more-slots)
   - [12.8. Are block instances or groups supported by Monoceros?](#128-are-block-instances-or-groups-supported-by-monoceros)
 - [13. Partners](#13-partners)
 - [14. MIT License](#14-mit-license)
@@ -736,12 +745,12 @@ other data type.
 ##### 8.3.1.3. Explicit Rule Viewport preview and baking
 
 An Explicit Rule cannot be displayed on its own. Following a precedent of Vector
-display component in Grasshopper, there is a Rule Preview component in
-Monoceros. When provided with all Modules, it displays an Explicit Rule as a
-line between the connectors described by the Rule. The color of the line
-indicates the direction of the connectors (and therefore also of the Rule): red
-means the connectors are facing X direction, green represents Y direction and
-blue indicates Z direction.
+display component in Grasshopper, there is a [Rule Preview](#1053-rule-preview)
+component in Monoceros. When provided with all Modules, it displays an Explicit
+Rule as a line between the connectors described by the Rule. The color of the
+line indicates the direction of the connectors (and therefore also of the Rule):
+red means the connectors are facing X direction, green represents Y direction
+and blue indicates Z direction.
 
 An Explicit Rule preview can be baked.
 
@@ -940,6 +949,8 @@ whether the world needed canonicalizing as part of its output.
 #### 10.5.1. Materialize Slots
 
 #### 10.5.2. Assemble Rule
+
+#### 10.5.3. Rule Preview
 
 ### 10.6. Supplemental
 
@@ -1573,27 +1584,297 @@ Envelope.
 
 ### 11.19. Materializing results
 
+A correct result of the [Monoceros WFC Solver](#9-monoceros-wfc-solver) is a
+collection of deterministic [Slots](#81-slot), which allow exactly one
+[Module Part](#821-monoceros-module-parts) to be placed. This is still not the
+final stage of the discrete assembly process because the solution is not yet
+[Materialized](#1051-materialize-slots), which is a process of placing
+[Module Geometry](#823-module-geometry) into its respective Slots.
+
+The output of [Materialize Slots](#1051-materialize-slots) component is a data
+tree with paths `{ module index, slot index }`, where `module index` is the
+order of the placed Module in the input list of Modules and `slot index` is the
+order of the target Slot in the input list of Slots. Each branch then contains
+all geometry items of the respective Module.
+
+*Note: Due to the way Monoceros treats Module Parts, only the first Part of each
+Module is placed into its Slot, leaving the remaining Slots containing the
+Module empty (their index will not even appear in the Materialize Slots
+component output data tree).*
+
+The geometry output of the Materialize Slots component is intended for further
+use in Grasshopper. Therefore, if the intention is to bake the output of the WFC
+already in this stage, it is advised to bake the Materialize Slots component.
+The result of such bake is a
+[collection of block instances](#128-are-block-instances-or-groups-supported-by-monoceros),
+which are significantly smaller than full-fledged geometry and all blocks of one
+type can be edited at once.
+
+*Note: The viewport rendering of materialized geometry may be slow on some
+computers. This makes the Materialize Slots component one of the slowest part of
+a Grasshopper Monoceros definition. To speed it up, it is recommended to disable
+preview of the Materialize Slots component prior to connecting wires to its
+inputs.*
+
+#### 11.19.1. Definition
+
 ### 11.20. Proto-results and custom materialization
+
+In some cases the final geometry of a Grasshopper definition does not have to be
+[the one stored](#823-module-geometry) in the Monoceros [Modules](#82-module).
+The Modules can contain some proto=geometry instead and the final geometry is
+then constructed in Grasshopper after
+[materialization](#1051-materialize-slots).
+
+A typical case may be structures that are not meant to be discrete, but rather
+continuous. The Modules should then contain only the skeleton of such structure,
+which will be joined and wrapped into volumes after the materialization of the
+WFC assembly.
+
+#### 11.20.1. Definition
 
 ### 11.21. Using the transform data to materialize the result
 
+In very special cases, the geometry does not have to enter the
+[Modules](#82-module) at all. Instead, the
+[Monoceros WFC Solver](#9-monoceros-wfc-solver) runs on the [Rule](#83-rule) set
+an Modules with no [geometry](#823-module-geometry) and so does the
+[Materialize Slots](#1051-materialize-slots) component. Its `Transform` output
+contains transformation data, that can be used to place any geometry from the
+original Module location into all the [Slots](#81-slot) which should contain the
+respective geometry.
+
+This is especially useful if there are various geometry sets that could be used
+as the Module Geometry. These sets can be interchanged without the need of
+recalculating the entire Monoceros WFC solution.
+
+*Note: The geometry that should be placed using the `Transform` output needs to
+be located and aligned properly: it should share the same location and Base
+Plane orientation with the original Module.*
+
+#### 11.21.1. Definition
+
 ### 11.22. Random seed and attempts count
+
+During the [Wave Function Collapse](#5-wave-function-collapse) calculation,
+there are several moments when a random decision has to be made: if a
+[Slot](#81-slot) allows placement a equally valid [Modules](#82-module), the
+[Monoceros WFC Solver](#9-monoceros-wfc-solver) chooses one random Module to be
+placed. Such situation can occur at several Slots at a time, therefore the
+Solver chooses a random Slot to process.
+
+Like Grasshopper, also Monoceros uses seeded pseudo-random function. That means
+that the **[Monoceros WFC Solver](#1041-monoceros-wfc-solver) generates the same
+solution for a constant [Rule](#83-rule) set and constant Modules and Slots
+every time and at every computer, as long as the seed is the same** and vice
+versa, **different seeds generate different outputs** even on the same computer.
+
+The WFC algorithm does not ensure there will always be a solution. Throughout
+the processing it can happen that the setup may not result in a valid output -
+some Slots may end up contradictory and allow placement of no Modules
+whatsoever. Such situation cannot be anticipated rr prevented, therefore it is
+necessary to make several attempts with different random decisions. The
+[Monoceros WFC Solver](#1041-monoceros-wfc-solver) component lets the user to
+define how many unsuccessful attempts should it make until it pronounces the
+setting unsolvable.
+
+**There is no good value for maximum attempts.** For simple and well defined
+setups the Solver usually finds the solution in the first attempt but it is not
+rare that it takes more than a thousand attempts to find a solution in some
+cases. The mere fact that it requires **more than one attempt shows, that the
+setup is problematic** and may not be solvable at all.
+
+**There is no good value for the random seed.** Changing the random seed for
+setups that produce solutions will result in various, yet equally good
+solutions. The properties and qualities of a solution are not related to the
+value of the random seed, therefore it makes no sense to compare one seed to
+another. For solutions that are hard to find it may happen, that for some random
+seeds the Solver requires less attempts than for others. This is only true until
+other inputs (Modules, Rules and Slots) remain unchanged.
+
+### 11.23. Visualizing Rules
+
+The [Rules](#83-rule) can be
+[displayed](#8313-explicit-rule-viewport-preview-and-baking) in Rhinoceros
+viewport and baked using [Rule Preview](#1053-rule-preview) component. The Rule
+is shown as a line, connecting two [Connectors](#822-connectors) that are
+allowed to be adjacent.
+
+The color of the preview line indicates the orientation of the Connectors: red
+means X, green means Y and blue means Z. If the Rule allowing adjacency is
+[Typed](#832-typed-rule), the line carries also a label with the Type name.
+
+*Note: It is not always necessary to display all Rules or Rules for all
+[Modules](#82-module). The inputs can vary depending on the information that
+should be displayed.*
+
+#### 11.23.1. Definition
+
+### 11.24. Visualizing allowed Module couples
+
+An [Explicit Rule](#83-rule) can be displayed also as an [assembly](#1052-assemble-rule)
+of two [Modules](#82-module) that are allowed to be adjacent.
+
+*Note: A [Typed Rule](#832-typed-rule) can be converted into a collection of
+Explicit Rules prior to assembling.*
+
+The Module mentioned in the [Rule](#83-rule) first is considered a source, the
+second one a target. The source Module's [Pivot](#825-module-properties) is
+aligned to the assembly Base Plane, the target Module is aligned to source
+Module so that their adjacent [Connectors](#822-connectors) are touching.
+
+*Note: The [Assemble Rule](#1052-assemble-rule) component does not check the two
+modules for overlapping but the
+[architecture of the WFC Solver](#5-wave-function-collapse) prevents the
+overlaps in the actual solution.*
+
+If more Rules should be assembled at once, it is necessary to define an
+individual Base Plane for each assembly. The Base Planes need to be manually
+distributed so that the assemblies do not overlap.
+
+#### 11.24.1. Definition: Visualizing one Module couple
+
+#### 11.24.2. Definition: Visualizing a catalog of Module couples
 
 ## 12. FAQ
 
 ### 12.1. What is a good exercise to start using Monoceros?
 
+The Wave Function Collapse is a very powerful tool but requires a lot of
+patience to learn. It is recommended to read the
+[Subdigital WFC Book](https://issuu.com/subdigital/docs/wfc_book_pages) and
+understand the principles of [WFC](#5-wave-function-collapse) and its
+implementation in [Monoceros](#9-monoceros-wfc-solver) before trying the first
+experiments in Grasshopper. It is especially important to understand that WFC is
+not a growth algorithm and how does it differ from other seemingly similar
+discrete assembly tools.
+
+When learning Monoceros and building intuitive sensitivity, the following steps
+are advised:
+
+1. Start as simple as possible
+2. Do not jump to complex setups too early
+3. Use a relatively small sphere to generate the
+   [Envelope](#813-automatic-envelope-wrapping)
+4. Try defining a single simple [Module](#82-module) - a vertical line
+5. Generate [Indifferent Rules](#114-indifferent-rules) for all its
+   [Connectors](#822-connectors)
+6. Use the [Monoceros WFC Solver](#1041-monoceros-wfc-solver) and
+   [Materialize Slots](#1051-materialize-slots) components to finish
+   [the simplest assembly](#111-bare-minimum)
+7. Define the first [Explicit Rule](#831-explicit-rule) allowing the Module to
+   meaningfully connect to itself - bottom to the top or vice versa
+8. Try to figure out why there is
+   [no solution](#122-what-does-the-error-world-state-is-contradictory-mean)
+9.
+   [Allow the Module](#1111-allowing-modules-to-be-at-the-boundary-of-the-envelope)
+   to be placed at the [Envelope boundary](#10311-rule-at-boundary-from-point)
+10. Add [Empty Module](#1110-empty-module-and-allowing-an-empty-neighbor)
+11. Add second Module - a horizontal line
+12. Figure out why does it
+    [not appear in the solution](#1111-allowing-modules-to-be-at-the-boundary-of-the-envelope)
+13. Try removing the Empty Module
+14. Add the third Module - an L shape that could connect the vertical and
+    horizontal Module
+15. Construct Explicit Rule that connects the L Module with the other two
+    Modules
+16. Try preventing the vertical and horizontal Modules to appear at the boundary
+    and place the L Module there instead
+17. Add the Empty Module again
+18. Add an three other L shape Modules so that the Solver can generate closed
+    rectangles
+19. Try to [figure out](#10311-rule-at-boundary-from-point) why there are open
+    shapes and prevent them
+20. Try creating a Rule set that generates closed zig-zag shapes
+21. Try replacing all Explicit Rules with [Typed Rules](#832-typed-rule)
+22. Whenever hesitating, look for an answer in the [Examples](#11-examples).
+
 ### 12.2. What does the error "World state is contradictory" mean?
+
+It means there is no potential solution for the current setup. It can have
+several reasons:
+
+- the [Module Parts](#821-monoceros-module-parts) form a shape that cannot be
+  assembled without an [Empty Module](#1022-construct-empty-module)
+- the [Envelope](#813-automatic-envelope-wrapping) or **its part** is too small
+  to place any allowed [Module](#82-module)
+- no Module is allowed to be
+  [placed at the boundary](#1111-allowing-modules-to-be-at-the-boundary-of-the-envelope)
+  because the required [Connectors](#822-connectors) are described by custom
+  [Rules](#83-rule) and the [Indifferent Rules](#833-indifferent-typed-rule)
+  were not
+  [automatically generated](#1141-definition-indifferent-rules-for-unused-connectors)
+  for them
+- the [Rule set](#83-rule) does not allow for any viable assembly
 
 ### 12.3. Why the Solver cannot find any solution even after 1000 attempts?
 
+Most probably because the [Rule set](#83-rule) is too specific and the solution
+is rare. Try making the [Envelope](#813-automatic-envelope-wrapping)
+significantly smaller without causing a a
+[contradictory world state](#122-what-does-the-error-world-state-is-contradictory-mean)
+and increase the number of attempts.
+
+Try [changing the random seed](#1122-random-seed-and-attempts-count), even
+though it only forces the [Monoceros WFC Solver](#9-monoceros-wfc-solver) to try
+different random set of attempts.
+
+If there is no solution even after 5000 attempts and several different random
+seeds, it is recommended to start over and build up the setup
+[Module](#82-module) by Module.
+
+It is also possible that the setup has no solution at all.
+
 ### 12.4. What makes a good Module?
+
+The safest [Module](#82-module) has only one
+[Part](#821-monoceros-module-parts) but such Modules also generate unsurprising
+and simple outputs. A Module can consist of
+[maximum 256](#825-module-properties) Parts, but it is recommended to keep the
+number of Module Parts under 10.
+
+The Module has to be [consistent](#825-module-properties) and all its
+[Connectors](#822-connectors) need to be described by at least one
+[Rule](#83-rule), even if it should be an
+[Indifferent Rule](#833-indifferent-typed-rule).
+
+To achieve interesting results, the Module's content (in most cases its
+[Geometry](#823-module-geometry)) should be semantically heterogenous or in
+other words, the boundaries of semantical parts should not match the boundaries
+of Modules. Said simply, the whole should be cut through the middle of a
+distinct part, rather than along its boundary. If the Modules should represent
+urban elements, they should not contain individual houses but rather a part of a
+house, part of a garden, part of a pavement and a bit of a road. If the WFC
+should compose a world map, **good Modules are those that contain a coast
+line**, not those that contain only the sea or the land.
 
 ### 12.5. What makes a good Envelope?
 
+A good [Envelope](#813-automatic-envelope-wrapping) is aware of the size and
+shape of the [Modules](#82-module) that should be placed into it.
+
+If the Modules do not [allow it](#124-what-makes-a-good-module), the Envelope
+should not have small parts sticking out, forming
+[thin shells](#11125-definition-slots-from-slice-geometry-surfaces) otherwise
+already the inital state of the Envelope may be
+[contradictory](#122-what-does-the-error-world-state-is-contradictory-mean).
+
 ### 12.6. Why does the Slice Geometry component give invalid results?
 
-### 12.7. How to set a Rule for a Module two or more Slots away?
+If the [sliced geometry](#1061-slice-geometry) or its part reaches the boundary,
+edge or vertex of a potential [Slot](#81-slot) or a
+[Module Part](#821-monoceros-module-parts), it means that the part may belong
+into two (if on surface), four (if on edge) or even eight (if on vertex)
+neighboring grid cells. It is difficult for the component to decide into which
+one it should be placed. Any approach would be only approximating and could give
+wrong results in edge cases.
+
+Therefore the [Slice Geometry](#1061-slice-geometry) component completely
+resigns on any decision making in unambiguous situations. Therefore it is
+strongly recommended to generate [Slot Points](#1112-constructing-slots) and
+[Module Part Points](#119-modules-with-more-parts) manually whenever possible.
+
+### 12.7. How to set a Rule for a Module distant two or more Slots?
 
 **It is not possible.** The
 [Monoceros Wave Function Collapse implementation](#9-monoceros-wfc-solver)
@@ -1631,8 +1912,8 @@ being used for any calculations until the Modules reach the
 Two things are happening in the Materialize Slots component:
 
 - it outputs the Module Geometry in a data tree. Each branch path represents
-  `{Module index, Slot index}`, where `Module index` is the order in which the
-  Modules were passed into the Materialize Slots component and `Slot index` is
+  `{ module index, slot index}`, where `module index` is the order in which the
+  Modules were passed into the Materialize Slots component and `slot index` is
   the order in which the Slots were passed into the Materialize Slots component.
   Each branch contains a complete list of geometry brought by the respective
   Module into its Slot. *Note: Only the Slots containing the first
