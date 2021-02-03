@@ -85,6 +85,7 @@ respecting the given Rules.**
   - [10.5. Post processing](#105-post-processing)
     - [10.5.1. Materialize Slots](#1051-materialize-slots)
     - [10.5.2. Assemble Rule](#1052-assemble-rule)
+    - [10.5.3. Rule Preview](#1053-rule-preview)
   - [10.6. Supplemental](#106-supplemental)
     - [10.6.1. Slice Geometry](#1061-slice-geometry)
 - [11. Examples](#11-examples)
@@ -116,36 +117,58 @@ respecting the given Rules.**
     - [11.6.2. Result](#1162-result)
   - [11.7. Modules and Envelope with individual base planes](#117-modules-and-envelope-with-individual-base-planes)
   - [11.8. Disallowing Rules](#118-disallowing-rules)
-  - [11.9. Definition](#119-definition)
-  - [11.10. Modules with more Parts](#1110-modules-with-more-parts)
-    - [11.10.1. Definition: Module Part Points created manually](#11101-definition-module-part-points-created-manually)
-    - [11.10.2. Definition: Module Part Points created manually from geometry](#11102-definition-module-part-points-created-manually-from-geometry)
-    - [11.10.3. Definition: Module Part Points created with Slice Geometry](#11103-definition-module-part-points-created-with-slice-geometry)
-  - [11.11. Empty Module and allowing an Empty neighbor](#1111-empty-module-and-allowing-an-empty-neighbor)
-    - [11.11.1. Definition: Empty Module and additional Explicit Rules](#11111-definition-empty-module-and-additional-explicit-rules)
-    - [11.11.2. Definition: Explicit Rules with all Connectors of Empty](#11112-definition-explicit-rules-with-all-connectors-of-empty)
-    - [11.11.3. Definition: Multiple different Empty Modules](#11113-definition-multiple-different-empty-modules)
-  - [11.12. Allowing Modules to be at the boundary of the Envelope](#1112-allowing-modules-to-be-at-the-boundary-of-the-envelope)
-    - [11.12.1. Definition](#11121-definition)
-  - [11.13. Constructing Slots](#1113-constructing-slots)
-    - [11.13.1. Definition: Slots from manually generated points](#11131-definition-slots-from-manually-generated-points)
-    - [11.13.2. Definition: Slots from manually generated points from geometry](#11132-definition-slots-from-manually-generated-points-from-geometry)
-    - [11.13.3. Definition: Slots from Slice Geometry: Points](#11133-definition-slots-from-slice-geometry-points)
-    - [11.13.4. Definition: Slots from Slice Geometry: Curves](#11134-definition-slots-from-slice-geometry-curves)
-    - [11.13.5. Definition: Slots from Slice Geometry: Surfaces](#11135-definition-slots-from-slice-geometry-surfaces)
-    - [11.13.6. Definition: Slots from Slice Geometry: Mesh and Brep volumes](#11136-definition-slots-from-slice-geometry-mesh-and-brep-volumes)
-    - [11.13.7. Definition: Slots from Slice Geometry: Miscellaneous geometry](#11137-definition-slots-from-slice-geometry-miscellaneous-geometry)
-  - [11.14. Preventing duplicate Slots from points](#1114-preventing-duplicate-slots-from-points)
-    - [11.14.1. Definition](#11141-definition)
-  - [11.15. Allowing certain Modules in certain Slots](#1115-allowing-certain-modules-in-certain-slots)
-  - [11.16. Fixing Modules in Envelope before running the Solver](#1116-fixing-modules-in-envelope-before-running-the-solver)
-  - [11.17. Disallowing certain Modules from certain Slots](#1117-disallowing-certain-modules-from-certain-slots)
-  - [11.18. Allowing specific modules at the boundary of the Envelope](#1118-allowing-specific-modules-at-the-boundary-of-the-envelope)
-  - [11.19. Growing the boundary of the Envelope](#1119-growing-the-boundary-of-the-envelope)
-  - [11.20. Materializing results](#1120-materializing-results)
-  - [11.21. Proto-results and custom materialization](#1121-proto-results-and-custom-materialization)
-  - [11.22. Using the transform data to materialize the result](#1122-using-the-transform-data-to-materialize-the-result)
-  - [11.23. Random seed and attempts count](#1123-random-seed-and-attempts-count)
+    - [11.8.1. Definition](#1181-definition)
+  - [11.9. Modules with more Parts](#119-modules-with-more-parts)
+    - [11.9.1. Definition: Module Part Points created manually](#1191-definition-module-part-points-created-manually)
+    - [11.9.2. Definition: Module Part Points created manually from geometry](#1192-definition-module-part-points-created-manually-from-geometry)
+    - [11.9.3. Definition: Module Part Points created with Slice Geometry](#1193-definition-module-part-points-created-with-slice-geometry)
+  - [11.10. Empty Module and allowing an Empty neighbor](#1110-empty-module-and-allowing-an-empty-neighbor)
+    - [11.10.1. Definition: Empty Module and additional Explicit Rules](#11101-definition-empty-module-and-additional-explicit-rules)
+    - [11.10.2. Definition: Explicit Rules with all Connectors of Empty](#11102-definition-explicit-rules-with-all-connectors-of-empty)
+    - [11.10.3. Definition: Multiple different Empty Modules](#11103-definition-multiple-different-empty-modules)
+  - [11.11. Allowing Modules to be at the boundary of the Envelope](#1111-allowing-modules-to-be-at-the-boundary-of-the-envelope)
+    - [11.11.1. Definition](#11111-definition)
+  - [11.12. Constructing Slots](#1112-constructing-slots)
+    - [11.12.1. Definition: Slots from manually generated points](#11121-definition-slots-from-manually-generated-points)
+    - [11.12.2. Definition: Slots from manually generated points from geometry](#11122-definition-slots-from-manually-generated-points-from-geometry)
+    - [11.12.3. Definition: Slots from Slice Geometry: Points](#11123-definition-slots-from-slice-geometry-points)
+    - [11.12.4. Definition: Slots from Slice Geometry: Curves](#11124-definition-slots-from-slice-geometry-curves)
+    - [11.12.5. Definition: Slots from Slice Geometry: Surfaces](#11125-definition-slots-from-slice-geometry-surfaces)
+    - [11.12.6. Definition: Slots from Slice Geometry: Mesh and Brep volumes](#11126-definition-slots-from-slice-geometry-mesh-and-brep-volumes)
+    - [11.12.7. Definition: Slots from Slice Geometry: Miscellaneous geometry](#11127-definition-slots-from-slice-geometry-miscellaneous-geometry)
+  - [11.13. Preventing duplicate Slots from points](#1113-preventing-duplicate-slots-from-points)
+    - [11.13.1. Definition](#11131-definition)
+  - [11.14. Allowing certain Modules in certain Slots](#1114-allowing-certain-modules-in-certain-slots)
+    - [11.14.1. Definition: Allowing Modules modules in certain area](#11141-definition-allowing-modules-modules-in-certain-area)
+    - [11.14.2. Definition: Disallowing Modules modules in certain area](#11142-definition-disallowing-modules-modules-in-certain-area)
+    - [11.14.3. Definition: Allowing Modules modules based on attractor](#11143-definition-allowing-modules-modules-based-on-attractor)
+    - [11.14.4. Roulette approach to weighted probability](#11144-roulette-approach-to-weighted-probability)
+    - [11.14.5. Definition: Roulette - Choosing a binary weighted option](#11145-definition-roulette---choosing-a-binary-weighted-option)
+    - [11.14.6. Definition: Roulette - Choosing one weighted option from multiple choices](#11146-definition-roulette---choosing-one-weighted-option-from-multiple-choices)
+    - [11.14.7. Definition: Roulette - Choosing more weighted options from multiple choices](#11147-definition-roulette---choosing-more-weighted-options-from-multiple-choices)
+    - [11.14.8. Definition: Allowing Modules based on vertical gradient](#11148-definition-allowing-modules-based-on-vertical-gradient)
+    - [11.14.9. Definition: Allowing Modules based on multiple attractor gradients](#11149-definition-allowing-modules-based-on-multiple-attractor-gradients)
+  - [11.15. Fixing Modules in Envelope before running the Solver](#1115-fixing-modules-in-envelope-before-running-the-solver)
+  - [11.16. Disallowing certain Modules from certain Slots](#1116-disallowing-certain-modules-from-certain-slots)
+    - [11.16.1. Definition: Disallowing Modules in new Slots](#11161-definition-disallowing-modules-in-new-slots)
+    - [11.16.2. Definition: Disallowing Modules in existing Slots](#11162-definition-disallowing-modules-in-existing-slots)
+  - [11.17. Enforcing specific modules at the boundary of the Envelope](#1117-enforcing-specific-modules-at-the-boundary-of-the-envelope)
+    - [11.17.1. Definition](#11171-definition)
+    - [11.17.2. Definition: Identifying more boundary layers](#11172-definition-identifying-more-boundary-layers)
+  - [11.18. Growing the boundary of the Envelope](#1118-growing-the-boundary-of-the-envelope)
+    - [11.18.1. Definition](#11181-definition)
+  - [11.19. Materializing results](#1119-materializing-results)
+    - [11.19.1. Definition](#11191-definition)
+  - [11.20. Proto-results and custom materialization](#1120-proto-results-and-custom-materialization)
+    - [11.20.1. Definition](#11201-definition)
+  - [11.21. Using the transform data to materialize the result](#1121-using-the-transform-data-to-materialize-the-result)
+    - [11.21.1. Definition](#11211-definition)
+  - [11.22. Random seed and attempts count](#1122-random-seed-and-attempts-count)
+  - [11.23. Visualizing Rules](#1123-visualizing-rules)
+    - [11.23.1. Definition](#11231-definition)
+  - [11.24. Visualizing allowed Module couples](#1124-visualizing-allowed-module-couples)
+    - [11.24.1. Definition: Visualizing one Module couple](#11241-definition-visualizing-one-module-couple)
+    - [11.24.2. Definition: Visualizing a catalog of Module couples](#11242-definition-visualizing-a-catalog-of-module-couples)
 - [12. FAQ](#12-faq)
   - [12.1. What is a good exercise to start using Monoceros?](#121-what-is-a-good-exercise-to-start-using-monoceros)
   - [12.2. What does the error "World state is contradictory" mean?](#122-what-does-the-error-world-state-is-contradictory-mean)
@@ -153,7 +176,7 @@ respecting the given Rules.**
   - [12.4. What makes a good Module?](#124-what-makes-a-good-module)
   - [12.5. What makes a good Envelope?](#125-what-makes-a-good-envelope)
   - [12.6. Why does the Slice Geometry component give invalid results?](#126-why-does-the-slice-geometry-component-give-invalid-results)
-  - [12.7. How to set a Rule for a Module two or more Slots away?](#127-how-to-set-a-rule-for-a-module-two-or-more-slots-away)
+  - [12.7. How to set a Rule for a Module distant two or more Slots?](#127-how-to-set-a-rule-for-a-module-distant-two-or-more-slots)
   - [12.8. Are block instances or groups supported by Monoceros?](#128-are-block-instances-or-groups-supported-by-monoceros)
 - [13. Partners](#13-partners)
 - [14. MIT License](#14-mit-license)
@@ -722,12 +745,12 @@ other data type.
 ##### 8.3.1.3. Explicit Rule Viewport preview and baking
 
 An Explicit Rule cannot be displayed on its own. Following a precedent of Vector
-display component in Grasshopper, there is a Rule Preview component in
-Monoceros. When provided with all Modules, it displays an Explicit Rule as a
-line between the connectors described by the Rule. The color of the line
-indicates the direction of the connectors (and therefore also of the Rule): red
-means the connectors are facing X direction, green represents Y direction and
-blue indicates Z direction.
+display component in Grasshopper, there is a [Rule Preview](#1053-rule-preview)
+component in Monoceros. When provided with all Modules, it displays an Explicit
+Rule as a line between the connectors described by the Rule. The color of the
+line indicates the direction of the connectors (and therefore also of the Rule):
+red means the connectors are facing X direction, green represents Y direction
+and blue indicates Z direction.
 
 An Explicit Rule preview can be baked.
 
@@ -926,6 +949,8 @@ whether the world needed canonicalizing as part of its output.
 #### 10.5.1. Materialize Slots
 
 #### 10.5.2. Assemble Rule
+
+#### 10.5.3. Rule Preview
 
 ### 10.6. Supplemental
 
@@ -1213,9 +1238,9 @@ least one Rule. Disallowing Rules may result in removing all Rules for certain
 Connectors, which makes the solution impossible. In such case the Monoceros WFC
 Solver throws an error.**
 
-### 11.9. Definition
+#### 11.8.1. Definition
 
-### 11.10. Modules with more Parts
+### 11.9. Modules with more Parts
 
 A [Module](#82-module) can consist of more [Parts](#821-monoceros-module-parts)
 which always hold together in [Materialized](#1051-materialize-slots) result of
@@ -1256,13 +1281,13 @@ parameters receiving the invalid Module. If this number is exceeded only when
 all Modules are passed into the Monoceros WFC Solver, the user gets notified by
 the Solver component.
 
-#### 11.10.1. Definition: Module Part Points created manually
+#### 11.9.1. Definition: Module Part Points created manually
 
-#### 11.10.2. Definition: Module Part Points created manually from geometry
+#### 11.9.2. Definition: Module Part Points created manually from geometry
 
-#### 11.10.3. Definition: Module Part Points created with Slice Geometry
+#### 11.9.3. Definition: Module Part Points created with Slice Geometry
 
-### 11.11. Empty Module and allowing an Empty neighbor
+### 11.10. Empty Module and allowing an Empty neighbor
 
 If the Modules consist of more [Module Parts](#821-monoceros-module-parts) it is
 often possible that the [Modules](#82-module) cannot be stacked together without
@@ -1301,17 +1326,17 @@ Connectors to all six Connectors of the Empty Module. The Monoceros WFC Solver
 or other components will remove the invalid Rules that connect non-opposite
 Connectors.*
 
-#### 11.11.1. Definition: Empty Module and additional Explicit Rules
+#### 11.10.1. Definition: Empty Module and additional Explicit Rules
 
-#### 11.11.2. Definition: Explicit Rules with all Connectors of Empty
+#### 11.10.2. Definition: Explicit Rules with all Connectors of Empty
 
-#### 11.11.3. Definition: Multiple different Empty Modules
+#### 11.10.3. Definition: Multiple different Empty Modules
 
 If the Empty Module should be larger than a single Part, it is convenient to
 generate custom Modules with no geometry with the required properties and allow
 them to be adjacent to the Modules that require more Empty space next to them.
 
-### 11.12. Allowing Modules to be at the boundary of the Envelope
+### 11.11. Allowing Modules to be at the boundary of the Envelope
 
 The Envelope [Slots](#81-slot) are
 [automatically wrapped](#813-automatic-envelope-wrapping) into a layer of Slots
@@ -1352,9 +1377,9 @@ appearing at the boundary of the Envelope by generating respective rules with
 the Rule at boundary from Point component and disallow them using the
 [Collect Rules](#1038-collect-rules) component.
 
-#### 11.12.1. Definition
+#### 11.11.1. Definition
 
-### 11.13. Constructing Slots
+### 11.12. Constructing Slots
 
 Monoceros [Slots](#81-slot) are cuboid (box-like) chunks of space, delimiting a
 single basic discrete gid unit, which can contain certain
@@ -1377,21 +1402,21 @@ control. The Slice Geometry component is a brute force approach with
 [many limitations](#1128-why-does-the-slice-geometry-component-give-invalid-results)
 and potentially inconsistent results.
 
-#### 11.13.1. Definition: Slots from manually generated points
+#### 11.12.1. Definition: Slots from manually generated points
 
-#### 11.13.2. Definition: Slots from manually generated points from geometry
+#### 11.12.2. Definition: Slots from manually generated points from geometry
 
-#### 11.13.3. Definition: Slots from Slice Geometry: Points
+#### 11.12.3. Definition: Slots from Slice Geometry: Points
 
-#### 11.13.4. Definition: Slots from Slice Geometry: Curves
+#### 11.12.4. Definition: Slots from Slice Geometry: Curves
 
-#### 11.13.5. Definition: Slots from Slice Geometry: Surfaces
+#### 11.12.5. Definition: Slots from Slice Geometry: Surfaces
 
-#### 11.13.6. Definition: Slots from Slice Geometry: Mesh and Brep volumes
+#### 11.12.6. Definition: Slots from Slice Geometry: Mesh and Brep volumes
 
-#### 11.13.7. Definition: Slots from Slice Geometry: Miscellaneous geometry
+#### 11.12.7. Definition: Slots from Slice Geometry: Miscellaneous geometry
 
-### 11.14. Preventing duplicate Slots from points
+### 11.13. Preventing duplicate Slots from points
 
 Monoceros [Slots](#81-slot) are constructed via components
 [Construct Slot with all Modules allowed](#1011-construct-slot-with-all-modules-allowed)
@@ -1408,41 +1433,448 @@ This can be done manually, but more conveniently it is possible to use the
 [Slice Geometry](#1061-slice-geometry) component to process the input collection
 of points into a list of distinct Slot centers.
 
-#### 11.14.1. Definition
+#### 11.13.1. Definition
 
-### 11.15. Allowing certain Modules in certain Slots
+### 11.14. Allowing certain Modules in certain Slots
 
-### 11.16. Fixing Modules in Envelope before running the Solver
+[Slots](#81-slot) are distinct discrete cuboid chunks of space, that allow
+placement of certain ][Module](#82-module) or their
+[Parts](#821-monoceros-module-parts) into the respective portion of space.
 
-### 11.17. Disallowing certain Modules from certain Slots
+In the initial state of the solution, the Slots can either allow placement of
+[any Module or its Part](#1011-construct-slot-with-all-modules-allowed) or a
+specified [list of Modules](#1012-construct-slot-with-listed-modules-allowed).
+The latter is especially useful if certain areas of the Envelope should or
+should not contain certain Modules. The list of allowed Modules needs to be
+specified manually for each Slot, but this can be effectively achieved with the
+existing Grasshopper tools.
 
-### 11.18. Allowing specific modules at the boundary of the Envelope
+#### 11.14.1. Definition: Allowing Modules modules in certain area
 
-### 11.19. Growing the boundary of the Envelope
+#### 11.14.2. Definition: Disallowing Modules modules in certain area
 
-### 11.20. Materializing results
+#### 11.14.3. Definition: Allowing Modules modules based on attractor
 
-### 11.21. Proto-results and custom materialization
+#### 11.14.4. Roulette approach to weighted probability
 
-### 11.22. Using the transform data to materialize the result
+The Slots do not allow weighted probability of placing certain Modules but the
+weight can be simulated and distributed discretely. That means, allowing
+placement of a certain Module will be allowed in Slots more or less often in
+Slots of certain area. For each individual Slots there will have to be a
+decision to be made, whether it should or should not allow placement of a Module
+based on the probability factor.
 
-### 11.23. Random seed and attempts count
+Technically, this can be achieved by a roulette method: a random item will be
+chosen from a list of possibilities but the items will be multiplied in the list
+based on their probability.
+
+#### 11.14.5. Definition: Roulette - Choosing a binary weighted option
+
+For example, the algorithm should choose from two options `a` and `b`, with
+probability `3:2` in favour of option `a`, the list of options will contain
+items `a, a, a, b, b`, out of which one random option will be chosen.
+
+#### 11.14.6. Definition: Roulette - Choosing one weighted option from multiple choices
+
+For more items, the probability can defined as a number from range `0.0 to 1.0`
+with probabilities `a=0.3`, `b=0.1`, `c=0.8`, then the list of items will
+contain `a, a, a, b, c, c, c, c, c, c, c, c`, out of which one random item will
+be chosen.
+
+#### 11.14.7. Definition: Roulette - Choosing more weighted options from multiple choices
+
+It the random weighted selection expects results with more items, it is possible
+to use the same strategy. The
+[previous example](#11155-definition-roulette---choosing-a-binary-weighted-option)
+could describe a Slot, that can contain `3` Modules, witch probabilities
+`a=0.3`, `b=0.1`, `c=0.8`. The list of items will be extended to
+`a, a, a, b, c, c, c, c, c, c, c, c` and randomly reduced back to `3` options.
+Such result will most probably contain `c, c, c`, which then will be
+deduplicated to `c` or `a, c, c` deduplicated to `a, c`. This way it is possible
+to keep only the most probable modules in a Slot.
+
+#### 11.14.8. Definition: Allowing Modules based on vertical gradient
+
+Employing the
+[roulette](#11157-definition-roulette---choosing-more-weighted-options-from-multiple-choices)
+approach, it is possible to use gradient values calculated from vertical
+position to a probability of Module placement.
+
+#### 11.14.9. Definition: Allowing Modules based on multiple attractor gradients
+
+Employing the
+[roulette](#11157-definition-roulette---choosing-more-weighted-options-from-multiple-choices)
+approach, it is possible to use gradient values calculated from distance of an
+attractor to a probability of Module placement.
+
+### 11.15. Fixing Modules in Envelope before running the Solver
+
+In certain cases it is desired to place certain [Modules](#82-module) into
+certain [Slots](#81-slot) even before running the
+[Monoceros WFC Solver](#9-monoceros-wfc-solver). The solution will then respect
+the position of such placed Modules and the rest of the solution will follow
+according to the given [Rule](#83-rule) set.
+
+In Monoceros it is possible to achieve this by constructing the respective Slots
+with the list of Allowed Modules containing only the desired Module. If the
+Module consists of more [Parts](#821-monoceros-module-parts) it is sufficient to
+construct a single Slot with the list of allowed Modules containing exclusively
+the desired Module. Monoceros will place one of the Module Parts into the Slot
+and the rest into the adjacent Slots as long as they are allowed to be place
+there, too.
+
+*Note: Due to the way [Monoceros](#9-monoceros-wfc-solver) exposes the vanilla
+[Wave Function Collapse](#5-wave-function-collapse) algorithm, it is not
+possible to place a Module into an exact position. The
+[Monoceros WFC Solver](#9-monoceros-wfc-solver) picks any Module Part to be
+placed into a Slot allowing placement of the Module.*
+
+*Note: Placing Modules manually may cause longer search for a valid solution or
+completely unable an existence of a valid solution.*
+
+### 11.16. Disallowing certain Modules from certain Slots
+
+Similarly to
+[allowing](#1116-fixing-modules-in-envelope-before-running-the-solver) certain
+[Modules](#82-module) to be placed into certain [Slots](#81-slot), it is
+possible to disallow placement of certain Modules into certain Slots.
+
+Because Monoceros does not recognize disallowing, it is necessary to remove the
+disallowed Module name from the list of allowed modules for the respective
+Slots. For newly created Slots the list of allowed Modules should be prepared
+manually. Existing Slots can be [deconstructed](#1013-deconstruct-slot) and
+reconstructed with a reduced list of allowed Modules. The original Slots should
+be replaced with the reconstructed ones.
+
+#### 11.16.1. Definition: Disallowing Modules in new Slots
+
+#### 11.16.2. Definition: Disallowing Modules in existing Slots
+
+### 11.17. Enforcing specific modules at the boundary of the Envelope
+
+If specific [Modules](#82-module) are
+[allowed to be placed at the boundary of the Envelope](#1111-allowing-modules-to-be-at-the-boundary-of-the-envelope)
+but their placement should be enforced, it is possible to identify
+[Slots](#81-slot) at the boundary of the
+[Envelope](#813-automatic-envelope-wrapping) using the
+[Are Slots Boundary](#1014-are-slots-boundary) component,
+[deconstructing](#1013-deconstruct-slot) the boundary Slots and
+[allowing](#1114-allowing-certain-modules-in-certain-slots) or
+[disallowing](#1116-disallowing-certain-modules-from-certain-slots) the desired
+Modules from these Slots.
+
+#### 11.17.1. Definition
+
+#### 11.17.2. Definition: Identifying more boundary layers
+
+If more than one boundary layer of [Slots](#81-slot) should be isolated, the
+[Are Slots Boundary](#1014-are-slots-boundary) component can be used multiple
+times, each time on Slots identified as inner (non-boundary).
+
+### 11.18. Growing the boundary of the Envelope
+
+It is possible to wrap the existing
+[Envelope](#813-automatic-envelope-wrapping) of [Slots](#81-slot) into another
+layer of Slots. The [Add Boundary Layer](#1015-add-boundary-layer) component
+generates a collection of [Slot center points](#812-slot-properties) that can be
+converted into Slots, which will form a single added layer to the existing
+Envelope.
+
+#### 11.18.1. Definition
+
+### 11.19. Materializing results
+
+A correct result of the [Monoceros WFC Solver](#9-monoceros-wfc-solver) is a
+collection of deterministic [Slots](#81-slot), which allow exactly one
+[Module Part](#821-monoceros-module-parts) to be placed. This is still not the
+final stage of the discrete assembly process because the solution is not yet
+[Materialized](#1051-materialize-slots), which is a process of placing
+[Module Geometry](#823-module-geometry) into its respective Slots.
+
+The output of [Materialize Slots](#1051-materialize-slots) component is a data
+tree with paths `{ module index, slot index }`, where `module index` is the
+order of the placed Module in the input list of Modules and `slot index` is the
+order of the target Slot in the input list of Slots. Each branch then contains
+all geometry items of the respective Module.
+
+*Note: Due to the way Monoceros treats Module Parts, only the first Part of each
+Module is placed into its Slot, leaving the remaining Slots containing the
+Module empty (their index will not even appear in the Materialize Slots
+component output data tree).*
+
+The geometry output of the Materialize Slots component is intended for further
+use in Grasshopper. Therefore, if the intention is to bake the output of the WFC
+already in this stage, it is advised to bake the Materialize Slots component.
+The result of such bake is a
+[collection of block instances](#128-are-block-instances-or-groups-supported-by-monoceros),
+which are significantly smaller than full-fledged geometry and all blocks of one
+type can be edited at once.
+
+*Note: The viewport rendering of materialized geometry may be slow on some
+computers. This makes the Materialize Slots component one of the slowest part of
+a Grasshopper Monoceros definition. To speed it up, it is recommended to disable
+preview of the Materialize Slots component prior to connecting wires to its
+inputs.*
+
+#### 11.19.1. Definition
+
+### 11.20. Proto-results and custom materialization
+
+In some cases the final geometry of a Grasshopper definition does not have to be
+[the one stored](#823-module-geometry) in the Monoceros [Modules](#82-module).
+The Modules can contain some proto=geometry instead and the final geometry is
+then constructed in Grasshopper after
+[materialization](#1051-materialize-slots).
+
+A typical case may be structures that are not meant to be discrete, but rather
+continuous. The Modules should then contain only the skeleton of such structure,
+which will be joined and wrapped into volumes after the materialization of the
+WFC assembly.
+
+#### 11.20.1. Definition
+
+### 11.21. Using the transform data to materialize the result
+
+In very special cases, the geometry does not have to enter the
+[Modules](#82-module) at all. Instead, the
+[Monoceros WFC Solver](#9-monoceros-wfc-solver) runs on the [Rule](#83-rule) set
+an Modules with no [geometry](#823-module-geometry) and so does the
+[Materialize Slots](#1051-materialize-slots) component. Its `Transform` output
+contains transformation data, that can be used to place any geometry from the
+original Module location into all the [Slots](#81-slot) which should contain the
+respective geometry.
+
+This is especially useful if there are various geometry sets that could be used
+as the Module Geometry. These sets can be interchanged without the need of
+recalculating the entire Monoceros WFC solution.
+
+*Note: The geometry that should be placed using the `Transform` output needs to
+be located and aligned properly: it should share the same location and Base
+Plane orientation with the original Module.*
+
+#### 11.21.1. Definition
+
+### 11.22. Random seed and attempts count
+
+During the [Wave Function Collapse](#5-wave-function-collapse) calculation,
+there are several moments when a random decision has to be made: if a
+[Slot](#81-slot) allows placement a equally valid [Modules](#82-module), the
+[Monoceros WFC Solver](#9-monoceros-wfc-solver) chooses one random Module to be
+placed. Such situation can occur at several Slots at a time, therefore the
+Solver chooses a random Slot to process.
+
+Like Grasshopper, also Monoceros uses seeded pseudo-random function. That means
+that the **[Monoceros WFC Solver](#1041-monoceros-wfc-solver) generates the same
+solution for a constant [Rule](#83-rule) set and constant Modules and Slots
+every time and at every computer, as long as the seed is the same** and vice
+versa, **different seeds generate different outputs** even on the same computer.
+
+The WFC algorithm does not ensure there will always be a solution. Throughout
+the processing it can happen that the setup may not result in a valid output -
+some Slots may end up contradictory and allow placement of no Modules
+whatsoever. Such situation cannot be anticipated rr prevented, therefore it is
+necessary to make several attempts with different random decisions. The
+[Monoceros WFC Solver](#1041-monoceros-wfc-solver) component lets the user to
+define how many unsuccessful attempts should it make until it pronounces the
+setting unsolvable.
+
+**There is no good value for maximum attempts.** For simple and well defined
+setups the Solver usually finds the solution in the first attempt but it is not
+rare that it takes more than a thousand attempts to find a solution in some
+cases. The mere fact that it requires **more than one attempt shows, that the
+setup is problematic** and may not be solvable at all.
+
+**There is no good value for the random seed.** Changing the random seed for
+setups that produce solutions will result in various, yet equally good
+solutions. The properties and qualities of a solution are not related to the
+value of the random seed, therefore it makes no sense to compare one seed to
+another. For solutions that are hard to find it may happen, that for some random
+seeds the Solver requires less attempts than for others. This is only true until
+other inputs (Modules, Rules and Slots) remain unchanged.
+
+### 11.23. Visualizing Rules
+
+The [Rules](#83-rule) can be
+[displayed](#8313-explicit-rule-viewport-preview-and-baking) in Rhinoceros
+viewport and baked using [Rule Preview](#1053-rule-preview) component. The Rule
+is shown as a line, connecting two [Connectors](#822-connectors) that are
+allowed to be adjacent.
+
+The color of the preview line indicates the orientation of the Connectors: red
+means X, green means Y and blue means Z. If the Rule allowing adjacency is
+[Typed](#832-typed-rule), the line carries also a label with the Type name.
+
+*Note: It is not always necessary to display all Rules or Rules for all
+[Modules](#82-module). The inputs can vary depending on the information that
+should be displayed.*
+
+#### 11.23.1. Definition
+
+### 11.24. Visualizing allowed Module couples
+
+An [Explicit Rule](#83-rule) can be displayed also as an [assembly](#1052-assemble-rule)
+of two [Modules](#82-module) that are allowed to be adjacent.
+
+*Note: A [Typed Rule](#832-typed-rule) can be converted into a collection of
+Explicit Rules prior to assembling.*
+
+The Module mentioned in the [Rule](#83-rule) first is considered a source, the
+second one a target. The source Module's [Pivot](#825-module-properties) is
+aligned to the assembly Base Plane, the target Module is aligned to source
+Module so that their adjacent [Connectors](#822-connectors) are touching.
+
+*Note: The [Assemble Rule](#1052-assemble-rule) component does not check the two
+modules for overlapping but the
+[architecture of the WFC Solver](#5-wave-function-collapse) prevents the
+overlaps in the actual solution.*
+
+If more Rules should be assembled at once, it is necessary to define an
+individual Base Plane for each assembly. The Base Planes need to be manually
+distributed so that the assemblies do not overlap.
+
+#### 11.24.1. Definition: Visualizing one Module couple
+
+#### 11.24.2. Definition: Visualizing a catalog of Module couples
 
 ## 12. FAQ
 
 ### 12.1. What is a good exercise to start using Monoceros?
 
+The Wave Function Collapse is a very powerful tool but requires a lot of
+patience to learn. It is recommended to read the
+[Subdigital WFC Book](https://issuu.com/subdigital/docs/wfc_book_pages) and
+understand the principles of [WFC](#5-wave-function-collapse) and its
+implementation in [Monoceros](#9-monoceros-wfc-solver) before trying the first
+experiments in Grasshopper. It is especially important to understand that WFC is
+not a growth algorithm and how does it differ from other seemingly similar
+discrete assembly tools.
+
+When learning Monoceros and building intuitive sensitivity, the following steps
+are advised:
+
+1. Start as simple as possible
+2. Do not jump to complex setups too early
+3. Use a relatively small sphere to generate the
+   [Envelope](#813-automatic-envelope-wrapping)
+4. Try defining a single simple [Module](#82-module) - a vertical line
+5. Generate [Indifferent Rules](#114-indifferent-rules) for all its
+   [Connectors](#822-connectors)
+6. Use the [Monoceros WFC Solver](#1041-monoceros-wfc-solver) and
+   [Materialize Slots](#1051-materialize-slots) components to finish
+   [the simplest assembly](#111-bare-minimum)
+7. Define the first [Explicit Rule](#831-explicit-rule) allowing the Module to
+   meaningfully connect to itself - bottom to the top or vice versa
+8. Try to figure out why there is
+   [no solution](#122-what-does-the-error-world-state-is-contradictory-mean)
+9.
+   [Allow the Module](#1111-allowing-modules-to-be-at-the-boundary-of-the-envelope)
+   to be placed at the [Envelope boundary](#10311-rule-at-boundary-from-point)
+10. Add [Empty Module](#1110-empty-module-and-allowing-an-empty-neighbor)
+11. Add second Module - a horizontal line
+12. Figure out why does it
+    [not appear in the solution](#1111-allowing-modules-to-be-at-the-boundary-of-the-envelope)
+13. Try removing the Empty Module
+14. Add the third Module - an L shape that could connect the vertical and
+    horizontal Module
+15. Construct Explicit Rule that connects the L Module with the other two
+    Modules
+16. Try preventing the vertical and horizontal Modules to appear at the boundary
+    and place the L Module there instead
+17. Add the Empty Module again
+18. Add an three other L shape Modules so that the Solver can generate closed
+    rectangles
+19. Try to [figure out](#10311-rule-at-boundary-from-point) why there are open
+    shapes and prevent them
+20. Try creating a Rule set that generates closed zig-zag shapes
+21. Try replacing all Explicit Rules with [Typed Rules](#832-typed-rule)
+22. Whenever hesitating, look for an answer in the [Examples](#11-examples).
+
 ### 12.2. What does the error "World state is contradictory" mean?
+
+It means there is no potential solution for the current setup. It can have
+several reasons:
+
+- the [Module Parts](#821-monoceros-module-parts) form a shape that cannot be
+  assembled without an [Empty Module](#1022-construct-empty-module)
+- the [Envelope](#813-automatic-envelope-wrapping) or **its part** is too small
+  to place any allowed [Module](#82-module)
+- no Module is allowed to be
+  [placed at the boundary](#1111-allowing-modules-to-be-at-the-boundary-of-the-envelope)
+  because the required [Connectors](#822-connectors) are described by custom
+  [Rules](#83-rule) and the [Indifferent Rules](#833-indifferent-typed-rule)
+  were not
+  [automatically generated](#1141-definition-indifferent-rules-for-unused-connectors)
+  for them
+- the [Rule set](#83-rule) does not allow for any viable assembly
 
 ### 12.3. Why the Solver cannot find any solution even after 1000 attempts?
 
+Most probably because the [Rule set](#83-rule) is too specific and the solution
+is rare. Try making the [Envelope](#813-automatic-envelope-wrapping)
+significantly smaller without causing a a
+[contradictory world state](#122-what-does-the-error-world-state-is-contradictory-mean)
+and increase the number of attempts.
+
+Try [changing the random seed](#1122-random-seed-and-attempts-count), even
+though it only forces the [Monoceros WFC Solver](#9-monoceros-wfc-solver) to try
+different random set of attempts.
+
+If there is no solution even after 5000 attempts and several different random
+seeds, it is recommended to start over and build up the setup
+[Module](#82-module) by Module.
+
+It is also possible that the setup has no solution at all.
+
 ### 12.4. What makes a good Module?
+
+The safest [Module](#82-module) has only one
+[Part](#821-monoceros-module-parts) but such Modules also generate unsurprising
+and simple outputs. A Module can consist of
+[maximum 256](#825-module-properties) Parts, but it is recommended to keep the
+number of Module Parts under 10.
+
+The Module has to be [consistent](#825-module-properties) and all its
+[Connectors](#822-connectors) need to be described by at least one
+[Rule](#83-rule), even if it should be an
+[Indifferent Rule](#833-indifferent-typed-rule).
+
+To achieve interesting results, the Module's content (in most cases its
+[Geometry](#823-module-geometry)) should be semantically heterogenous or in
+other words, the boundaries of semantical parts should not match the boundaries
+of Modules. Said simply, the whole should be cut through the middle of a
+distinct part, rather than along its boundary. If the Modules should represent
+urban elements, they should not contain individual houses but rather a part of a
+house, part of a garden, part of a pavement and a bit of a road. If the WFC
+should compose a world map, **good Modules are those that contain a coast
+line**, not those that contain only the sea or the land.
 
 ### 12.5. What makes a good Envelope?
 
+A good [Envelope](#813-automatic-envelope-wrapping) is aware of the size and
+shape of the [Modules](#82-module) that should be placed into it.
+
+If the Modules do not [allow it](#124-what-makes-a-good-module), the Envelope
+should not have small parts sticking out, forming
+[thin shells](#11125-definition-slots-from-slice-geometry-surfaces) otherwise
+already the inital state of the Envelope may be
+[contradictory](#122-what-does-the-error-world-state-is-contradictory-mean).
+
 ### 12.6. Why does the Slice Geometry component give invalid results?
 
-### 12.7. How to set a Rule for a Module two or more Slots away?
+If the [sliced geometry](#1061-slice-geometry) or its part reaches the boundary,
+edge or vertex of a potential [Slot](#81-slot) or a
+[Module Part](#821-monoceros-module-parts), it means that the part may belong
+into two (if on surface), four (if on edge) or even eight (if on vertex)
+neighboring grid cells. It is difficult for the component to decide into which
+one it should be placed. Any approach would be only approximating and could give
+wrong results in edge cases.
+
+Therefore the [Slice Geometry](#1061-slice-geometry) component completely
+resigns on any decision making in unambiguous situations. Therefore it is
+strongly recommended to generate [Slot Points](#1112-constructing-slots) and
+[Module Part Points](#119-modules-with-more-parts) manually whenever possible.
+
+### 12.7. How to set a Rule for a Module distant two or more Slots?
 
 **It is not possible.** The
 [Monoceros Wave Function Collapse implementation](#9-monoceros-wfc-solver)
@@ -1480,8 +1912,8 @@ being used for any calculations until the Modules reach the
 Two things are happening in the Materialize Slots component:
 
 - it outputs the Module Geometry in a data tree. Each branch path represents
-  `{Module index, Slot index}`, where `Module index` is the order in which the
-  Modules were passed into the Materialize Slots component and `Slot index` is
+  `{ module index, slot index}`, where `module index` is the order in which the
+  Modules were passed into the Materialize Slots component and `slot index` is
   the order in which the Slots were passed into the Materialize Slots component.
   Each branch contains a complete list of geometry brought by the respective
   Module into its Slot. *Note: Only the Slots containing the first
@@ -1494,7 +1926,7 @@ Two things are happening in the Materialize Slots component:
   exists in Rhinoceros only once and all its instances are just references to
   the original block. This way it is possible to modify all instances of
   geometry of each Module type at once by modifying any of the blocks. In most
-  cases it also means a significantly smaller Rhinoceors `.3dm` file.
+  cases it also means a significantly smaller Rhinoceros `.3dm` file.
 
 ## 13. Partners
 
