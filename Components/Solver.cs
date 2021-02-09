@@ -60,6 +60,14 @@ namespace Monoceros {
                                   "S",
                                   "Solved Monoceros Slots",
                                   GH_ParamAccess.list);
+            pManager.AddBooleanParameter("Success",
+                                         "OK",
+                                         "Did the Monoceros WFC Solver find a valid solution?",
+                                         GH_ParamAccess.item);
+            pManager.AddIntegerParameter("Attempts",
+                                         "A",
+                                         "Number of attempts needed to find a solution",
+                                         GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -73,6 +81,9 @@ namespace Monoceros {
             var rulesRaw = new List<Rule>();
             var randomSeed = 42;
             var maxAttempts = 10;
+
+            // Due to many early return branches it is easier to set and the re-set the output pin
+            DA.SetData(2, false);
 
             if (!DA.GetDataList(0, slotsRaw)) {
                 return;
@@ -339,6 +350,7 @@ namespace Monoceros {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "The world size exceeds minimum or maximum dimensions: " +
                                   ushort.MinValue + " to " + ushort.MaxValue + "in any direction.");
+                DA.SetData(2, false);
                 return;
             }
 
@@ -349,7 +361,8 @@ namespace Monoceros {
                                 randomSeed,
                                 maxAttempts,
                                 out var solvedSlotParts,
-                                out var report);
+                                out var report,
+                                out var attempts);
 
             if (!success) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, report);
@@ -381,6 +394,8 @@ namespace Monoceros {
 
             DA.SetData(0, report);
             DA.SetDataList(1, slotsSolved);
+            DA.SetData(2, success);
+            DA.SetData(3, attempts);
         }
 
         private static void ComputeWorldRelativeBounds(IEnumerable<Slot> slots,
@@ -476,9 +491,11 @@ namespace Monoceros {
                            int randomSeed,
                            int maxAttemptsInt,
                            out List<string> worldSlotParts,
-                           out string report) {
+                           out string report,
+                           out uint attempts) {
             var stats = new Stats();
             worldSlotParts = new List<string>();
+            attempts = 0;
 
             // -- Adjacency rules --
             //
@@ -662,7 +679,7 @@ namespace Monoceros {
                 }
             }
 
-            var attempts = Native.wfc_observe(wfc, maxAttempts);
+            attempts = Native.wfc_observe(wfc, maxAttempts);
             if (attempts == 0) {
                 report = "Monoceros Solver failed to find solution within " + maxAttempts + " attempts";
                 return false;
@@ -713,6 +730,7 @@ namespace Monoceros {
             stats.solveAttempts = attempts;
 
             report = stats.ToString();
+
             return true;
         }
     }
