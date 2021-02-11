@@ -101,7 +101,7 @@ respecting the given Rules.**
     - [11.3.1. Definition: Typed Rule from a literal](#1131-definition-typed-rule-from-a-literal)
     - [11.3.2. Definition: Typed Rule from components](#1132-definition-typed-rule-from-components)
     - [11.3.3. Definition: Typed Rule from components using Module as Name](#1133-definition-typed-rule-from-components-using-module-as-name)
-    - [11.3.4. Definition: {Typed Rule from Point tag](#1134-definition-typed-rule-from-point-tag)
+    - [11.3.4. Definition: Typed Rule from Point tag](#1134-definition-typed-rule-from-point-tag)
   - [11.4. Indifferent Rules](#114-indifferent-rules)
     - [11.4.1. Definition: Indifferent Rules for unused Connectors](#1141-definition-indifferent-rules-for-unused-connectors)
     - [11.4.2. Definition: Indifferent Rules manual assignment](#1142-definition-indifferent-rules-manual-assignment)
@@ -1029,11 +1029,20 @@ Module Connector with an implicit
 [Out Module](#826-special-modules-out-and-empty) residing outside the
 [Envelope](#813-automatic-envelope-wrapping).
 
+*Note: It is possible to use [Module type data as Module Name](#828-module-casts).*
+
 #### 11.2.1. Definition: Explicit Rule from a literal
+
+![Definition Explicit Rule from a literal](./readme-assets/explicit-rule-from-a-literal.png)
 
 #### 11.2.2. Definition: Explicit Rule from components
 
+![Explicit Rule from components](./readme-assets/explicit-rule-from-components.png)
+
 #### 11.2.3. Definition: Explicit Rule from curve
+
+![Explicit Rule from curve](./readme-assets/explicit-rule-from-curve.png)
+![Explicit Rule from curve - screenshot](/readme-assets/explicit-rule-from-curve-screenshot.jpg)
 
 ### 11.3. Typed Rules
 
@@ -1058,13 +1067,24 @@ inside the geometry of a Connector) using
 The second output of the [Construct Empty Module](#1022-construct-empty-module)
 component is also a list of [Typed (Indifferent) Rules](#1110-empty-module).
 
+*Note: It is possible to use [Module type data as Module Name](#828-module-casts).*
+
 #### 11.3.1. Definition: Typed Rule from a literal
+
+![Typed Rule from a literal](./readme-assets/typed-rule-from-a-literal.png)
 
 #### 11.3.2. Definition: Typed Rule from components
 
+![Typed Rule from components](./readme-assets/typed-rule-from-components.png)
+
 #### 11.3.3. Definition: Typed Rule from components using Module as Name
 
-#### 11.3.4. Definition: {Typed Rule from Point tag
+![Typed Rule from components using Module as Name](./readme-assets/typed-rule-from-components-using-module-as-name.png)
+
+#### 11.3.4. Definition: Typed Rule from Point tag
+
+![Typed Rule from Point tag](./readme-assets/typed-rule-from-point-tag.png)
+![Typed Rule from Point tag](./readme-assets/typed-rule-from-point-tag-screenshot.jpg)
 
 ### 11.4. Indifferent Rules
 
@@ -1194,8 +1214,8 @@ Base Plane of all Slots).
 
 Even though in Monoceros it is possible to set individual Base Planes for each
 element, **all [Slots](#81-slot) entering the
-Plane**. The [Modules](#82-module) can have individual Base Planes that do not
 [Monoceros WFC Solver](#1041-monoceros-wfc-solver) must share an identical Base
+Plane**. The [Modules](#82-module) can have individual Base Planes that do not
 need to be identical across the solution.
 
 ### 11.8. Disallowing Rules
@@ -1238,7 +1258,18 @@ least one Rule. Disallowing Rules may result in removing all Rules for certain
 Connectors, which makes the solution impossible. In such case the Monoceros WFC
 Solver throws an error.**
 
+*Note: The Collect Rules component automatically unwraps Typed Rules and adds
+Rules for [Out](#826-special-modules-out-and-empty) Modules.*
+
 #### 11.8.1. Definition
+
+![Disallowing Rules](./readme-assets/disallowing-rules.png)
+Allowed Rules
+![Allowed Rules](./readme-assets/disallowing-rules-allowed.jpg)
+Disallowed Rules
+![Disallowed Rules](./readme-assets/disallowing-rules-disallowed.jpg)
+Resulting Rules
+![Resulting Rules](./readme-assets/disallowing-rules-result.jpg)
 
 ### 11.9. Modules with more Parts
 
@@ -1283,9 +1314,19 @@ the Solver component.
 
 #### 11.9.1. Definition: Module Part Points created manually
 
+![Module Part Points created manually](./readme-assets/module-part-points-created-manually-literal.png)
+![Module Part Points created manually](./readme-assets/module-part-points-created-manually-param.png)
+![Module Part Points created manually](./readme-assets/module-part-points-created-manually.jpg)
+
 #### 11.9.2. Definition: Module Part Points created manually from geometry
 
+![Module Part Points created manually from geometry](./readme-assets/module-part-points-created-manually-from-geometry.png)
+![Module Part Points created manually from geometry](./readme-assets/module-part-points-created-manually-from-geometry-screenshot.jpg)
+
 #### 11.9.3. Definition: Module Part Points created with Slice Geometry
+
+![Module Part Points created with Slice Geometry](./readme-assets/module-part-points-created-with-slice-geometry.png)
+![Module Part Points created with Slice Geometry](./readme-assets/module-part-points-created-with-slice-geometry-screenshot.jpg)
 
 ### 11.10. Empty Module and allowing an Empty neighbor
 
