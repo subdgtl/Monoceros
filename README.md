@@ -101,7 +101,7 @@ respecting the given Rules.**
     - [11.3.1. Definition: Typed Rule from a literal](#1131-definition-typed-rule-from-a-literal)
     - [11.3.2. Definition: Typed Rule from components](#1132-definition-typed-rule-from-components)
     - [11.3.3. Definition: Typed Rule from components using Module as Name](#1133-definition-typed-rule-from-components-using-module-as-name)
-    - [11.3.4. Definition: {Typed Rule from Point tag](#1134-definition-typed-rule-from-point-tag)
+    - [11.3.4. Definition: Typed Rule from Point tag](#1134-definition-typed-rule-from-point-tag)
   - [11.4. Indifferent Rules](#114-indifferent-rules)
     - [11.4.1. Definition: Indifferent Rules for unused Connectors](#1141-definition-indifferent-rules-for-unused-connectors)
     - [11.4.2. Definition: Indifferent Rules manual assignment](#1142-definition-indifferent-rules-manual-assignment)
@@ -981,7 +981,7 @@ whether the world needed canonicalizing as part of its output.
     [allows placement of any](#1611-states) Monoceros [Module](#162-module).
     Input Points collects points placed inside the created Slots. If two of such
     points are inside the same Slot, such Slot will be constructed twice.
-    Therefore it is advised to deduplicate input points. The Output contains as
+    Therefore it is recommended to deduplicate input points. The Output contains as
     many Slots as there are input points.
  2. [Construct Module](#1721-construct-module) constructs a single Monoceros
     [Module](#162-module). Input Name collects unique Module name. Input Points
@@ -1029,11 +1029,20 @@ Module Connector with an implicit
 [Out Module](#826-special-modules-out-and-empty) residing outside the
 [Envelope](#813-automatic-envelope-wrapping).
 
+*Note: It is possible to use [Module type data as Module Name](#828-module-casts).*
+
 #### 11.2.1. Definition: Explicit Rule from a literal
+
+![Definition Explicit Rule from a literal](./readme-assets/explicit-rule-from-a-literal.png)
 
 #### 11.2.2. Definition: Explicit Rule from components
 
+![Explicit Rule from components](./readme-assets/explicit-rule-from-components.png)
+
 #### 11.2.3. Definition: Explicit Rule from curve
+
+![Explicit Rule from curve](./readme-assets/explicit-rule-from-curve.png)
+![Explicit Rule from curve - screenshot](/readme-assets/explicit-rule-from-curve-screenshot.jpg)
 
 ### 11.3. Typed Rules
 
@@ -1058,13 +1067,24 @@ inside the geometry of a Connector) using
 The second output of the [Construct Empty Module](#1022-construct-empty-module)
 component is also a list of [Typed (Indifferent) Rules](#1110-empty-module).
 
+*Note: It is possible to use [Module type data as Module Name](#828-module-casts).*
+
 #### 11.3.1. Definition: Typed Rule from a literal
+
+![Typed Rule from a literal](./readme-assets/typed-rule-from-a-literal.png)
 
 #### 11.3.2. Definition: Typed Rule from components
 
+![Typed Rule from components](./readme-assets/typed-rule-from-components.png)
+
 #### 11.3.3. Definition: Typed Rule from components using Module as Name
 
-#### 11.3.4. Definition: {Typed Rule from Point tag
+![Typed Rule from components using Module as Name](./readme-assets/typed-rule-from-components-using-module-as-name.png)
+
+#### 11.3.4. Definition: Typed Rule from Point tag
+
+![Typed Rule from Point tag](./readme-assets/typed-rule-from-point-tag.png)
+![Typed Rule from Point tag](./readme-assets/typed-rule-from-point-tag-screenshot.jpg)
 
 ### 11.4. Indifferent Rules
 
@@ -1194,8 +1214,8 @@ Base Plane of all Slots).
 
 Even though in Monoceros it is possible to set individual Base Planes for each
 element, **all [Slots](#81-slot) entering the
-Plane**. The [Modules](#82-module) can have individual Base Planes that do not
 [Monoceros WFC Solver](#1041-monoceros-wfc-solver) must share an identical Base
+Plane**. The [Modules](#82-module) can have individual Base Planes that do not
 need to be identical across the solution.
 
 ### 11.8. Disallowing Rules
@@ -1238,7 +1258,18 @@ least one Rule. Disallowing Rules may result in removing all Rules for certain
 Connectors, which makes the solution impossible. In such case the Monoceros WFC
 Solver throws an error.**
 
+*Note: The Collect Rules component automatically unwraps Typed Rules and adds
+Rules for [Out](#826-special-modules-out-and-empty) Modules.*
+
 #### 11.8.1. Definition
+
+![Disallowing Rules](./readme-assets/disallowing-rules.png)
+Allowed Rules
+![Allowed Rules](./readme-assets/disallowing-rules-allowed.jpg)
+Disallowed Rules
+![Disallowed Rules](./readme-assets/disallowing-rules-disallowed.jpg)
+Resulting Rules
+![Resulting Rules](./readme-assets/disallowing-rules-result.jpg)
 
 ### 11.9. Modules with more Parts
 
@@ -1263,14 +1294,14 @@ match the [Module Geometry](#823-module-geometry)**. In many cases the Module
 Geometry extends, occupies only some Module Parts or does not exist at all.
 
 Module Part Points can be created manually, come from manually populated input
-geometry or from [Slice Geometry](#1061-slice-geometry) component. It is advised
+geometry or from [Slice Geometry](#1061-slice-geometry) component. It is recommended
 to **create the Module Part Points manually whenever possible** because it is
 the conscious way, whereas the Slice Geometry component is a brute force
 approach with
 [many limitations](#1128-why-does-the-slice-geometry-component-give-invalid-results)
 and potentially inconsistent results.
 
-It is advised to **keep the number of Module Parts meaningfully low**. Too many
+It is recommended to **keep the number of Module Parts meaningfully low**. Too many
 Parts result in slow performance of the Monoceros WFC Solver and lower
 probability of finding a valid solution. The current version of the Monoceros
 WFC Solver also only **supports solutions with maximum of 256 Parts** from all
@@ -1283,9 +1314,19 @@ the Solver component.
 
 #### 11.9.1. Definition: Module Part Points created manually
 
+![Module Part Points created manually](./readme-assets/module-part-points-created-manually-literal.png)
+![Module Part Points created manually](./readme-assets/module-part-points-created-manually-param.png)
+![Module Part Points created manually](./readme-assets/module-part-points-created-manually.jpg)
+
 #### 11.9.2. Definition: Module Part Points created manually from geometry
 
+![Module Part Points created manually from geometry](./readme-assets/module-part-points-created-manually-from-geometry.png)
+![Module Part Points created manually from geometry](./readme-assets/module-part-points-created-manually-from-geometry-screenshot.jpg)
+
 #### 11.9.3. Definition: Module Part Points created with Slice Geometry
+
+![Module Part Points created with Slice Geometry](./readme-assets/module-part-points-created-with-slice-geometry.png)
+![Module Part Points created with Slice Geometry](./readme-assets/module-part-points-created-with-slice-geometry-screenshot.jpg)
 
 ### 11.10. Empty Module and allowing an Empty neighbor
 
@@ -1316,25 +1357,42 @@ Connector anchor points) can be baked and used to define additional Rules
 involving the Empty Module, i.e. an Explicit Rule allowing adjacency of the
 Empty Module to a specific (non-indifferent) Connector or a Typed Rule.
 
-*Note: It is advised to construct the Empty Module with a Base Plane shifted
+*Note: It is recommended to construct the Empty Module with a Base Plane shifted
 away from the world XY origin because in most cases there already is a custom
 module at {0,0,0} coordinate. If the Module inputs overlap, the Rules from
 Points or Curves may be mixed.*
 
-*Note: It is convenient to generate Explicit Rules from Curve from the desired
-Connectors to all six Connectors of the Empty Module. The Monoceros WFC Solver
-or other components will remove the invalid Rules that connect non-opposite
-Connectors.*
-
 #### 11.10.1. Definition: Empty Module and additional Explicit Rules
 
+![Empty Module and additional Explicit Rules](./readme-assets/empty-module-and-additional-explicit-rules.png)
+![Empty Module and additional Explicit Rules](./readme-assets/empty-module-and-additional-explicit-rules-screenshot.jpg)
+
 #### 11.10.2. Definition: Explicit Rules with all Connectors of Empty
+
+It is convenient to try to generate Explicit Rules from Curve from the desired
+Connectors to all six Connectors of the Empty Module. The
+[Explicit Rule from Curve](#1039-explicit-rule-from-curve) component, the
+[Monoceros WFC Solver](#1041-monoceros-wfc-solver) or other components will
+remove the invalid Rules that connect non-opposite Connectors and only keep the
+valid ones.
+
+*Note: This strategy can be applied onto any collection of Modules, not only
+onto the Empty Module.*
+
+![Explicit Rules with all Connectors of Empty](./readme-assets/explicit-rules-with-all-connectors-of-empty.png)
+![Explicit Rules with all Connectors of Empty](./readme-assets/explicit-rules-with-all-connectors-of-empty-screenshot.jpg)
 
 #### 11.10.3. Definition: Multiple different Empty Modules
 
 If the Empty Module should be larger than a single Part, it is convenient to
 generate custom Modules with no geometry with the required properties and allow
 them to be adjacent to the Modules that require more Empty space next to them.
+
+*Note: The Empty Module is often a way to make the setup valid. Replacing it
+with a custom empty module with multiple Parts may make the setup unsolvable.*
+
+![Multiple different Empty Modules](./readme-assets/multiple-different-empty-modules.png)
+![Multiple different Empty Modules](./readme-assets/multiple-different-empty-modules-screenshot.jpg)
 
 ### 11.11. Allowing Modules to be at the boundary of the Envelope
 
@@ -1379,6 +1437,12 @@ the Rule at boundary from Point component and disallow them using the
 
 #### 11.11.1. Definition
 
+![Allowing Modules to be at the boundary of the Envelope](./readme-assets/allowing-modules-to-be-at-the-boundary-of-the-envelope.png)
+![Allowing Modules to be at the boundary of the Envelope](./readme-assets/allowing-modules-to-be-at-the-boundary-of-the-envelope-screenshot.jpg)
+![Allowing Modules to be at the boundary of the Envelope](./readme-assets/allowing-modules-to-be-at-the-boundary-of-the-envelope-full-example.png)
+![Allowing Modules to be at the boundary of the Envelope](./readme-assets/allowing-modules-to-be-at-the-boundary-of-the-envelope-full-example-screenshot.jpg)
+
+
 ### 11.12. Constructing Slots
 
 Monoceros [Slots](#81-slot) are cuboid (box-like) chunks of space, delimiting a
@@ -1396,7 +1460,7 @@ duplicate Slots.
 
 Slot input points can be constructed either manually, manually from geometry,
 using the [Slice Geometry](#1061-slice-geometry) component or employing a
-combination of these methods. It is advised to **generate the input points
+combination of these methods. It is recommended to **generate the input points
 manually or manually from geometry whenever possible** because it offers better
 control. The Slice Geometry component is a brute force approach with
 [many limitations](#1128-why-does-the-slice-geometry-component-give-invalid-results)
@@ -1604,7 +1668,7 @@ component output data tree).*
 
 The geometry output of the Materialize Slots component is intended for further
 use in Grasshopper. Therefore, if the intention is to bake the output of the WFC
-already in this stage, it is advised to bake the Materialize Slots component.
+already in this stage, it is recommended to bake the Materialize Slots component.
 The result of such bake is a
 [collection of block instances](#128-are-block-instances-or-groups-supported-by-monoceros),
 which are significantly smaller than full-fledged geometry and all blocks of one
@@ -1750,7 +1814,7 @@ not a growth algorithm and how does it differ from other seemingly similar
 discrete assembly tools.
 
 When learning Monoceros and building intuitive sensitivity, the following steps
-are advised:
+are recommended:
 
 1. Start as simple as possible
 2. Do not jump to complex setups too early
