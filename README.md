@@ -1369,18 +1369,30 @@ Points or Curves may be mixed.*
 
 #### 11.10.2. Definition: Explicit Rules with all Connectors of Empty
 
-*Note: It is convenient to generate Explicit Rules from Curve from the desired
-Connectors to all six Connectors of the Empty Module. The Monoceros WFC Solver
-or other components will remove the invalid Rules that connect non-opposite
-Connectors.*
+It is convenient to try to generate Explicit Rules from Curve from the desired
+Connectors to all six Connectors of the Empty Module. The
+[Explicit Rule from Curve](#1039-explicit-rule-from-curve) component, the
+[Monoceros WFC Solver](#1041-monoceros-wfc-solver) or other components will
+remove the invalid Rules that connect non-opposite Connectors and only keep the
+valid ones.
 
+*Note: This strategy can be applied onto any collection of Modules, not only
+onto the Empty Module.*
 
+![Explicit Rules with all Connectors of Empty](./readme-assets/explicit-rules-with-all-connectors-of-empty.png)
+![Explicit Rules with all Connectors of Empty](./readme-assets/explicit-rules-with-all-connectors-of-empty-screenshot.jpg)
 
 #### 11.10.3. Definition: Multiple different Empty Modules
 
 If the Empty Module should be larger than a single Part, it is convenient to
 generate custom Modules with no geometry with the required properties and allow
 them to be adjacent to the Modules that require more Empty space next to them.
+
+*Note: The Empty Module is often a way to make the setup valid. Replacing it
+with a custom empty module with multiple Parts may make the setup unsolvable.*
+
+![Multiple different Empty Modules](./readme-assets/multiple-different-empty-modules.png)
+![Multiple different Empty Modules](./readme-assets/multiple-different-empty-modules-screenshot.jpg)
 
 ### 11.11. Allowing Modules to be at the boundary of the Envelope
 
@@ -1424,6 +1436,12 @@ the Rule at boundary from Point component and disallow them using the
 [Collect Rules](#1038-collect-rules) component.
 
 #### 11.11.1. Definition
+
+![Allowing Modules to be at the boundary of the Envelope](./readme-assets/allowing-modules-to-be-at-the-boundary-of-the-envelope.png)
+![Allowing Modules to be at the boundary of the Envelope](./readme-assets/allowing-modules-to-be-at-the-boundary-of-the-envelope-screenshot.jpg)
+![Allowing Modules to be at the boundary of the Envelope](./readme-assets/allowing-modules-to-be-at-the-boundary-of-the-envelope-full-example.png)
+![Allowing Modules to be at the boundary of the Envelope](./readme-assets/allowing-modules-to-be-at-the-boundary-of-the-envelope-full-example-screenshot.jpg)
+
 
 ### 11.12. Constructing Slots
 
