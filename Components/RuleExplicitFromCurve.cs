@@ -81,7 +81,8 @@ namespace Monoceros {
                             }
                             for (var endConnectorIndex = 0; endConnectorIndex < endModule.Connectors.Count; endConnectorIndex++) {
                                 var endConnector = endModule.Connectors[endConnectorIndex];
-                                if (endConnector.ContaininsPoint(curve.PointAtEnd)) {
+                                if (endConnector.ContaininsPoint(curve.PointAtEnd)
+                                    && startConnector.Direction.IsOpposite(endConnector.Direction)) {
                                     rules.Add(new Rule(startModule.Name,
                                                        (uint)startConnectorIndex,
                                                        endModule.Name,
