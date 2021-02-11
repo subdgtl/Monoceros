@@ -981,7 +981,7 @@ whether the world needed canonicalizing as part of its output.
     [allows placement of any](#1611-states) Monoceros [Module](#162-module).
     Input Points collects points placed inside the created Slots. If two of such
     points are inside the same Slot, such Slot will be constructed twice.
-    Therefore it is advised to deduplicate input points. The Output contains as
+    Therefore it is recommended to deduplicate input points. The Output contains as
     many Slots as there are input points.
  2. [Construct Module](#1721-construct-module) constructs a single Monoceros
     [Module](#162-module). Input Name collects unique Module name. Input Points
@@ -1294,14 +1294,14 @@ match the [Module Geometry](#823-module-geometry)**. In many cases the Module
 Geometry extends, occupies only some Module Parts or does not exist at all.
 
 Module Part Points can be created manually, come from manually populated input
-geometry or from [Slice Geometry](#1061-slice-geometry) component. It is advised
+geometry or from [Slice Geometry](#1061-slice-geometry) component. It is recommended
 to **create the Module Part Points manually whenever possible** because it is
 the conscious way, whereas the Slice Geometry component is a brute force
 approach with
 [many limitations](#1128-why-does-the-slice-geometry-component-give-invalid-results)
 and potentially inconsistent results.
 
-It is advised to **keep the number of Module Parts meaningfully low**. Too many
+It is recommended to **keep the number of Module Parts meaningfully low**. Too many
 Parts result in slow performance of the Monoceros WFC Solver and lower
 probability of finding a valid solution. The current version of the Monoceros
 WFC Solver also only **supports solutions with maximum of 256 Parts** from all
@@ -1357,19 +1357,24 @@ Connector anchor points) can be baked and used to define additional Rules
 involving the Empty Module, i.e. an Explicit Rule allowing adjacency of the
 Empty Module to a specific (non-indifferent) Connector or a Typed Rule.
 
-*Note: It is advised to construct the Empty Module with a Base Plane shifted
+*Note: It is recommended to construct the Empty Module with a Base Plane shifted
 away from the world XY origin because in most cases there already is a custom
 module at {0,0,0} coordinate. If the Module inputs overlap, the Rules from
 Points or Curves may be mixed.*
+
+#### 11.10.1. Definition: Empty Module and additional Explicit Rules
+
+![Empty Module and additional Explicit Rules](./readme-assets/empty-module-and-additional-explicit-rules.png)
+![Empty Module and additional Explicit Rules](./readme-assets/empty-module-and-additional-explicit-rules-screenshot.jpg)
+
+#### 11.10.2. Definition: Explicit Rules with all Connectors of Empty
 
 *Note: It is convenient to generate Explicit Rules from Curve from the desired
 Connectors to all six Connectors of the Empty Module. The Monoceros WFC Solver
 or other components will remove the invalid Rules that connect non-opposite
 Connectors.*
 
-#### 11.10.1. Definition: Empty Module and additional Explicit Rules
 
-#### 11.10.2. Definition: Explicit Rules with all Connectors of Empty
 
 #### 11.10.3. Definition: Multiple different Empty Modules
 
@@ -1437,7 +1442,7 @@ duplicate Slots.
 
 Slot input points can be constructed either manually, manually from geometry,
 using the [Slice Geometry](#1061-slice-geometry) component or employing a
-combination of these methods. It is advised to **generate the input points
+combination of these methods. It is recommended to **generate the input points
 manually or manually from geometry whenever possible** because it offers better
 control. The Slice Geometry component is a brute force approach with
 [many limitations](#1128-why-does-the-slice-geometry-component-give-invalid-results)
@@ -1645,7 +1650,7 @@ component output data tree).*
 
 The geometry output of the Materialize Slots component is intended for further
 use in Grasshopper. Therefore, if the intention is to bake the output of the WFC
-already in this stage, it is advised to bake the Materialize Slots component.
+already in this stage, it is recommended to bake the Materialize Slots component.
 The result of such bake is a
 [collection of block instances](#128-are-block-instances-or-groups-supported-by-monoceros),
 which are significantly smaller than full-fledged geometry and all blocks of one
@@ -1791,7 +1796,7 @@ not a growth algorithm and how does it differ from other seemingly similar
 discrete assembly tools.
 
 When learning Monoceros and building intuitive sensitivity, the following steps
-are advised:
+are recommended:
 
 1. Start as simple as possible
 2. Do not jump to complex setups too early
