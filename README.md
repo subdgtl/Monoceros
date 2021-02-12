@@ -183,7 +183,7 @@ respecting the given Rules.**
 
 ## 4. Meet Monoceros
 
-![Monoceros](readme-assets/monoceros512.png)
+![Monoceros](./readme-assets/monoceros512.png)
 
 > Monoceros is a legendary animal living in the huge mountains in the interior
 > of India. Monoceros has the body of a horse, the head of a stag, the feet of
@@ -199,7 +199,7 @@ game design by [Maxim Gumin](https://github.com/mxgmn/WaveFunctionCollapse) and
 extended and promoted by [Oskar Stålberg](https://oskarstalberg.com) with his
 game [Townscaper](https://store.steampowered.com/app/1291340/Townscaper/).
 
-![grasshopper panel](readme-assets/grasshopper-panel.png)
+![grasshopper panel](./readme-assets/grasshopper-panel.png)
 
 Monoceros serves to fill the entire world with Modules, respecting the given
 Rules. The plug-in wraps WFC into a layer of abstraction, which makes WFC easily
@@ -970,8 +970,8 @@ whether the world needed canonicalizing as part of its output.
 
 #### 11.1.2. Definition
 
-![Bare minimum](readme-assets/bare-minimum.png)
-![Bare minimum](readme-assets/bare-minimum-screenshot.jpg)
+![Bare minimum](./readme-assets/bare-minimum.png)
+![Bare minimum](./readme-assets/bare-minimum-screenshot.jpg)
 
 #### 11.1.3. Breakdown
 
@@ -1033,16 +1033,19 @@ Module Connector with an implicit
 
 #### 11.2.1. Definition: Explicit Rule from a literal
 
-![Definition Explicit Rule from a literal](./readme-assets/explicit-rule-from-a-literal.png)
+![Definition Explicit Rule from a literal](./examples/explicit-rule-from-a-literal/explicit-rule-from-a-literal.png)
+[Download](./examples/explicit-rule-from-a-literal/explicit-rule-from-a-literal.gh)
 
 #### 11.2.2. Definition: Explicit Rule from components
 
-![Explicit Rule from components](./readme-assets/explicit-rule-from-components.png)
+![Explicit Rule from components](./examples/explicit-rule-from-components/explicit-rule-from-components.png)
+[Download](./examples/explicit-rule-from-components/explicit-rule-from-components.gh)
 
 #### 11.2.3. Definition: Explicit Rule from curve
 
-![Explicit Rule from curve](./readme-assets/explicit-rule-from-curve.png)
-![Explicit Rule from curve - screenshot](/readme-assets/explicit-rule-from-curve-screenshot.jpg)
+![Explicit Rule from curve](./examples/explicit-rule-from-curve/explicit-rule-from-curve.png)
+[Download](./examples/explicit-rule-from-curve/explicit-rule-from-curve.gh)
+![Explicit Rule from curve - screenshot](./examples/explicit-rule-from-curve/explicit-rule-from-curve-screenshot.jpg)
 
 ### 11.3. Typed Rules
 
@@ -1071,20 +1074,24 @@ component is also a list of [Typed (Indifferent) Rules](#1110-empty-module).
 
 #### 11.3.1. Definition: Typed Rule from a literal
 
-![Typed Rule from a literal](./readme-assets/typed-rule-from-a-literal.png)
+![Typed Rule from a literal](./examples/typed-rule-from-a-literal/typed-rule-from-a-literal.png)
+[Download](./examples/typed-rule-from-a-literal/typed-rule-from-a-literal.gh)
 
 #### 11.3.2. Definition: Typed Rule from components
 
-![Typed Rule from components](./readme-assets/typed-rule-from-components.png)
+![Typed Rule from components](./examples/typed-rule-from-components/typed-rule-from-components.png)
+[Download](./examples/typed-rule-from-components/typed-rule-from-components.gh)
 
 #### 11.3.3. Definition: Typed Rule from components using Module as Name
 
-![Typed Rule from components using Module as Name](./readme-assets/typed-rule-from-components-using-module-as-name.png)
+![Typed Rule from components using Module as Name](./examples/typed-rule-from-components-using-module-as-name/typed-rule-from-components-using-module-as-name.png)
+[Download](./examples/typed-rule-from-components-using-module-as-name/typed-rule-from-components-using-module-as-name.gh)
 
 #### 11.3.4. Definition: Typed Rule from Point tag
 
-![Typed Rule from Point tag](./readme-assets/typed-rule-from-point-tag.png)
-![Typed Rule from Point tag](./readme-assets/typed-rule-from-point-tag-screenshot.jpg)
+![Typed Rule from Point tag](./examples/typed-rule-from-point-tag/typed-rule-from-point-tag.png)
+[Download](./examples/typed-rule-from-point-tag/typed-rule-from-point-tag.gh)
+![Typed Rule from Point tag](./examples/typed-rule-from-point-tag/typed-rule-from-point-tag-screenshot.jpg)
 
 ### 11.4. Indifferent Rules
 
@@ -1141,7 +1148,7 @@ along with the [Empty Module](#1022-construct-empty-module).
 
 #### 11.5.2. Definition: (almost) without data trees
 
-![Without trees](readme-assets/multiple-modules-explicit-rules.png)
+![Without trees](./readme-assets/multiple-modules-explicit-rules.png)
 
 #### 11.5.3. Pseudo code: with data trees
 
@@ -1165,12 +1172,12 @@ along with the [Empty Module](#1022-construct-empty-module).
 
 #### 11.5.4. Definition: with data trees
 
-![Without trees](readme-assets/multiple-modules-tree-explicit-rules.png)
+![Without trees](./readme-assets/multiple-modules-tree-explicit-rules.png)
 
 #### 11.5.5. Result
 
-![Pitchforks setup](readme-assets/multiple-modules-tree-explicit-rules-a.jpg)
-![Pitchforks](readme-assets/multiple-modules-tree-explicit-rules-b.jpg)
+![Pitchforks setup](./readme-assets/multiple-modules-tree-explicit-rules-a.jpg)
+![Pitchforks](./readme-assets/multiple-modules-tree-explicit-rules-b.jpg)
 
 ### 11.6. Slots and Module Parts with non-uniforms dimensions
 
@@ -1193,12 +1200,12 @@ they should slice the WFC data.
 
 #### 11.6.1. Definition
 
-![Viewport](readme-assets/non-uniform.png)
+![Viewport](./readme-assets/non-uniform.png)
 
 #### 11.6.2. Result
 
-![Viewport](readme-assets/non-uniform-process.jpg)
-![Viewport](readme-assets/non-uniform-result.jpg)
+![Viewport](./readme-assets/non-uniform-process.jpg)
+![Viewport](./readme-assets/non-uniform-result.jpg)
 
 ### 11.7. Modules and Envelope with individual base planes
 
@@ -1263,13 +1270,15 @@ Rules for [Out](#826-special-modules-out-and-empty) Modules.*
 
 #### 11.8.1. Definition
 
-![Disallowing Rules](./readme-assets/disallowing-rules.png)
+![Disallowing Rules](./examples/disallowing-rules/disallowing-rules.png)
+[Download](./examples/disallowing-rules/disallowing-rules.gh)
+
 Allowed Rules
-![Allowed Rules](./readme-assets/disallowing-rules-allowed.jpg)
+![Allowed Rules](./examples/disallowing-rules/disallowing-rules-allowed.jpg)
 Disallowed Rules
-![Disallowed Rules](./readme-assets/disallowing-rules-disallowed.jpg)
+![Disallowed Rules](./examples/disallowing-rules/disallowing-rules-disallowed.jpg)
 Resulting Rules
-![Resulting Rules](./readme-assets/disallowing-rules-result.jpg)
+![Resulting Rules](./examples/disallowing-rules/disallowing-rules-result.jpg)
 
 ### 11.9. Modules with more Parts
 
@@ -1314,19 +1323,22 @@ the Solver component.
 
 #### 11.9.1. Definition: Module Part Points created manually
 
-![Module Part Points created manually](./readme-assets/module-part-points-created-manually-literal.png)
-![Module Part Points created manually](./readme-assets/module-part-points-created-manually-param.png)
-![Module Part Points created manually](./readme-assets/module-part-points-created-manually.jpg)
+![Module Part Points created manually](./examples/module-part-points-created-manually/module-part-points-created-manually-literal.png)
+![Module Part Points created manually](./examples/module-part-points-created-manually/module-part-points-created-manually-param.png)
+[Download](./examples/module-part-points-created-manually/module-part-points-created-manually.gh)
+![Module Part Points created manually](./examples/module-part-points-created-manually/module-part-points-created-manually.jpg)
 
 #### 11.9.2. Definition: Module Part Points created manually from geometry
 
-![Module Part Points created manually from geometry](./readme-assets/module-part-points-created-manually-from-geometry.png)
-![Module Part Points created manually from geometry](./readme-assets/module-part-points-created-manually-from-geometry-screenshot.jpg)
+![Module Part Points created manually from geometry](./examples/module-part-points-created-manually-from-geometry/module-part-points-created-manually-from-geometry.png)
+[Download](./examples/module-part-points-created-manually-from-geometry/module-part-points-created-manually-from-geometry.gh)
+![Module Part Points created manually from geometry](./examples/module-part-points-created-manually-from-geometry/module-part-points-created-manually-from-geometry-screenshot.jpg)
 
 #### 11.9.3. Definition: Module Part Points created with Slice Geometry
 
-![Module Part Points created with Slice Geometry](./readme-assets/module-part-points-created-with-slice-geometry.png)
-![Module Part Points created with Slice Geometry](./readme-assets/module-part-points-created-with-slice-geometry-screenshot.jpg)
+![Module Part Points created with Slice Geometry](./examples/module-part-points-created-with-slice-geometry/module-part-points-created-with-slice-geometry.png)
+[Download](./examples/module-part-points-created-with-slice-geometry/module-part-points-created-with-slice-geometry.gh)
+![Module Part Points created with Slice Geometry](./examples/module-part-points-created-with-slice-geometry/module-part-points-created-with-slice-geometry-screenshot.jpg)
 
 ### 11.10. Empty Module and allowing an Empty neighbor
 
@@ -1364,8 +1376,9 @@ Points or Curves may be mixed.*
 
 #### 11.10.1. Definition: Empty Module and additional Explicit Rules
 
-![Empty Module and additional Explicit Rules](./readme-assets/empty-module-and-additional-explicit-rules.png)
-![Empty Module and additional Explicit Rules](./readme-assets/empty-module-and-additional-explicit-rules-screenshot.jpg)
+![Empty Module and additional Explicit Rules](./examples/empty-module-and-additional-explicit-rules/empty-module-and-additional-explicit-rules.png)
+[Download](./examples/empty-module-and-additional-explicit-rules/empty-module-and-additional-explicit-rules.gh)
+![Empty Module and additional Explicit Rules](./examples/empty-module-and-additional-explicit-rules/empty-module-and-additional-explicit-rules-screenshot.jpg)
 
 #### 11.10.2. Definition: Explicit Rules with all Connectors of Empty
 
@@ -1379,8 +1392,9 @@ valid ones.
 *Note: This strategy can be applied onto any collection of Modules, not only
 onto the Empty Module.*
 
-![Explicit Rules with all Connectors of Empty](./readme-assets/explicit-rules-with-all-connectors-of-empty.png)
-![Explicit Rules with all Connectors of Empty](./readme-assets/explicit-rules-with-all-connectors-of-empty-screenshot.jpg)
+![Explicit Rules with all Connectors of Empty](./examples/explicit-rules-with-all-connectors-of-empty/explicit-rules-with-all-connectors-of-empty.png)
+[Download](./examples/explicit-rules-with-all-connectors-of-empty/explicit-rules-with-all-connectors-of-empty.gh)
+![Explicit Rules with all Connectors of Empty](./examples/explicit-rules-with-all-connectors-of-empty/explicit-rules-with-all-connectors-of-empty-screenshot.jpg)
 
 #### 11.10.3. Definition: Multiple different Empty Modules
 
@@ -1391,8 +1405,9 @@ them to be adjacent to the Modules that require more Empty space next to them.
 *Note: The Empty Module is often a way to make the setup valid. Replacing it
 with a custom empty module with multiple Parts may make the setup unsolvable.*
 
-![Multiple different Empty Modules](./readme-assets/multiple-different-empty-modules.png)
-![Multiple different Empty Modules](./readme-assets/multiple-different-empty-modules-screenshot.jpg)
+![Multiple different Empty Modules](./examples/multiple-different-empty-modules/multiple-different-empty-modules.png)
+[Download](./examples/multiple-different-empty-modules/multiple-different-empty-modules.gh)
+![Multiple different Empty Modules](./examples/multiple-different-empty-modules/multiple-different-empty-modules-screenshot.jpg)
 
 ### 11.11. Allowing Modules to be at the boundary of the Envelope
 
@@ -1437,11 +1452,12 @@ the Rule at boundary from Point component and disallow them using the
 
 #### 11.11.1. Definition
 
-![Allowing Modules to be at the boundary of the Envelope](./readme-assets/allowing-modules-to-be-at-the-boundary-of-the-envelope.png)
-![Allowing Modules to be at the boundary of the Envelope](./readme-assets/allowing-modules-to-be-at-the-boundary-of-the-envelope-screenshot.jpg)
-![Allowing Modules to be at the boundary of the Envelope](./readme-assets/allowing-modules-to-be-at-the-boundary-of-the-envelope-full-example.png)
-![Allowing Modules to be at the boundary of the Envelope](./readme-assets/allowing-modules-to-be-at-the-boundary-of-the-envelope-full-example-screenshot.jpg)
-
+![Allowing Modules to be at the boundary of the Envelope](./examples/allowing-modules-to-be-at-the-boundary-of-the-envelope/allowing-modules-to-be-at-the-boundary-of-the-envelope.png)
+[Download](./examples/allowing-modules-to-be-at-the-boundary-of-the-envelope/allowing-modules-to-be-at-the-boundary-of-the-envelope.gh)
+![Allowing Modules to be at the boundary of the Envelope](./examples/allowing-modules-to-be-at-the-boundary-of-the-envelope/allowing-modules-to-be-at-the-boundary-of-the-envelope-screenshot.jpg)
+![Allowing Modules to be at the boundary of the Envelope](./examples/allowing-modules-to-be-at-the-boundary-of-the-envelope/allowing-modules-to-be-at-the-boundary-of-the-envelope-full-example.png)
+[Download](./examples/allowing-modules-to-be-at-the-boundary-of-the-envelope/allowing-modules-to-be-at-the-boundary-of-the-envelope.gh)
+![Allowing Modules to be at the boundary of the Envelope](./examples/allowing-modules-to-be-at-the-boundary-of-the-envelope/allowing-modules-to-be-at-the-boundary-of-the-envelope-full-example-screenshot.jpg)
 
 ### 11.12. Constructing Slots
 
@@ -1998,7 +2014,7 @@ Developed at [Subdigital](https://sub.digtial).
 
 Supported using public funding by Slovak Arts Council.
 
-![FPU](readme-assets/fpu.jpg)
+![FPU](./readme-assets/fpu.jpg)
 
 ## 14. MIT License
 
