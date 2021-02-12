@@ -136,39 +136,37 @@ respecting the given Rules.**
     - [11.12.5. Definition: Slots from Slice Geometry: Surfaces](#11125-definition-slots-from-slice-geometry-surfaces)
     - [11.12.6. Definition: Slots from Slice Geometry: Mesh and Brep volumes](#11126-definition-slots-from-slice-geometry-mesh-and-brep-volumes)
     - [11.12.7. Definition: Slots from Slice Geometry: Miscellaneous geometry](#11127-definition-slots-from-slice-geometry-miscellaneous-geometry)
-  - [11.13. Preventing duplicate Slots from points](#1113-preventing-duplicate-slots-from-points)
-    - [11.13.1. Definition](#11131-definition)
-  - [11.14. Allowing certain Modules in certain Slots](#1114-allowing-certain-modules-in-certain-slots)
-    - [11.14.1. Definition: Allowing Modules modules in certain area](#11141-definition-allowing-modules-modules-in-certain-area)
-    - [11.14.2. Definition: Disallowing Modules modules in certain area](#11142-definition-disallowing-modules-modules-in-certain-area)
-    - [11.14.3. Definition: Allowing Modules modules based on attractor](#11143-definition-allowing-modules-modules-based-on-attractor)
-    - [11.14.4. Roulette approach to weighted probability](#11144-roulette-approach-to-weighted-probability)
-    - [11.14.5. Definition: Roulette - Choosing a binary weighted option](#11145-definition-roulette---choosing-a-binary-weighted-option)
-    - [11.14.6. Definition: Roulette - Choosing one weighted option from multiple choices](#11146-definition-roulette---choosing-one-weighted-option-from-multiple-choices)
-    - [11.14.7. Definition: Roulette - Choosing more weighted options from multiple choices](#11147-definition-roulette---choosing-more-weighted-options-from-multiple-choices)
-    - [11.14.8. Definition: Allowing Modules based on vertical gradient](#11148-definition-allowing-modules-based-on-vertical-gradient)
-    - [11.14.9. Definition: Allowing Modules based on multiple attractor gradients](#11149-definition-allowing-modules-based-on-multiple-attractor-gradients)
-  - [11.15. Fixing Modules in Envelope before running the Solver](#1115-fixing-modules-in-envelope-before-running-the-solver)
-  - [11.16. Disallowing certain Modules from certain Slots](#1116-disallowing-certain-modules-from-certain-slots)
-    - [11.16.1. Definition: Disallowing Modules in new Slots](#11161-definition-disallowing-modules-in-new-slots)
-    - [11.16.2. Definition: Disallowing Modules in existing Slots](#11162-definition-disallowing-modules-in-existing-slots)
-  - [11.17. Enforcing specific modules at the boundary of the Envelope](#1117-enforcing-specific-modules-at-the-boundary-of-the-envelope)
+  - [11.13. Allowing certain Modules in certain Slots](#1113-allowing-certain-modules-in-certain-slots)
+    - [11.13.1. Definition: Allowing Modules in certain area](#11131-definition-allowing-modules-in-certain-area)
+    - [11.13.2. Definition: Disallowing Modules in certain area](#11132-definition-disallowing-modules-in-certain-area)
+    - [11.13.3. Definition: Allowing Modules based on attractor](#11133-definition-allowing-modules-based-on-attractor)
+    - [11.13.4. Roulette approach to weighted probability](#11134-roulette-approach-to-weighted-probability)
+    - [11.13.5. Definition: Roulette - Choosing a binary weighted option](#11135-definition-roulette---choosing-a-binary-weighted-option)
+    - [11.13.6. Definition: Roulette - Choosing one weighted option from multiple choices](#11136-definition-roulette---choosing-one-weighted-option-from-multiple-choices)
+    - [11.13.7. Definition: Roulette - Choosing more weighted options from multiple choices](#11137-definition-roulette---choosing-more-weighted-options-from-multiple-choices)
+    - [11.13.8. Definition: Allowing Modules based on vertical gradient](#11138-definition-allowing-modules-based-on-vertical-gradient)
+    - [11.13.9. Definition: Allowing Modules based on multiple attractor gradients](#11139-definition-allowing-modules-based-on-multiple-attractor-gradients)
+  - [11.14. Fixing Modules in Envelope before running the Solver](#1114-fixing-modules-in-envelope-before-running-the-solver)
+  - [11.15. Disallowing certain Modules from certain Slots](#1115-disallowing-certain-modules-from-certain-slots)
+    - [11.15.1. Definition: Disallowing Modules in new Slots](#11151-definition-disallowing-modules-in-new-slots)
+    - [11.15.2. Definition: Disallowing Modules in existing Slots](#11152-definition-disallowing-modules-in-existing-slots)
+  - [11.16. Enforcing specific modules at the boundary of the Envelope](#1116-enforcing-specific-modules-at-the-boundary-of-the-envelope)
+    - [11.16.1. Definition](#11161-definition)
+    - [11.16.2. Definition: Identifying more boundary layers](#11162-definition-identifying-more-boundary-layers)
+  - [11.17. Growing the boundary of the Envelope](#1117-growing-the-boundary-of-the-envelope)
     - [11.17.1. Definition](#11171-definition)
-    - [11.17.2. Definition: Identifying more boundary layers](#11172-definition-identifying-more-boundary-layers)
-  - [11.18. Growing the boundary of the Envelope](#1118-growing-the-boundary-of-the-envelope)
+  - [11.18. Materializing results](#1118-materializing-results)
     - [11.18.1. Definition](#11181-definition)
-  - [11.19. Materializing results](#1119-materializing-results)
+  - [11.19. Proto-results and custom materialization](#1119-proto-results-and-custom-materialization)
     - [11.19.1. Definition](#11191-definition)
-  - [11.20. Proto-results and custom materialization](#1120-proto-results-and-custom-materialization)
+  - [11.20. Using the transform data to materialize the result](#1120-using-the-transform-data-to-materialize-the-result)
     - [11.20.1. Definition](#11201-definition)
-  - [11.21. Using the transform data to materialize the result](#1121-using-the-transform-data-to-materialize-the-result)
-    - [11.21.1. Definition](#11211-definition)
-  - [11.22. Random seed and attempts count](#1122-random-seed-and-attempts-count)
-  - [11.23. Visualizing Rules](#1123-visualizing-rules)
-    - [11.23.1. Definition](#11231-definition)
-  - [11.24. Visualizing allowed Module couples](#1124-visualizing-allowed-module-couples)
-    - [11.24.1. Definition: Visualizing one Module couple](#11241-definition-visualizing-one-module-couple)
-    - [11.24.2. Definition: Visualizing a catalog of Module couples](#11242-definition-visualizing-a-catalog-of-module-couples)
+  - [11.21. Random seed and attempts count](#1121-random-seed-and-attempts-count)
+  - [11.22. Visualizing Rules](#1122-visualizing-rules)
+    - [11.22.1. Definition](#11221-definition)
+  - [11.23. Visualizing allowed Module couples](#1123-visualizing-allowed-module-couples)
+    - [11.23.1. Definition: Visualizing one Module couple](#11231-definition-visualizing-one-module-couple)
+    - [11.23.2. Definition: Visualizing a catalog of Module couples](#11232-definition-visualizing-a-catalog-of-module-couples)
 - [12. FAQ](#12-faq)
   - [12.1. What is a good exercise to start using Monoceros?](#121-what-is-a-good-exercise-to-start-using-monoceros)
   - [12.2. What does the error "World state is contradictory" mean?](#122-what-does-the-error-world-state-is-contradictory-mean)
@@ -1480,23 +1478,25 @@ combination of these methods. It is recommended to **generate the input points
 manually or manually from geometry whenever possible** because it offers better
 control. The Slice Geometry component is a brute force approach with
 [many limitations](#1128-why-does-the-slice-geometry-component-give-invalid-results)
-and potentially inconsistent results.
+and potentially inconsistent and imprecise results.
+
+All described slicing methods apply also to [constructing](#119-modules-with-more-parts) the [Modules](#82-module).
 
 #### 11.12.1. Definition: Slots from manually generated points
 
+![Slots from manually generated points](./examples/slots-from-manually-generated-points/slots-from-manually-generated-points.png)
+[Download](./examples/slots-from-manually-generated-points/slots-from-manually-generated-points.gh)
+
 #### 11.12.2. Definition: Slots from manually generated points from geometry
 
+The fastest way to
+[deduplicate manually generated points](#11123-definition-slots-from-slice-geometry-points)
+is to use the [Slice Geometry](#1061-slice-geometry) component.
+
+![Slots from manually generated points from geometry](./examples/slots-from-manually-generated-points-from-geometry/slots-from-manually-generated-points-from-geometry.png)
+[Download](./examples/slots-from-manually-generated-points-from-geometry/slots-from-manually-generated-points-from-geometry.gh)
+
 #### 11.12.3. Definition: Slots from Slice Geometry: Points
-
-#### 11.12.4. Definition: Slots from Slice Geometry: Curves
-
-#### 11.12.5. Definition: Slots from Slice Geometry: Surfaces
-
-#### 11.12.6. Definition: Slots from Slice Geometry: Mesh and Brep volumes
-
-#### 11.12.7. Definition: Slots from Slice Geometry: Miscellaneous geometry
-
-### 11.13. Preventing duplicate Slots from points
 
 Monoceros [Slots](#81-slot) are constructed via components
 [Construct Slot with all Modules allowed](#1011-construct-slot-with-all-modules-allowed)
@@ -1513,9 +1513,42 @@ This can be done manually, but more conveniently it is possible to use the
 [Slice Geometry](#1061-slice-geometry) component to process the input collection
 of points into a list of distinct Slot centers.
 
-#### 11.13.1. Definition
+![Slots from Slice Geometry: Points](./examples/slots-from-slice-geometry-points/slots-from-slice-geometry-points.png)
+[Download](./examples/slots-from-slice-geometry-points/slots-from-slice-geometry-points.gh)
 
-### 11.14. Allowing certain Modules in certain Slots
+#### 11.12.4. Definition: Slots from Slice Geometry: Curves
+
+![Slots from Slice Geometry: Curves](./examples/slots-from-slice-geometry-curves/slots-from-slice-geometry-curves.png)
+[Download](./examples/slots-from-slice-geometry-curves/slots-from-slice-geometry-curves.gh)
+
+#### 11.12.5. Definition: Slots from Slice Geometry: Surfaces
+
+![Slots from Slice Geometry: Surfaces](./examples/slots-from-slice-geometry-surfaces/slots-from-slice-geometry-surfaces.png)
+[Download](./examples/slots-from-slice-geometry-surfaces/slots-from-slice-geometry-surfaces.gh)
+
+#### 11.12.6. Definition: Slots from Slice Geometry: Mesh and Brep volumes
+
+![Slots from Slice Geometry: Mesh and Brep volumes](./examples/slots-from-slice-geometry-mesh-and-brep-volumes/slots-from-slice-geometry-mesh-and-brep-volumes.png)
+
+Fill method **0: wrap geometry surface**. Output Slots count = 2187.
+![Slots from Slice Geometry: Mesh and Brep volumes](./examples/slots-from-slice-geometry-mesh-and-brep-volumes/slots-from-slice-geometry-mesh-and-brep-volumes-0.jpg)
+
+Fill method **1: fill geometry volume**. Output Slots count = 2010.
+![Slots from Slice Geometry: Mesh and Brep volumes](./examples/slots-from-slice-geometry-mesh-and-brep-volumes/slots-from-slice-geometry-mesh-and-brep-volumes-1.jpg)
+
+Fill method **2: wrap surface and fill volume**. Output Slots count = 4165.
+![Slots from Slice Geometry: Mesh and Brep volumes](./examples/slots-from-slice-geometry-mesh-and-brep-volumes/slots-from-slice-geometry-mesh-and-brep-volumes-2.jpg)
+
+Fill method **3: wrap geometry surface (experimental)**. Output Slots count =
+1784.
+![Slots from Slice Geometry: Mesh and Brep volumes](./examples/slots-from-slice-geometry-mesh-and-brep-volumes/slots-from-slice-geometry-mesh-and-brep-volumes-3.jpg)
+
+#### 11.12.7. Definition: Slots from Slice Geometry: Miscellaneous geometry
+
+![Slots from Slice Geometry: Miscellaneous geometry](./examples/slots-from-slice-geometry-miscellaneous-geometry/slots-from-slice-geometry-miscellaneous-geometry.png)
+[Download](./examples/slots-from-slice-geometry-miscellaneous-geometry/slots-from-slice-geometry-miscellaneous-geometry.gh)
+
+### 11.13. Allowing certain Modules in certain Slots
 
 [Slots](#81-slot) are distinct discrete cuboid chunks of space, that allow
 placement of certain ][Module](#82-module) or their
@@ -1529,13 +1562,13 @@ should not contain certain Modules. The list of allowed Modules needs to be
 specified manually for each Slot, but this can be effectively achieved with the
 existing Grasshopper tools.
 
-#### 11.14.1. Definition: Allowing Modules modules in certain area
+#### 11.13.1. Definition: Allowing Modules in certain area
 
-#### 11.14.2. Definition: Disallowing Modules modules in certain area
+#### 11.13.2. Definition: Disallowing Modules in certain area
 
-#### 11.14.3. Definition: Allowing Modules modules based on attractor
+#### 11.13.3. Definition: Allowing Modules based on attractor
 
-#### 11.14.4. Roulette approach to weighted probability
+#### 11.13.4. Roulette approach to weighted probability
 
 The Slots do not allow weighted probability of placing certain Modules but the
 weight can be simulated and distributed discretely. That means, allowing
@@ -1548,20 +1581,20 @@ Technically, this can be achieved by a roulette method: a random item will be
 chosen from a list of possibilities but the items will be multiplied in the list
 based on their probability.
 
-#### 11.14.5. Definition: Roulette - Choosing a binary weighted option
+#### 11.13.5. Definition: Roulette - Choosing a binary weighted option
 
 For example, the algorithm should choose from two options `a` and `b`, with
 probability `3:2` in favour of option `a`, the list of options will contain
 items `a, a, a, b, b`, out of which one random option will be chosen.
 
-#### 11.14.6. Definition: Roulette - Choosing one weighted option from multiple choices
+#### 11.13.6. Definition: Roulette - Choosing one weighted option from multiple choices
 
 For more items, the probability can defined as a number from range `0.0 to 1.0`
 with probabilities `a=0.3`, `b=0.1`, `c=0.8`, then the list of items will
 contain `a, a, a, b, c, c, c, c, c, c, c, c`, out of which one random item will
 be chosen.
 
-#### 11.14.7. Definition: Roulette - Choosing more weighted options from multiple choices
+#### 11.13.7. Definition: Roulette - Choosing more weighted options from multiple choices
 
 It the random weighted selection expects results with more items, it is possible
 to use the same strategy. The
@@ -1573,21 +1606,21 @@ Such result will most probably contain `c, c, c`, which then will be
 deduplicated to `c` or `a, c, c` deduplicated to `a, c`. This way it is possible
 to keep only the most probable modules in a Slot.
 
-#### 11.14.8. Definition: Allowing Modules based on vertical gradient
+#### 11.13.8. Definition: Allowing Modules based on vertical gradient
 
 Employing the
 [roulette](#11157-definition-roulette---choosing-more-weighted-options-from-multiple-choices)
 approach, it is possible to use gradient values calculated from vertical
 position to a probability of Module placement.
 
-#### 11.14.9. Definition: Allowing Modules based on multiple attractor gradients
+#### 11.13.9. Definition: Allowing Modules based on multiple attractor gradients
 
 Employing the
 [roulette](#11157-definition-roulette---choosing-more-weighted-options-from-multiple-choices)
 approach, it is possible to use gradient values calculated from distance of an
 attractor to a probability of Module placement.
 
-### 11.15. Fixing Modules in Envelope before running the Solver
+### 11.14. Fixing Modules in Envelope before running the Solver
 
 In certain cases it is desired to place certain [Modules](#82-module) into
 certain [Slots](#81-slot) even before running the
@@ -1612,7 +1645,7 @@ placed into a Slot allowing placement of the Module.*
 *Note: Placing Modules manually may cause longer search for a valid solution or
 completely unable an existence of a valid solution.*
 
-### 11.16. Disallowing certain Modules from certain Slots
+### 11.15. Disallowing certain Modules from certain Slots
 
 Similarly to
 [allowing](#1116-fixing-modules-in-envelope-before-running-the-solver) certain
@@ -1626,11 +1659,11 @@ manually. Existing Slots can be [deconstructed](#1013-deconstruct-slot) and
 reconstructed with a reduced list of allowed Modules. The original Slots should
 be replaced with the reconstructed ones.
 
-#### 11.16.1. Definition: Disallowing Modules in new Slots
+#### 11.15.1. Definition: Disallowing Modules in new Slots
 
-#### 11.16.2. Definition: Disallowing Modules in existing Slots
+#### 11.15.2. Definition: Disallowing Modules in existing Slots
 
-### 11.17. Enforcing specific modules at the boundary of the Envelope
+### 11.16. Enforcing specific modules at the boundary of the Envelope
 
 If specific [Modules](#82-module) are
 [allowed to be placed at the boundary of the Envelope](#1111-allowing-modules-to-be-at-the-boundary-of-the-envelope)
@@ -1643,15 +1676,15 @@ but their placement should be enforced, it is possible to identify
 [disallowing](#1116-disallowing-certain-modules-from-certain-slots) the desired
 Modules from these Slots.
 
-#### 11.17.1. Definition
+#### 11.16.1. Definition
 
-#### 11.17.2. Definition: Identifying more boundary layers
+#### 11.16.2. Definition: Identifying more boundary layers
 
 If more than one boundary layer of [Slots](#81-slot) should be isolated, the
 [Are Slots Boundary](#1014-are-slots-boundary) component can be used multiple
 times, each time on Slots identified as inner (non-boundary).
 
-### 11.18. Growing the boundary of the Envelope
+### 11.17. Growing the boundary of the Envelope
 
 It is possible to wrap the existing
 [Envelope](#813-automatic-envelope-wrapping) of [Slots](#81-slot) into another
@@ -1660,9 +1693,9 @@ generates a collection of [Slot center points](#812-slot-properties) that can be
 converted into Slots, which will form a single added layer to the existing
 Envelope.
 
-#### 11.18.1. Definition
+#### 11.17.1. Definition
 
-### 11.19. Materializing results
+### 11.18. Materializing results
 
 A correct result of the [Monoceros WFC Solver](#9-monoceros-wfc-solver) is a
 collection of deterministic [Slots](#81-slot), which allow exactly one
@@ -1696,9 +1729,9 @@ a Grasshopper Monoceros definition. To speed it up, it is recommended to disable
 preview of the Materialize Slots component prior to connecting wires to its
 inputs.*
 
-#### 11.19.1. Definition
+#### 11.18.1. Definition
 
-### 11.20. Proto-results and custom materialization
+### 11.19. Proto-results and custom materialization
 
 In some cases the final geometry of a Grasshopper definition does not have to be
 [the one stored](#823-module-geometry) in the Monoceros [Modules](#82-module).
@@ -1711,9 +1744,9 @@ continuous. The Modules should then contain only the skeleton of such structure,
 which will be joined and wrapped into volumes after the materialization of the
 WFC assembly.
 
-#### 11.20.1. Definition
+#### 11.19.1. Definition
 
-### 11.21. Using the transform data to materialize the result
+### 11.20. Using the transform data to materialize the result
 
 In very special cases, the geometry does not have to enter the
 [Modules](#82-module) at all. Instead, the
@@ -1732,9 +1765,9 @@ recalculating the entire Monoceros WFC solution.
 be located and aligned properly: it should share the same location and Base
 Plane orientation with the original Module.*
 
-#### 11.21.1. Definition
+#### 11.20.1. Definition
 
-### 11.22. Random seed and attempts count
+### 11.21. Random seed and attempts count
 
 During the [Wave Function Collapse](#5-wave-function-collapse) calculation,
 there are several moments when a random decision has to be made: if a
@@ -1772,7 +1805,7 @@ another. For solutions that are hard to find it may happen, that for some random
 seeds the Solver requires less attempts than for others. This is only true until
 other inputs (Modules, Rules and Slots) remain unchanged.
 
-### 11.23. Visualizing Rules
+### 11.22. Visualizing Rules
 
 The [Rules](#83-rule) can be
 [displayed](#8313-explicit-rule-viewport-preview-and-baking) in Rhinoceros
@@ -1788,9 +1821,9 @@ means X, green means Y and blue means Z. If the Rule allowing adjacency is
 [Modules](#82-module). The inputs can vary depending on the information that
 should be displayed.*
 
-#### 11.23.1. Definition
+#### 11.22.1. Definition
 
-### 11.24. Visualizing allowed Module couples
+### 11.23. Visualizing allowed Module couples
 
 An [Explicit Rule](#83-rule) can be displayed also as an [assembly](#1052-assemble-rule)
 of two [Modules](#82-module) that are allowed to be adjacent.
@@ -1812,9 +1845,9 @@ If more Rules should be assembled at once, it is necessary to define an
 individual Base Plane for each assembly. The Base Planes need to be manually
 distributed so that the assemblies do not overlap.
 
-#### 11.24.1. Definition: Visualizing one Module couple
+#### 11.23.1. Definition: Visualizing one Module couple
 
-#### 11.24.2. Definition: Visualizing a catalog of Module couples
+#### 11.23.2. Definition: Visualizing a catalog of Module couples
 
 ## 12. FAQ
 
