@@ -137,9 +137,8 @@ respecting the given Rules.**
     - [11.12.6. Definition: Slots from Slice Geometry: Mesh and Brep volumes](#11126-definition-slots-from-slice-geometry-mesh-and-brep-volumes)
     - [11.12.7. Definition: Slots from Slice Geometry: Miscellaneous geometry](#11127-definition-slots-from-slice-geometry-miscellaneous-geometry)
   - [11.13. Allowing certain Modules in certain Slots](#1113-allowing-certain-modules-in-certain-slots)
-    - [11.13.1. Definition: Allowing Modules in certain area](#11131-definition-allowing-modules-in-certain-area)
-    - [11.13.2. Definition: Disallowing Modules in certain area](#11132-definition-disallowing-modules-in-certain-area)
-    - [11.13.3. Definition: Allowing Modules based on attractor](#11133-definition-allowing-modules-based-on-attractor)
+    - [11.13.1. Definition: Allowing / Disallowing Modules in certain area](#11131-definition-allowing--disallowing-modules-in-certain-area)
+    - [11.13.3. Definition: Allowing / Disallowing Modules based on attractor](#11133-definition-allowing--disallowing-modules-based-on-attractor)
     - [11.13.4. Roulette approach to weighted probability](#11134-roulette-approach-to-weighted-probability)
     - [11.13.5. Definition: Roulette - Choosing a binary weighted option](#11135-definition-roulette---choosing-a-binary-weighted-option)
     - [11.13.6. Definition: Roulette - Choosing one weighted option from multiple choices](#11136-definition-roulette---choosing-one-weighted-option-from-multiple-choices)
@@ -1562,11 +1561,33 @@ should not contain certain Modules. The list of allowed Modules needs to be
 specified manually for each Slot, but this can be effectively achieved with the
 existing Grasshopper tools.
 
-#### 11.13.1. Definition: Allowing Modules in certain area
+#### 11.13.1. Definition: Allowing / Disallowing Modules in certain area
 
-#### 11.13.2. Definition: Disallowing Modules in certain area
+![Allowing / Disallowing Modules in certain area](./examples/allowing-disallowing-modules-in-certain-area/allowing-disallowing-modules-in-certain-area.png)
+[Download](./examples/allowing-disallowing-modules-in-certain-area/allowing-disallowing-modules-in-certain-area.gh)
 
-#### 11.13.3. Definition: Allowing Modules based on attractor
+Complete setup
+![Allowing / Disallowing Modules in certain area - Complete setup](./examples/allowing-disallowing-modules-in-certain-area/allowing-disallowing-modules-in-certain-area-complete-setup.jpg)
+
+Slots allowing placement of all Modules, including the "selected" Modules
+![Allowing / Disallowing Modules in certain area - All](./examples/allowing-disallowing-modules-in-certain-area/allowing-disallowing-modules-in-certain-area-all.jpg)
+
+Slots allowing placement of Modules without the "selected" Modules
+![Allowing / Disallowing Modules in certain area - Limited](./examples/allowing-disallowing-modules-in-certain-area/allowing-disallowing-modules-in-certain-area-limited.jpg)
+
+#### 11.13.3. Definition: Allowing / Disallowing Modules based on attractor
+
+![Allowing / Disallowing Modules based on attractor](./examples/allowing-disallowing-modules-based-on-attractor/allowing-disallowing-modules-based-on-attractor.png)
+[Download](./examples/allowing-disallowing-modules-based-on-attractor/allowing-disallowing-modules-based-on-attractor.gh)
+
+Complete setup
+![Allowing / Disallowing Modules based on attractor - Complete setup](./examples/allowing-disallowing-modules-based-on-attractor/allowing-disallowing-modules-based-on-attractor-complete-setup.jpg)
+
+Slots allowing placement of all Modules, including the "selected" Modules
+![Allowing / Disallowing Modules based on attractor - All](./examples/allowing-disallowing-modules-based-on-attractor/allowing-disallowing-modules-based-on-attractor-all.jpg)
+
+Slots allowing placement of Modules without the "selected" Modules
+![Allowing / Disallowing Modules based on attractor - Limited](./examples/allowing-disallowing-modules-based-on-attractor/allowing-disallowing-modules-based-on-attractor-limited.jpg)
 
 #### 11.13.4. Roulette approach to weighted probability
 
@@ -1587,12 +1608,18 @@ For example, the algorithm should choose from two options `a` and `b`, with
 probability `3:2` in favour of option `a`, the list of options will contain
 items `a, a, a, b, b`, out of which one random option will be chosen.
 
+![Roulette - Choosing a binary weighted option](./examples/roulette-choosing-a-binary-weighted-option/roulette-choosing-a-binary-weighted-option.png)
+[Download](./examples/roulette-choosing-a-binary-weighted-option/roulette-choosing-a-binary-weighted-option.gh)
+
 #### 11.13.6. Definition: Roulette - Choosing one weighted option from multiple choices
 
 For more items, the probability can defined as a number from range `0.0 to 1.0`
 with probabilities `a=0.3`, `b=0.1`, `c=0.8`, then the list of items will
 contain `a, a, a, b, c, c, c, c, c, c, c, c`, out of which one random item will
 be chosen.
+
+![Roulette - Choosing one weighted option from multiple choices](./examples/roulette-choosing-one-weighted-option-from-multiple-choices/roulette-choosing-one-weighted-option-from-multiple-choices.png)
+[Download](./examples/roulette-choosing-one-weighted-option-from-multiple-choices/roulette-choosing-one-weighted-option-from-multiple-choices.gh)
 
 #### 11.13.7. Definition: Roulette - Choosing more weighted options from multiple choices
 
@@ -1605,6 +1632,9 @@ could describe a Slot, that can contain `3` Modules, witch probabilities
 Such result will most probably contain `c, c, c`, which then will be
 deduplicated to `c` or `a, c, c` deduplicated to `a, c`. This way it is possible
 to keep only the most probable modules in a Slot.
+
+![Roulette - Choosing more weighted options from multiple choices](./examples/roulette-choosing-more-weighted-options-from-multiple-choices/roulette-choosing-more-weighted-options-from-multiple-choices.png)
+[Download](./examples/roulette-choosing-more-weighted-options-from-multiple-choices/roulette-choosing-more-weighted-options-from-multiple-choices.gh)
 
 #### 11.13.8. Definition: Allowing Modules based on vertical gradient
 
