@@ -6,3 +6,4 @@
 obj/
 bin/
 packages
+*.3dmbak
