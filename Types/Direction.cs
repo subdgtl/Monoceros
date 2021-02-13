@@ -87,6 +87,11 @@ namespace Monoceros {
     /// </summary>
     [Serializable]
     public enum Axis : uint {
+        // TODO(yan): Bring back the Adjacency Rule type from the Rust solver in
+        // the solver component and make conversion functions between this and
+        // it. The adjacency rule enum is volatile and depends on bindings to
+        // the Rust solver. It is dangerous to believe we control this from
+        // here.
         X = 0,
         Y = 1,
         Z = 2,
