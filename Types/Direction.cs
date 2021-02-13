@@ -87,6 +87,17 @@ namespace Monoceros {
     /// </summary>
     [Serializable]
     public enum Axis : uint {
+        // TODO(yan): Bring back the AdjacencyRule type from the Rust solver in
+        // the solver component and make conversion functions between this one
+        // and that.
+        //
+        // Note that this type is sent across FFI and its memory layout must be
+        // exactly the same as the one defined in C API headers for the Rust
+        // solver. It is dangerous to believe we control this from
+        // here. Theferore it would be best if the raw FFI type would be defined
+        // in Solver.cs, close to the FFI bindings. Conversions can be defined
+        // between Axis (which will no longer have to be uint) and
+        // AdjacencyKind.
         X = 0,
         Y = 1,
         Z = 2,
