@@ -827,12 +827,12 @@ namespace Monoceros {
         public override string ToString( ) {
             var b = new StringBuilder(128);
 
-            //b.Append("Rule count: ");
-            //b.Append(ruleCount);
-            //b.AppendLine();
-            //b.Append("Part count: ");
-            //b.Append(partCount);
-            //b.AppendLine();
+            b.Append("Rule count: ");
+            b.Append(ruleCount);
+            b.AppendLine();
+            b.Append("Part count: ");
+            b.Append(partCount);
+            b.AppendLine();
             b.Append("Solve attempts: ");
             b.Append(solveAttempts);
             b.AppendLine();
