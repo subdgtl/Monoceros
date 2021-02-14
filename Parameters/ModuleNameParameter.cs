@@ -7,7 +7,7 @@ namespace Monoceros {
     /// Wraps <see cref="ModuleName"/> type so that it can be used in
     /// Grasshopper as an input, output or a floating parameter.
     /// </summary>
-    class ModuleNameParameter : GH_PersistentParam<ModuleName> {
+    public class ModuleNameParameter : GH_PersistentParam<ModuleName> {
         public ModuleNameParameter( ) : base("Module Name",
                                              "MN",
                                              "Contains a collection of Monoceros Module names.",
