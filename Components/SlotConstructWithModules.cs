@@ -77,7 +77,7 @@ namespace Monoceros {
                 return;
             }
 
-            var allowedModules = allowedModulesRaw.Select(name => name.Name).ToList();
+            var allowedModules = allowedModulesRaw.Select(name => name.Name).Distinct().ToList();
 
             if (allowedModules.Any(name => name.Contains("\n")
                 || name.Contains(":")
