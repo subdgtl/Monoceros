@@ -1271,12 +1271,9 @@ Rules for [Out](#826-special-modules-out-and-empty) Modules.*
 ![Disallowing Rules](./examples/disallowing-rules/disallowing-rules.png)
 [Download](./examples/disallowing-rules/disallowing-rules.gh)
 
-Allowed Rules
-![Allowed Rules](./examples/disallowing-rules/disallowing-rules-allowed.jpg)
-Disallowed Rules
-![Disallowed Rules](./examples/disallowing-rules/disallowing-rules-disallowed.jpg)
-Resulting Rules
-![Resulting Rules](./examples/disallowing-rules/disallowing-rules-result.jpg)
+| Allowed Rules                                                                | Disallowed Rules                                                                   | Resulting Rules                                                               |
+| ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| ![Allowed Rules](./examples/disallowing-rules/disallowing-rules-allowed.jpg) | ![Disallowed Rules](./examples/disallowing-rules/disallowing-rules-disallowed.jpg) | ![Resulting Rules](./examples/disallowing-rules/disallowing-rules-result.jpg) |
 
 ### 11.9. Modules with more Parts
 
@@ -1530,18 +1527,9 @@ of points into a list of distinct Slot centers.
 
 ![Slots from Slice Geometry: Mesh and Brep volumes](./examples/slots-from-slice-geometry-mesh-and-brep-volumes/slots-from-slice-geometry-mesh-and-brep-volumes.png)
 
-Fill method **0: wrap geometry surface**. Output Slots count = 2187.
-![Slots from Slice Geometry: Mesh and Brep volumes](./examples/slots-from-slice-geometry-mesh-and-brep-volumes/slots-from-slice-geometry-mesh-and-brep-volumes-0.jpg)
-
-Fill method **1: fill geometry volume**. Output Slots count = 2010.
-![Slots from Slice Geometry: Mesh and Brep volumes](./examples/slots-from-slice-geometry-mesh-and-brep-volumes/slots-from-slice-geometry-mesh-and-brep-volumes-1.jpg)
-
-Fill method **2: wrap surface and fill volume**. Output Slots count = 4165.
-![Slots from Slice Geometry: Mesh and Brep volumes](./examples/slots-from-slice-geometry-mesh-and-brep-volumes/slots-from-slice-geometry-mesh-and-brep-volumes-2.jpg)
-
-Fill method **3: wrap geometry surface (experimental)**. Output Slots count =
-1784.
-![Slots from Slice Geometry: Mesh and Brep volumes](./examples/slots-from-slice-geometry-mesh-and-brep-volumes/slots-from-slice-geometry-mesh-and-brep-volumes-3.jpg)
+| Fill method **0: wrap geometry surface**. Output Slots count = 2187.                                                                                                  | Fill method **1: fill geometry volume**. Output Slots count = 2010.                                                                                                   | Fill method **2: wrap surface and fill volume**. Output Slots count = 4165.                                                                                           | Fill method **3: wrap geometry surface (experimental)**. Output Slots count = 1784.                                                                                   |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ![Slots from Slice Geometry: Mesh and Brep volumes](./examples/slots-from-slice-geometry-mesh-and-brep-volumes/slots-from-slice-geometry-mesh-and-brep-volumes-0.jpg) | ![Slots from Slice Geometry: Mesh and Brep volumes](./examples/slots-from-slice-geometry-mesh-and-brep-volumes/slots-from-slice-geometry-mesh-and-brep-volumes-1.jpg) | ![Slots from Slice Geometry: Mesh and Brep volumes](./examples/slots-from-slice-geometry-mesh-and-brep-volumes/slots-from-slice-geometry-mesh-and-brep-volumes-2.jpg) | ![Slots from Slice Geometry: Mesh and Brep volumes](./examples/slots-from-slice-geometry-mesh-and-brep-volumes/slots-from-slice-geometry-mesh-and-brep-volumes-3.jpg) |
 
 #### 11.12.7. Definition: Slots from Slice Geometry: Miscellaneous geometry
 
@@ -1567,28 +1555,18 @@ existing Grasshopper tools.
 ![Allowing / Disallowing Modules in certain area](./examples/allowing-disallowing-modules-in-certain-area/allowing-disallowing-modules-in-certain-area.png)
 [Download](./examples/allowing-disallowing-modules-in-certain-area/allowing-disallowing-modules-in-certain-area.gh)
 
-Complete setup
-![Allowing / Disallowing Modules in certain area - Complete setup](./examples/allowing-disallowing-modules-in-certain-area/allowing-disallowing-modules-in-certain-area-complete-setup.jpg)
-
-Slots allowing placement of all Modules, including the "selected" Modules
-![Allowing / Disallowing Modules in certain area - All](./examples/allowing-disallowing-modules-in-certain-area/allowing-disallowing-modules-in-certain-area-all.jpg)
-
-Slots allowing placement of Modules without the "selected" Modules
-![Allowing / Disallowing Modules in certain area - Limited](./examples/allowing-disallowing-modules-in-certain-area/allowing-disallowing-modules-in-certain-area-limited.jpg)
+| Complete setup                                                                                                                                                                              | Slots allowing placement of all Modules, including the "selected" Modules                                                                                             | Slots allowing placement of Modules without the "selected" Modules                                                                                                            |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ![Allowing / Disallowing Modules in certain area - Complete setup](./examples/allowing-disallowing-modules-in-certain-area/allowing-disallowing-modules-in-certain-area-complete-setup.jpg) | ![Allowing / Disallowing Modules in certain area - All](./examples/allowing-disallowing-modules-in-certain-area/allowing-disallowing-modules-in-certain-area-all.jpg) | ![Allowing / Disallowing Modules in certain area - Limited](./examples/allowing-disallowing-modules-in-certain-area/allowing-disallowing-modules-in-certain-area-limited.jpg) |
 
 #### 11.13.3. Definition: Allowing / Disallowing Modules based on attractor
 
 ![Allowing / Disallowing Modules based on attractor](./examples/allowing-disallowing-modules-based-on-attractor/allowing-disallowing-modules-based-on-attractor.png)
 [Download](./examples/allowing-disallowing-modules-based-on-attractor/allowing-disallowing-modules-based-on-attractor.gh)
 
-Complete setup
-![Allowing / Disallowing Modules based on attractor - Complete setup](./examples/allowing-disallowing-modules-based-on-attractor/allowing-disallowing-modules-based-on-attractor-complete-setup.jpg)
-
-Slots allowing placement of all Modules, including the "selected" Modules
-![Allowing / Disallowing Modules based on attractor - All](./examples/allowing-disallowing-modules-based-on-attractor/allowing-disallowing-modules-based-on-attractor-all.jpg)
-
-Slots allowing placement of Modules without the "selected" Modules
-![Allowing / Disallowing Modules based on attractor - Limited](./examples/allowing-disallowing-modules-based-on-attractor/allowing-disallowing-modules-based-on-attractor-limited.jpg)
+| Complete setup                                                                                                                                                                                       | Slots allowing placement of all Modules, including the "selected" Modules                                                                                                      | Slots allowing placement of Modules without the "selected" Modules                                                                                                                     |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ![Allowing / Disallowing Modules based on attractor - Complete setup](./examples/allowing-disallowing-modules-based-on-attractor/allowing-disallowing-modules-based-on-attractor-complete-setup.jpg) | ![Allowing / Disallowing Modules based on attractor - All](./examples/allowing-disallowing-modules-based-on-attractor/allowing-disallowing-modules-based-on-attractor-all.jpg) | ![Allowing / Disallowing Modules based on attractor - Limited](./examples/allowing-disallowing-modules-based-on-attractor/allowing-disallowing-modules-based-on-attractor-limited.jpg) |
 
 #### 11.13.4. Roulette approach to weighted probability
 
@@ -1644,12 +1622,35 @@ Employing the
 approach, it is possible to use gradient values calculated from vertical
 position to a probability of Module placement.
 
+![Allowing Modules based on vertical gradient](./examples/allowing-modules-based-on-vertical-gradient/allowing-modules-based-on-vertical-gradient.png)
+[Download](./examples/allowing-modules-based-on-vertical-gradient/allowing-modules-based-on-vertical-gradient.gh)
+
+| Slots allowing placement of "module-1"                                                                                       | Slots allowing placement of "module-2"                                                                                       | Slots allowing placement of "module-3"                                                                                       | Slots allowing placement of "module-4"                                                                                       |
+| ---------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| ![module-1](./examples/allowing-modules-based-on-vertical-gradient/allowing-modules-based-on-vertical-gradient-module-1.jpg) | ![module-2](./examples/allowing-modules-based-on-vertical-gradient/allowing-modules-based-on-vertical-gradient-module-2.jpg) | ![module-3](./examples/allowing-modules-based-on-vertical-gradient/allowing-modules-based-on-vertical-gradient-module-3.jpg) | ![module-4](./examples/allowing-modules-based-on-vertical-gradient/allowing-modules-based-on-vertical-gradient-module-4.jpg) |
+
 #### 11.13.9. Definition: Allowing Modules based on multiple attractor gradients
 
 Employing the
 [roulette](#11157-definition-roulette---choosing-more-weighted-options-from-multiple-choices)
 approach, it is possible to use gradient values calculated from distance of an
 attractor to a probability of Module placement.
+
+Example based on binary roulette
+![Example based on binary roulette](./examples/allowing-modules-based-on-multiple-attractor-gradients/allowing-modules-based-on-multiple-attractor-gradients-clean.png)
+[Download](./examples/allowing-modules-based-on-multiple-attractor-gradients/allowing-modules-based-on-multiple-attractor-gradients-clean.gh)
+
+| Slots allowing placement of "module-1"                                                                                                                  | Slots allowing placement of "module-2"                                                                                                                  | Slots allowing placement of "module-3"                                                                                                                  | Slots allowing placement of "module-4"                                                                                                                  | Slots allowing placement of "module-5"                                                                                                                  |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ![module-1](/examples/allowing-modules-based-on-multiple-attractor-gradients/allowing-modules-based-on-multiple-attractor-gradients-clean-module-1.jpg) | ![module-2](/examples/allowing-modules-based-on-multiple-attractor-gradients/allowing-modules-based-on-multiple-attractor-gradients-clean-module-2.jpg) | ![module-3](/examples/allowing-modules-based-on-multiple-attractor-gradients/allowing-modules-based-on-multiple-attractor-gradients-clean-module-3.jpg) | ![module-4](/examples/allowing-modules-based-on-multiple-attractor-gradients/allowing-modules-based-on-multiple-attractor-gradients-clean-module-4.jpg) | ![module-5](/examples/allowing-modules-based-on-multiple-attractor-gradients/allowing-modules-based-on-multiple-attractor-gradients-clean-module-5.jpg) |
+
+Example based on multiple weighted options roulette
+![Example based on binary roulette](./examples/allowing-modules-based-on-multiple-attractor-gradients/allowing-modules-based-on-multiple-attractor-gradients-2-clean.png)
+[Download](./examples/allowing-modules-based-on-multiple-attractor-gradients/allowing-modules-based-on-multiple-attractor-gradients-2-clean.gh)
+
+| Slots allowing placement of "module-1"                                                                                                                    | Slots allowing placement of "module-2"                                                                                                                    | Slots allowing placement of "module-3"                                                                                                                    | Slots allowing placement of "module-4"                                                                                                                    | Slots allowing placement of "module-5"                                                                                                                    |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ![module-1](/examples/allowing-modules-based-on-multiple-attractor-gradients/allowing-modules-based-on-multiple-attractor-gradients-2-clean-module-1.jpg) | ![module-2](/examples/allowing-modules-based-on-multiple-attractor-gradients/allowing-modules-based-on-multiple-attractor-gradients-2-clean-module-2.jpg) | ![module-3](/examples/allowing-modules-based-on-multiple-attractor-gradients/allowing-modules-based-on-multiple-attractor-gradients-2-clean-module-3.jpg) | ![module-4](/examples/allowing-modules-based-on-multiple-attractor-gradients/allowing-modules-based-on-multiple-attractor-gradients-2-clean-module-4.jpg) | ![module-5](/examples/allowing-modules-based-on-multiple-attractor-gradients/allowing-modules-based-on-multiple-attractor-gradients-2-clean-module-5.jpg) |
 
 ### 11.14. Fixing Modules in Envelope before running the Solver
 
