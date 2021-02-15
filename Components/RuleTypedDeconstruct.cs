@@ -8,7 +8,7 @@ namespace Monoceros {
             : base("Deconstruct Typed Rule",
                    "DeconRuleTyp",
                    "Deconstruct a Monoceros Typed Rule (connector-to-all-same-type-connectors) into " +
-                   "Module name, connector number and connector type.",
+                   "Module name, Connector index and Connector type.",
                    "Monoceros",
                    "Rule") {
         }
@@ -29,13 +29,13 @@ namespace Monoceros {
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddParameter(new ModuleNameParameter(),
-                                  "Module",
-                                  "M",
+                                  "Module Name",
+                                  "MN",
                                   "Module name",
                                   GH_ParamAccess.item);
             pManager.AddIntegerParameter("Connector Index",
                                          "C",
-                                         "Connector number",
+                                         "Connector index",
                                          GH_ParamAccess.item);
             pManager.AddTextParameter("Type", "T", "Connector type", GH_ParamAccess.item);
         }

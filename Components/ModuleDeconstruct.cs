@@ -48,8 +48,8 @@ namespace Monoceros {
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddParameter(new ModuleNameParameter(),
-                                  "Name",
-                                  "N",
+                                  "Module Name",
+                                  "MN",
                                   "Module name (converted to lowercase).",
                                   GH_ParamAccess.list);
             pManager.AddPointParameter("Module Part Center Points",

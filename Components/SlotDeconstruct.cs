@@ -21,6 +21,12 @@ namespace Monoceros {
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddParameter(new SlotParameter(), "Slot", "S", "Monoceros Slot", GH_ParamAccess.item);
+            pManager.AddParameter(new ModuleNameParameter(),
+                                  "Module Names",
+                                  "MN",
+                                  "All available Monoceros Module names. (Optional)",
+                                  GH_ParamAccess.list);
+            pManager[1].Optional = true;
         }
 
         /// <summary>
@@ -44,17 +50,17 @@ namespace Monoceros {
                );
             pManager.AddParameter(new ModuleNameParameter(),
                                   "Allowed Module Names",
-                                  "M",
-                                  "Initiate the slot with specified module names allowed.",
+                                  "MN",
+                                  "Initiate the slot with specified Module names allowed.",
                                   GH_ParamAccess.list);
-            pManager.AddBooleanParameter("Allows Everything",
-                                         "E",
-                                         "The slot allows any module to be placed in it if true.",
+            pManager.AddBooleanParameter("Allows All Modules",
+                                         "A",
+                                         "The Slot allows any Module to be placed in it if true.",
                                          GH_ParamAccess.list
                                          );
             pManager.AddBooleanParameter("Allows Nothing",
                                          "N",
-                                         "The slot allows no module to be placed in it if true.",
+                                         "The Slot allows no Module to be placed in it if true.",
                                          GH_ParamAccess.list
                                          );
             pManager.AddBooleanParameter("Is Valid",
@@ -70,6 +76,8 @@ namespace Monoceros {
         ///     input parameters and to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA) {
             var slot = new Slot();
+            var moduleNames = new List<ModuleName>();
+            var modulesProvided = false;
 
             if (!DA.GetData(0, ref slot)) {
                 return;
@@ -80,13 +88,39 @@ namespace Monoceros {
                 return;
             }
 
+            if (DA.GetDataList(1, moduleNames)) {
+                modulesProvided = true;
+            }
+
             DA.SetDataList(0, new List<Point3d>() { slot.AbsoluteCenter });
             DA.SetDataList(1, new List<Plane>() { slot.BasePlane });
             DA.SetDataList(2, new List<Vector3d>() { slot.Diagonal });
-            DA.SetDataList(3, slot.AllowedModuleNames.Select(name => new ModuleName(name)));
-            DA.SetDataList(4, new List<bool>() { slot.AllowsAnyModule });
+            if (modulesProvided
+                && moduleNames != null
+                && slot.AllowsAnyModule
+                && slot.AllowedModuleNames.Count == 0) {
+                DA.SetDataList(3, moduleNames);
+            } else {
+                DA.SetDataList(3, slot.AllowedModuleNames.Select(name => new ModuleName(name)));
+            }
+            if (modulesProvided
+                && moduleNames != null
+                && slot.AllowedModuleNames.Count >= moduleNames.Count
+                && moduleNames.All(name => slot.AllowedModuleNames.Contains(name.ToString()))) {
+                DA.SetDataList(4, new List<bool>() { true });
+            } else {
+                DA.SetDataList(4, new List<bool>() { slot.AllowsAnyModule });
+            }
             DA.SetDataList(5, new List<bool>() { slot.AllowsNothing });
-            DA.SetData(6, slot.IsValid);
+            if (modulesProvided
+                && moduleNames != null
+                && (slot.AllowedModuleNames.Count > moduleNames.Count
+                || !slot.AllowedModuleNames.All(name => moduleNames.Any(moduleName => moduleName.Name == name))
+                )) {
+                DA.SetData(6, false);
+            } else {
+                DA.SetData(6, slot.IsValid);
+            }
         }
 
 

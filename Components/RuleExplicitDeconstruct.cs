@@ -8,7 +8,7 @@ namespace Monoceros {
             : base("Deconstruct Explicit Rule",
                    "DeconRuleExp",
                    "Deconstruct an Monoceros Explicit Rule (connector-to-connector) " +
-                   "into module names and connector numbers.",
+                   "into Module names and Connector indices.",
                    "Monoceros",
                    "Rule") {
         }
@@ -29,8 +29,8 @@ namespace Monoceros {
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddParameter(new ModuleNameParameter(),
-                                  "Source Module",
-                                  "SM",
+                                  "Source Module Name",
+                                  "SMN",
                                   "Source module name",
                                   GH_ParamAccess.item);
             pManager.AddIntegerParameter("Source Connector Index",
@@ -38,13 +38,13 @@ namespace Monoceros {
                                          "Source connector number",
                                          GH_ParamAccess.item);
             pManager.AddParameter(new ModuleNameParameter(),
-                                  "Target Module",
-                                  "TM",
+                                  "Target Module Name",
+                                  "TMN",
                                   "Target module name",
                                   GH_ParamAccess.item);
             pManager.AddIntegerParameter("Target Connector Index",
                                          "TC",
-                                         "Target connector number",
+                                         "Target connector index",
                                          GH_ParamAccess.item);
         }
 

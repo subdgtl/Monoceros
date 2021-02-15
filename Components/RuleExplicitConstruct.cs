@@ -20,7 +20,7 @@ namespace Monoceros {
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddParameter(new ModuleNameParameter(),
                                   "Source Module",
-                                  "SM",
+                                  "SMN",
                                   "Source module name",
                                   GH_ParamAccess.item);
             pManager.AddParameter(new ConnectorIndexParameter(),
@@ -30,7 +30,7 @@ namespace Monoceros {
                                   GH_ParamAccess.item);
             pManager.AddParameter(new ModuleNameParameter(),
                                   "Target Module",
-                                  "TM",
+                                  "TMN",
                                   "Target module name",
                                   GH_ParamAccess.item);
             pManager.AddParameter(new ConnectorIndexParameter(),

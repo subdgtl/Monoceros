@@ -38,9 +38,15 @@ namespace Monoceros {
                );
             pManager.AddParameter(new ModuleNameParameter(),
                                   "Allowed Module Names",
-                                  "M",
-                                  "Initiate the slot with specified module names allowed.",
+                                  "MN",
+                                  "Initiate the slot with specified Module names allowed.",
                                   GH_ParamAccess.list);
+            pManager.AddParameter(new ModuleParameter(),
+                                  "Modules",
+                                  "M",
+                                  "All available Monoceros Modules. (Optional)",
+                                  GH_ParamAccess.list);
+            pManager[4].Optional = true;
         }
 
         /// <summary>
@@ -60,6 +66,8 @@ namespace Monoceros {
             var basePlane = new Plane();
             var diagonal = new Vector3d();
             var allowedModulesRaw = new List<ModuleName>();
+            var allModules = new List<Module>();
+            var modulesProvided = false;
 
             if (!DA.GetData(0, ref point)) {
                 return;
@@ -75,6 +83,10 @@ namespace Monoceros {
 
             if (!DA.GetDataList(3, allowedModulesRaw)) {
                 return;
+            }
+
+            if (DA.GetDataList(4, allModules)) {
+                modulesProvided = true;
             }
 
             var allowedModules = allowedModulesRaw.Select(name => name.Name).Distinct().ToList();
@@ -106,13 +118,24 @@ namespace Monoceros {
             // Slot dimension is for the sake of this calculation 1,1,1
             var slotCenterPoint = new Point3i(point);
 
+            var allModulesCount = modulesProvided
+                ? allModules.Aggregate(0, (count, module) => count + module.PartCenters.Count)
+                : 0;
+
+            var allowedParts = modulesProvided
+                ? allModules
+                .Where(module => allowedModules.Contains(module.Name))
+                .SelectMany(module => module.PartNames)
+                .ToList()
+                : new List<string>();
+
             var slot = new Slot(basePlane,
                                 slotCenterPoint,
                                 diagonal,
                                 false,
                                 allowedModules,
-                                new List<string>(),
-                                0);
+                                allowedParts,
+                                allModulesCount);
 
             if (!slot.IsValid) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, slot.IsValidWhyNot);

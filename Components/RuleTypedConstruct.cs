@@ -8,8 +8,8 @@ namespace Monoceros {
             : base("Construct Typed Rule",
                    "RuleTyp",
                    "Construct a Monoceros Typed Rule (connector-to-all-same-type-connectors) from " +
-                   "Monoceros Module name, connector number and connector Type. The existence of the " +
-                   "Module and connector is not being checked. The connector Type will be " +
+                   "Monoceros Module name, Connector index and Connector Type. The existence of the " +
+                   "Module and Connector is not being checked. The Connector Type will be " +
                    "converted to lowercase.",
                    "Monoceros",
                    "Rule") {
@@ -20,8 +20,8 @@ namespace Monoceros {
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddParameter(new ModuleNameParameter(),
-                                  "Module",
-                                  "M",
+                                  "Module Name",
+                                  "MN",
                                   "Module name",
                                   GH_ParamAccess.item);
             pManager.AddParameter(new ConnectorIndexParameter(),

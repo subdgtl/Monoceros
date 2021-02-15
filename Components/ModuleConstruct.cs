@@ -95,8 +95,8 @@ namespace Monoceros {
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddParameter(new ModuleNameParameter(),
-                                  "Name",
-                                  "N",
+                                  "Module Name",
+                                  "MN",
                                   "Module name (except '" + Config.RESERVED_TO_STRING + "'). " +
                                   "The Name will be converted to lowercase.",
                                   GH_ParamAccess.item);

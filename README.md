@@ -147,7 +147,6 @@ respecting the given Rules.**
     - [11.13.9. Definition: Allowing Modules based on multiple attractor gradients](#11139-definition-allowing-modules-based-on-multiple-attractor-gradients)
   - [11.14. Fixing Modules in Envelope before running the Solver](#1114-fixing-modules-in-envelope-before-running-the-solver)
   - [11.15. Disallowing certain Modules from certain Slots](#1115-disallowing-certain-modules-from-certain-slots)
-    - [11.15.1. Definition: Disallowing Modules in new Slots](#11151-definition-disallowing-modules-in-new-slots)
     - [11.15.2. Definition: Disallowing Modules in existing Slots](#11152-definition-disallowing-modules-in-existing-slots)
   - [11.16. Enforcing specific modules at the boundary of the Envelope](#1116-enforcing-specific-modules-at-the-boundary-of-the-envelope)
     - [11.16.1. Definition](#11161-definition)
@@ -1670,12 +1669,12 @@ there, too.
 
 *Note: Due to the way [Monoceros](#9-monoceros-wfc-solver) exposes the vanilla
 [Wave Function Collapse](#5-wave-function-collapse) algorithm, it is not
-possible to place a Module into an exact position. The
+possible to place a specific Module Part into an exact position. The
 [Monoceros WFC Solver](#9-monoceros-wfc-solver) picks any Module Part to be
 placed into a Slot allowing placement of the Module.*
 
 *Note: Placing Modules manually may cause longer search for a valid solution or
-completely unable an existence of a valid solution.*
+completely eliminate an existence of a valid solution.*
 
 ### 11.15. Disallowing certain Modules from certain Slots
 
@@ -1686,12 +1685,13 @@ possible to disallow placement of certain Modules into certain Slots.
 
 Because Monoceros does not recognize disallowing, it is necessary to remove the
 disallowed Module name from the list of allowed modules for the respective
-Slots. For newly created Slots the list of allowed Modules should be prepared
-manually. Existing Slots can be [deconstructed](#1013-deconstruct-slot) and
-reconstructed with a reduced list of allowed Modules. The original Slots should
-be replaced with the reconstructed ones.
+Slots. For newly created Slots the list of allowed Modules should contain only
+the allowed Module names - the disallowed Module's name should be removed from
+the list manually prior to constructing the Slot. 
 
-#### 11.15.1. Definition: Disallowing Modules in new Slots
+Existing Slots can be [deconstructed](#1013-deconstruct-slot) and reconstructed
+with a reduced list of allowed Modules. The original Slots should be replaced
+with the reconstructed ones.
 
 #### 11.15.2. Definition: Disallowing Modules in existing Slots
 
