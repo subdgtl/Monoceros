@@ -269,8 +269,7 @@ Rule design is a challenging part of working with Wave Function Collapse.
 ## 6. Development notes
 
 This repository contains the Grasshopper wrapper for the main WFC solver and
-comprehensive supplemental tools. Due to massive binary content, the repository
-requires [LFS](https://git-lfs.github.com) Git support.
+comprehensive supplemental tools.
 
 *The solver itself is written in Rust and compiled as a `.dll` library linked to
 this wrapper. The source code of the solver and a simple wrapper component for
