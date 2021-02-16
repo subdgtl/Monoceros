@@ -492,13 +492,13 @@ namespace Monoceros {
                     reasons += "Diagonal is null. ";
                 }
                 if (AllowedModuleNames == null) {
-                    reasons += "Allowed module names is null. ";
+                    reasons += "Allowed Module names is null. ";
                 }
                 if (AllowedPartNames == null) {
-                    reasons += "Allowed part names is null. ";
+                    reasons += "Allowed Part names is null. ";
                 }
                 if (!(AllowsAnyModule || AllowedModuleNames.Any())) {
-                    reasons += "Allowed module names are empty and the Slot does not allow any module. ";
+                    reasons += "Allowed Module names are empty and the Slot does not allow any Module. ";
                 }
                 if (Diagonal.X <= 0 || Diagonal.Y <= 0 || Diagonal.Z <= 0) {
                     reasons += "Diagonal is zero in one of its directions. ";
@@ -515,7 +515,7 @@ namespace Monoceros {
         /// <summary>
         /// Gets the type description. Required by Grasshopper.
         /// </summary>
-        public string TypeDescription => "Monoceros World Slot that may contain module parts.";
+        public string TypeDescription => "Monoceros World Slot that may contain Module parts.";
 
         /// <summary>
         /// Provides an user-friendly description of a <see cref="Slot"/>.
@@ -531,17 +531,17 @@ namespace Monoceros {
             var plane = new GH_Plane(BasePlane);
             var containment = "";
             if (AllowsAnyModule) {
-                containment = "all modules";
+                containment = "all Modules";
             }
             if (AllowsNothing) {
-                containment = "no modules";
+                containment = "no Modules";
             }
             if (!AllowsNothing && !AllowsAnyModule) {
                 var count = AllowedModuleNames.Count;
                 if (count == 1) {
-                    containment = "module '" + AllowedModuleNames[0] + "'";
+                    containment = "Module '" + AllowedModuleNames[0] + "'";
                 } else {
-                    containment = count + " modules";
+                    containment = count + " Modules";
                 }
             }
             return "Slot allows placement of " + containment + ". Slot dimensions are " + diagonal +

@@ -610,6 +610,15 @@ namespace Monoceros {
 
             using (var dataStream = new System.IO.MemoryStream()) {
                 try {
+                    formatter.Serialize(dataStream, PartNames.ToArray());
+                    writer.SetByteArray("PartNames", dataStream.ToArray());
+                } catch (SerializationException e) {
+                    throw e;
+                }
+            }
+
+            using (var dataStream = new System.IO.MemoryStream()) {
+                try {
                     formatter.Serialize(dataStream, Pivot.Clone());
                     writer.SetByteArray("Pivot", dataStream.ToArray());
                 } catch (SerializationException e) {
@@ -691,6 +700,20 @@ namespace Monoceros {
                     try {
                         var partCenters = (Point3i[])formatter.Deserialize(partCentersStream);
                         PartCenters = partCenters.ToList();
+                    } catch (SerializationException e) {
+                        throw e;
+                    }
+                }
+            } else {
+                return false;
+            }
+
+            if (reader.ItemExists("PartNames")) {
+                var partNamesData = reader.GetByteArray("PartNames");
+                using (var partNamesStream = new System.IO.MemoryStream(partNamesData)) {
+                    try {
+                        var partNames = (string[])formatter.Deserialize(partNamesStream);
+                        PartNames = partNames.ToList();
                     } catch (SerializationException e) {
                         throw e;
                     }

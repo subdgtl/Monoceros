@@ -11,6 +11,7 @@ namespace Monoceros {
     public class ComponentPreviewRules : GH_Component, IGH_PreviewObject, IGH_BakeAwareObject {
         private List<ExplicitLine> _explicitLines;
         private List<TypedLine> _typedLines;
+        private List<OutLine> _outLines;
 
         public ComponentPreviewRules( )
             : base("Preview Rules",
@@ -18,6 +19,9 @@ namespace Monoceros {
                    "Preview Monoceros Rules as lines connecting individual connectors of Monoceros Modules.",
                    "Monoceros",
                    "Postprocess") {
+            _explicitLines = new List<ExplicitLine>();
+            _typedLines = new List<TypedLine>();
+            _outLines = new List<OutLine>();
         }
 
         /// <summary>
@@ -34,6 +38,8 @@ namespace Monoceros {
                                   "R",
                                   "All existing Monoceros rules",
                                   GH_ParamAccess.list);
+            pManager[0].Optional = true;
+            pManager[1].Optional = true;
         }
 
         /// <summary>
@@ -50,14 +56,17 @@ namespace Monoceros {
         protected override void SolveInstance(IGH_DataAccess DA) {
             var modulesRaw = new List<Module>();
             var rulesRaw = new List<Rule>();
-            _explicitLines = new List<ExplicitLine>();
-            _typedLines = new List<TypedLine>();
+            _explicitLines.Clear();
+            _typedLines.Clear();
+            _outLines.Clear();
 
             if (!DA.GetDataList(0, modulesRaw)) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Failed to collect input Modules.");
                 return;
             }
 
             if (!DA.GetDataList(1, rulesRaw)) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Failed to collect input Rules.");
                 return;
             }
 
@@ -85,7 +94,7 @@ namespace Monoceros {
             var modulesClean = new List<Module>();
             foreach (var module in modules) {
                 if (module == null || !module.IsValid) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The module is null or invalid.");
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The Module is null or invalid.");
                     continue;
                 }
                 modulesClean.Add(module);
@@ -101,7 +110,7 @@ namespace Monoceros {
             var rulesClean = new List<Rule>();
             foreach (var rule in rules) {
                 if (rule == null || !rule.IsValid) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The rule is null or invalid.");
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The Rule is null or invalid.");
                 } else {
                     rulesClean.Add(rule);
                 }
@@ -111,14 +120,20 @@ namespace Monoceros {
             var rulesTyped = rulesClean.Where(rule => rule.IsTyped).Select(rule => rule.Typed);
 
             foreach (var ruleExplicit in rulesExplicit) {
-                // TODO: Consider displaying Out connections somehow too
                 if (ruleExplicit.SourceModuleName != Config.OUTER_MODULE_NAME
                     && ruleExplicit.TargetModuleName != Config.OUTER_MODULE_NAME) {
-                    GetLineFromExplicitRule(modulesClean,
-                                            ruleExplicit,
-                                            out var line,
-                                            out var axis);
+                    ConstructLineFromExplicitRule(modulesClean,
+                                                  ruleExplicit,
+                                                  out var line,
+                                                  out var axis);
                     _explicitLines.Add(new ExplicitLine(line, Config.ColorFromAxis(axis)));
+                }
+                if (ruleExplicit.TargetModuleName == Config.OUTER_MODULE_NAME) {
+                    ConstructArrowFromOutRule(modulesClean,
+                                              ruleExplicit,
+                                              out var line,
+                                              out var axis);
+                    _outLines.Add(new OutLine(line, Config.ColorFromAxis(axis)));
                 }
             }
 
@@ -126,13 +141,12 @@ namespace Monoceros {
                 var rulesExplicitComputed = ruleTyped.ToRulesExplicit(rulesTyped, modulesClean);
 
                 foreach (var ruleExplicit in rulesExplicitComputed) {
-                    // TODO: Consider displaying Out connections somehow too
                     if (ruleExplicit.SourceModuleName != Config.OUTER_MODULE_NAME
                         && ruleExplicit.TargetModuleName != Config.OUTER_MODULE_NAME) {
-                        GetLineFromExplicitRule(modulesClean,
-                                                ruleExplicit,
-                                                out var line,
-                                                out var axis);
+                        ConstructLineFromExplicitRule(modulesClean,
+                                                      ruleExplicit,
+                                                      out var line,
+                                                      out var axis);
                         _typedLines.Add(
                             new TypedLine(line, Config.ColorFromAxis(axis), ruleTyped.ConnectorType)
                         );
@@ -144,7 +158,7 @@ namespace Monoceros {
             _typedLines = _typedLines.Distinct().ToList();
         }
 
-        private bool GetLineFromExplicitRule(
+        private bool ConstructLineFromExplicitRule(
             List<Module> modules,
             RuleExplicit ruleExplicit,
             out Line line,
@@ -189,11 +203,47 @@ namespace Monoceros {
             }
         }
 
+        private bool ConstructArrowFromOutRule(
+            List<Module> modules,
+            RuleExplicit ruleExplicit,
+            out Line line,
+            out Axis axis
+            ) {
+            line = default;
+            axis = default;
+
+            if (ruleExplicit.TargetModuleName != Config.OUTER_MODULE_NAME) {
+                return false;
+            }
+
+            var sourceModule = modules
+                .FirstOrDefault(module => module.Name == ruleExplicit.SourceModuleName);
+            if (sourceModule == null) {
+                return false;
+            }
+
+            var sourceConnector = sourceModule
+                .Connectors
+                .ElementAtOrDefault(ruleExplicit.SourceConnectorIndex);
+            if (sourceConnector.Equals(default(ModuleConnector))) {
+                return false;
+            }
+
+            axis = sourceConnector.Direction.Axis;
+
+            var targetPoint = sourceConnector.AnchorPlane.Origin
+                + sourceConnector.Direction.ToVector()
+                * sourceModule.PartDiagonal[(int)axis]
+                / 4;
+            line = new Line(sourceConnector.AnchorPlane.Origin,
+                            targetPoint);
+            return true;
+
+        }
+
         public new bool Hidden => false;
 
-        public bool GetIsPreviewCapable( ) {
-            return true;
-        }
+        public override bool IsPreviewCapable => true;
 
         public override void DrawViewportWires(IGH_PreviewArgs args) {
             foreach (var line in _explicitLines) {
@@ -203,8 +253,15 @@ namespace Monoceros {
             foreach (var line in _typedLines) {
                 args.Display.DrawLine(line.Line, line.Color, Config.RULE_PREVIEW_THICKNESS);
 
-                var middlePoint = (line.Line.To + line.Line.From) / 2;
-                args.Display.DrawDot(middlePoint, line.Type, Config.POSITIVE_COLOR, line.Color);
+                var oneQuarterPoint = line.Line.From + (line.Line.To - line.Line.From) / 4;
+                args.Display.DrawDot(oneQuarterPoint, line.Type, Config.POSITIVE_COLOR, line.Color);
+            }
+
+            foreach (var line in _outLines) {
+                args.Display.DrawArrow(line.Line, line.Color);
+
+                var oneHalfPoint = line.Line.From + (line.Line.To - line.Line.From) / 2;
+                args.Display.DrawDot(oneHalfPoint, Config.OUTER_MODULE_NAME, Config.POSITIVE_COLOR, line.Color);
             }
         }
 
@@ -235,13 +292,27 @@ namespace Monoceros {
                 lineAttributes.LayerIndex = layerIndex;
                 obj_ids.Add(doc.Objects.AddLine(line.Line, lineAttributes));
 
-                var oneThirdPoint = (line.Line.To + line.Line.From) / 3;
+                var oneQuarterPoint = line.Line.From + (line.Line.To - line.Line.From) / 4;
 
                 var dotAttributes = att.Duplicate();
                 dotAttributes.ObjectColor = line.Color;
                 dotAttributes.ColorSource = ObjectColorSource.ColorFromObject;
                 dotAttributes.LayerIndex = layerIndex;
-                obj_ids.Add(doc.Objects.AddTextDot(line.Type, oneThirdPoint, dotAttributes));
+                obj_ids.Add(doc.Objects.AddTextDot(line.Type, oneQuarterPoint, dotAttributes));
+            }
+
+            foreach (var line in _outLines) {
+                var lineAttributes = att.Duplicate();
+                lineAttributes.ObjectColor = line.Color;
+                lineAttributes.ColorSource = ObjectColorSource.ColorFromObject;
+                lineAttributes.LayerIndex = layerIndex;
+                obj_ids.Add(doc.Objects.AddLine(line.Line, lineAttributes));
+
+                var dotAttributes = att.Duplicate();
+                dotAttributes.ObjectColor = line.Color;
+                dotAttributes.ColorSource = ObjectColorSource.ColorFromObject;
+                dotAttributes.LayerIndex = layerIndex;
+                obj_ids.Add(doc.Objects.AddTextDot(Config.OUTER_MODULE_NAME, line.Line.To, dotAttributes));
             }
         }
 
@@ -316,6 +387,28 @@ namespace Monoceros {
             hashCode = hashCode * -1521134295 + Line.GetHashCode();
             hashCode = hashCode * -1521134295 + Color.GetHashCode();
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Type);
+            return hashCode;
+        }
+    }
+    internal struct OutLine {
+        public readonly Line Line;
+        public readonly Color Color;
+
+        public OutLine(Line line, Color color) {
+            Line = line;
+            Color = color;
+        }
+
+        public override bool Equals(object obj) {
+            return obj is OutLine line &&
+                   Line.Equals(line.Line) &&
+                   EqualityComparer<Color>.Default.Equals(Color, line.Color);
+        }
+
+        public override int GetHashCode( ) {
+            var hashCode = 1814501463;
+            hashCode = hashCode * -1521134295 + Line.GetHashCode();
+            hashCode = hashCode * -1521134295 + Color.GetHashCode();
             return hashCode;
         }
     }
