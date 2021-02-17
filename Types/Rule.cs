@@ -415,6 +415,17 @@ namespace Monoceros {
             return false;
         }
 
+        public bool UsesModule(string moduleName) {
+            if (IsExplicit) {
+                return Explicit.SourceModuleName == moduleName
+                    || Explicit.TargetModuleName == moduleName;
+            }
+            if (IsTyped) {
+                return Typed.ModuleName == moduleName;
+            }
+            return false;
+        }
+
         public int CompareTo(Rule other) {
             if (IsExplicit && other.IsExplicit) {
                 return Explicit.CompareTo(other.Explicit);
