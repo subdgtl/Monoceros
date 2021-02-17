@@ -23,6 +23,11 @@ namespace Monoceros {
                                   "S",
                                   "All Monoceros Slots",
                                   GH_ParamAccess.list);
+            pManager.AddIntegerParameter("Layers",
+                                         "L",
+                                         "Number of outer layers to identify",
+                                         GH_ParamAccess.item,
+                                         1);
         }
 
         /// <summary>
@@ -42,8 +47,13 @@ namespace Monoceros {
         ///     input parameters and to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA) {
             var slots = new List<Slot>();
+            var layers = 1;
 
             if (!DA.GetDataList(0, slots)) {
+                return;
+            }
+
+            if (!DA.GetData(1, ref layers)) {
                 return;
             }
 
@@ -74,16 +84,28 @@ namespace Monoceros {
                 return;
             }
 
-            var boundaryPattern = Enumerable.Repeat(true, slotsClean.Count).ToList();
+            var boundaryPattern = Enumerable.Repeat(false, slotsClean.Count).ToList();
 
-            for (var i = 0; i < slotsClean.Count; i++) {
-                var slot = slotsClean[i];
-                var neighborsCount = 0;
-                foreach (var other in slotsClean) {
-                    if (slot.RelativeCenter.IsNeighbor(other.RelativeCenter) && ++neighborsCount == 6) {
-                        boundaryPattern[i] = false;
-                        break;
+            for (int l = 0; l < layers; l++) {
+                var currentBoundaryPattern = Enumerable.Repeat(true, slotsClean.Count).ToList();
+                for (var i = 0; i < slotsClean.Count; i++) {
+                    if (!boundaryPattern[i]) {
+                        var slot = slotsClean[i];
+                        var neighborsCount = 0;
+                        for (var j = 0; j < slotsClean.Count; j++) {
+                            if (!boundaryPattern[j]) {
+                                var other = slotsClean[j];
+                                if (slot.RelativeCenter.IsNeighbor(other.RelativeCenter) && ++neighborsCount == 6) {
+                                    currentBoundaryPattern[i] = false;
+                                    break;
+                                }
+                            }
+                        }
                     }
+                }
+
+                for (var i = 0; i < currentBoundaryPattern.Count; i++) {
+                    boundaryPattern[i] |= currentBoundaryPattern[i];
                 }
             }
 

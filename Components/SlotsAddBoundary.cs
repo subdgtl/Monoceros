@@ -23,6 +23,11 @@ namespace Monoceros {
                                   "S",
                                   "All Monoceros Slots",
                                   GH_ParamAccess.list);
+            pManager.AddIntegerParameter("Layers",
+                                        "L",
+                                        "Number of outer layers to add",
+                                        GH_ParamAccess.item,
+                                        1);
         }
 
         /// <summary>
@@ -42,8 +47,13 @@ namespace Monoceros {
         ///     input parameters and to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA) {
             var slots = new List<Slot>();
+            var layers = 1;
 
             if (!DA.GetDataList(0, slots)) {
+                return;
+            }
+
+            if (!DA.GetData(1, ref layers)) {
                 return;
             }
 
@@ -89,29 +99,39 @@ namespace Monoceros {
                 new Point3i(0, 0, 1)
             };
 
+            var allSlotCenters = slotsClean.Select(slot => slot.RelativeCenter).ToList();
             var newNeighborCenters = new List<Point3i>();
+            for (int l = 0; l < layers; l++) {
 
-            for (var i = 0; i < slotsClean.Count; i++) {
-                var slot = slotsClean[i];
-                var currentNeighborCenters = new List<Point3i>();
-                foreach (var other in slotsClean) {
-                    if (slot.RelativeCenter.IsNeighbor(other.RelativeCenter)) {
-                        currentNeighborCenters.Add(other.RelativeCenter);
-                        if (currentNeighborCenters.Count == 6) {
-                            break;
+                var currentNewNeighborCenters = new List<Point3i>();
+
+                for (var i = 0; i < allSlotCenters.Count; i++) {
+                    var slotCenter = allSlotCenters[i];
+                    var currentNeighborCenters = new List<Point3i>();
+                    foreach (var other in allSlotCenters) {
+                        if (slotCenter.IsNeighbor(other)) {
+                            currentNeighborCenters.Add(other);
+                            if (currentNeighborCenters.Count == 6) {
+                                break;
+                            }
                         }
                     }
+                    if (currentNeighborCenters.Count < 6) {
+                        var potentialNeighborCenters = potentialRelativeNeighborCenters
+                            .Select(relativeNeighborCenter => slotCenter + relativeNeighborCenter);
+                        var currentNewlNeighborCenters = potentialNeighborCenters.Except(currentNeighborCenters);
+                        currentNewNeighborCenters.AddRange(currentNewlNeighborCenters);
+                    }
                 }
-                if (currentNeighborCenters.Count < 6) {
-                    var potentialNeighborCenters = potentialRelativeNeighborCenters
-                        .Select(relativeNeighborCenter => slot.RelativeCenter + relativeNeighborCenter);
-                    var currentNewlNeighborCenters = potentialNeighborCenters.Except(currentNeighborCenters);
-                    newNeighborCenters.AddRange(currentNewlNeighborCenters);
-                }
+
+                newNeighborCenters = newNeighborCenters
+                    .Concat(currentNewNeighborCenters)
+                    .Distinct()
+                    .ToList();
+                allSlotCenters.AddRange(currentNewNeighborCenters);
             }
 
             var newNeighborCentersP3d = newNeighborCenters
-                .Distinct()
                 .Select(p3i => p3i.ToCartesian(basePlane, diagonal));
 
             DA.SetDataList(0, newNeighborCentersP3d);
