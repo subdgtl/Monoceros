@@ -165,54 +165,23 @@ namespace Monoceros {
                 return;
             }
 
-            var slotsClean = new List<Slot>();
-            foreach (var slot in slotsValid) {
-                if (slot.AllowedModuleNames.All(moduleName =>
-                moduleName == Config.OUTER_MODULE_NAME
-                || modulesClean.Any(module => module.Name == moduleName))) {
-                    slotsClean.Add(slot);
-                } else {
-                    var existingModuleNames = slot.AllowedModuleNames.Where(moduleName =>
-                    moduleName == Config.OUTER_MODULE_NAME
-                    || modulesClean.Any(module => module.Name == moduleName)).ToList();
-                    if (existingModuleNames.Any()) {
-                        slotsClean.Add(new Slot(slot.BasePlane,
-                                                slot.RelativeCenter,
-                                                slot.Diagonal,
-                                                slot.AllowsAnyModule,
-                                                existingModuleNames,
-                                                new List<string>(),
-                                                0));
-                        AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Slot refers to a non-existent Module.");
-                    } else {
-                        AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Slot allows no Module to be placed.");
-                        return;
-                    }
-                }
-            }
-
-            if (!slotsClean.Any()) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Slots collected.");
-                return;
-            }
-
             // TODO: Consider smarter compatibility check or non-uniform scaling
-            if (!Slot.AreSlotDiagonalsCompatible(slotsClean)) {
+            if (!Slot.AreSlotDiagonalsCompatible(slotsValid)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "Slots are not defined with the same diagonal.");
                 return;
             }
-            var diagonal = slotsClean.First().Diagonal;
+            var diagonal = slotsValid.First().Diagonal;
 
             // TODO: Consider smarter compatibility check or base plane conversion
-            if (!Slot.AreSlotBasePlanesCompatible(slotsClean)) {
+            if (!Slot.AreSlotBasePlanesCompatible(slotsValid)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "Slots are not defined with the same base plane.");
                 return;
             }
-            var slotBasePlane = slotsClean.First().BasePlane;
+            var slotBasePlane = slotsValid.First().BasePlane;
 
-            if (!Slot.AreSlotLocationsUnique(slotsClean)) {
+            if (!Slot.AreSlotLocationsUnique(slotsValid)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Slot centers are not unique.");
                 return;
             }
@@ -276,6 +245,37 @@ namespace Monoceros {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "There are no Modules with all connectors described by the " +
                                   "given Rules.");
+                return;
+            }
+
+            var slotsClean = new List<Slot>();
+            foreach (var slot in slotsValid) {
+                if (slot.AllowedModuleNames.All(moduleName =>
+                moduleName == Config.OUTER_MODULE_NAME
+                || modulesUsable.Any(module => module.Name == moduleName))) {
+                    slotsClean.Add(slot);
+                } else {
+                    var existingModuleNames = slot.AllowedModuleNames.Where(moduleName =>
+                    moduleName == Config.OUTER_MODULE_NAME
+                    || modulesUsable.Any(module => module.Name == moduleName)).ToList();
+                    if (existingModuleNames.Any()) {
+                        slotsClean.Add(new Slot(slot.BasePlane,
+                                                slot.RelativeCenter,
+                                                slot.Diagonal,
+                                                slot.AllowsAnyModule,
+                                                existingModuleNames,
+                                                new List<string>(),
+                                                0));
+                        AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Slot refers to a non-existent Module.");
+                    } else {
+                        AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Slot allows no Module to be placed.");
+                        return;
+                    }
+                }
+            }
+
+            if (!slotsClean.Any()) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Slots collected.");
                 return;
             }
 
