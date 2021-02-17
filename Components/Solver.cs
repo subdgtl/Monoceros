@@ -105,27 +105,42 @@ namespace Monoceros {
                 return;
             }
 
-
-            var slotsClean = new List<Slot>();
+            var slotsValid = new List<Slot>();
             foreach (var slot in slotsRaw) {
                 if (slot == null || !slot.IsValid) {
                     AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Slot is null or invalid.");
+                    return;
+                }
+                slotsValid.Add(slot);
+
+            }
+
+            var rulesValid = new List<Rule>();
+            foreach (var rule in rulesRaw) {
+                if (rule == null || !rule.IsValid) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Rule is null or invalid.");
+                    return;
                 } else {
-                    slotsClean.Add(slot);
+                    rulesValid.Add(rule);
                 }
             }
 
-            if (!slotsClean.Any()) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Slots collected.");
-                return;
-            }
+            var anySlotAllowsAll = slotsValid.Any(slot => slot.AllowsAnyModule);
 
             var modulesClean = new List<Module>();
             foreach (var module in modulesRaw) {
                 if (module == null || !module.IsValid) {
                     AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Module is null or invalid.");
-                } else {
+                    return;
+                }
+                if (anySlotAllowsAll
+                    || slotsValid.Any(slot => slot.AllowedModuleNames.Contains(module.Name))
+                    && rulesValid.Any(rule => rule.UsesModule(module.Name))) {
                     modulesClean.Add(module);
+                } else {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                        "Module \"" + module.Name + "\" will be excluded from the " +
+                        "solution because it is not allowed in any Slot.");
                 }
             }
 
@@ -135,16 +150,49 @@ namespace Monoceros {
             }
 
             var rulesClean = new List<Rule>();
-            foreach (var rule in rulesRaw) {
-                if (rule == null || !rule.IsValid) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Rule is null or invalid.");
-                } else {
+            foreach (var rule in rulesValid) {
+                if (rule.UsesModule(Config.OUTER_MODULE_NAME) || rule.IsValidWithModules(modulesClean)) {
                     rulesClean.Add(rule);
+                } else {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                        "Rule \"" + rule.ToString() + "\" will be excluded from the solution because " +
+                        "it does not refer to any existing Module.");
                 }
             }
 
             if (!rulesClean.Any()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Modules collected.");
+                return;
+            }
+
+            var slotsClean = new List<Slot>();
+            foreach (var slot in slotsValid) {
+                if (slot.AllowedModuleNames.All(moduleName =>
+                moduleName == Config.OUTER_MODULE_NAME
+                || modulesClean.Any(module => module.Name == moduleName))) {
+                    slotsClean.Add(slot);
+                } else {
+                    var existingModuleNames = slot.AllowedModuleNames.Where(moduleName =>
+                    moduleName == Config.OUTER_MODULE_NAME
+                    || modulesClean.Any(module => module.Name == moduleName)).ToList();
+                    if (existingModuleNames.Any()) {
+                        slotsClean.Add(new Slot(slot.BasePlane,
+                                                slot.RelativeCenter,
+                                                slot.Diagonal,
+                                                slot.AllowsAnyModule,
+                                                existingModuleNames,
+                                                new List<string>(),
+                                                0));
+                        AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Slot refers to a non-existent Module.");
+                    } else {
+                        AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Slot allows no Module to be placed.");
+                        return;
+                    }
+                }
+            }
+
+            if (!slotsClean.Any()) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Slots collected.");
                 return;
             }
 
@@ -251,10 +299,10 @@ namespace Monoceros {
 
             // Convert AllowEverything slots into an explicit list of allowed modules (except Out)
             var allModuleNames = modulesUsable.Select(module => module.Name).ToList();
-            var slotsUnwrapped = slotsClean.Select(slotRaw =>
-                slotRaw.AllowsAnyModule ?
-                    slotRaw.DuplicateWithModuleNames(allModuleNames) :
-                    slotRaw
+            var slotsUnwrapped = slotsClean.Select(slot =>
+                slot.AllowsAnyModule ?
+                    slot.DuplicateWithModuleNames(allModuleNames) :
+                    slot
             );
 
             modulesUsable.Add(moduleOut);
@@ -311,18 +359,17 @@ namespace Monoceros {
             }
 
             // Unwrap module names to part names for all slots
-            var worldForSolver = worldSlots.Select(slotRaw => {
-                if (slotRaw.AllowedPartNames.Count != 0) {
-                    return slotRaw.DuplicateWithPartsCount(allPartsCount);
+            var worldForSolver = worldSlots.Select(slot => {
+                if (slot.AllowedPartNames.Count != 0) {
+                    return slot.DuplicateWithPartsCount(allPartsCount);
                 }
 
                 var partNames = new List<string>();
-                foreach (var moduleName in slotRaw.AllowedModuleNames) {
+                foreach (var moduleName in slot.AllowedModuleNames) {
                     var module = modulesUsable.Find(m => m.Name == moduleName);
                     partNames.AddRange(module.PartNames);
                 }
-                return slotRaw.DuplicateWithPartsCountAndNames(allPartsCount,
-                                                                    partNames);
+                return slot.DuplicateWithPartsCountAndNames(allPartsCount, partNames);
             });
 
             foreach (var slot in worldForSolver) {
@@ -792,7 +839,7 @@ namespace Monoceros {
         ErrWorldContradictory = 2,
     }
 
-    internal enum WfcObserveResult: uint {
+    internal enum WfcObserveResult : uint {
         Deterministic = 0,
         Contradiction = 1,
     }
@@ -848,7 +895,7 @@ namespace Monoceros {
 
     internal class Native {
         [DllImport("monoceros-wfc-0.1.0.dll", CallingConvention = CallingConvention.StdCall)]
-        internal static extern uint wfc_max_module_count_get();
+        internal static extern uint wfc_max_module_count_get( );
 
         [DllImport("monoceros-wfc-0.1.0.dll", CallingConvention = CallingConvention.StdCall)]
         internal static unsafe extern WfcWorldStateInitResult wfc_world_state_init(IntPtr* wfc_world_state_handle_ptr,
