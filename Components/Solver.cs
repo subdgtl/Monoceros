@@ -367,6 +367,11 @@ namespace Monoceros {
                 var partNames = new List<string>();
                 foreach (var moduleName in slot.AllowedModuleNames) {
                     var module = modulesUsable.Find(m => m.Name == moduleName);
+                    if (module == null) {
+                        AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                 "No Module \"" + moduleName + "\" found.");
+                        return null;
+                    }
                     partNames.AddRange(module.PartNames);
                 }
                 return slot.DuplicateWithPartsCountAndNames(allPartsCount, partNames);

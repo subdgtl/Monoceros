@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Grasshopper.Kernel;
+using Rhino.Geometry;
 
 namespace Monoceros {
     public class Exporter : GH_Component {
@@ -48,6 +49,9 @@ namespace Monoceros {
                                       "RF",
                                       "Output file for rule set",
                                       GH_ParamAccess.item);
+            pManager[0].Optional = true;
+            pManager[1].Optional = true;
+            pManager[2].Optional = true;
         }
 
         /// <summary>
@@ -77,15 +81,15 @@ namespace Monoceros {
             DA.SetData(0, false);
 
             if (!DA.GetDataList(0, slotsRaw)) {
-                return;
+                slotsRaw = new List<Slot>();
             }
 
             if (!DA.GetDataList(1, modulesRaw)) {
-                return;
+                modulesRaw = new List<Module>();
             }
 
             if (!DA.GetDataList(2, rulesRaw)) {
-                return;
+                rulesRaw = new List<Rule>();
             }
 
             if (!DA.GetData(3, ref worldFileName)) {
@@ -106,8 +110,7 @@ namespace Monoceros {
             }
 
             if (!slotsClean.Any()) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Slots collected.");
-                return;
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "No valid Slots collected.");
             }
 
             var modulesClean = new List<Module>();
@@ -120,8 +123,7 @@ namespace Monoceros {
             }
 
             if (!modulesClean.Any()) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Modules collected.");
-                return;
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "No valid Modules collected.");
             }
 
             var rulesClean = new List<Rule>();
@@ -134,48 +136,41 @@ namespace Monoceros {
             }
 
             if (!rulesClean.Any()) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Modules collected.");
-                return;
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "No valid Modules collected.");
             }
 
             // TODO: Consider smarter compatibility check or non-uniform scaling
-            if (!Slot.AreSlotDiagonalsCompatible(slotsClean)) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+            if (!slotsClean.Any() || !Slot.AreSlotDiagonalsCompatible(slotsClean)) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
                                   "Slots are not defined with the same diagonal.");
-                return;
             }
-            var diagonal = slotsClean.First().Diagonal;
+            var diagonal = slotsClean.Any() ? slotsClean.First().Diagonal : new Vector3d(1, 1, 1);
 
             // TODO: Consider smarter compatibility check or base plane conversion
-            if (!Slot.AreSlotBasePlanesCompatible(slotsClean)) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+            if (!slotsClean.Any() || !Slot.AreSlotBasePlanesCompatible(slotsClean)) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
                                   "Slots are not defined with the same base plane.");
-                return;
             }
-            var slotBasePlane = slotsClean.First().BasePlane;
+            var slotBasePlane = slotsClean.Any() ? slotsClean.First().BasePlane : Plane.WorldXY;
 
-            if (!Slot.AreSlotLocationsUnique(slotsClean)) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Slot centers are not unique.");
-                return;
+            if (!slotsClean.Any() || !Slot.AreSlotLocationsUnique(slotsClean)) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Slot centers are not unique.");
             }
 
-            var moduleDiagonal = modulesClean.First().PartDiagonal;
+            var moduleDiagonal = modulesClean.Any() ? modulesClean.First().PartDiagonal : new Vector3d(1, 1, 1);
 
             if (modulesClean.Any(module => module.PartDiagonal != moduleDiagonal)) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
                                   "Modules are not defined with the same diagonal.");
-                return;
             }
 
-            if (!AreModuleNamesUnique(modulesClean)) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Module names are not unique.");
-                return;
+            if (!modulesClean.Any() || !AreModuleNamesUnique(modulesClean)) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Module names are not unique.");
             }
 
             if (moduleDiagonal != diagonal) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
                                   "Modules and slots are not defined with the same diagonal.");
-                return;
             }
 
             var modulesUsable = new List<Module>();
@@ -215,20 +210,18 @@ namespace Monoceros {
             }
 
             if (!modulesUsable.Any()) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
                                   "There are no Modules with all connectors described by the " +
                                   "given Rules.");
-                return;
             }
 
             var allPartsCount = modulesUsable
                 .Aggregate(0, (sum, module) => sum + module.PartCenters.Count);
 
             if (allPartsCount > Config.MAX_PARTS) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
                     "The Modules occupy too many Slots: " + allPartsCount + ". Maximum allowed :" +
                     Config.MAX_PARTS + ".");
-                return;
             }
 
             Module.GenerateEmptySingleModule(Config.OUTER_MODULE_NAME,
@@ -309,7 +302,12 @@ namespace Monoceros {
                 var partNames = new List<string>();
                 foreach (var moduleName in slotRaw.AllowedModuleNames) {
                     var module = modulesUsable.Find(m => m.Name == moduleName);
-                    partNames.AddRange(module.PartNames);
+                    if (module != null) {
+                        partNames.AddRange(module.PartNames);
+                    } else {
+                        AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                                 "No Module \"" + moduleName + "\" found.");
+                    }
                 }
                 return slotRaw.DuplicateWithPartsCountAndNames(allPartsCount, partNames);
             });
@@ -361,7 +359,13 @@ namespace Monoceros {
                     var line = "";
                     for (int x = 0; x < worldSize.X; x++) {
                         var slot = worldForSolver[From3DTo1D(new Point3i(x, y, z), worldSize)];
-                        var slotParts = slot.AllowedPartNames.Aggregate("", (l, s) => l += "," + s).Remove(0, 1);
+                        if (!slot.AllowedPartNames.Any()) {
+                            AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                                  "Slot has no allowed Module Parts. Writing \"ERROR\".");
+                        }
+                        var slotParts = slot.AllowedPartNames.Any()
+                            ? slot.AllowedPartNames.Aggregate("", (l, s) => l += "," + s).Remove(0, 1) 
+                            : "ERROR";
                         line += "[" + slotParts + "]";
                     }
                     lines.Add(line);
