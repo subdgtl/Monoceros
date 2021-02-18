@@ -151,7 +151,7 @@ namespace Monoceros {
 
             DA.SetDataList(0, new List<ModuleName> { new ModuleName(module.Name) });
             DA.SetDataList(1, partCenters);
-            DA.SetDataList(2, module.Geometry);
+            DA.SetDataList(2, module.Geometry.Concat(module.ReferencedGeometry).ToList());
             DA.SetDataList(3, new List<Plane> { module.BasePlane });
             DA.SetDataList(4, new List<Vector3d> { module.PartDiagonal });
 
