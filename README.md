@@ -1714,11 +1714,27 @@ Modules from these Slots.
 
 #### 11.16.1. Definition
 
+![Enforcing specific modules at the boundary of the Envelope](./examples/enforcing-specific-modules-at-the-boundary-of-the-envelope/enforcing-specific-modules-at-the-boundary-of-the-envelope.png)
+[Download](./examples/enforcing-specific-modules-at-the-boundary-of-the-envelope/enforcing-specific-modules-at-the-boundary-of-the-envelope.gh)
+
+![Enforcing specific modules at the boundary of the Envelope](./examples/enforcing-specific-modules-at-the-boundary-of-the-envelope/enforcing-specific-modules-at-the-boundary-of-the-envelope-screenshot.jpg)
+
+*Note: The example shows a 2D setup. Monoceros is inherently 3D and so is the
+[Are Slots Boundary](#1014-are-slots-boundary) component, therefore the setup is
+first constructed in 3D (5 horizontal layers of Slots) but only the middle
+horizontal layer of Slots enters the Solver. The two bottom and top layers
+consist entirely of boundary Slots.*
+
 #### 11.16.2. Definition: Identifying more boundary layers
 
 If more than one boundary layer of [Slots](#81-slot) should be isolated, the
 [Are Slots Boundary](#1014-are-slots-boundary) component can be used multiple
 times, each time on Slots identified as inner (non-boundary).
+
+![Enforcing specific modules at the boundary of the Envelope](./examples/enforcing-specific-modules-at-the-boundary-of-the-envelope/enforcing-specific-modules-at-the-boundary-of-the-envelope-multiple.png)
+[Download](./examples/enforcing-specific-modules-at-the-boundary-of-the-envelope/enforcing-specific-modules-at-the-boundary-of-the-envelope-multiple.gh)
+
+![Enforcing specific modules at the boundary of the Envelope](./examples/enforcing-specific-modules-at-the-boundary-of-the-envelope/enforcing-specific-modules-at-the-boundary-of-the-envelope-multiple-screenshot.jpg)
 
 ### 11.17. Growing the boundary of the Envelope
 

@@ -35,8 +35,10 @@
 
 <body class="vscode-body vscode-light">
     <h1 id="monoceros">Monoceros</h1>
-    <p><img src="./readme-assets/monoceros32.png" alt="Monoceros"> <strong>Monoceros</strong>: a Wave Function
-        Collapse plug-in for Grasshopper by Subdigital</p>
+    <p><img src="./readme-assets/monoceros32.png" alt="Monoceros">
+        <strong>Monoceros</strong>: a Wave Function
+        Collapse plug-in for Grasshopper by Subdigital
+    </p>
     <h2 id="1-authors">1. Authors</h2>
     <ul>
         <li>Ján Pernecký: <a href="mailto:jan@sub.digital">jan@sub.digital</a></li>
@@ -307,8 +309,6 @@
                 <li><a href="#1115-disallowing-certain-modules-from-certain-slots">11.15. Disallowing certain Modules
                         from certain Slots</a>
                     <ul>
-                        <li><a href="#11151-definition-disallowing-modules-in-new-slots">11.15.1. Definition:
-                                Disallowing Modules in new Slots</a></li>
                         <li><a href="#11152-definition-disallowing-modules-in-existing-slots">11.15.2. Definition:
                                 Disallowing Modules in existing Slots</a></li>
                     </ul>
@@ -1862,15 +1862,15 @@
         </thead>
         <tbody>
             <tr>
-                <td><img src="./examples/allowing-modules-based-on-multiple-attractor-gradients/allowing-modules-based-on-multiple-attractor-gradients-clean-module-1.jpg"
+                <td><img src="./examples/allowing-modules-based-on-multiple-attractor-gradients\allowing-modules-based-on-multiple-attractor-gradients-clean-module-1.jpg"
                         alt="module-1"></td>
-                <td><img src="./examples/allowing-modules-based-on-multiple-attractor-gradients/allowing-modules-based-on-multiple-attractor-gradients-clean-module-2.jpg"
+                <td><img src="./examples/allowing-modules-based-on-multiple-attractor-gradients\allowing-modules-based-on-multiple-attractor-gradients-clean-module-2.jpg"
                         alt="module-2"></td>
-                <td><img src="./examples/allowing-modules-based-on-multiple-attractor-gradients/allowing-modules-based-on-multiple-attractor-gradients-clean-module-3.jpg"
+                <td><img src="./examples/allowing-modules-based-on-multiple-attractor-gradients\allowing-modules-based-on-multiple-attractor-gradients-clean-module-3.jpg"
                         alt="module-3"></td>
-                <td><img src="./examples/allowing-modules-based-on-multiple-attractor-gradients/allowing-modules-based-on-multiple-attractor-gradients-clean-module-4.jpg"
+                <td><img src="./examples/allowing-modules-based-on-multiple-attractor-gradients\allowing-modules-based-on-multiple-attractor-gradients-clean-module-4.jpg"
                         alt="module-4"></td>
-                <td><img src="./examples/allowing-modules-based-on-multiple-attractor-gradients/allowing-modules-based-on-multiple-attractor-gradients-clean-module-5.jpg"
+                <td><img src="./examples/allowing-modules-based-on-multiple-attractor-gradients\allowing-modules-based-on-multiple-attractor-gradients-clean-module-5.jpg"
                         alt="module-5"></td>
             </tr>
         </tbody>
@@ -1893,15 +1893,15 @@
         </thead>
         <tbody>
             <tr>
-                <td><img src="./examples/allowing-modules-based-on-multiple-attractor-gradients/allowing-modules-based-on-multiple-attractor-gradients-2-clean-module-1.jpg"
+                <td><img src="./examples/allowing-modules-based-on-multiple-attractor-gradients\allowing-modules-based-on-multiple-attractor-gradients-2-clean-module-1.jpg"
                         alt="module-1"></td>
-                <td><img src="./examples/allowing-modules-based-on-multiple-attractor-gradients/allowing-modules-based-on-multiple-attractor-gradients-2-clean-module-2.jpg"
+                <td><img src="./examples/allowing-modules-based-on-multiple-attractor-gradients\allowing-modules-based-on-multiple-attractor-gradients-2-clean-module-2.jpg"
                         alt="module-2"></td>
-                <td><img src="./examples/allowing-modules-based-on-multiple-attractor-gradients/allowing-modules-based-on-multiple-attractor-gradients-2-clean-module-3.jpg"
+                <td><img src="./examples/allowing-modules-based-on-multiple-attractor-gradients\allowing-modules-based-on-multiple-attractor-gradients-2-clean-module-3.jpg"
                         alt="module-3"></td>
-                <td><img src="./examples/allowing-modules-based-on-multiple-attractor-gradients/allowing-modules-based-on-multiple-attractor-gradients-2-clean-module-4.jpg"
+                <td><img src="./examples/allowing-modules-based-on-multiple-attractor-gradients\allowing-modules-based-on-multiple-attractor-gradients-2-clean-module-4.jpg"
                         alt="module-4"></td>
-                <td><img src="./examples/allowing-modules-based-on-multiple-attractor-gradients/allowing-modules-based-on-multiple-attractor-gradients-2-clean-module-5.jpg"
+                <td><img src="./examples/allowing-modules-based-on-multiple-attractor-gradients\allowing-modules-based-on-multiple-attractor-gradients-2-clean-module-5.jpg"
                         alt="module-5"></td>
             </tr>
         </tbody>
@@ -1923,11 +1923,11 @@
         there, too.</p>
     <p><em>Note: Due to the way <a href="#9-monoceros-wfc-solver">Monoceros</a> exposes the vanilla
             <a href="#5-wave-function-collapse">Wave Function Collapse</a> algorithm, it is not
-            possible to place a Module into an exact position. The
+            possible to place a specific Module Part into an exact position. The
             <a href="#9-monoceros-wfc-solver">Monoceros WFC Solver</a> picks any Module Part to be
             placed into a Slot allowing placement of the Module.</em></p>
     <p><em>Note: Placing Modules manually may cause longer search for a valid solution or
-            completely unable an existence of a valid solution.</em></p>
+            completely eliminate an existence of a valid solution.</em></p>
     <h3 id="1115-disallowing-certain-modules-from-certain-slots">11.15. Disallowing certain Modules from certain Slots
     </h3>
     <p>Similarly to
@@ -1937,14 +1937,20 @@
     </p>
     <p>Because Monoceros does not recognize disallowing, it is necessary to remove the
         disallowed Module name from the list of allowed modules for the respective
-        Slots. For newly created Slots the list of allowed Modules should be prepared
-        manually. Existing Slots can be <a href="#1013-deconstruct-slot">deconstructed</a> and
-        reconstructed with a reduced list of allowed Modules. The original Slots should
-        be replaced with the reconstructed ones.</p>
-    <h4 id="11151-definition-disallowing-modules-in-new-slots">11.15.1. Definition: Disallowing Modules in new Slots
-    </h4>
+        Slots. For newly created Slots the list of allowed Modules should contain only
+        the allowed Module names - the disallowed Module's name should be removed from
+        the list manually prior to constructing the Slot.</p>
+    <p>Existing Slots can be <a href="#1013-deconstruct-slot">deconstructed</a> and reconstructed
+        with a reduced list of allowed Modules. The original Slots should be replaced
+        with the reconstructed ones.</p>
     <h4 id="11152-definition-disallowing-modules-in-existing-slots">11.15.2. Definition: Disallowing Modules in existing
         Slots</h4>
+    <p><img src="./examples/disallowing-modules-in-existing-slots\disallowing-modules-in-existing-slots.png"
+            alt="Disallowing Modules in existing Slots">
+        <a href="./examples/disallowing-modules-in-existing-slots/disallowing-modules-in-existing-slots.gh">Download</a>
+    </p>
+    <p><img src="./examples/disallowing-modules-in-existing-slots\disallowing-modules-in-existing-slots-screenshot.jpg"
+            alt="Disallowing Modules in existing Slots"></p>
     <h3 id="1116-enforcing-specific-modules-at-the-boundary-of-the-envelope">11.16. Enforcing specific modules at the
         boundary of the Envelope</h3>
     <p>If specific <a href="#82-module">Modules</a> are
@@ -1960,12 +1966,31 @@
         Modules from these Slots.
     </p>
     <h4 id="11161-definition">11.16.1. Definition</h4>
+    <p><img src="./examples/enforcing-specific-modules-at-the-boundary-of-the-envelope\enforcing-specific-modules-at-the-boundary-of-the-envelope.png"
+            alt="Enforcing specific modules at the boundary of the Envelope">
+        <a
+            href="./examples/enforcing-specific-modules-at-the-boundary-of-the-envelope/enforcing-specific-modules-at-the-boundary-of-the-envelope.gh">Download</a>
+    </p>
+    <p><img src="./examples/enforcing-specific-modules-at-the-boundary-of-the-envelope\enforcing-specific-modules-at-the-boundary-of-the-envelope-screenshot.jpg"
+            alt="Enforcing specific modules at the boundary of the Envelope"></p>
+    <p><em>Note: The example shows a 2D setup. Monoceros is inherently 3D and so is the
+            <a href="#1014-are-slots-boundary">Are Slots Boundary</a> component, therefore the setup is
+            first constructed in 3D (5 horizontal layers of Slots) but only the middle
+            horizontal layer of Slots enters the Solver. The two bottom and top layers
+            consist entirely of boundary Slots.</em></p>
     <h4 id="11162-definition-identifying-more-boundary-layers">11.16.2. Definition: Identifying more boundary layers
     </h4>
     <p>If more than one boundary layer of <a href="#81-slot">Slots</a> should be isolated, the
         <a href="#1014-are-slots-boundary">Are Slots Boundary</a> component can be used multiple
         times, each time on Slots identified as inner (non-boundary).
     </p>
+    <p><img src="./examples/enforcing-specific-modules-at-the-boundary-of-the-envelope\enforcing-specific-modules-at-the-boundary-of-the-envelope-multiple.png"
+            alt="Enforcing specific modules at the boundary of the Envelope">
+        <a
+            href="./examples/enforcing-specific-modules-at-the-boundary-of-the-envelope/enforcing-specific-modules-at-the-boundary-of-the-envelope-multiple.gh">Download</a>
+    </p>
+    <p><img src="./examples/enforcing-specific-modules-at-the-boundary-of-the-envelope\enforcing-specific-modules-at-the-boundary-of-the-envelope-multiple-screenshot.jpg"
+            alt="Enforcing specific modules at the boundary of the Envelope"></p>
     <h3 id="1117-growing-the-boundary-of-the-envelope">11.17. Growing the boundary of the Envelope</h3>
     <p>It is possible to wrap the existing
         <a href="#813-automatic-envelope-wrapping">Envelope</a> of <a href="#81-slot">Slots</a> into another
