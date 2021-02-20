@@ -48,6 +48,16 @@ namespace Monoceros {
                                          "Maximum Number of Solver Attempts",
                                          GH_ParamAccess.item,
                                          10);
+            pManager.AddBooleanParameter("Use Shannon Entropy",
+                                         "E",
+                                         "Whether to use Shannon Entropy instead of the simpler linear entropy calculations",
+                                         GH_ParamAccess.item,
+                                         false);
+            pManager.AddIntegerParameter("Max Observations",
+                                         "O",
+                                         "Maximum Number of Solver Observations per Attempt (leave blank for unlimited)",
+                                         GH_ParamAccess.item);
+            pManager[6].Optional = true;
         }
 
         /// <summary>
@@ -60,13 +70,21 @@ namespace Monoceros {
                                   "S",
                                   "Solved Monoceros Slots",
                                   GH_ParamAccess.list);
-            pManager.AddBooleanParameter("Success",
-                                         "OK",
-                                         "Did the Monoceros WFC Solver find a valid solution?",
-                                         GH_ParamAccess.item);
             pManager.AddIntegerParameter("Attempts",
                                          "A",
                                          "Number of attempts needed to find a solution",
+                                         GH_ParamAccess.item);
+            pManager.AddBooleanParameter("Deterministic",
+                                         "OK",
+                                         "Did the Monoceros WFC Solver find a solution that can be Materialized?",
+                                         GH_ParamAccess.item);
+            pManager.AddBooleanParameter("Contradictory",
+                                         "C",
+                                         "Did the Monoceros WFC Solver end with a contradictory solution?",
+                                         GH_ParamAccess.item);
+            pManager.AddIntegerParameter("Observations",
+                                         "O",
+                                         "Number of observations needed to find a solution",
                                          GH_ParamAccess.item);
         }
 
@@ -81,9 +99,14 @@ namespace Monoceros {
             var rulesRaw = new List<Rule>();
             var randomSeed = 42;
             var maxAttempts = 10;
+            bool useShannonEntropy = false;
+            var maxObservations = 0;
+            var limitObservations = true;
+
 
             // Due to many early return branches it is easier to set and the re-set the output pin
-            DA.SetData(2, false);
+            DA.SetData(3, false);
+            DA.SetData(4, true);
 
             if (!DA.GetDataList(0, slotsRaw)) {
                 return;
@@ -103,6 +126,19 @@ namespace Monoceros {
 
             if (!DA.GetData(4, ref maxAttempts)) {
                 return;
+            }
+
+            if (!DA.GetData(5, ref useShannonEntropy)) {
+                return;
+            }
+
+            if (!DA.GetData(6, ref maxObservations)) {
+                limitObservations = false;
+            }
+
+            Entropy entropy = Entropy.Linear;
+            if (useShannonEntropy) {
+                entropy = Entropy.Shannon;
             }
 
             var slotsValid = new List<Slot>();
@@ -397,24 +433,22 @@ namespace Monoceros {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "The world size exceeds minimum or maximum dimensions: " +
                                   ushort.MinValue + " to " + ushort.MaxValue + "in any direction.");
-                DA.SetData(2, false);
                 return;
             }
 
             // SOLVER
-            var success = Solve(rulesForSolver.Distinct().ToList(),
+            var stats = Solve(rulesForSolver.Distinct().ToList(),
                                 worldSize,
                                 worldForSolver.ToList(),
                                 randomSeed,
                                 maxAttempts,
-                                out var solvedSlotParts,
-                                out var report,
-                                out var attempts);
+                                limitObservations,
+                                (uint)maxObservations,
+                                entropy,
+                                out var solvedSlotParts);
 
-            if (!success) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, report);
-                DA.SetData(0, report);
-                return;
+            if (stats.contradictory || (!limitObservations && !stats.deterministic)) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, stats.report);
             }
 
             // Remember module name for each part name
@@ -439,10 +473,12 @@ namespace Monoceros {
                                 allPartsCount);
             });
 
-            DA.SetData(0, report);
+            DA.SetData(0, stats.ToString());
             DA.SetDataList(1, slotsSolved);
-            DA.SetData(2, success);
-            DA.SetData(3, attempts);
+            DA.SetData(2, stats.solveAttempts);
+            DA.SetData(3, stats.deterministic);
+            DA.SetData(4, stats.contradictory);
+            DA.SetData(5, stats.observations);
         }
 
         private static void ComputeWorldRelativeBounds(IEnumerable<Slot> slots,
@@ -532,19 +568,29 @@ namespace Monoceros {
             return true;
         }
 
-        private bool Solve(List<RuleForSolver> rules,
+        private Stats Solve(List<RuleForSolver> rules,
                            Point3i worldSize,
                            List<Slot> slots,
                            int randomSeed,
                            int maxAttemptsInt,
-                           out List<string> worldSlotParts,
-                           out string report,
-                           out uint attempts) {
-            var stats = new Stats();
+                           bool limitObservations,
+                           uint maxObservations,
+                           Entropy entropy,
+                           out List<string> worldSlotParts) {
             worldSlotParts = new List<string>();
 
-            report = "";
-            attempts = 0;
+            var stats = new Stats();
+            stats.worldNotCanonical = true;
+            stats.contradictory = true;
+            stats.deterministic = false;
+            stats.observationsLimited = limitObservations;
+            stats.observationLimit = maxObservations;
+            stats.averageObservations = 0;
+            stats.observations = 0;
+            stats.partCount = 0;
+            stats.report = "Monoceros WFC Solver failed to run.";
+            stats.solveAttempts = 0;
+            stats.ruleCount = (uint)rules.Count;
 
             //
             // -- Adjacency rules --
@@ -562,9 +608,9 @@ namespace Monoceros {
                 }
 
                 if (allParts.Count > maxModuleCount) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                      "Too many modules. Maximum allowed is " + maxModuleCount);
-                    return false;
+                    stats.report = "Too many modules. Maximum allowed is " + maxModuleCount;
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, stats.report);
+                    return stats;
                 }
             }
 
@@ -606,6 +652,8 @@ namespace Monoceros {
                 rule.module_high = high;
                 adjacencyRules[i] = rule;
             }
+
+            stats.partCount = (uint)partToName.Count;
 
             //
             // -- World dimensions --
@@ -702,22 +750,23 @@ namespace Monoceros {
                                                              (UIntPtr)adjacencyRules.Length,
                                                              worldX,
                                                              worldY,
-                                                             worldZ);
+                                                             worldZ,
+                                                             entropy);
 
                     switch (result) {
                         case WfcWorldStateInitResult.Ok:
                             // All good
                             break;
                         case WfcWorldStateInitResult.ErrTooManyModules:
-                            report = "Monoceros Solver failed: Rules refer to Modules occupying " +
+                            stats.report = "Monoceros Solver failed: Rules refer to Modules occupying " +
                                 "too many Slots.";
-                            return false;
+                            return stats;
                         case WfcWorldStateInitResult.ErrWorldDimensionsZero:
-                            report = "Monoceros Solver failed: World dimensions are zero.";
-                            return false;
+                            stats.report = "Monoceros Solver failed: World dimensions are zero.";
+                            return stats;
                         default:
-                            report = "Monoceros Solver failed with unknown error.";
-                            return false;
+                            stats.report = "Monoceros Solver failed with unknown error.";
+                            return stats;
                     }
                 }
 
@@ -736,33 +785,67 @@ namespace Monoceros {
                             stats.worldNotCanonical = true;
                             break;
                         case WfcWorldStateSlotsSetResult.ErrWorldContradictory:
-                            report = "Monoceros Solver failed: World state is contradictory. " +
+                            stats.report = "Monoceros Solver failed: World state is contradictory. " +
                                 "Try changing Slots, Modules or Rules. Changing random seed or " +
                                 "max attempts will not help.";
-                            return false;
+                            return stats;
                     }
                 }
 
                 Native.wfc_world_state_init_from(&wfcWorldStateHandleBackup, wfcWorldStateHandle);
             }
 
-            bool foundDeterministic = false;
-            while (!foundDeterministic && attempts < maxAttempts) {
-                var result = Native.wfc_observe(wfcWorldStateHandle, wfcRngStateHandle);
-                if (result == WfcObserveResult.Deterministic) {
-                    foundDeterministic = true;
-                } else {
-                    Native.wfc_world_state_clone_from(wfcWorldStateHandle,
-                                                      wfcWorldStateHandleBackup);
-                }
+            uint limitObservations_uint = limitObservations ? (uint)1 : (uint)0;
+            var spentObservationsPtr = IntPtr.Zero;
+            stats.averageObservations = 0;
 
-                attempts++;
+            WfcObserveResult observationResult = WfcObserveResult.Contradiction;
+
+            uint attempts = 0;
+            if (limitObservations && maxObservations == 0) {
+                observationResult = Native.wfc_world_status(wfcWorldStateHandle);
+            } else {
+                unsafe {
+                    while (attempts < maxAttempts) {
+                        observationResult = Native.wfc_observe(wfcWorldStateHandle,
+                                                        wfcRngStateHandle,
+                                                        (UIntPtr)limitObservations_uint,
+                                                        (UIntPtr)maxObservations,
+                                                        &spentObservationsPtr);
+                        attempts++;
+                        stats.averageObservations += (uint)spentObservationsPtr.ToInt32();
+                        
+                        if (observationResult == WfcObserveResult.Deterministic
+                            || (limitObservations && observationResult == WfcObserveResult.Nondeterministic)) {
+                            break;
+                        } else {
+                            Native.wfc_world_state_clone_from(wfcWorldStateHandle, wfcWorldStateHandleBackup);
+                        }
+                    }
+                }
             }
 
-            if (!foundDeterministic) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  "WFC solver failed to find solution within " + maxAttempts + " attempts");
-                return false;
+            if (observationResult == WfcObserveResult.Deterministic) {
+                stats.deterministic = true;
+                stats.contradictory = false;
+            }
+            if (observationResult == WfcObserveResult.Nondeterministic) {
+                stats.deterministic = false;
+                stats.contradictory = false;
+            }
+            if (observationResult == WfcObserveResult.Contradiction) {
+                stats.deterministic = false;
+                stats.contradictory = true;
+            }
+
+            stats.observations = (uint)spentObservationsPtr.ToInt32();
+            stats.averageObservations /= attempts == 0 ? 1 : attempts;
+
+            stats.solveAttempts = attempts;
+
+            if (!limitObservations && !stats.deterministic) {
+                stats.report = "WFC solver failed to find solution within " + maxAttempts + " attempts";
+                base.AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, stats.report);
             }
 
             unsafe {
@@ -805,18 +888,13 @@ namespace Monoceros {
                 if (valid) {
                     worldSlotParts.Add(partStr);
                 } else {
-                    report = "Monoceros Solver returned a non-existing part.";
-                    return false;
+                    stats.report = "Monoceros WFC Solver returned a non-existing Module Part.";
+                    return stats;
                 }
             }
 
-            stats.ruleCount = (uint)rules.Count;
-            stats.partCount = (uint)partToName.Count;
-            stats.solveAttempts = attempts;
-
-            report = stats.ToString();
-
-            return true;
+            stats.report = "Monoceros WFC Solver succeeded.";
+            return stats;
         }
     }
 
@@ -825,6 +903,11 @@ namespace Monoceros {
         public Axis kind;
         public byte module_low;
         public byte module_high;
+    }
+
+    internal enum Entropy : uint {
+        Linear = 0,
+        Shannon = 1,
     }
 
     internal enum WfcWorldStateInitResult : uint {
@@ -842,6 +925,7 @@ namespace Monoceros {
     internal enum WfcObserveResult : uint {
         Deterministic = 0,
         Contradiction = 1,
+        Nondeterministic = 2,
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -869,10 +953,20 @@ namespace Monoceros {
         public uint ruleCount;
         public uint partCount;
         public uint solveAttempts;
+        public bool observationsLimited;
+        public uint observationLimit;
+        public uint observations;
+        public uint averageObservations;
+        public bool deterministic;
+        public bool contradictory;
         public bool worldNotCanonical;
+        public string report;
 
         public override string ToString( ) {
-            var b = new StringBuilder(128);
+            var b = new StringBuilder(1024);
+
+            b.Append(report);
+            b.AppendLine();
 
             b.Append("Rule count: ");
             b.Append(ruleCount);
@@ -883,60 +977,99 @@ namespace Monoceros {
             b.Append("Solve attempts: ");
             b.Append(solveAttempts);
             b.AppendLine();
-
-            if (worldNotCanonical) {
-                b.AppendLine(
-                    "Initial world state is not canonical according to the original WFC standards.");
+            if (observationsLimited) {
+                b.Append("Solver observations limited to: ");
+                b.Append(observationLimit);
+                b.AppendLine();
             }
+            b.Append("Observations required to find the solution: ");
+            b.Append(observations);
+            b.AppendLine();
+            if (solveAttempts > 1) {
+                b.Append("Average observation count per attempt: ");
+                b.Append(averageObservations);
+                b.AppendLine();
+            }
+
+            if (contradictory) {
+                b.AppendLine(
+                    "The solution is contradictory - some Slots are not allowed to contain any Module.");
+            } else {
+
+                if (deterministic) {
+                    b.AppendLine(
+                        "The solution is deterministic - each Slot allows placement of exactly one " +
+                        "Module Part.");
+                } else {
+                    b.AppendLine(
+                        "The solution is non-deterministic - at least some Slots allow placement of " +
+                        "more than one Module Part.");
+                }
+                b.AppendLine();
+
+
+                if (worldNotCanonical) {
+                    b.AppendLine(
+                        "Initial world state is not canonical according to the original WFC standards.");
+                }
+            }
+            b.AppendLine();
 
             return b.ToString();
         }
     }
 
     internal class Native {
-        [DllImport("monoceros-wfc-0.1.0.dll", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("monoceros-wfc-0.3.0.dll", CallingConvention = CallingConvention.StdCall)]
         internal static extern uint wfc_max_module_count_get( );
 
-        [DllImport("monoceros-wfc-0.1.0.dll", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("monoceros-wfc-0.3.0.dll", CallingConvention = CallingConvention.StdCall)]
         internal static unsafe extern WfcWorldStateInitResult wfc_world_state_init(IntPtr* wfc_world_state_handle_ptr,
                                                                                    AdjacencyRule* adjacency_rules_ptr,
                                                                                    UIntPtr adjacency_rules_len,
                                                                                    ushort world_x,
                                                                                    ushort world_y,
-                                                                                   ushort world_z);
+                                                                                   ushort world_z,
+                                                                                   Entropy entropy);
 
-        [DllImport("monoceros-wfc-0.1.0.dll", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("monoceros-wfc-0.3.0.dll", CallingConvention = CallingConvention.StdCall)]
         internal static unsafe extern void wfc_world_state_init_from(IntPtr* wfc_world_state_handle_ptr,
                                                                      IntPtr source_wfc_world_state_handle);
 
-        [DllImport("monoceros-wfc-0.1.0.dll", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("monoceros-wfc-0.3.0.dll", CallingConvention = CallingConvention.StdCall)]
         internal static unsafe extern void wfc_world_state_clone_from(IntPtr destination_wfc_world_state_handle,
                                                                       IntPtr source_wfc_world_state_handle);
 
-        [DllImport("monoceros-wfc-0.1.0.dll", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("monoceros-wfc-0.3.0.dll", CallingConvention = CallingConvention.StdCall)]
         internal static extern void wfc_world_state_free(IntPtr wfc_world_state_handle);
 
-        [DllImport("monoceros-wfc-0.1.0.dll", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("monoceros-wfc-0.3.0.dll", CallingConvention = CallingConvention.StdCall)]
         internal static unsafe extern WfcWorldStateSlotsSetResult wfc_world_state_slots_set(IntPtr wfc_world_state_handle,
                                                                                             SlotState* slots_ptr,
                                                                                             UIntPtr slots_len);
 
-        [DllImport("monoceros-wfc-0.1.0.dll", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("monoceros-wfc-0.3.0.dll", CallingConvention = CallingConvention.StdCall)]
         internal static unsafe extern void wfc_world_state_slots_get(IntPtr wfc_world_state_handle,
                                                                      SlotState* slots_ptr,
                                                                      UIntPtr slots_len);
 
-        [DllImport("monoceros-wfc-0.1.0.dll", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("monoceros-wfc-0.3.0.dll", CallingConvention = CallingConvention.StdCall)]
         internal static unsafe extern void wfc_rng_state_init(IntPtr* wfc_rng_state_handle_ptr,
                                                               ulong rng_seed_low,
                                                               ulong rng_seed_high);
 
-        [DllImport("monoceros-wfc-0.1.0.dll", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("monoceros-wfc-0.3.0.dll", CallingConvention = CallingConvention.StdCall)]
         internal static extern void wfc_rng_state_free(IntPtr wfc_rng_state_handle);
 
-        [DllImport("monoceros-wfc-0.1.0.dll", CallingConvention = CallingConvention.StdCall)]
-        internal static extern WfcObserveResult wfc_observe(IntPtr wfc_world_state_handle,
-                                                            IntPtr wfc_rng_state_handle);
+        [DllImport("monoceros-wfc-0.3.0.dll", CallingConvention = CallingConvention.StdCall)]
+        internal static unsafe extern WfcObserveResult wfc_observe(IntPtr wfc_world_state_handle,
+                                                            IntPtr wfc_rng_state_handle,
+                                                            UIntPtr limit_observations,
+                                                            UIntPtr max_observations,
+                                                            IntPtr* spent_observations);
+
+        [DllImport("monoceros-wfc-0.3.0.dll", CallingConvention = CallingConvention.StdCall)]
+        internal static extern WfcObserveResult wfc_world_status(IntPtr wfc_world_state_handle);
     }
 
 }
