@@ -154,7 +154,6 @@ respecting the given Rules.**
   - [11.17. Growing the boundary of the Envelope](#1117-growing-the-boundary-of-the-envelope)
     - [11.17.1. Definition](#11171-definition)
   - [11.18. Materializing results](#1118-materializing-results)
-    - [11.18.1. Definition](#11181-definition)
   - [11.19. Proto-results and custom materialization](#1119-proto-results-and-custom-materialization)
     - [11.19.1. Definition](#11191-definition)
   - [11.20. Using the transform data to materialize the result](#1120-using-the-transform-data-to-materialize-the-result)
@@ -1747,6 +1746,11 @@ Envelope.
 
 #### 11.17.1. Definition
 
+![Growing the boundary of the Envelope](./examples/growing-the-boundary-of-the-envelope/growing-the-boundary-of-the-envelope.png)
+[Download](./examples/growing-the-boundary-of-the-envelope/growing-the-boundary-of-the-envelope.gh)
+
+![Growing the boundary of the Envelope](./examples/growing-the-boundary-of-the-envelope/growing-the-boundary-of-the-envelope-screenshot.jpg)
+
 ### 11.18. Materializing results
 
 A correct result of the [Monoceros WFC Solver](#9-monoceros-wfc-solver) is a
@@ -1781,13 +1785,11 @@ a Grasshopper Monoceros definition. To speed it up, it is recommended to disable
 preview of the Materialize Slots component prior to connecting wires to its
 inputs.*
 
-#### 11.18.1. Definition
-
 ### 11.19. Proto-results and custom materialization
 
 In some cases the final geometry of a Grasshopper definition does not have to be
 [the one stored](#823-module-geometry) in the Monoceros [Modules](#82-module).
-The Modules can contain some proto=geometry instead and the final geometry is
+The Modules can contain some proto-geometry instead and the final geometry is
 then constructed in Grasshopper after
 [materialization](#1051-materialize-slots).
 
@@ -1797,6 +1799,40 @@ which will be joined and wrapped into volumes after the materialization of the
 WFC assembly.
 
 #### 11.19.1. Definition
+
+The usual approach would be to embed the final version of the geometry into the
+Modules themselves. The materialized geometry is organized in data tree
+representing the Slot and Module order, rather than any semantic logic. Each
+element of the result is a separate geometry.
+
+![Without Proto-results and custom materialization](./examples/proto-results-and-custom-materialization/without-proto-results-and-custom-materialization.png)
+[Download](./examples/proto-results-and-custom-materialization/without-proto-results-and-custom-materialization.gh)
+example based on the
+[Mondieu](./examples/example-mondieu/example_01-mondieu.gh) example and its
+[Rhino file](./examples/example-mondieu/example_01-mondieu.3dm).
+
+Modules with embedded final version of the geometry
+![Without Proto-results and custom materialization](./examples/proto-results-and-custom-materialization/without-proto-results-and-custom-materialization-modules-screenshot.png)
+
+Single element of the result
+![Without Proto-results and custom materialization](./examples/proto-results-and-custom-materialization/without-proto-results-and-custom-materialization-single-element-screenshot.png)
+
+Instead it is possible to use a proto-geometry and process it after
+Materialization. In this case, the pipes are represented by their skeleton
+curves, which can be eventually joined into continuous curves and only then
+turned into valid continuous pipes.
+
+![Proto-results and custom materialization](./examples/proto-results-and-custom-materialization/proto-results-and-custom-materialization.png)
+[Download](./examples/proto-results-and-custom-materialization/proto-results-and-custom-materialization.gh)
+example based on the
+[Mondieu](./examples/example-mondieu/example_01-mondieu.gh) example and its
+[Rhino file](./examples/example-mondieu/example_01-mondieu.3dm).
+
+Modules with proto-version of the geometry
+![Proto-results and custom materialization](./examples/proto-results-and-custom-materialization/proto-results-and-custom-materialization-modules-screenshot.png)
+
+Single element of the result
+![Proto-results and custom materialization](./examples/proto-results-and-custom-materialization/proto-results-and-custom-materialization-single-element-screenshot.png)
 
 ### 11.20. Using the transform data to materialize the result
 
