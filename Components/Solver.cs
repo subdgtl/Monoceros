@@ -809,7 +809,6 @@ namespace Monoceros {
                 Native.wfc_world_state_init_from(&wfcWorldStateHandleBackup, wfcWorldStateHandle);
             }
 
-            uint limitObservations_uint = limitObservations ? (uint)1 : (uint)0;
             var spentObservationsPtr = IntPtr.Zero;
             stats.averageObservations = 0;
 
@@ -823,8 +822,7 @@ namespace Monoceros {
                     while (attempts < maxAttempts) {
                         observationResult = Native.wfc_observe(wfcWorldStateHandle,
                                                         wfcRngStateHandle,
-                                                        (UIntPtr)limitObservations_uint,
-                                                        (UIntPtr)maxObservations,
+                                                        limitObservations ? (UIntPtr)maxObservations : (UIntPtr)0,
                                                         &spentObservationsPtr);
                         attempts++;
                         stats.averageObservations += (uint)spentObservationsPtr.ToInt32();
@@ -1082,7 +1080,6 @@ namespace Monoceros {
         [DllImport("monoceros-wfc-0.3.0.dll", CallingConvention = CallingConvention.StdCall)]
         internal static unsafe extern WfcObserveResult wfc_observe(IntPtr wfc_world_state_handle,
                                                             IntPtr wfc_rng_state_handle,
-                                                            UIntPtr limit_observations,
                                                             UIntPtr max_observations,
                                                             IntPtr* spent_observations);
 
