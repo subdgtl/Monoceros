@@ -489,6 +489,11 @@ namespace Monoceros {
                                 allPartsCount);
             });
 
+            if (!stats.deterministic) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Current solution is partial. " +
+                    "A complete valid solution is not guaranteed!");
+            }
+
             DA.SetData(0, stats.ToString());
             DA.SetDataList(1, slotsSolved);
             DA.SetData(2, stats.solveAttempts);
@@ -819,7 +824,7 @@ namespace Monoceros {
             uint attempts = 0;
 
             unsafe {
-                while (attempts < maxAttempts) {
+                while (true) {
                     observationResult = Native.wfc_observe(wfcWorldStateHandle,
                                                     wfcRngStateHandle,
                                                     maxObservations,
@@ -828,11 +833,11 @@ namespace Monoceros {
                     stats.averageObservations += spentObservations;
 
                     if (observationResult == WfcObserveResult.Deterministic
-                        || observationResult == WfcObserveResult.Nondeterministic) {
+                        || observationResult == WfcObserveResult.Nondeterministic
+                        || attempts == maxAttempts) {
                         break;
-                    } else {
-                        Native.wfc_world_state_clone_from(wfcWorldStateHandle, wfcWorldStateHandleBackup);
                     }
+                    Native.wfc_world_state_clone_from(wfcWorldStateHandle, wfcWorldStateHandleBackup);
                 }
             }
 
@@ -903,8 +908,8 @@ namespace Monoceros {
             }
             if (!stats.deterministic && !stats.contradictory) {
                 stats.report = "Monoceros WFC Solver found a partial solution. Increase number " +
-                    "of observations or run another Solver with the output Slots from this Solver." +
-                    "WARNING: There is no guaranty that the current setup can be eventually " +
+                    "of observations or run another Solver with the output Slots from this Solver. " +
+                    "WARNING: There is no guarantee that the current setup can be eventually " +
                     "solved even though the partial solution exists.";
             }
 
