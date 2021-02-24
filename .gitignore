@@ -10,3 +10,4 @@ packages
 
 # WFC library
 !bin/**/*.dll
+!bin/**/*.pdb

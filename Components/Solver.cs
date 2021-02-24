@@ -1049,10 +1049,10 @@ namespace Monoceros {
     }
 
     internal class Native {
-        [DllImport("monoceros-wfc-0.3.0.dll", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("monoceros-wfc-0.2.0.dll", CallingConvention = CallingConvention.StdCall)]
         internal static extern uint wfc_max_module_count_get( );
 
-        [DllImport("monoceros-wfc-0.3.0.dll", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("monoceros-wfc-0.2.0.dll", CallingConvention = CallingConvention.StdCall)]
         internal static unsafe extern WfcWorldStateInitResult wfc_world_state_init(IntPtr* wfc_world_state_handle_ptr,
                                                                                    AdjacencyRule* adjacency_rules_ptr,
                                                                                    UIntPtr adjacency_rules_len,
@@ -1061,36 +1061,36 @@ namespace Monoceros {
                                                                                    ushort world_z,
                                                                                    Entropy entropy);
 
-        [DllImport("monoceros-wfc-0.3.0.dll", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("monoceros-wfc-0.2.0.dll", CallingConvention = CallingConvention.StdCall)]
         internal static unsafe extern void wfc_world_state_init_from(IntPtr* wfc_world_state_handle_ptr,
                                                                      IntPtr source_wfc_world_state_handle);
 
-        [DllImport("monoceros-wfc-0.3.0.dll", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("monoceros-wfc-0.2.0.dll", CallingConvention = CallingConvention.StdCall)]
         internal static unsafe extern void wfc_world_state_clone_from(IntPtr destination_wfc_world_state_handle,
                                                                       IntPtr source_wfc_world_state_handle);
 
-        [DllImport("monoceros-wfc-0.3.0.dll", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("monoceros-wfc-0.2.0.dll", CallingConvention = CallingConvention.StdCall)]
         internal static extern void wfc_world_state_free(IntPtr wfc_world_state_handle);
 
-        [DllImport("monoceros-wfc-0.3.0.dll", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("monoceros-wfc-0.2.0.dll", CallingConvention = CallingConvention.StdCall)]
         internal static unsafe extern WfcWorldStateSlotsSetResult wfc_world_state_slots_set(IntPtr wfc_world_state_handle,
                                                                                             SlotState* slots_ptr,
                                                                                             UIntPtr slots_len);
 
-        [DllImport("monoceros-wfc-0.3.0.dll", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("monoceros-wfc-0.2.0.dll", CallingConvention = CallingConvention.StdCall)]
         internal static unsafe extern void wfc_world_state_slots_get(IntPtr wfc_world_state_handle,
                                                                      SlotState* slots_ptr,
                                                                      UIntPtr slots_len);
 
-        [DllImport("monoceros-wfc-0.3.0.dll", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("monoceros-wfc-0.2.0.dll", CallingConvention = CallingConvention.StdCall)]
         internal static unsafe extern void wfc_rng_state_init(IntPtr* wfc_rng_state_handle_ptr,
                                                               ulong rng_seed_low,
                                                               ulong rng_seed_high);
 
-        [DllImport("monoceros-wfc-0.3.0.dll", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("monoceros-wfc-0.2.0.dll", CallingConvention = CallingConvention.StdCall)]
         internal static extern void wfc_rng_state_free(IntPtr wfc_rng_state_handle);
 
-        [DllImport("monoceros-wfc-0.3.0.dll", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("monoceros-wfc-0.2.0.dll", CallingConvention = CallingConvention.StdCall)]
         internal static unsafe extern WfcObserveResult wfc_observe(IntPtr wfc_world_state_handle,
                                                             IntPtr wfc_rng_state_handle,
                                                             uint max_observations,
