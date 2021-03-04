@@ -474,6 +474,9 @@ namespace Monoceros {
 
             // Sort slots into the same order as they were input
             var slotsSolved = slotOrder.Select(index => {
+                if (solvedSlotPartsTree.Count <= index) {
+                    return worldSlots[index];
+                }
                 var allowedParts = solvedSlotPartsTree[index];
                 var allowedModules = allowedParts
                     .Select(allowedPart => partToModuleName[allowedPart])
@@ -807,8 +810,8 @@ namespace Monoceros {
                             break;
                         case WfcWorldStateSlotsSetResult.ErrWorldContradictory:
                             stats.report = "Monoceros Solver failed: World state is contradictory. " +
-                                "Try changing Slots, Modules or Rules. Changing random seed or " +
-                                "max attempts will not help.";
+                                "Try changing Slots, Modules, Rules or add boundary Rules. Changing " +
+                                "random seed or max attempts will not help.";
                             return stats;
                     }
                 }
