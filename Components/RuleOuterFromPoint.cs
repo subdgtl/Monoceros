@@ -64,18 +64,18 @@ namespace Monoceros {
 
             foreach (var module in modules) {
                 if (module == null || !module.IsValid) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The module is null or invalid.");
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The Module is null or invalid.");
                     continue;
                 }
                 for (var connectorIndex = 0; connectorIndex < module.Connectors.Count; connectorIndex++) {
                     var connector = module.Connectors[connectorIndex];
+                    var oppositeDirection = connector.Direction.ToFlipped();
                     if (connector.ContaininsPoint(point)) {
                         rules.Add(
                             new Rule(module.Name,
                                      (uint)connectorIndex,
                                      targetName,
-                                     DirectionToSingleModuleConnectorIndex(
-                                         connector.Direction.ToFlipped()))
+                                     oppositeDirection.DirectionToSingleModuleConnectorIndex())
                             );
                     }
                 }
@@ -83,7 +83,7 @@ namespace Monoceros {
 
             if (!rules.Any()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                                  "The point does not mark any module connector.");
+                                  "The point does not mark any Module connector.");
             }
 
             foreach (var rule in rules) {
@@ -93,38 +93,6 @@ namespace Monoceros {
             }
 
             DA.SetDataList(0, rules);
-        }
-
-        /// <summary>
-        /// Converts the <see cref="Direction"/> to a part connector index,
-        /// according to the convention: (partIndex * 6) + faceIndex, where
-        /// faceIndex is X=0, Y=1, Z=2, -X=3, -Y=4, -Z=5. This method is the
-        /// source of truth.
-        /// </summary>
-        /// <returns>Part connector index.</returns>
-        private uint DirectionToSingleModuleConnectorIndex(Direction direction) {
-            // Connector numbering convention: 
-            // faceIndex is X=0, Y=1, Z=2, -X=3, -Y=4, -Z=5
-            if (direction.Axis == Axis.X && direction.Orientation == Orientation.Positive) {
-                return 0;
-            }
-            if (direction.Axis == Axis.Y && direction.Orientation == Orientation.Positive) {
-                return 1;
-            }
-            if (direction.Axis == Axis.Z && direction.Orientation == Orientation.Positive) {
-                return 2;
-            }
-            if (direction.Axis == Axis.X && direction.Orientation == Orientation.Negative) {
-                return 3;
-            }
-            if (direction.Axis == Axis.Y && direction.Orientation == Orientation.Negative) {
-                return 4;
-            }
-            if (direction.Axis == Axis.Z && direction.Orientation == Orientation.Negative) {
-                return 5;
-            }
-            // Never
-            return uint.MaxValue;
         }
 
         /// <summary>

@@ -80,6 +80,38 @@ namespace Monoceros {
             return Vector3d.Unset;
         }
 
+        /// <summary>
+        /// Converts the <see cref="Direction"/> to a part connector index,
+        /// according to the convention: (partIndex * 6) + faceIndex, where
+        /// faceIndex is X=0, Y=1, Z=2, -X=3, -Y=4, -Z=5. This method is the
+        /// source of truth.
+        /// </summary>
+        /// <returns>Part connector index.</returns>
+        public uint DirectionToSingleModuleConnectorIndex() {
+            // Connector numbering convention: 
+            // faceIndex is X=0, Y=1, Z=2, -X=3, -Y=4, -Z=5
+            if (Axis == Axis.X && Orientation == Orientation.Positive) {
+                return 0;
+            }
+            if (Axis == Axis.Y && Orientation == Orientation.Positive) {
+                return 1;
+            }
+            if (Axis == Axis.Z && Orientation == Orientation.Positive) {
+                return 2;
+            }
+            if (Axis == Axis.X && Orientation == Orientation.Negative) {
+                return 3;
+            }
+            if (Axis == Axis.Y && Orientation == Orientation.Negative) {
+                return 4;
+            }
+            if (Axis == Axis.Z && Orientation == Orientation.Negative) {
+                return 5;
+            }
+            // Never
+            return uint.MaxValue;
+        }
+
     }
 
     /// <summary>

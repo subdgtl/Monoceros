@@ -4,6 +4,10 @@
 
 # C# build directories
 obj/
-bin/
+bin/*
 packages
 *.3dmbak
+
+# WFC library
+!bin/**/*.dll
+!bin/**/*.pdb

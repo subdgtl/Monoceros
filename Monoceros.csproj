@@ -57,6 +57,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Components\RuleAssemble.cs" />
+    <Compile Include="Components\RuleIndifferentConstruct.cs" />
+    <Compile Include="Components\RuleOuterContruct.cs" />
     <Compile Include="Components\SlotsAddBoundary.cs" />
     <Compile Include="Components\SlotsAreBoundary.cs" />
     <Compile Include="Components\ModuleConstructEmpty.cs" />
