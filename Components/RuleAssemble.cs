@@ -164,7 +164,7 @@ namespace Monoceros {
 
             var transformedSourceConnectorPlane = sourceConnector.AnchorPlane.Clone();
             transformedSourceConnectorPlane.Transform(sourceModuleTransform);
-            transformedSourceConnectorPlane.Flip();
+            transformedSourceConnectorPlane.Rotate(Math.PI, transformedSourceConnectorPlane.YAxis);
             var targetModuleTransform = Transform.PlaneToPlane(targetConnector.AnchorPlane,
                                                                transformedSourceConnectorPlane);
             var targetModuleGeometry = targetModule.Geometry.Select(geo => {
