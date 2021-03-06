@@ -27,7 +27,7 @@ namespace Monoceros {
                                   GH_ParamAccess.list);
             pManager.AddPointParameter("Point Tag",
                                        "Pt",
-                                       "Point marking a connector",
+                                       "Point marking a connector to be adjacent to the envelope boundary",
                                        GH_ParamAccess.item);
         }
 
@@ -70,7 +70,7 @@ namespace Monoceros {
                 for (var connectorIndex = 0; connectorIndex < module.Connectors.Count; connectorIndex++) {
                     var connector = module.Connectors[connectorIndex];
                     var oppositeDirection = connector.Direction.ToFlipped();
-                    if (connector.ContaininsPoint(point)) {
+                    if (connector.ContainsPoint(point)) {
                         rules.Add(
                             new Rule(module.Name,
                                      (uint)connectorIndex,

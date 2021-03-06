@@ -20,7 +20,11 @@ namespace Monoceros {
         /// Registers all the input parameters for this component.
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
-            pManager.AddParameter(new SlotParameter(), "Slot", "S", "Monoceros Slot", GH_ParamAccess.item);
+            pManager.AddParameter(new SlotParameter(),
+                                  "Slot",
+                                  "S",
+                                  "Monoceros Slot",
+                                  GH_ParamAccess.item);
             pManager.AddParameter(new ModuleNameParameter(),
                                   "Module Names",
                                   "MN",

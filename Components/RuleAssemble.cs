@@ -31,7 +31,7 @@ namespace Monoceros {
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddParameter(new ModuleParameter(),
-                                  "Module",
+                                  "Modules",
                                   "M",
                                   "All Monoceros Modules",
                                   GH_ParamAccess.list);
@@ -145,8 +145,6 @@ namespace Monoceros {
                 return;
             }
 
-            //_sourceModuleGeometry = sourceModule.Geometry;
-            //_sourceModuleGuids = sourceModule.ReferencedGeometryGuids;
             var sourceModuleTransform = Transform.PlaneToPlane(sourceModule.Pivot, basePlane);
             var sourceModuleGeometry = sourceModule.Geometry.Select(geo => {
                 var placedGeometry = geo.Duplicate();
@@ -164,7 +162,6 @@ namespace Monoceros {
 
             var transformedSourceConnectorPlane = sourceConnector.AnchorPlane.Clone();
             transformedSourceConnectorPlane.Transform(sourceModuleTransform);
-            transformedSourceConnectorPlane.Rotate(Math.PI, transformedSourceConnectorPlane.YAxis);
             var targetModuleTransform = Transform.PlaneToPlane(targetConnector.AnchorPlane,
                                                                transformedSourceConnectorPlane);
             var targetModuleGeometry = targetModule.Geometry.Select(geo => {

@@ -62,7 +62,7 @@ namespace Monoceros {
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddPointParameter("Slot Centers",
                                        "Pt",
-                                       "Points ready to be used as Monoceros Slot centers",
+                                       "Points ready to be used as Monoceros Slot centers or Module Part centers",
                                        GH_ParamAccess.list);
         }
 

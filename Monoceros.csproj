@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Components\RuleAssemble.cs" />
+    <Compile Include="Components\RuleSuggest.cs" />
     <Compile Include="Components\RuleIndifferentConstruct.cs" />
     <Compile Include="Components\RuleOuterContruct.cs" />
     <Compile Include="Components\SlotsAddBoundary.cs" />
@@ -125,6 +126,7 @@
     <Content Include="DynamicLinkingDependencies\GH_IO.dll" />
     <Content Include="DynamicLinkingDependencies\Grasshopper.dll" />
     <Content Include="DynamicLinkingDependencies\RhinoCommon.dll" />
+    <None Include="Resources\rule-suggest.png" />
     <None Include="Resources\connector-index-parameter.png" />
     <None Include="Resources\module-name-parameter.png" />
     <None Include="Resources\monoceros24.png" />

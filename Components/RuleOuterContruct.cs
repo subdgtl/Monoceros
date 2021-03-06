@@ -21,14 +21,14 @@ namespace Monoceros {
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddParameter(new ModuleParameter(),
-                                   "Modules",
+                                   "Module",
                                    "M",
-                                   "All available Monoceros modules",
+                                   "Monoceros Module to be placed at the envelope boundary",
                                    GH_ParamAccess.item);
             pManager.AddParameter(new ConnectorIndexParameter(),
-                                  "Source Connector Index",
-                                  "SC",
-                                  "Source connector number",
+                                  "Connector Index",
+                                  "C",
+                                  "Connector number to be adjacent to the envelope boundary",
                                   GH_ParamAccess.item);
         }
 

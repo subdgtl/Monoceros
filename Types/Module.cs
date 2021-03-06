@@ -359,7 +359,7 @@ namespace Monoceros {
                 if (!isInternalXNegative) {
                     var faceCenterXNegative = partCenter + xNegativeVectorUnit * 0.5;
                     var planeXNegative = new Plane(faceCenterXNegative,
-                                                   basePlane.YAxis * (-1),
+                                                   basePlane.YAxis,
                                                    basePlane.ZAxis);
                     var faceXNegative = new Rectangle3d(
                         planeXNegative,
@@ -380,7 +380,7 @@ namespace Monoceros {
                 if (!isInternalYNegative) {
                     var faceCenterYNegative = partCenter + yNegativeVectorUnit * 0.5;
                     var planeYNegative = new Plane(faceCenterYNegative,
-                                                   basePlane.XAxis,
+                                                   basePlane.XAxis * (-1),
                                                    basePlane.ZAxis);
                     var faceYNegative = new Rectangle3d(
                         planeYNegative,
@@ -400,7 +400,7 @@ namespace Monoceros {
                 if (!isInternalZNegative) {
                     var faceCenterZNegative = partCenter + zNegativeVectorUnit * 0.5;
                     var planeZNegative = new Plane(faceCenterZNegative,
-                                                   basePlane.XAxis * (-1),
+                                                   basePlane.XAxis,
                                                    basePlane.YAxis);
                     var faceZNegative = new Rectangle3d(
                         planeZNegative,
@@ -1101,7 +1101,7 @@ namespace Monoceros {
         /// </summary>
         /// <param name="point">The point.</param>
         /// <returns>True if contains.</returns>
-        public bool ContaininsPoint(Point3d point) {
+        public bool ContainsPoint(Point3d point) {
             return Math.Abs(AnchorPlane.DistanceTo(point)) < RhinoMath.SqrtEpsilon &&
                 Face.Contains(point) == PointContainment.Inside;
         }

@@ -19,14 +19,14 @@ namespace Monoceros {
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddParameter(new ModuleParameter(),
-                                  "Module",
+                                  "Modules",
                                   "M",
-                                  "Monoceros module for indifferent rule generation",
+                                  "All Monoceros Modules",
                                   GH_ParamAccess.list);
             pManager.AddParameter(new RuleParameter(),
                                   "Rules",
                                   "R",
-                                  "All Monoceros rules, including Explicit",
+                                  "All Monoceros Rules (Explicit will pass through intact)",
                                   GH_ParamAccess.list);
         }
 
@@ -35,9 +35,9 @@ namespace Monoceros {
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddParameter(new RuleParameter(),
-                                  "Rules",
+                                  "Rules Explicit",
                                   "R",
-                                  "Monoceros Rules",
+                                  "Explicit Monoceros Rules",
                                   GH_ParamAccess.list);
         }
 

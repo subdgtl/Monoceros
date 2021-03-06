@@ -78,11 +78,11 @@ namespace Monoceros {
             pManager.AddVectorParameter("Connector Directions",
                                         "CD",
                                         "Directions of connectors as unit vectors aligned to the " +
-                                        "base plane - a list parallel to C.",
+                                        "base plane - a list parallel to CP.",
                                         GH_ParamAccess.list);
             pManager.AddBooleanParameter("Connector Use Pattern",
                                         "UP",
-                                        "Connector use pattern - a list parallel to C. " +
+                                        "Connector use pattern - a list parallel to CP. " +
                                         "(only if R are provided)",
                                         GH_ParamAccess.list);
             pManager.AddBooleanParameter("Is Compact",

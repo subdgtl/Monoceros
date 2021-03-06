@@ -105,11 +105,11 @@ namespace Monoceros {
                                        "Points inside the Module Parts. Module parts will be fit" +
                                        " into the Slots of the Envelope.",
                                        GH_ParamAccess.list);
-            pManager.AddGeometryParameter("Production Geometry",
+            pManager.AddGeometryParameter("Geometry",
                                           "G",
                                           "Geometry used to materialize the result of the " +
-                                          "Monoceros Solver. Production geometry does not have to fit " +
-                                          "into the generated module cage and can be larger, " +
+                                          "Monoceros Solver. The Module geometry does not have to fit " +
+                                          "into the generated Module cage and can be larger, " +
                                           "smaller, different or none.",
                                           GH_ParamAccess.list);
             pManager[2].Optional = true;

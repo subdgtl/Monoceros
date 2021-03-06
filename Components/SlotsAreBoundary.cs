@@ -36,7 +36,7 @@ namespace Monoceros {
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddBooleanParameter("Boolean Pattern",
                                          "B",
-                                         "True if the Monoceros Slot is on the boundary of the world",
+                                         "True if the Monoceros Slot is on the boundary of the envelope",
                                          GH_ParamAccess.list);
         }
 

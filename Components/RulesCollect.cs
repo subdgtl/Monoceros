@@ -20,7 +20,7 @@ namespace Monoceros {
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddParameter(new ModuleParameter(),
-                                  "Module",
+                                  "Modules",
                                   "M",
                                   "All Monoceros Modules",
                                   GH_ParamAccess.list);
@@ -93,10 +93,12 @@ namespace Monoceros {
                 );
             modulesClean.Add(moduleOut);
 
-            var allowedClean = allowed.Where(rule => rule.IsValidWithModules(modulesClean));
+            var allowedClean = allowed.Where(rule => rule.IsValidWithModules(modulesClean)).Distinct();
 
             if (disallowed == null || !disallowed.Any()) {
-                DA.SetDataList(0, allowedClean);
+                var earlyRules = allowedClean.ToList();
+                earlyRules.Sort();
+                DA.SetDataList(0, earlyRules);
                 return;
             }
 

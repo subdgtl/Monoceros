@@ -29,14 +29,14 @@ namespace Monoceros {
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddParameter(new ModuleParameter(),
-                                  "Module",
+                                  "Modules",
                                   "M",
-                                  "Monoceros module for indifferent rule generation",
+                                  "Monoceros Modules",
                                   GH_ParamAccess.list);
             pManager.AddParameter(new RuleParameter(),
                                   "Rules",
                                   "R",
-                                  "All existing Monoceros rules",
+                                  "All existing Monoceros Rules",
                                   GH_ParamAccess.list);
             pManager[0].Optional = true;
             pManager[1].Optional = true;

@@ -273,6 +273,16 @@ namespace Monoceros.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap rule_suggest {
+            get {
+                object obj = ResourceManager.GetObject("rule_suggest", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap rule_typed_construct {
             get {
                 object obj = ResourceManager.GetObject("rule_typed_construct", resourceCulture);

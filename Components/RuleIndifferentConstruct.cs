@@ -33,7 +33,7 @@ namespace Monoceros {
         /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager) {
             pManager.AddParameter(new RuleParameter(),
-                                  "Rule",
+                                  "Rule Indifferent",
                                   "R",
                                   "Monoceros Rule",
                                   GH_ParamAccess.item);

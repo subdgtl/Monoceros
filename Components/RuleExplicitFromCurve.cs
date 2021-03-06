@@ -73,7 +73,7 @@ namespace Monoceros {
                 }
                 for (var startConnectorIndex = 0; startConnectorIndex < startModule.Connectors.Count; startConnectorIndex++) {
                     var startConnector = startModule.Connectors[startConnectorIndex];
-                    if (startConnector.ContaininsPoint(curve.PointAtStart)) {
+                    if (startConnector.ContainsPoint(curve.PointAtStart)) {
                         foreach (var endModule in modules) {
                             if (endModule == null || !endModule.IsValid) {
                                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The module is null or invalid.");
@@ -81,7 +81,7 @@ namespace Monoceros {
                             }
                             for (var endConnectorIndex = 0; endConnectorIndex < endModule.Connectors.Count; endConnectorIndex++) {
                                 var endConnector = endModule.Connectors[endConnectorIndex];
-                                if (endConnector.ContaininsPoint(curve.PointAtEnd)
+                                if (endConnector.ContainsPoint(curve.PointAtEnd)
                                     && startConnector.Direction.IsOpposite(endConnector.Direction)) {
                                     rules.Add(new Rule(startModule.Name,
                                                        (uint)startConnectorIndex,
