@@ -431,7 +431,7 @@ namespace Monoceros {
                 color = Config.CAGE_EVERYTHING_COLOR;
             }
 
-            if (AllowsNothing) {
+            if (IsContradictory) {
                 color = Config.CAGE_NONE_COLOR;
             }
 
@@ -463,7 +463,14 @@ namespace Monoceros {
         /// not allow placement of any part and therefore also any
         /// <see cref="Module"/>.
         /// </summary>
-        public bool AllowsNothing => !(AllowsAnyModule || AllowedModuleNames.Any());
+        public bool IsContradictory => !(AllowsAnyModule || AllowedModuleNames.Any());
+
+        /// <summary>
+        /// True if the <see cref="Slot"/> is deterministic and therefore does
+        /// allow placement of exactly one <see cref="Module"/> Part. Such Slot 
+        /// is considered to be solved and can be materialized.
+        /// </summary>
+        public bool IsDeterministic => AllowedPartNames.Count == 1;
 
         /// <summary>
         /// Checks the validity of a <see cref="Slot"/>.  Required by
@@ -533,10 +540,10 @@ namespace Monoceros {
             if (AllowsAnyModule) {
                 containment = "all Modules";
             }
-            if (AllowsNothing) {
+            if (IsContradictory) {
                 containment = "no Modules";
             }
-            if (!AllowsNothing && !AllowsAnyModule) {
+            if (!IsContradictory && !AllowsAnyModule) {
                 var count = AllowedModuleNames.Count;
                 if (count == 1) {
                     containment = "Module '" + AllowedModuleNames[0] + "'";
@@ -586,7 +593,7 @@ namespace Monoceros {
                 color = Config.CAGE_EVERYTHING_COLOR;
             }
 
-            if (AllowsNothing || !IsValid) {
+            if (IsContradictory || !IsValid) {
                 color = Config.CAGE_NONE_COLOR;
             }
 

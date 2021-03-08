@@ -20,6 +20,37 @@ namespace Monoceros {
             this.orientation = orientation;
         }
 
+        public static bool FromVector (Vector3d vector, out Direction direction) {
+            if (vector.Unitize()) {
+                if (vector.X == 1 && vector.Y == 0 && vector.Z == 0) {
+                    direction = new Direction(Axis.X, Orientation.Positive);
+                    return true;
+                }
+                if (vector.X == -1 && vector.Y == 0 && vector.Z == 0) {
+                    direction = new Direction(Axis.X, Orientation.Negative);
+                    return true;
+                }
+                if (vector.X == 0 && vector.Y == 1 && vector.Z == 0) {
+                    direction = new Direction(Axis.Y, Orientation.Positive);
+                    return true;
+                }
+                if (vector.X == 0 && vector.Y == -1 && vector.Z == 0) {
+                    direction = new Direction(Axis.Y, Orientation.Negative);
+                    return true;
+                }
+                if (vector.X == 0 && vector.Y == 0 && vector.Z == 1) {
+                    direction = new Direction(Axis.Z, Orientation.Positive);
+                    return true;
+                }
+                if (vector.X == 0 && vector.Y == 0 && vector.Z == -1) {
+                    direction = new Direction(Axis.Z, Orientation.Negative);
+                    return true;
+                }
+            }
+            direction = new Direction();
+            return false;
+        }
+
         /// <summary>
         /// Determines whether the other <see cref="Direction"/> is opposite to
         /// the current. A <see cref="Direction"/> is opposite when the

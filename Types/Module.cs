@@ -471,6 +471,11 @@ namespace Monoceros {
         }
 
         /// <summary>
+        /// Checks if any Module Part name equals the test value.
+        /// </summary>
+        public bool ContainsPart(string partName) => PartNames.Any(name => name == partName);
+
+        /// <summary>
         /// Gets a value indicating whether the module is valid. Required by
         /// Grasshopper.
         /// </summary>
