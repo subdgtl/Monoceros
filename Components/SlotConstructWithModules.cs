@@ -91,11 +91,9 @@ namespace Monoceros {
 
             var allowedModules = allowedModulesRaw.Select(name => name.Name).Distinct().ToList();
 
-            if (allowedModules.Any(name => name.Contains("\n")
-                || name.Contains(":")
-                || name.Contains("="))) {
+            if (Config.RESERVED_CHARS.Any(chars => allowedModules.Contains(chars))) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Input text contains " +
-                    "a forbidden content: :, ->, = or newline.");
+                "a forbidden content: :, ->, = or newline.");
                 return;
             }
 

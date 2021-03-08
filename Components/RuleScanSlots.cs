@@ -10,12 +10,8 @@ using Rhino.DocObjects;
 using Rhino.Geometry;
 
 namespace Monoceros {
-    public class ComponentScanSlotsForRules : GH_Component, IGH_BakeAwareObject {
+    public class ComponentScanSlotsForRules : GH_Component {
 
-        private List<List<GeometryBase>> _moduleGeometry;
-        private List<List<Guid>> _moduleGuids;
-        private List<string> _moduleNames;
-        private List<List<Transform>> _moduleTransforms;
         public ComponentScanSlotsForRules( ) : base("Scan Slots For rules",
                                                    "RulesScan",
                                                    "Scan solved Slots and extract applied Rules.",
@@ -114,22 +110,36 @@ namespace Monoceros {
             }
 
             var rulesForSolver = new List<RuleForSolver>();
-
             foreach (var slot in slotsNonEmpty) {
                 foreach (var slotOther in slotsNonEmpty) {
                     if (slot.RelativeCenter.IsNeighbor(slotOther.RelativeCenter)) {
                         var neighborVector = (slotOther.RelativeCenter - slot.RelativeCenter).ToVector3d();
                         if (Direction.FromVector(neighborVector, out var direction)
                             && direction.Orientation == Orientation.Positive) {
-                            rulesForSolver.Add(
-                                new RuleForSolver(direction.Axis, slot.AllowedPartNames[0], slotOther.AllowedPartNames[0])
-                                );
+                            var currentPart = slot.AllowedPartNames[0];
+                            var otherPart = slotOther.AllowedPartNames[0];
+                            var ruleForSolver = new RuleForSolver(direction.Axis, currentPart, otherPart);
+                            if (!rulesForSolver.Contains(ruleForSolver)) {
+                                rulesForSolver.Add(ruleForSolver);
+                            }
                         }
                     }
                 }
             }
 
-            DA.SetDataList(0, rules);
+            var rulesOut = new List<Rule>();
+            foreach (var ruleForSolver in rulesForSolver) {
+                if (RuleExplicit.FromRuleForSolver(ruleForSolver, modulesClean, out var ruleExplicit)) {
+                    var rule = new Rule(ruleExplicit);
+                    if (!rulesOut.Contains(rule)) {
+                        rulesOut.Add(rule);
+                    }
+                }
+            }
+
+            rulesOut.Sort();
+
+            DA.SetDataList(0, rulesOut);
         }
 
         /// <summary>
@@ -153,64 +163,5 @@ namespace Monoceros {
         /// will partially fail during loading.
         /// </summary>
         public override Guid ComponentGuid => new Guid("14CD0308-26FC-4134-AB5A-C7B89B6405BF");
-
-        public override bool IsBakeCapable => IsInstantiated;
-
-        public override void BakeGeometry(RhinoDoc doc, List<Guid> obj_ids) {
-            BakeGeometry(doc, new ObjectAttributes(), obj_ids);
-        }
-
-        public override void BakeGeometry(RhinoDoc doc, ObjectAttributes att, List<Guid> obj_ids) {
-            // Bake as blocks to save memory, file size and make it possible to edit all at once
-            for (var i = 0; i < _moduleGeometry.Count; i++) {
-                var directGeometry = _moduleGeometry[i];
-                var directAttributes = Enumerable.Repeat(att.Duplicate(), directGeometry.Count);
-                var referencedObjects = _moduleGuids[i].Select(guid => doc.Objects.FindId(guid)).Where(obj => obj != null);
-                var referencedGeometry = referencedObjects.Select(obj => obj.Geometry);
-                var referencedAttributes = referencedObjects.Select(obj => obj.Attributes);
-                var referencedNewAttributes = referencedAttributes.Select(originalAttributes => {
-                    var mainAttributesDuplicate = att.Duplicate();
-                    mainAttributesDuplicate.ObjectColor = originalAttributes.ObjectColor;
-                    mainAttributesDuplicate.ColorSource = originalAttributes.ColorSource;
-                    mainAttributesDuplicate.MaterialIndex = originalAttributes.MaterialIndex;
-                    mainAttributesDuplicate.MaterialSource = originalAttributes.MaterialSource;
-                    mainAttributesDuplicate.LinetypeIndex = originalAttributes.LinetypeIndex;
-                    mainAttributesDuplicate.LinetypeSource = originalAttributes.LinetypeSource;
-                    return mainAttributesDuplicate;
-                });
-                var geometry = directGeometry.Concat(referencedGeometry).ToList();
-                var attributes = directAttributes.Concat(referencedNewAttributes).ToList();
-                var name = _moduleNames[i];
-                var transforms = _moduleTransforms[i];
-                // Only bake if the module appears in any slots
-                if (transforms.Count > 0) {
-                    var newName = name;
-                    while (doc.InstanceDefinitions.Any(inst => inst.Name == newName)) {
-                        newName += "_1";
-                    }
-
-                    var instanceIndex = doc.InstanceDefinitions.Add(newName,
-                                                                    "Geometry of module " + name,
-                                                                    Point3d.Origin,
-                                                                    geometry,
-                                                                    attributes);
-                    foreach (var transfrom in transforms) {
-                        obj_ids.Add(
-                            doc.Objects.AddInstanceObject(instanceIndex, transfrom)
-                            );
-                    }
-                }
-            }
-
-
-        }
-        private bool IsInstantiated => _moduleGeometry != null
-                                       && _moduleGuids != null
-                                       && _moduleNames != null
-                                       && _moduleTransforms != null
-                                       && _moduleGeometry.All(x => x != null)
-                                       && _moduleGuids.All(x => x != null)
-                                       && _moduleNames.All(x => x != null)
-                                       && _moduleTransforms.All(x => x != null);
     }
 }

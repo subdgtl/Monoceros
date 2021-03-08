@@ -175,7 +175,7 @@ namespace Monoceros {
                 return;
             }
 
-            if (name.Contains("\n") || name.Contains(":") || name.Contains("=")) {
+            if (Config.RESERVED_CHARS.Any(chars => name.Contains(chars))) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Monoceros Module name contains " +
                     "a forbidden content: :, ->, = or newline.");
                 return;

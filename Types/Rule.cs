@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using GH_IO.Serialization;
 using Grasshopper.Kernel.Types;
+using Rhino;
+using Rhino.Geometry;
 
 namespace Monoceros {
     /// <summary>
@@ -553,6 +555,84 @@ namespace Monoceros {
             SourceConnectorIndex = (int)sourceConnectorIndex;
             TargetModuleName = targetModuleName.ToLower();
             TargetConnectorIndex = (int)targetConnectorIndex;
+        }
+
+        public static bool FromRuleForSolver(RuleForSolver ruleForSolver,
+                                             IEnumerable<Module> modules,
+                                             out RuleExplicit ruleExplicit) {
+            ruleExplicit = new RuleExplicit("wrong", 0, "error", 0);
+
+            var currentPartName = ruleForSolver.LowerPartName;
+            var otherPartName = ruleForSolver.HigherPartName;
+            var currentModule = modules.First(module => module.ContainsPart(currentPartName));
+            var otherModule = modules.First(module => module.ContainsPart(otherPartName));
+
+            if (currentModule == null
+                || otherModule == null
+                // Rule is internal
+                || (currentModule == otherModule && currentModule.InternalRules.Contains(ruleForSolver))) {
+                return false;
+            }
+            var currentPartIndex = currentModule.PartNames.FindIndex(name => name == currentPartName);
+            var currentPartCenter = currentModule
+                .PartCenters[currentPartIndex]
+                .ToCartesian(currentModule.BasePlane, currentModule.PartDiagonal);
+            var currentConnectorVector = new Vector3d();
+            if (ruleForSolver.Axis == Axis.X) {
+                currentConnectorVector = currentModule.BasePlane.XAxis;
+                currentConnectorVector.Unitize();
+                currentConnectorVector *= currentModule.PartDiagonal.X / 2;
+            }
+            if (ruleForSolver.Axis == Axis.Y) {
+                currentConnectorVector = currentModule.BasePlane.YAxis;
+                currentConnectorVector.Unitize();
+                currentConnectorVector *= currentModule.PartDiagonal.Y / 2;
+            }
+            if (ruleForSolver.Axis == Axis.Z) {
+                currentConnectorVector = currentModule.BasePlane.ZAxis;
+                currentConnectorVector.Unitize();
+                currentConnectorVector *= currentModule.PartDiagonal.Z / 2;
+            }
+            var currentPartConnectorOrigin = currentPartCenter + currentConnectorVector;
+            var currentConnectorIndex = currentModule
+                .Connectors
+                .FindIndex(connector => connector.AnchorPlane.Origin.EpsilonEquals(currentPartConnectorOrigin,
+                                                                              RhinoMath.SqrtEpsilon));
+            if (currentConnectorIndex == -1) {
+                return false;
+            }
+
+            var otherPartIndex = otherModule.PartNames.FindIndex(name => name == otherPartName);
+            var otherPartCenter = otherModule
+                .PartCenters[otherPartIndex]
+                .ToCartesian(otherModule.BasePlane, otherModule.PartDiagonal);
+            var otherConnectorVector = new Vector3d();
+            if (ruleForSolver.Axis == Axis.X) {
+                otherConnectorVector = otherModule.BasePlane.XAxis;
+                otherConnectorVector.Unitize();
+                otherConnectorVector *= -otherModule.PartDiagonal.X / 2;
+            }
+            if (ruleForSolver.Axis == Axis.Y) {
+                otherConnectorVector = otherModule.BasePlane.YAxis;
+                otherConnectorVector.Unitize();
+                otherConnectorVector *= -otherModule.PartDiagonal.Y / 2;
+            }
+            if (ruleForSolver.Axis == Axis.Z) {
+                otherConnectorVector = otherModule.BasePlane.ZAxis;
+                otherConnectorVector.Unitize();
+                otherConnectorVector *= -otherModule.PartDiagonal.Z / 2;
+            }
+            var otherPartConnectorOrigin = otherPartCenter + otherConnectorVector;
+            var otherConnectorIndex = otherModule
+                .Connectors
+                .FindIndex(connector => connector.AnchorPlane.Origin.EpsilonEquals(otherPartConnectorOrigin,
+                                                                              RhinoMath.SqrtEpsilon));
+            if (otherConnectorIndex == -1) {
+                return false;
+            }
+
+            ruleExplicit = new RuleExplicit(currentModule.Name, (uint)currentConnectorIndex, otherModule.Name, (uint)otherConnectorIndex);
+            return true;
         }
 
         /// <summary>

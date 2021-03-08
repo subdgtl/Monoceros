@@ -158,7 +158,7 @@ namespace Monoceros {
                       Vector3d partDiagonal) {
             // Check if any part centers are defined
             if (!partCenters.Any()) {
-                throw new Exception("part centers list is empty");
+                throw new Exception("Part centers list is empty");
             }
 
             // Check if all the parts are unique
@@ -183,7 +183,7 @@ namespace Monoceros {
             // Generate part names to be used as module names by the Monoceros solver
             PartNames = new List<string>();
             for (var i = 0; i < partCenters.Count; i++) {
-                PartNames.Add(name + i);
+                PartNames.Add(name + Config.PART_SEPARATOR + i);
             }
 
             // Place the pivot into the first part and orient is according to the base plane 
@@ -192,7 +192,7 @@ namespace Monoceros {
             pivot.Origin = PartCenters[0].ToCartesian(BasePlane, PartDiagonal);
             Pivot = pivot;
             // The name of the first part which should trigger the geometry placement
-            PivotPartName = Name + 0;
+            PivotPartName = Name + Config.PART_SEPARATOR + 0;
 
             // The connectors describe faces of parts and their relation to the entire module
             Connectors = ComputeModuleConnectors(PartCenters,
