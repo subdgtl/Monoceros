@@ -63,9 +63,6 @@ namespace Monoceros {
                 return;
             }
 
-            var transforms = new DataTree<Transform>();
-            var geometry = new DataTree<GeometryBase>();
-
             var slotsClean = new List<Slot>();
             foreach (var slot in slotsRaw) {
                 if (slot == null || !slot.IsValid) {
@@ -94,7 +91,6 @@ namespace Monoceros {
                 modulesClean.Add(module);
             }
 
-
             if (!modulesClean.Any()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Modules collected.");
                 return;
@@ -109,7 +105,7 @@ namespace Monoceros {
                 return;
             }
 
-            var rulesForSolver = new List<RuleForSolver>();
+            var rulesOut = new List<Rule>();
             foreach (var slot in slotsNonEmpty) {
                 foreach (var slotOther in slotsNonEmpty) {
                     if (slot.RelativeCenter.IsNeighbor(slotOther.RelativeCenter)) {
@@ -119,26 +115,18 @@ namespace Monoceros {
                             var currentPart = slot.AllowedPartNames[0];
                             var otherPart = slotOther.AllowedPartNames[0];
                             var ruleForSolver = new RuleForSolver(direction.Axis, currentPart, otherPart);
-                            if (!rulesForSolver.Contains(ruleForSolver)) {
-                                rulesForSolver.Add(ruleForSolver);
+                            if (RuleExplicit.FromRuleForSolver(ruleForSolver, modulesClean, out var ruleExplicit)) {
+                                var rule = new Rule(ruleExplicit);
+                                if (!rulesOut.Contains(rule)) {
+                                    rulesOut.Add(rule);
+                                }
                             }
                         }
                     }
                 }
             }
 
-            var rulesOut = new List<Rule>();
-            foreach (var ruleForSolver in rulesForSolver) {
-                if (RuleExplicit.FromRuleForSolver(ruleForSolver, modulesClean, out var ruleExplicit)) {
-                    var rule = new Rule(ruleExplicit);
-                    if (!rulesOut.Contains(rule)) {
-                        rulesOut.Add(rule);
-                    }
-                }
-            }
-
             rulesOut.Sort();
-
             DA.SetDataList(0, rulesOut);
         }
 
@@ -155,7 +143,7 @@ namespace Monoceros {
         /// Provides an Icon for every component that will be visible in the
         /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override Bitmap Icon => Properties.Resources.materialize;
+        protected override Bitmap Icon => Properties.Resources.rules_from_slots;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it.  It is vital

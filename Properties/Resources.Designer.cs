@@ -233,6 +233,16 @@ namespace Monoceros.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap rule_indifferent_construct {
+            get {
+                object obj = ResourceManager.GetObject("rule_indifferent_construct", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap rule_indifferent_unused {
             get {
                 object obj = ResourceManager.GetObject("rule_indifferent_unused", resourceCulture);
@@ -266,6 +276,16 @@ namespace Monoceros.Properties {
         internal static System.Drawing.Bitmap rule_out {
             get {
                 object obj = ResourceManager.GetObject("rule_out", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap rule_out_construct {
+            get {
+                object obj = ResourceManager.GetObject("rule_out_construct", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -323,6 +343,16 @@ namespace Monoceros.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap rules_from_slots {
+            get {
+                object obj = ResourceManager.GetObject("rules_from_slots", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap rules_unwrap {
             get {
                 object obj = ResourceManager.GetObject("rules_unwrap", resourceCulture);
@@ -333,9 +363,9 @@ namespace Monoceros.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap slot_add_boundary_2 {
+        internal static System.Drawing.Bitmap slot_add_boundary {
             get {
-                object obj = ResourceManager.GetObject("slot_add_boundary_2", resourceCulture);
+                object obj = ResourceManager.GetObject("slot_add_boundary", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -396,6 +426,16 @@ namespace Monoceros.Properties {
         internal static System.Drawing.Bitmap slot_transparent {
             get {
                 object obj = ResourceManager.GetObject("slot_transparent", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap slots_from_geometry {
+            get {
+                object obj = ResourceManager.GetObject("slots_from_geometry", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
