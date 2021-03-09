@@ -115,7 +115,7 @@ namespace Monoceros {
             } else {
                 DA.SetDataList(4, new List<bool>() { slot.AllowsAnyModule });
             }
-            DA.SetDataList(5, new List<bool>() { slot.AllowsNothing });
+            DA.SetDataList(5, new List<bool>() { slot.IsContradictory });
             if (modulesProvided
                 && moduleNames != null
                 && (slot.AllowedModuleNames.Count > moduleNames.Count

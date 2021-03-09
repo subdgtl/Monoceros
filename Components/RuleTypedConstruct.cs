@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Grasshopper.Kernel;
 
 namespace Monoceros {
@@ -68,12 +69,8 @@ namespace Monoceros {
 
             var moduleName = moduleNameRaw.Name;
 
-            if (moduleName.Contains("\n")
-                || moduleName.Contains(":")
-                || moduleName.Contains("=")
-                || type.Contains("\n")
-                || type.Contains(":")
-                || type.Contains("=")) {
+            if (Config.RESERVED_CHARS.Any(chars => moduleName.Contains(chars))
+                || Config.RESERVED_CHARS.Any(chars => type.Contains(chars))) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Input text contains " +
                     "a forbidden content: :, ->, = or newline.");
                 return;

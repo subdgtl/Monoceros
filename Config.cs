@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 
 namespace Monoceros {
@@ -19,6 +20,10 @@ namespace Monoceros {
         /// <see cref="RuleTyped"/>.
         /// </summary>
         public const string INDIFFERENT_TAG = "indifferent";
+
+        public const string PART_SEPARATOR = "~";
+
+        public static List<string> RESERVED_CHARS = new List<string>() { "\n", ":", "=", PART_SEPARATOR };
 
         /// <summary>
         /// Collected reserved module names.

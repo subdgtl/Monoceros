@@ -68,9 +68,7 @@ namespace Monoceros {
                 return;
             }
 
-            if (type.Contains("\n")
-                || type.Contains(":")
-                || type.Contains("=")) {
+            if (Config.RESERVED_CHARS.Any(chars => type.Contains(chars))) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Input text contains " +
                     "a forbidden content: :, ->, = or newline.");
                 return;

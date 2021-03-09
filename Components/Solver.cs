@@ -424,7 +424,7 @@ namespace Monoceros {
                     return;
                 }
 
-                if (slot.AllowsNothing) {
+                if (slot.IsContradictory) {
                     AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "Slot at " + slot.AbsoluteCenter + "does not allow any Module " +
                                   "to be placed.");

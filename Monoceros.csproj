@@ -56,10 +56,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\SlotsFromGeometry.cs" />
+    <Compile Include="Components\RuleFromSlots.cs" />
     <Compile Include="Components\RuleAssemble.cs" />
     <Compile Include="Components\RuleSuggest.cs" />
     <Compile Include="Components\RuleIndifferentConstruct.cs" />
-    <Compile Include="Components\RuleOuterContruct.cs" />
+    <Compile Include="Components\RuleAtBoundaryContruct.cs" />
     <Compile Include="Components\SlotsAddBoundary.cs" />
     <Compile Include="Components\SlotsAreBoundary.cs" />
     <Compile Include="Components\ModuleConstructEmpty.cs" />
@@ -67,7 +69,7 @@
     <Compile Include="Components\ModuleDeconstruct.cs" />
     <Compile Include="Components\Materialize.cs" />
     <Compile Include="Components\Solver.cs" />
-    <Compile Include="Components\PopulateGeometryWithSlotCenters.cs" />
+    <Compile Include="Components\SliceGeometry.cs" />
     <Compile Include="Components\SlotDeconstruct.cs" />
     <Compile Include="Components\SlotConstructWithModules.cs" />
     <Compile Include="Components\SlotConstructWithAll.cs" />
@@ -79,7 +81,7 @@
     <Compile Include="Components\RulesCollect.cs" />
     <Compile Include="Components\RulePreview.cs" />
     <Compile Include="Components\RuleIndifferentUnused.cs" />
-    <Compile Include="Components\RuleOuterFromPoint.cs" />
+    <Compile Include="Components\RuleAtBoundaryFromPoint.cs" />
     <Compile Include="Components\RuleIndifferentFromPoint.cs" />
     <Compile Include="Components\RuleTypedFromPoint.cs" />
     <Compile Include="Components\RuleExplicitFromCurve.cs" />
@@ -126,6 +128,11 @@
     <Content Include="DynamicLinkingDependencies\GH_IO.dll" />
     <Content Include="DynamicLinkingDependencies\Grasshopper.dll" />
     <Content Include="DynamicLinkingDependencies\RhinoCommon.dll" />
+    <None Include="Resources\rules-from-slots.png" />
+    <None Include="Resources\slots-from-geometry.png" />
+    <None Include="Resources\rule-out-construct.png" />
+    <None Include="Resources\rule-out.png" />
+    <None Include="Resources\rule-indifferent-construct.png" />
     <None Include="Resources\rule-suggest.png" />
     <None Include="Resources\connector-index-parameter.png" />
     <None Include="Resources\module-name-parameter.png" />
@@ -154,7 +161,6 @@
     <None Include="Resources\rule-explicit-deconstruct.png" />
     <None Include="Resources\rule-explicit-construct.png" />
     <None Include="Resources\rule-is-explicit.png" />
-    <None Include="Resources\rule-out.png" />
     <None Include="Resources\rule-explicit-transparent.png" />
     <None Include="Resources\rules-unwrap.png" />
     <None Include="Resources\rules-collect.png" />
@@ -180,7 +186,7 @@ Erase "$(TargetPath)"</PostBuildEvent>
     <FallbackCulture>en-US</FallbackCulture>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <StartProgram>C:\Program Files\Rhino 6\System\Rhino.exe</StartProgram>
+    <StartProgram>C:\Program Files\Rhino 7\System\Rhino.exe</StartProgram>
     <StartArguments>
     </StartArguments>
     <StartAction>Program</StartAction>
