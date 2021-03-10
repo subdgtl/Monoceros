@@ -12,7 +12,7 @@ using Rhino.Geometry;
 namespace Monoceros {
     public class ComponentScanSlotsForRules : GH_Component {
 
-        public ComponentScanSlotsForRules( ) : base("Scan Slots For rules",
+        public ComponentScanSlotsForRules( ) : base("Scan Slots for Rules",
                                                    "RulesScan",
                                                    "Scan solved Slots and extract applied Rules.",
                                                    "Monoceros",

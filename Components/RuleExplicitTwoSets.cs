@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Linq;
+using Grasshopper;
 using Grasshopper.Kernel;
+using Grasshopper.Kernel.Data;
 
 namespace Monoceros {
 
-    public class ComponentConstructRuleExplicit : GH_Component {
-        public ComponentConstructRuleExplicit( )
-            : base("Construct Explicit Rule",
-                   "RuleExp",
-                   "Construct a Monoceros Explicit Rule (connector-to-connector) from " +
-                   "Monoceros Module name and connector number. The existence " +
-                   "of the Module and the Connector as well as whether the Connectors " +
-                   "are opposite is not being checked. Use Collect Rues component " +
-                   "to remove the invalid Rules.",
+    public class ComponentRuleExplicitBetweenTwoSets : GH_Component {
+        public ComponentRuleExplicitBetweenTwoSets( )
+            : base("Construct Explicit Rule Between 2 Lists",
+                   "RuleExp2Lists",
+                   "Construct a Monoceros Explicit Rule (connector-to-connector) between " +
+                   "all listed Connectors of all listed Modules of two lists. The existence " +
+                   "of the Module and the Connector as well as whether the Connectors are " +
+                   "opposite is not being checked. Use Collect Rues component to remove " +
+                   "the invalid Rules.",
                    "Monoceros",
                    "Rule") {
         }
@@ -22,25 +24,25 @@ namespace Monoceros {
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddParameter(new ModuleNameParameter(),
-                                  "Source Module",
+                                  "Source Modules",
                                   "SMN",
-                                  "Source Module name",
-                                  GH_ParamAccess.item);
+                                  "Source Module names",
+                                  GH_ParamAccess.tree);
             pManager.AddParameter(new ConnectorIndexParameter(),
-                                  "Source Connector Index",
+                                  "Source Connector Indices",
                                   "SC",
-                                  "Source Connector number",
-                                  GH_ParamAccess.item);
+                                  "Source Connector numbers",
+                                  GH_ParamAccess.tree);
             pManager.AddParameter(new ModuleNameParameter(),
-                                  "Target Module",
+                                  "Target Modules",
                                   "TMN",
-                                  "Target Module name",
-                                  GH_ParamAccess.item);
+                                  "Target Module names",
+                                  GH_ParamAccess.tree);
             pManager.AddParameter(new ConnectorIndexParameter(),
-                                  "Target Connector Index",
+                                  "Target Connector Indices",
                                   "TC",
-                                  "Target Connector number",
-                                  GH_ParamAccess.item);
+                                  "Target Connector numbers",
+                                  GH_ParamAccess.tree);
         }
 
         /// <summary>
@@ -48,10 +50,11 @@ namespace Monoceros {
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddParameter(new RuleParameter(),
-                                  "Rule",
+                                  "Rules",
                                   "R",
-                                  "Monoceros Rule",
-                                  GH_ParamAccess.item);
+                                  "Monoceros Rules",
+                                  // TODO: consider returning a tree
+                                  GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -60,27 +63,23 @@ namespace Monoceros {
         /// <param name="DA">The DA object can be used to retrieve data from
         ///     input parameters and to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA) {
-            var sourceNameRaw = new ModuleName();
-            var sourceConnectorParam = new ConnectorIndex();
-            var targetNameRaw = new ModuleName();
-            var targetConnectorParam = new ConnectorIndex();
 
-            if (!DA.GetData(0, ref sourceNameRaw)) {
+            if (!DA.GetDataTree(0, out GH_Structure<ModuleName> sourceNamesRaw)) {
                 return;
             }
 
-            if (!DA.GetData(1, ref sourceConnectorParam)) {
-                return;
-            }
-            var sourceConnector = sourceConnectorParam.Index;
-
-            if (!DA.GetData(2, ref targetNameRaw)) {
+            if (!DA.GetDataTree(1, out GH_Structure<ConnectorIndex> sourceConnectorIndicesRaw)) {
                 return;
             }
 
-            if (!DA.GetData(3, ref targetConnectorParam)) {
+            if (!DA.GetDataTree(2, out GH_Structure<ModuleName> targetNamesRaw)) {
                 return;
             }
+
+            if (!DA.GetDataTree(3, out GH_Structure<ConnectorIndex> targetConnectorIndicesRaw)) {
+                return;
+            }
+
             var targetConnector = targetConnectorParam.Index;
 
             var sourceName = sourceNameRaw.Name;

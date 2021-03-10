@@ -71,20 +71,6 @@ namespace Monoceros {
                                         "in base-plane-aligned XYZ axes. The Module Part Diagonal " +
                                         "must match Envelope's Slot diagonals.",
                                         GH_ParamAccess.item);
-            pManager.AddPlaneParameter("Connectors",
-                                       "CP",
-                                       "Connector planes",
-                                       GH_ParamAccess.list);
-            pManager.AddVectorParameter("Connector Directions",
-                                        "CD",
-                                        "Directions of connectors as unit vectors aligned to the " +
-                                        "base plane - a list parallel to CP.",
-                                        GH_ParamAccess.list);
-            pManager.AddBooleanParameter("Connector Use Pattern",
-                                        "UP",
-                                        "Connector use pattern - a list parallel to CP. " +
-                                        "(only if R are provided)",
-                                        GH_ParamAccess.list);
             pManager.AddBooleanParameter("Is Compact",
                                         "C",
                                         "Does the Module hold together?",
@@ -93,6 +79,24 @@ namespace Monoceros {
                                         "V",
                                         "Is the Module valid for the Monoceros WFC Solver?",
                                         GH_ParamAccess.item);
+            pManager.AddPlaneParameter("Connectors",
+                                       "CP",
+                                       "Connector planes",
+                                       GH_ParamAccess.list);
+            pManager.AddIntegerParameter("Connector Indices",
+                                         "CI",
+                                         "Connector indices",
+                                         GH_ParamAccess.list);
+            pManager.AddVectorParameter("Connector Directions",
+                                        "CD",
+                                        "Directions of connectors as unit vectors aligned to the " +
+                                        "base plane - a list parallel to CP.",
+                                        GH_ParamAccess.list);
+            pManager.AddBooleanParameter("Connector Use Pattern",
+                                        "CU",
+                                        "Connector use pattern - a list parallel to CP. " +
+                                        "(only if R are provided)",
+                                        GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -155,12 +159,14 @@ namespace Monoceros {
             DA.SetDataList(3, new List<Plane> { module.BasePlane });
             DA.SetDataList(4, new List<Vector3d> { module.PartDiagonal });
 
+            DA.SetData(5, module.Compact);
+            DA.SetData(6, module.IsValid);
+
             var connectors = module.Connectors;
-            DA.SetDataList(5, connectors.Select(connector => connector.AnchorPlane));
-            DA.SetDataList(6, connectors.Select(connector => connector.Direction.ToVector()));
-            DA.SetDataList(7, existingRules.Count > 0 ? connectorUsePattern : null);
-            DA.SetData(8, module.Compact);
-            DA.SetData(9, module.IsValid);
+            DA.SetDataList(7, connectors.Select(connector => connector.AnchorPlane));
+            DA.SetDataList(8, connectors.Select((_, i) => i));
+            DA.SetDataList(9, connectors.Select(connector => connector.Direction.ToVector()));
+            DA.SetDataList(10, existingRules.Count > 0 ? connectorUsePattern : null);
         }
 
         /// <summary>
