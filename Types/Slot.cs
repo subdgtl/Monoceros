@@ -437,7 +437,7 @@ namespace Monoceros {
 
             var partsCount = AllowedPartNames.Count;
 
-            if (partsCount == 1 && AllPartsCount != 0) {
+            if (IsDeterministic) {
                 color = Config.CAGE_ONE_COLOR;
             }
 
@@ -445,7 +445,6 @@ namespace Monoceros {
                 var t = (double)partsCount / AllPartsCount;
                 color = InterpolateColor(Config.CAGE_TWO_COLOR, Config.CAGE_EVERYTHING_COLOR, t);
             }
-
 
             var cage = Cage;
             var minDimension = Math.Min(cage.X.Length, Math.Min(cage.Y.Length, cage.Z.Length));
@@ -479,11 +478,12 @@ namespace Monoceros {
         // Only Grasshopper can instantiate an invalid slot and in such case 
         // the fields are set to their defaults. It is sufficient to null-check 
         // just one of them.
-        public bool IsValid => BasePlane != null &&
-                    Diagonal != null &&
-                    AllowedModuleNames != null &&
-                    AllowedPartNames != null &&
-                    (AllowsAnyModule || AllowedModuleNames.Count > 0);
+        public bool IsValid => BasePlane != null
+            && Diagonal != null
+            && AllowedModuleNames != null
+            && AllowedPartNames != null
+            && (AllowsAnyModule || AllowedModuleNames.Any())
+            && (!AllowedPartNames.Any() || AllowedModuleNames.Any());
 
         /// <summary>
         /// Explains the invalidity of the <see cref="Slot"/>. Required by
