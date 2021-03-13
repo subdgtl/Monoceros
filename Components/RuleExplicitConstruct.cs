@@ -11,7 +11,7 @@ namespace Monoceros {
                    "Construct a Monoceros Explicit Rule (connector-to-connector) from " +
                    "Monoceros Module name and connector number. The existence " +
                    "of the Module and the Connector as well as whether the Connectors " +
-                   "are opposite is not being checked. Use Collect Rues component " +
+                   "are opposite is not being checked. Use Collect Rules component " +
                    "to remove the invalid Rules.",
                    "Monoceros",
                    "Rule") {
@@ -22,7 +22,7 @@ namespace Monoceros {
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddParameter(new ModuleNameParameter(),
-                                  "Source Module",
+                                  "Source Module Name",
                                   "SMN",
                                   "Source Module name",
                                   GH_ParamAccess.item);
@@ -32,7 +32,7 @@ namespace Monoceros {
                                   "Source Connector number",
                                   GH_ParamAccess.item);
             pManager.AddParameter(new ModuleNameParameter(),
-                                  "Target Module",
+                                  "Target Module Name",
                                   "TMN",
                                   "Target Module name",
                                   GH_ParamAccess.item);
