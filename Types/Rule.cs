@@ -776,6 +776,9 @@ namespace Monoceros {
                 result = TargetModuleName.CompareTo(other.TargetModuleName);
                 if (result == 0) {
                     result = SourceConnectorIndex.CompareTo(other.SourceConnectorIndex);
+                    if (result == 0) {
+                        result = TargetConnectorIndex.CompareTo(other.TargetConnectorIndex);
+                    }
                 }
             }
             return result;

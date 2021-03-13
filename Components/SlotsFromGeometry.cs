@@ -8,7 +8,7 @@ using Rhino.Geometry;
 
 namespace Monoceros {
     public class ComponentSlotsFromgeometry : GH_Component {
-        public ComponentSlotsFromgeometry( ) : base("Slots FromGeometry",
+        public ComponentSlotsFromgeometry( ) : base("Slots From Geometry",
                                                   "SlotsFromGeometry",
                                                   "Identify Module geometry and construct Slots containing it. Ignores connection to boundary.",
                                                   "Monoceros", "Slot") {

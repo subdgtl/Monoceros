@@ -8,9 +8,11 @@ namespace Monoceros {
         public ComponentConstructRuleExplicit( )
             : base("Construct Explicit Rule",
                    "RuleExp",
-                   "Construct a Monoceros Explicit Rule (connector-to-connector) from Monoceros Module " +
-                   "name and connector number. The existence of the module and connector as " +
-                   "well as whether the connectors are opposite is not being checked.",
+                   "Construct a Monoceros Explicit Rule (connector-to-connector) from " +
+                   "Monoceros Module name and connector number. The existence " +
+                   "of the Module and the Connector as well as whether the Connectors " +
+                   "are opposite is not being checked. Use Collect Rules component " +
+                   "to remove the invalid Rules.",
                    "Monoceros",
                    "Rule") {
         }
@@ -20,24 +22,24 @@ namespace Monoceros {
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddParameter(new ModuleNameParameter(),
-                                  "Source Module",
+                                  "Source Module Name",
                                   "SMN",
-                                  "Source module name",
+                                  "Source Module name",
                                   GH_ParamAccess.item);
             pManager.AddParameter(new ConnectorIndexParameter(),
                                   "Source Connector Index",
                                   "SC",
-                                  "Source connector number",
+                                  "Source Connector number",
                                   GH_ParamAccess.item);
             pManager.AddParameter(new ModuleNameParameter(),
-                                  "Target Module",
+                                  "Target Module Name",
                                   "TMN",
-                                  "Target module name",
+                                  "Target Module name",
                                   GH_ParamAccess.item);
             pManager.AddParameter(new ConnectorIndexParameter(),
                                   "Target Connector Index",
                                   "TC",
-                                  "Target connector number",
+                                  "Target Connector number",
                                   GH_ParamAccess.item);
         }
 

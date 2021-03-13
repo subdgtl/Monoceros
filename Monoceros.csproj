@@ -56,6 +56,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\RuleExplicit2Lists.cs" />
     <Compile Include="Components\SlotsFromGeometry.cs" />
     <Compile Include="Components\RuleFromSlots.cs" />
     <Compile Include="Components\RuleAssemble.cs" />
@@ -128,6 +129,7 @@
     <Content Include="DynamicLinkingDependencies\GH_IO.dll" />
     <Content Include="DynamicLinkingDependencies\Grasshopper.dll" />
     <Content Include="DynamicLinkingDependencies\RhinoCommon.dll" />
+    <None Include="Resources\rule-explicit-construct-2-lists.png" />
     <None Include="Resources\rules-from-slots.png" />
     <None Include="Resources\slots-from-geometry.png" />
     <None Include="Resources\rule-out-construct.png" />

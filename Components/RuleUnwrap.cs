@@ -96,6 +96,11 @@ namespace Monoceros {
             var rulesDeduplicated = rulesExplicit.Concat(rulesTypedUnwrapped).Distinct().ToList();
             rulesDeduplicated.Sort();
 
+            if (!rulesDeduplicated.Any()) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Failed to unwrap any Rule.");
+                return;
+            }
+
             foreach (var rule in rulesDeduplicated) {
                 if (!rule.IsValid) {
                     AddRuntimeMessage(GH_RuntimeMessageLevel.Error, rule.IsValidWhyNot);
