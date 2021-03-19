@@ -7,7 +7,7 @@ using Rhino.Geometry;
 namespace Monoceros {
     public class ComponentRuleIndifferentFromPoint : GH_Component {
         public ComponentRuleIndifferentFromPoint( )
-            : base("Indifferent Rule From Point",
+            : base("Indifferent Rule from Point",
                    "RuleIndiffPt",
                    "Connectors of a Monoceros Module marked with a Point connect to any opposite " +
                    "indifferent connector of any Monoceros Module.",

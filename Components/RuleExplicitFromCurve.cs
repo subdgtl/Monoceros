@@ -7,7 +7,7 @@ namespace Monoceros {
 
     public class ComponentRuleExplicitFromCurve : GH_Component {
         public ComponentRuleExplicitFromCurve( )
-            : base("Explicit Rule From Curve",
+            : base("Explicit Rule from Curve",
                    "RuleExpCrv",
                    "Create an Monoceros Explicit Rule (connector-to-connector) " +
                    "from a curve connecting two opposite connectors.",

@@ -1107,8 +1107,9 @@ namespace Monoceros {
         /// <param name="point">The point.</param>
         /// <returns>True if contains.</returns>
         public bool ContainsPoint(Point3d point) {
-            return Math.Abs(AnchorPlane.DistanceTo(point)) < RhinoMath.SqrtEpsilon &&
-                Face.Contains(point) == PointContainment.Inside;
+            return Math.Abs(AnchorPlane.DistanceTo(point)) <= Config.EPSILON &&
+                (Face.Contains(point) == PointContainment.Inside
+                || Face.Contains(point) == PointContainment.Coincident);
         }
 
         /// <summary>

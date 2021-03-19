@@ -6,7 +6,7 @@ using Rhino.Geometry;
 namespace Monoceros {
     public class ComponentConstructSlotWithAll : GH_Component {
         public ComponentConstructSlotWithAll( )
-            : base("Construct Slot With All Modules Allowed",
+            : base("Construct Slot with All Modules Allowed",
                    "SlotAll",
                    "Construct a Monoceros Slot with all Monoceros Modules allowed.",
                    "Monoceros",

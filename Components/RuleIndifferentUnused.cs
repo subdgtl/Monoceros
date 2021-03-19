@@ -7,7 +7,7 @@ namespace Monoceros {
     // TODO: Consider doing this entirely in Grasshopper as a user object / cluster
     public class ComponentRuleIndifferentUnused : GH_Component {
         public ComponentRuleIndifferentUnused( )
-            : base("Indifferent Rules For Unused Connectors",
+            : base("Indifferent Rules for unused Connectors",
                    "RuleIndiffUnused",
                    "Unused connectors of Monoceros Modules connect to any opposite " +
                    "indifferent connector of any Monoceros Module.",

@@ -9,7 +9,7 @@ namespace Monoceros {
 
     public class ComponentRuleExplicitBetweenTwoSets : GH_Component {
         public ComponentRuleExplicitBetweenTwoSets( )
-            : base("Construct Explicit Rule Between 2 Lists",
+            : base("Construct Explicit Rule between 2 Lists",
                    "RuleExp2Lists",
                    "Construct a Monoceros Explicit Rule (connector-to-connector) between " +
                    "all listed Connectors of all listed Modules of two lists. The existence " +

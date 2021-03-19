@@ -20,7 +20,7 @@ namespace Monoceros {
         public ComponentModuleDeconstruct( ) : base("Deconstruct Module",
                                                    "DeconModule",
                                                    "Deconstruct Monoceros Module into name, base " +
-                                                   "plane, connector planes, connector numbers " +
+                                                   "plane, Connector planes, Connector numbers " +
                                                    "and properties.",
                                                    "Monoceros",
                                                    "Module") {

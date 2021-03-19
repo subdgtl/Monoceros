@@ -84,9 +84,9 @@ namespace Monoceros {
     public class ComponentConstructModule : GH_Component {
         public ComponentConstructModule( ) : base("Construct Module",
                                                   "ConstModule",
-                                                  "Construct a Monoceros Module from slot centers. " +
+                                                  "Construct a Monoceros Module from Slot centers. " +
                                                   "The specified production geometry will be " +
-                                                  "used in Monoceros solver result.",
+                                                  "used in Monoceros Solver result.",
                                                   "Monoceros", "Module") {
         }
 
