@@ -77,7 +77,7 @@ namespace Monoceros {
                     .Select(curve => curve.ToPolyline(0, 0, 0.05, 0.1, 0, precision, precision * 2, 0, true).ToPolyline());
                 var nakedPolylinesMesh = allGeometry
                     .Where(geo => geo.ObjectType == ObjectType.Mesh)
-                    .SelectMany(geo => ((Mesh)geo).GetNakedEdges());
+                    .SelectMany(geo => ((Mesh)geo).GetNakedEdges() ?? new Polyline[0]);
                 var curveEndPoints = allGeometry
                     .Where(geo => geo.ObjectType == ObjectType.Curve)
                     .Select(geo => (Curve)geo)
@@ -96,36 +96,43 @@ namespace Monoceros {
                     connectorGeometry.MeshNakedEdgePoints = new List<Point3d>();
                     connectorGeometry.CurveEndPoints = new List<Point3d>();
 
-                    connectorGeometry.BrepNakedEdgePoints = nakedPolylinesBrep
+                        connectorGeometry.BrepNakedEdgePoints = nakedPolylinesBrep
+                            .Where(polyline => polyline.All(point => connector.ContainsPoint(point)))
+                            .SelectMany(polyline => polyline.Distinct().ToArray())
+                            .Select(point => {
+                                var transformedPoint = point;
+                                transformedPoint.Transform(transform);
+                                var roundedPoint = new Point3d(Math.Round(transformedPoint.X, Config.DECIMAL_PRECISION),
+                                                               Math.Round(transformedPoint.Y, Config.DECIMAL_PRECISION),
+                                                               Math.Round(transformedPoint.Z, Config.DECIMAL_PRECISION));
+                                return roundedPoint;
+                            }).ToList();
+                        connectorGeometry.BrepNakedEdgePoints.Sort();
+
+                        connectorGeometry.MeshNakedEdgePoints = nakedPolylinesMesh
                         .Where(polyline => polyline.All(point => connector.ContainsPoint(point)))
-                        .SelectMany(polyline => polyline.Distinct().ToArray())
+                        .SelectMany(polyline => polyline.Distinct())
                         .Select(point => {
                             var transformedPoint = point;
                             transformedPoint.Transform(transform);
-                            return transformedPoint;
+                            var roundedPoint = new Point3d(Math.Round(transformedPoint.X, Config.DECIMAL_PRECISION),
+                                                           Math.Round(transformedPoint.Y, Config.DECIMAL_PRECISION),
+                                                           Math.Round(transformedPoint.Z, Config.DECIMAL_PRECISION));
+                            return roundedPoint;
                         }).ToList();
-                    connectorGeometry.BrepNakedEdgePoints.Sort();
+                        connectorGeometry.MeshNakedEdgePoints.Sort();
 
-                    connectorGeometry.MeshNakedEdgePoints = nakedPolylinesMesh
-                        .Where(polyline => polyline.All(point => connector.ContainsPoint(point)))
-                        .SelectMany(polyline => polyline.Distinct().ToArray())
-                        .Select(point => {
-                            var transformedPoint = point;
-                            transformedPoint.Transform(transform);
-                            return transformedPoint;
-                        }).ToList();
-                    connectorGeometry.MeshNakedEdgePoints.Sort();
-
-
-                    connectorGeometry.CurveEndPoints = curveEndPoints
+                        connectorGeometry.CurveEndPoints = curveEndPoints
                         .Where(point => connector.ContainsPoint(point))
                         .Select(point => {
                             var transformedPoint = point;
                             transformedPoint.Transform(transform);
-                            return transformedPoint;
+                            var roundedPoint = new Point3d(Math.Round(transformedPoint.X, Config.DECIMAL_PRECISION),
+                                                           Math.Round(transformedPoint.Y, Config.DECIMAL_PRECISION),
+                                                           Math.Round(transformedPoint.Z, Config.DECIMAL_PRECISION));
+                            return roundedPoint;
                         }).ToList();
-
-                    connectorGeometry.CurveEndPoints.Sort();
+                        connectorGeometry.CurveEndPoints.Sort();
 
                     if (connectorGeometry.BrepNakedEdgePoints.Any()
                         || connectorGeometry.MeshNakedEdgePoints.Any()
@@ -179,7 +186,7 @@ namespace Monoceros {
             for (var i = 0; i < a.Count; i++) {
                 var pointCurrent = a[i];
                 var pointOther = b[i];
-                if (!pointCurrent.EpsilonEquals(pointOther, RhinoMath.SqrtEpsilon)) {
+                if (!pointCurrent.EpsilonEquals(pointOther, Config.EPSILON)) {
                     return false;
                 }
             }

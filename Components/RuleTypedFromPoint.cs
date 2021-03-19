@@ -8,7 +8,7 @@ namespace Monoceros {
 
     public class ComponentRuleTypedFromPoint : GH_Component {
         public ComponentRuleTypedFromPoint( )
-            : base("Typed Rule From Point",
+            : base("Typed Rule from Point",
                    "RuleTypPt",
                    "Create a Monoceros Typed Rule (connector-to-all-same-type-connectors) from " +
                    "a Point tag. The connector Type will be converted to lowercase.",

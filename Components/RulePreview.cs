@@ -16,7 +16,7 @@ namespace Monoceros {
         public ComponentPreviewRules( )
             : base("Preview Rules",
                    "RulePreview",
-                   "Preview Monoceros Rules as lines connecting individual connectors of Monoceros Modules.",
+                   "Preview Monoceros Rules as lines connecting individual Connectors of Monoceros Modules.",
                    "Monoceros",
                    "Postprocess") {
             _explicitLines = new List<ExplicitLine>();

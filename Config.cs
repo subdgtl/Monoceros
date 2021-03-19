@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using Rhino;
 
 namespace Monoceros {
     /// <summary>
@@ -35,6 +36,10 @@ namespace Monoceros {
         /// </summary>
         public static string RESERVED_TO_STRING => RESERVED_NAMES
             .Aggregate("", (accum, name) => accum + ", " + name);
+
+        public static int DECIMAL_PRECISION = 10;
+
+        public static double EPSILON = RhinoMath.SqrtEpsilon;
 
         /// <summary>
         /// Maximum number of parts supported by the current solver.

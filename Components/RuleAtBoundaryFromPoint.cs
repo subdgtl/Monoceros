@@ -7,7 +7,7 @@ using Rhino.Geometry;
 namespace Monoceros {
     public class ComponentRuleOuterFromPoint : GH_Component {
         public ComponentRuleOuterFromPoint( )
-            : base("Rule At Boundary From Point",
+            : base("Rule at Boundary from Point",
                    "RuleBoundPt",
                    "Rule allowing the Monoceros Module to touch the boundary of the Envelope with " +
                    "a Connector marked with a Point. All connectors with an Indifferent Rule can " +

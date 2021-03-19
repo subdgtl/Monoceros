@@ -8,7 +8,7 @@ namespace Monoceros {
 
     public class ComponentConstructSlotWithModules : GH_Component {
         public ComponentConstructSlotWithModules( )
-            : base("Construct Slot With Listed Modules Allowed",
+            : base("Construct Slot with Listed Modules Allowed",
                    "SlotModules",
                    "Construct a Monoceros Slot with allowed Monoceros Module names.",
                    "Monoceros",
