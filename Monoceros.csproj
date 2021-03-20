@@ -56,6 +56,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\TrimTest.cs" />
     <Compile Include="Components\RuleExplicit2Lists.cs" />
     <Compile Include="Components\SlotsFromGeometry.cs" />
     <Compile Include="Components\RuleFromSlots.cs" />
