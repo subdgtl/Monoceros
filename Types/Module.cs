@@ -1112,6 +1112,10 @@ namespace Monoceros {
                 || Face.Contains(point) == PointContainment.Coincident);
         }
 
+        public bool ContainsPoint(Point3d point, double precision) {
+            return Face.ClosestPoint(point).DistanceTo(point) <= precision;
+        }
+
         /// <summary>
         /// Equals the.
         /// </summary>

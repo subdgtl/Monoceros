@@ -37,9 +37,7 @@ namespace Monoceros {
         public static string RESERVED_TO_STRING => RESERVED_NAMES
             .Aggregate("", (accum, name) => accum + ", " + name);
 
-        public static int DECIMAL_PRECISION = 10;
-
-        public static double EPSILON = RhinoMath.SqrtEpsilon;
+        public static double EPSILON = RhinoMath.SqrtEpsilon * 1000;
 
         /// <summary>
         /// Maximum number of parts supported by the current solver.
