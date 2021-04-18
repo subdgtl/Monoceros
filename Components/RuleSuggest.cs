@@ -7,7 +7,8 @@ using Rhino.DocObjects;
 using Rhino.Geometry;
 
 namespace Monoceros {
-    public class ComponentRuleGuesser : GH_Component {
+    public class ComponentRuleGuesser : GH_Component, IGH_PreviewObject {
+        private List<Point3d> _points;
         public ComponentRuleGuesser( )
             : base("Suggest Rules from Geometry",
                    "RuleSuggest",
@@ -59,11 +60,23 @@ namespace Monoceros {
 
             var moduleDiagonal = modules.First().PartDiagonal;
 
-            if (modules.Any(module => module.PartDiagonal != moduleDiagonal)) {
+
+            var modulesClean = new List<Module>();
+            foreach (var module in modules) {
+                if (module == null || !module.IsValid) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Module is null or invalid.");
+                    return;
+                }
+                modulesClean.Add(module);
+            }
+
+            if (modulesClean.Any(module => module.PartDiagonal != moduleDiagonal)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "Modules are not defined with the same diagonal.");
                 return;
             }
+
+            _points = new List<Point3d>();
 
             var rules = new List<Rule>();
             var rulesIndifferent = new List<Rule>();
@@ -72,7 +85,7 @@ namespace Monoceros {
 
             var precision = moduleDiagonal.Length / 1000;
 
-            foreach (var module in modules) {
+            foreach (var module in modulesClean) {
                 if (module == null || !module.IsValid) {
                     AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The Module is null or invalid.");
                     continue;
@@ -105,9 +118,11 @@ namespace Monoceros {
                     connectorGeometry.MeshNakedEdgePoints = new List<Point3d>();
                     connectorGeometry.CurveEndPoints = new List<Point3d>();
 
-                    connectorGeometry.BrepNakedEdgePoints = nakedPolylinesBrep
-                        .Where(polyline => polyline.All(point => connector.ContainsPoint(point, precision)))
-                        .SelectMany(polyline => polyline.Distinct().ToArray())
+                    var brepPointsOriginal = nakedPolylinesBrep
+                                            .Where(polyline => polyline.All(point => connector.ContainsPoint(point, precision)))
+                                            .SelectMany(polyline => polyline.Distinct());
+                    _points.AddRange(brepPointsOriginal);
+                    connectorGeometry.BrepNakedEdgePoints = brepPointsOriginal
                         .Select(point => {
                             var transformedPoint = point;
                             transformedPoint.Transform(transform);
@@ -115,9 +130,11 @@ namespace Monoceros {
                         }).ToList();
                     connectorGeometry.BrepNakedEdgePoints.Sort();
 
-                    connectorGeometry.MeshNakedEdgePoints = nakedPolylinesMesh
-                    .Where(polyline => polyline.All(point => connector.ContainsPoint(point, precision)))
-                    .SelectMany(polyline => polyline.Distinct())
+                    var meshPointsOriginal = nakedPolylinesMesh
+                                        .Where(polyline => polyline.All(point => connector.ContainsPoint(point, precision)))
+                                        .SelectMany(polyline => polyline.Distinct());
+                    _points.AddRange(meshPointsOriginal);
+                    connectorGeometry.MeshNakedEdgePoints = meshPointsOriginal
                     .Select(point => {
                         var transformedPoint = point;
                         transformedPoint.Transform(transform);
@@ -125,8 +142,10 @@ namespace Monoceros {
                     }).ToList();
                     connectorGeometry.MeshNakedEdgePoints.Sort();
 
-                    connectorGeometry.CurveEndPoints = curveEndPoints
-                    .Where(point => connector.ContainsPoint(point, precision))
+                    var curvePointsOriginal = curveEndPoints
+                                        .Where(point => connector.ContainsPoint(point, precision));
+                    _points.AddRange(curvePointsOriginal);
+                    connectorGeometry.CurveEndPoints = curvePointsOriginal
                     .Select(point => {
                         var transformedPoint = point;
                         transformedPoint.Transform(transform);
@@ -183,14 +202,27 @@ namespace Monoceros {
             if (a.Count != b.Count) {
                 return false;
             }
+            var equalityPattern = Enumerable.Repeat(-1, a.Count).ToList();
+            ;
             for (var i = 0; i < a.Count; i++) {
                 var pointCurrent = a[i];
-                var pointOther = b[i];
-                if (!pointCurrent.EpsilonEquals(pointOther, precision)) {
-                    return false;
+                for (var j = 0; j < b.Count; j++) {
+                    var pointOther = b[j];
+                    if (!equalityPattern.Contains(j) && pointCurrent.EpsilonEquals(pointOther, precision)) {
+                        equalityPattern[i] = j;
+                        break;
+                    }
                 }
             }
-            return true;
+            return !equalityPattern.Any(v => v == -1);
+        }
+
+        public override bool IsPreviewCapable => !Hidden && _points != null && !Locked;
+
+        public override void DrawViewportWires(IGH_PreviewArgs args) {
+            foreach (var point in _points) {
+                args.Display.DrawPoint(point);
+            }
         }
 
         /// <summary>

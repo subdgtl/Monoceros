@@ -243,7 +243,7 @@ namespace Monoceros {
 
         public new bool Hidden => false;
 
-        public override bool IsPreviewCapable => true;
+        public override bool IsPreviewCapable => !Hidden && !Locked;
 
         public override void DrawViewportWires(IGH_PreviewArgs args) {
             foreach (var line in _explicitLines) {
