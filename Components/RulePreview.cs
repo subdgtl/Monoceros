@@ -33,13 +33,12 @@ namespace Monoceros {
                                   "M",
                                   "Monoceros Modules",
                                   GH_ParamAccess.list);
+            // TODO: Change to tree access and process each branch individually
             pManager.AddParameter(new RuleParameter(),
                                   "Rules",
                                   "R",
                                   "All existing Monoceros Rules",
                                   GH_ParamAccess.list);
-            pManager[0].Optional = true;
-            pManager[1].Optional = true;
         }
 
         /// <summary>
@@ -240,8 +239,6 @@ namespace Monoceros {
             return true;
 
         }
-
-        public new bool Hidden => false;
 
         public override bool IsPreviewCapable => !Hidden && !Locked;
 

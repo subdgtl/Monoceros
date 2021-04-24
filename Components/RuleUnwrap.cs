@@ -93,7 +93,11 @@ namespace Monoceros {
             var rulesExplicit = rulesClean
                 .Where(rule => rule != null && rule.IsExplicit);
 
-            var rulesDeduplicated = rulesExplicit.Concat(rulesTypedUnwrapped).Distinct().ToList();
+            var rulesDeduplicated = rulesExplicit
+                .Concat(rulesTypedUnwrapped)
+                .Distinct()
+                .Where(rule => !(rule.IsExplicit && rule.Explicit.SourceModuleName == Config.OUTER_MODULE_NAME && rule.Explicit.TargetModuleName == Config.OUTER_MODULE_NAME))
+                .ToList();
             rulesDeduplicated.Sort();
 
             if (!rulesDeduplicated.Any()) {

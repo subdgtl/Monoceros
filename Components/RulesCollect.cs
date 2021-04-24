@@ -83,24 +83,26 @@ namespace Monoceros {
             }
 
 
+
+            var allowedOriginalClean = allowed.Where(rule => rule.IsValidWithModules(modulesClean)).Distinct();
+
+            if (disallowed == null || !disallowed.Any()) {
+                var earlyRules = allowedOriginalClean.ToList();
+                earlyRules.Sort();
+                DA.SetDataList(0, earlyRules);
+                return;
+            }
+
             Module.GenerateEmptySingleModule(Config.OUTER_MODULE_NAME,
                                              Config.INDIFFERENT_TAG,
                                              new Rhino.Geometry.Vector3d(1, 1, 1),
                                              out var moduleOut,
                                              out var rulesOut);
-            allowed.AddRange(
+            
+            var allowedClean = allowedOriginalClean.Concat(
                 rulesOut.Select(ruleExplicit => new Rule(ruleExplicit))
                 );
             modulesClean.Add(moduleOut);
-
-            var allowedClean = allowed.Where(rule => rule.IsValidWithModules(modulesClean)).Distinct();
-
-            if (disallowed == null || !disallowed.Any()) {
-                var earlyRules = allowedClean.ToList();
-                earlyRules.Sort();
-                DA.SetDataList(0, earlyRules);
-                return;
-            }
 
             if (disallowed.Any(rule => rule == null)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
@@ -142,7 +144,10 @@ namespace Monoceros {
             var outExplicit = allAllowed
                 .Distinct()
                 .Except(allDisallowed.Distinct());
-            var outRules = outExplicit.Select(explicitRule => new Rule(explicitRule)).ToList();
+            var outRules = outExplicit
+                .Where(rule => !(rule.SourceModuleName == Config.OUTER_MODULE_NAME && rule.TargetModuleName == Config.OUTER_MODULE_NAME))
+                .Select(explicitRule => new Rule(explicitRule))
+                .ToList();
             outRules.Sort();
 
             foreach (var rule in outRules) {
