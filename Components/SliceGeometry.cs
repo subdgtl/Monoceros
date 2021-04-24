@@ -218,9 +218,9 @@ namespace Monoceros {
         }
 
         private static bool IsOnEdgeUnitized(Point3d geometryPoint) {
-            return Math.Abs(Math.Abs(geometryPoint.X % 1) - 0.5) <= RhinoMath.SqrtEpsilon
-                || Math.Abs(Math.Abs(geometryPoint.Y % 1) - 0.5) <= RhinoMath.SqrtEpsilon
-                || Math.Abs(Math.Abs(geometryPoint.Z % 1) - 0.5) <= RhinoMath.SqrtEpsilon;
+            return Math.Abs(Math.Abs(geometryPoint.X % 1) - 0.5) <= Config.EPSILON
+                || Math.Abs(Math.Abs(geometryPoint.Y % 1) - 0.5) <= Config.EPSILON
+                || Math.Abs(Math.Abs(geometryPoint.Z % 1) - 0.5) <= Config.EPSILON;
         }
 
         /// <summary>
@@ -281,17 +281,18 @@ namespace Monoceros {
         ///     entirely inside mesh volume.</returns>
         private static List<Point3i> CentersFromMeshVolume(Mesh mesh) {
             var pointsInsideMesh = new List<Point3i>();
-            var boundingBox = mesh.GetBoundingBox(false);
+            var boundingBox = mesh.GetBoundingBox(true);
             var slotInterval = new Interval(-0.5, 0.5);
+            var plane = Plane.WorldXY;
             for (var z = Math.Floor(boundingBox.Min.Z - 1); z < Math.Ceiling(boundingBox.Max.Z + 1); z++) {
                 for (var y = Math.Floor(boundingBox.Min.Y - 1); y < Math.Ceiling(boundingBox.Max.Y + 1); y++) {
                     for (var x = Math.Floor(boundingBox.Min.X - 1); x < Math.Ceiling(boundingBox.Max.X + 1); x++) {
                         var testSlotCenter = new Point3d(x, y, z);
-                        var plane = Plane.WorldXY;
                         plane.Origin = testSlotCenter;
                         var box = new Box(plane, slotInterval, slotInterval, slotInterval);
                         var boxPoints = box.GetCorners();
-                        if (boxPoints.All(point => mesh.IsPointInside(point, RhinoMath.SqrtEpsilon, false))) {
+                        if (boxPoints.All(point => mesh.IsPointInside(point, Config.EPSILON, false)
+                                                   || point.DistanceTo(mesh.ClosestPoint(point)) < Config.EPSILON)) {
                             pointsInsideMesh.Add(new Point3i(testSlotCenter));
                         }
                     }
@@ -312,15 +313,15 @@ namespace Monoceros {
             var pointsInsideMesh = new List<Point3i>();
             var boundingBox = mesh.GetBoundingBox(false);
             var slotInterval = new Interval(-0.5, 0.5);
+            var plane = Plane.WorldXY;
             for (var z = Math.Floor(boundingBox.Min.Z - 1); z < Math.Ceiling(boundingBox.Max.Z + 1); z++) {
                 for (var y = Math.Floor(boundingBox.Min.Y - 1); y < Math.Ceiling(boundingBox.Max.Y + 1); y++) {
                     for (var x = Math.Floor(boundingBox.Min.X - 1); x < Math.Ceiling(boundingBox.Max.X + 1); x++) {
                         var testSlotCenter = new Point3d(x, y, z);
-                        var plane = Plane.WorldXY;
                         plane.Origin = testSlotCenter;
                         var box = new Box(plane, slotInterval, slotInterval, slotInterval);
                         var boxPoints = box.GetCorners();
-                        if (boxPoints.Any(point => mesh.IsPointInside(point, Rhino.RhinoMath.SqrtEpsilon, false))) {
+                        if (boxPoints.Any(point => mesh.IsPointInside(point, Config.EPSILON, false) || point.DistanceTo(mesh.ClosestPoint(point)) < Config.EPSILON)) {
                             pointsInsideMesh.Add(new Point3i(testSlotCenter));
                         }
                     }
@@ -340,16 +341,16 @@ namespace Monoceros {
             var pointsInsideMesh = new List<Point3i>();
             var boundingBox = mesh.GetBoundingBox(false);
             var slotInterval = new Interval(-0.5, 0.5);
+            var plane = Plane.WorldXY;
             for (var z = Math.Floor(boundingBox.Min.Z - 1); z < Math.Ceiling(boundingBox.Max.Z + 1); z++) {
                 for (var y = Math.Floor(boundingBox.Min.Y - 1); y < Math.Ceiling(boundingBox.Max.Y + 1); y++) {
                     for (var x = Math.Floor(boundingBox.Min.X - 1); x < Math.Ceiling(boundingBox.Max.X + 1); x++) {
                         var testSlotCenter = new Point3d(x, y, z);
-                        var plane = Plane.WorldXY;
                         plane.Origin = testSlotCenter;
                         var box = new Box(plane, slotInterval, slotInterval, slotInterval);
                         var boxPoints = box.GetCorners();
                         var boxcornersInside = boxPoints
-                            .Count(point => mesh.IsPointInside(point, RhinoMath.SqrtEpsilon, false));
+                            .Count(point => mesh.IsPointInside(point, Config.EPSILON, false) || point.DistanceTo(mesh.ClosestPoint(point)) < Config.EPSILON);
                         if (boxcornersInside > 0 && boxcornersInside < 6) {
                             pointsInsideMesh.Add(new Point3i(testSlotCenter));
                         }
