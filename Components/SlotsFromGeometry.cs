@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
-using Rhino;
 using Rhino.Geometry;
 
 namespace Monoceros {
@@ -68,6 +67,7 @@ namespace Monoceros {
                 return;
             }
 
+            // Transform the geometry to be oriented to world XYZ fore easier scanning
             var geometryTransform = Transform.PlaneToPlane(basePlane, Plane.WorldXY);
             var geometryClean = geometryRaw
                 .Select(goo => GH_Convert.ToGeometryBase(goo))
@@ -83,20 +83,8 @@ namespace Monoceros {
                 return;
             }
 
-            var moduleTransform = Transform.PlaneToPlane(module.BasePlane, Plane.WorldXY);
             var moduleGeometry = module.Geometry
-                .Concat(module.ReferencedGeometry)
-                .Select(geo => {
-                    var transformedGeometry = geo.Duplicate();
-                    transformedGeometry.Transform(moduleTransform);
-                    return transformedGeometry;
-                });
-            var modulePartCenters = module.PartCenters
-                .Select(point => {
-                    var transformedPoint = point.ToCartesian(module.BasePlane, module.PartDiagonal);
-                    transformedPoint.Transform(moduleTransform);
-                    return transformedPoint;
-                });
+                .Concat(module.ReferencedGeometry);
             if (!moduleGeometry.Any()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
                     "Module \"" + module.Name + "\" contains " +
@@ -104,83 +92,62 @@ namespace Monoceros {
                 return;
             }
 
-            var moduleBBoxes = moduleGeometry.Select(geo => geo.GetBoundingBox(false));
-            var modulePivot = module.Pivot;
-            modulePivot.Transform(moduleTransform);
-            var modulePivotOrigin = modulePivot.Origin;
+            var moduleGeometryBBoxes = moduleGeometry.Select(geo => geo.GetBoundingBox(true));
 
-            var commonModuleBBox = BoundingBox.Empty;
-            commonModuleBBox.Union(modulePivotOrigin);
-
-            foreach (var moduleBBox in moduleBBoxes) {
-                commonModuleBBox.Union(moduleBBox);
+            var bBoxUnionModule = BoundingBox.Empty;
+            bBoxUnionModule.Union(module.Pivot.Origin);
+            foreach (var moduleBBox in moduleGeometryBBoxes) {
+                bBoxUnionModule.Union(moduleBBox);
             }
+            var moduleDimensionSafetyBuffer = new Point3i(
+                (int)Math.Ceiling(bBoxUnionModule.Diagonal.X / module.PartDiagonal.X) + 1,
+                (int)Math.Ceiling(bBoxUnionModule.Diagonal.Y / module.PartDiagonal.Y) + 1,
+                (int)Math.Ceiling(bBoxUnionModule.Diagonal.Z / module.PartDiagonal.Z) + 1);
 
-            var safetyBuffer = new Point3i(
-                (int)Math.Ceiling(commonModuleBBox.Diagonal.X / module.PartDiagonal.X) + 1,
-                (int)Math.Ceiling(commonModuleBBox.Diagonal.Y / module.PartDiagonal.Y) + 1,
-                (int)Math.Ceiling(commonModuleBBox.Diagonal.Z / module.PartDiagonal.Z) + 1);
-
-            var geometryBBoxes = geometryClean.Select(geo => geo.GetBoundingBox(false)).ToList();
-            var commonBBox = BoundingBox.Empty;
-
+            var geometryBBoxes = geometryClean.Select(geo => geo.GetBoundingBox(true)).ToList();
+            var bBoxUnionGeometry = BoundingBox.Empty;
             foreach (var bBox in geometryBBoxes) {
-                commonBBox.Union(bBox);
+                bBoxUnionGeometry.Union(bBox);
             }
 
             var slots = new List<Slot>();
 
-            for (int z = (int)Math.Floor(commonBBox.Min.Z / module.PartDiagonal.Z) - safetyBuffer.Z;
-                z < Math.Ceiling(commonBBox.Max.Z / module.PartDiagonal.Z) + safetyBuffer.Z;
+            for (int z = (int)Math.Floor(bBoxUnionGeometry.Min.Z / module.PartDiagonal.Z) - moduleDimensionSafetyBuffer.Z;
+                z < Math.Ceiling(bBoxUnionGeometry.Max.Z / module.PartDiagonal.Z) + moduleDimensionSafetyBuffer.Z;
                 z++) {
-                for (int y = (int)Math.Floor(commonBBox.Min.Y / module.PartDiagonal.Y) - safetyBuffer.Y;
-                    y < Math.Ceiling(commonBBox.Max.Y / module.PartDiagonal.Y) + safetyBuffer.Y;
+                for (int y = (int)Math.Floor(bBoxUnionGeometry.Min.Y / module.PartDiagonal.Y) - moduleDimensionSafetyBuffer.Y;
+                    y < Math.Ceiling(bBoxUnionGeometry.Max.Y / module.PartDiagonal.Y) + moduleDimensionSafetyBuffer.Y;
                     y++) {
-                    for (int x = (int)Math.Floor(commonBBox.Min.X / module.PartDiagonal.X) - safetyBuffer.X;
-                        x < Math.Ceiling(commonBBox.Max.X / module.PartDiagonal.X) + safetyBuffer.X;
+                    for (int x = (int)Math.Floor(bBoxUnionGeometry.Min.X / module.PartDiagonal.X) - moduleDimensionSafetyBuffer.X;
+                        x < Math.Ceiling(bBoxUnionGeometry.Max.X / module.PartDiagonal.X) + moduleDimensionSafetyBuffer.X;
                         x++) {
+                        var currentRelativePosition = new Point3i(x, y, z);
                         var currentPivot = Plane.WorldXY;
-                        var currentPivotOrigin = new Point3d(x * module.PartDiagonal.X,
-                                                             y * module.PartDiagonal.Y,
-                                                             z * module.PartDiagonal.Z);
-                        currentPivot.Origin = currentPivotOrigin;
-                        var currentTransform = Transform.PlaneToPlane(modulePivot, currentPivot);
-                        var transformedModuleBBoxes = moduleBBoxes.Select(bBox => {
+                        currentPivot.Origin = currentRelativePosition.ToCartesian(Plane.WorldXY, module.PartDiagonal);
+
+                        var transformModuleToCurrentPivot = Transform.PlaneToPlane(module.Pivot, currentPivot);
+                        var moduleGeometryBBoxesAtCurrentPivot = moduleGeometryBBoxes.Select(bBox => {
                             var transformedBBox = bBox;
-                            transformedBBox.Transform(currentTransform);
+                            transformedBBox.Transform(transformModuleToCurrentPivot);
                             return transformedBBox;
                         });
 
-                        var indicesOfSimilarGeometries = new List<int>();
-                        var allModuleBoxesFoundSimilarGeometryBox = true;
-                        foreach (var currentBBox in transformedModuleBBoxes) {
-                            var foundBoxForCurrent = false;
-                            var otherIndex = 0;
-                            foreach (var otherBBox in geometryBBoxes) {
-                                var currentPoints = currentBBox.GetCorners();
-                                var otherPoints = otherBBox.GetCorners();
-                                for (var i = 0; i < currentPoints.Length; i++) {
-                                    var currentPoint = currentPoints[i];
-                                    var otherPoint = otherPoints[i];
-                                    var equalPoints = currentPoint.EpsilonEquals(otherPoint, RhinoMath.SqrtEpsilon);
-                                    if (!equalPoints) {
-                                        break;
-                                    }
-                                    foundBoxForCurrent = true;
+                        var indicesOfSimilarBBoxes = moduleGeometryBBoxesAtCurrentPivot.Select(moduleGeometryBBox =>
+                            geometryBBoxes.Select((geometryBBox, index) => {
+                                var moduleCorners = moduleGeometryBBox.GetCorners().ToList();
+                                var geometryCorners = geometryBBox.GetCorners().ToList();
+                                moduleCorners.Sort();
+                                geometryCorners.Sort();
+                                if (Enumerable.SequenceEqual(moduleCorners, geometryCorners)) {
+                                    return index;
+                                } else {
+                                    return -1;
                                 }
-                                if (foundBoxForCurrent) {
-                                    indicesOfSimilarGeometries.Add(otherIndex);
-                                    break;
-                                }
-                                otherIndex++;
-                            }
-                            if (!foundBoxForCurrent) {
-                                allModuleBoxesFoundSimilarGeometryBox = false;
-                                break;
-                            }
-                        }
+                            }).Where(index => index != -1)
+                        );
 
-                        if (!allModuleBoxesFoundSimilarGeometryBox) {
+                        // If any module geometry doesn't have a bbox similar to any geometry, then early continue
+                        if (!indicesOfSimilarBBoxes.All(similarBBoxes => similarBBoxes.Any())) {
                             continue;
                         }
 
@@ -188,27 +155,21 @@ namespace Monoceros {
 
                         var transformedModuleGeometry = moduleGeometry.Select(geo => {
                             var transformedGeometry = geo.Duplicate();
-                            transformedGeometry.Transform(currentTransform);
+                            transformedGeometry.Transform(transformModuleToCurrentPivot);
                             return transformedGeometry;
                         });
 
-                        var geometriesToCheck = indicesOfSimilarGeometries.Select(index => geometryClean[index]);
+                        var geometriesToCheck = indicesOfSimilarBBoxes.Select(indices => indices.Select(index => geometryClean[index]));
 
                         var geometryEqualityPattern = transformedModuleGeometry
-                            .Zip(geometriesToCheck, (current, other) => GeometryBase.GeometryEquals(current, other));
+                            .Zip(geometriesToCheck, (current, others) => others.Any(other =>
+                            // TODO: when the original geometry is moved, the meshes become unequal
+                            // TODO: replace with visual similarity check (pull random points to geometry)
+                            // TODO: check if the two are of the same type first
+                                GeometryBase.GeometryEquals(current, other)
+                            ));
 
                         if (geometryEqualityPattern.All(equal => equal)) {
-
-                            var transformedModulePartCenters = modulePartCenters.Select(centerPoint => {
-                                var transformedPoint = centerPoint;
-                                transformedPoint.Transform(currentTransform);
-                                return transformedPoint;
-                            });
-
-                            var currentPivotCenter = new Point3d(currentPivotOrigin.X / module.PartDiagonal.X,
-                                                                currentPivotOrigin.Y / module.PartDiagonal.Y,
-                                                                currentPivotOrigin.Z / module.PartDiagonal.Z);
-                            var currentPivotRelativeCenter = new Point3i(currentPivotCenter);
                             var firstModulePartRelativeCenter = module.PartCenters[0];
                             var modulePartsRelativeCentersRelativeToModulePivot = module.PartCenters.Select(center => center - firstModulePartRelativeCenter);
 
@@ -216,7 +177,7 @@ namespace Monoceros {
                                 .Zip(
                                 module.PartNames,
                                 (partCenter, partName) => new Slot(basePlane,
-                                                               currentPivotRelativeCenter + partCenter,
+                                                               currentRelativePosition + partCenter,
                                                                module.PartDiagonal,
                                                                false,
                                                                new List<string>() { module.Name },
