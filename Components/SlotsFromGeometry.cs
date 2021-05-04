@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
-using Rhino;
 using Rhino.Geometry;
 
 namespace Monoceros {
@@ -135,16 +134,11 @@ namespace Monoceros {
 
                         var indicesOfSimilarBBoxes = moduleGeometryBBoxesAtCurrentPivot.Select(moduleGeometryBBox =>
                             geometryBBoxes.Select((geometryBBox, index) => {
-                                // TODO: Find a universal way to compare two lists of values
-                                var moduleCorners = moduleGeometryBBox.GetCorners().Distinct().ToList();
+                                var moduleCorners = moduleGeometryBBox.GetCorners().ToList();
+                                var geometryCorners = geometryBBox.GetCorners().ToList();
                                 moduleCorners.Sort();
-                                var geometryCorners = geometryBBox.GetCorners().Distinct().ToList();
                                 geometryCorners.Sort();
-                                if (moduleCorners.Count != geometryCorners.Count) {
-                                    return -1;
-                                }
-                                var equalityPattern = moduleCorners.Zip(geometryCorners, (moduleCorner, geometryCorner) => moduleCorner.EpsilonEquals(geometryCorner, Config.EPSILON));
-                                if (equalityPattern.All(equal => equal)) {
+                                if (Enumerable.SequenceEqual(moduleCorners, geometryCorners)) {
                                     return index;
                                 } else {
                                     return -1;
@@ -169,7 +163,7 @@ namespace Monoceros {
 
                         var geometryEqualityPattern = transformedModuleGeometry
                             .Zip(geometriesToCheck, (current, others) => others.Any(other =>
-                            // TODO: when the original geometry is moved, the meshes become non-equal
+                            // TODO: when the original geometry is moved, the meshes become unequal
                             // TODO: replace with visual similarity check (pull random points to geometry)
                             // TODO: check if the two are of the same type first
                                 GeometryBase.GeometryEquals(current, other)
