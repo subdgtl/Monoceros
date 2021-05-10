@@ -6,8 +6,8 @@ using Rhino.Geometry;
 
 namespace Monoceros {
 
-    public class ComponentDeconstructSlot : GH_Component {
-        public ComponentDeconstructSlot( )
+    public class ComponentDeconstructSlotObsolete1236 : GH_Component {
+        public ComponentDeconstructSlotObsolete1236( )
             : base("Deconstruct Slot",
                    "DeconSlot",
                    "Deconstruct a Monoceros Slot into its center point, base plane, diagonal " +
@@ -56,23 +56,19 @@ namespace Monoceros {
                                   "MN",
                                   "Initiate the slot with specified Module names allowed.",
                                   GH_ParamAccess.list);
-            pManager.AddBooleanParameter("Is Deterministic",
-                                        "Det",
-                                        "The Slot allow placement of exactly one Module Part if true.",
-                                        GH_ParamAccess.item);
             pManager.AddBooleanParameter("Allows All Modules",
-                                         "All",
-                                         "The Slot allows placement of any Module if true.",
+                                         "A",
+                                         "The Slot allows any Module to be placed in it if true.",
                                          GH_ParamAccess.list
                                          );
             pManager.AddBooleanParameter("Allows Nothing",
-                                         "Nil",
-                                         "The Slot allows placement of no Module if true.",
+                                         "N",
+                                         "The Slot allows no Module to be placed in it if true.",
                                          GH_ParamAccess.list
                                          );
             pManager.AddBooleanParameter("Is Valid",
-                                        "Val",
-                                        "The Slot valid for the Monoceros WFC Solver if true.",
+                                        "V",
+                                        "Is the Slot valid for the Monoceros WFC Solver?",
                                         GH_ParamAccess.item);
         }
 
@@ -114,31 +110,24 @@ namespace Monoceros {
                 && moduleNames != null
                 && slot.AllowedModuleNames.Count >= moduleNames.Count
                 && moduleNames.All(name => slot.AllowedModuleNames.Contains(name.ToString()))) {
-                DA.SetDataList(5, new List<bool>() { true });
+                DA.SetDataList(4, new List<bool>() { true });
             } else {
-                DA.SetDataList(5, new List<bool>() { slot.AllowsAnyModule });
+                DA.SetDataList(4, new List<bool>() { slot.AllowsAnyModule });
             }
-            DA.SetDataList(6, new List<bool>() { slot.IsContradictory });
+            DA.SetDataList(5, new List<bool>() { slot.IsContradictory });
             if (modulesProvided
                 && moduleNames != null
                 && (slot.AllowedModuleNames.Count > moduleNames.Count
                 || !slot.AllowedModuleNames.All(name => moduleNames.Any(moduleName => moduleName.Name == name))
                 )) {
-                DA.SetData(7, false);
+                DA.SetData(6, false);
             } else {
-                DA.SetData(7, slot.IsValid);
+                DA.SetData(6, slot.IsValid);
             }
-            DA.SetData(4, slot.AllowedPartNames.Count == 1);
         }
 
-        /// <summary>
-        /// The Exposure property controls where in the panel a component icon
-        /// will appear. There are seven possible locations (primary to
-        /// septenary), each of which can be combined with the
-        /// GH_Exposure.obscure flag, which ensures the component will only be
-        /// visible on panel dropdowns.
-        /// </summary>
-        public override GH_Exposure Exposure => GH_Exposure.primary;
+        public override bool Obsolete => true;
+        public override GH_Exposure Exposure => GH_Exposure.hidden;
 
         /// <summary>
         /// Provides an Icon for every component that will be visible in the
@@ -151,6 +140,6 @@ namespace Monoceros {
         /// this Guid doesn't change otherwise old ghx files that use the old ID
         /// will partially fail during loading.
         /// </summary>
-        public override Guid ComponentGuid => new Guid("92C84CC3-2777-4A08-9204-D02B0066CF84");
+        public override Guid ComponentGuid => new Guid("595773DB-868E-4999-90C0-1418FF3AC077");
     }
 }

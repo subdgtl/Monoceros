@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Components\RuleExplicit2Lists.cs" />
+    <Compile Include="Components\SlotDeconstructObsolete1236.cs" />
     <Compile Include="Components\SlotsFromGeometry.cs" />
     <Compile Include="Components\RuleFromSlots.cs" />
     <Compile Include="Components\RuleAssemble.cs" />
