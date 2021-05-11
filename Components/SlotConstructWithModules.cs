@@ -89,7 +89,9 @@ namespace Monoceros {
                 modulesProvided = true;
             }
 
-            var allowedModules = allowedModulesRaw.Select(name => name.Name).Distinct().ToList();
+            var allowedModules = allowedModulesRaw
+                .Where(name => name != null)
+                .Select(name => name.Name).Distinct().ToList();
 
             if (Config.RESERVED_CHARS.Any(chars => allowedModules.Contains(chars))) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Input text contains " +

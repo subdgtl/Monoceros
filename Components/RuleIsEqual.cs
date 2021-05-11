@@ -3,9 +3,9 @@ using Grasshopper.Kernel;
 
 namespace Monoceros {
     // TODO: Consider making this part of Deconstruct
-    public class ComponentIsRuleTyped : GH_Component {
-        public ComponentIsRuleTyped( ) : base("Is Rule Typed", "IsRuleTyp",
-            "Returns true if the Monoceros Rule is Typed (connector-to-all-same-type-connectors).",
+    public class ComponentAreRulesEqual : GH_Component {
+        public ComponentAreRulesEqual( ) : base("Are Rules Equal", "AreRulesEq",
+            "Returns true if the provided Monoceros Rules are equal.",
             "Monoceros", "Rule") {
         }
 
@@ -16,7 +16,12 @@ namespace Monoceros {
             pManager.AddParameter(new RuleParameter(),
                                   "Rule",
                                   "R",
-                                  "Monoceros Rule",
+                                  "First Monoceros Rule",
+                                  GH_ParamAccess.item);
+            pManager.AddParameter(new RuleParameter(),
+                                  "Rule",
+                                  "R",
+                                  "Second Monoceros Rule",
                                   GH_ParamAccess.item);
         }
 
@@ -26,7 +31,7 @@ namespace Monoceros {
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddBooleanParameter("Boolean Pattern",
                                          "B",
-                                         "True if the Monoceros Rule is typed",
+                                         "True if the provided Monoceros Rules are equal",
                                          GH_ParamAccess.item);
         }
 
@@ -36,18 +41,23 @@ namespace Monoceros {
         /// <param name="DA">The DA object can be used to retrieve data from
         ///     input parameters and to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA) {
-            var rule = new Rule();
+            var ruleA = new Rule();
+            var ruleB = new Rule();
 
-            if (!DA.GetData(0, ref rule)) {
+            if (!DA.GetData(0, ref ruleA)) {
                 return;
             }
 
-            if (rule == null || !rule.IsValid) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The Rule is null or invalid.");
+            if (!DA.GetData(1, ref ruleB)) {
                 return;
             }
 
-            DA.SetData(0, rule.IsTyped);
+            if (ruleA == null || !ruleA.IsValid || ruleB == null || !ruleB.IsValid) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The Rules are null or invalid.");
+                return;
+            }
+
+            DA.SetData(0, ruleA.Equals(ruleB));
         }
 
         /// <summary>
@@ -63,13 +73,13 @@ namespace Monoceros {
         /// Provides an Icon for every component that will be visible in the
         /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.rule_is_typed;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.rule_suggest;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it.  It is vital
         /// this Guid doesn't change otherwise old ghx files that use the old ID
         /// will partially fail during loading.
         /// </summary>
-        public override Guid ComponentGuid => new Guid("E1116A5C-E496-4577-A40D-277EF53472B5");
+        public override Guid ComponentGuid => new Guid("316D8535-4064-4D2B-A9B9-25164A2EB4A7");
     }
 }
