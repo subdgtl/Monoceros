@@ -43,7 +43,7 @@ namespace Monoceros {
             }
 
             if (rule == null || !rule.IsValid) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The rule is null or invalid.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The Rule is null or invalid.");
                 return;
             }
 

@@ -64,16 +64,21 @@ namespace Monoceros {
             }
 
             var slotsClean = new List<Slot>();
+
+            var warnNonDeterministic = false;
+
             foreach (var slot in slotsRaw) {
                 if (slot == null || !slot.IsValid) {
                     AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Slot is null or invalid and will be skipped.");
                     continue;
                 }
                 if (!slot.IsDeterministic) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Slot is not deterministic and will be skipped.");
-                    continue;
+                    warnNonDeterministic = true;
                 }
                 slotsClean.Add(slot);
+            }
+            if (warnNonDeterministic) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "One or more Slots are non-deterministic.");
             }
 
             var modulesClean = new List<Module>();
@@ -96,29 +101,30 @@ namespace Monoceros {
                 return;
             }
 
-            var slotsNonEmpty = slotsClean.Where(slot =>
-                modulesClean.Any(module => module.ContainsPart(slot.AllowedPartNames[0]))
-            );
-
-            if (!slotsNonEmpty.Any()) {
+            if (!slotsClean.Any()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Slots collected.");
                 return;
             }
 
             var rulesOut = new List<Rule>();
-            foreach (var slot in slotsNonEmpty) {
-                foreach (var slotOther in slotsNonEmpty) {
+            foreach (var slot in slotsClean) {
+                foreach (var slotOther in slotsClean) {
                     if (slot.RelativeCenter.IsNeighbor(slotOther.RelativeCenter)) {
                         var neighborVector = (slotOther.RelativeCenter - slot.RelativeCenter).ToVector3d();
                         if (Direction.FromVector(neighborVector, out var direction)
                             && direction.Orientation == Orientation.Positive) {
-                            var currentPart = slot.AllowedPartNames[0];
-                            var otherPart = slotOther.AllowedPartNames[0];
-                            var ruleForSolver = new RuleForSolver(direction.Axis, currentPart, otherPart);
-                            if (RuleExplicit.FromRuleForSolver(ruleForSolver, modulesClean, out var ruleExplicit)) {
-                                var rule = new Rule(ruleExplicit);
-                                if (!rulesOut.Contains(rule)) {
-                                    rulesOut.Add(rule);
+                            foreach (var currentPart in slot.AllowedPartNames) {
+                                foreach (var otherPart in slotOther.AllowedPartNames) {
+                                    if (modulesClean.Any(module => module.ContainsPart(currentPart))
+                                        && modulesClean.Any(module => module.ContainsPart(otherPart))) {
+                                        var ruleForSolver = new RuleForSolver(direction.Axis, currentPart, otherPart);
+                                        if (RuleExplicit.FromRuleForSolver(ruleForSolver, modulesClean, out var ruleExplicit)) {
+                                            var rule = new Rule(ruleExplicit);
+                                            if (!rulesOut.Contains(rule)) {
+                                                rulesOut.Add(rule);
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
