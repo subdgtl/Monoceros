@@ -56,10 +56,11 @@ namespace Monoceros {
                                   "MN",
                                   "Initiate the slot with specified Module names allowed.",
                                   GH_ParamAccess.list);
+            // The following are output as lists to preserve the same tree structure with the Module Names
             pManager.AddBooleanParameter("Is Deterministic",
                                         "Det",
                                         "The Slot allow placement of exactly one Module Part if true.",
-                                        GH_ParamAccess.item);
+                                        GH_ParamAccess.list);
             pManager.AddBooleanParameter("Allows All Modules",
                                          "All",
                                          "The Slot allows placement of any Module if true.",
@@ -73,7 +74,7 @@ namespace Monoceros {
             pManager.AddBooleanParameter("Is Valid",
                                         "Val",
                                         "The Slot valid for the Monoceros WFC Solver if true.",
-                                        GH_ParamAccess.item);
+                                        GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -124,11 +125,11 @@ namespace Monoceros {
                 && (slot.AllowedModuleNames.Count > moduleNames.Count
                 || !slot.AllowedModuleNames.All(name => moduleNames.Any(moduleName => moduleName.Name == name))
                 )) {
-                DA.SetData(7, false);
+                DA.SetDataList(7, new List<bool>() { false });
             } else {
-                DA.SetData(7, slot.IsValid);
+                DA.SetDataList(7, new List<bool>() { slot.IsValid });
             }
-            DA.SetData(4, slot.AllowedPartNames.Count == 1);
+            DA.SetDataList(4, new List<bool>() { slot.IsDeterministic });
         }
 
         /// <summary>
