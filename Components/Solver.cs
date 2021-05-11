@@ -481,39 +481,39 @@ namespace Monoceros {
             List<List<string>> solvedSlotPartsTree = null;
             int solutionSeed = randomSeed;
 
-            if (parallel) {
-                var random = new Random(randomSeed);
-                Parallel.For(0, maxAttempts, (attempt, state) => {
-                    var currentSeed = random.Next();
-                    var parallelStats = Solve(rulesForSolver.Distinct().ToList(),
-                                        worldSize,
-                                        worldForSolver.ToList(),
-                                        currentSeed,
-                                        1,
-                                        int.MaxValue,
-                                        int.MaxValue,
-                                        entropy,
-                                        out var parallelSolvedSlotPartsTree);
-                    if (parallelStats.deterministic || attempt == maxAttempts - 1) {
-                        stats = parallelStats;
-                        stats.solveAttempts = (uint)attempt + 1;
-                        solvedSlotPartsTree = parallelSolvedSlotPartsTree;
-                        solutionSeed = currentSeed;
-                        state.Stop();
-                    }
-                });
+            //if (parallel) {
+            //    var random = new Random(randomSeed);
+            //    Parallel.For(0, maxAttempts, (attempt, state) => {
+            //        var currentSeed = random.Next();
+            //        var parallelStats = Solve(rulesForSolver.Distinct().ToList(),
+            //                            worldSize,
+            //                            worldForSolver.ToList(),
+            //                            currentSeed,
+            //                            1,
+            //                            int.MaxValue,
+            //                            int.MaxValue,
+            //                            entropy,
+            //                            out var parallelSolvedSlotPartsTree);
+            //        if (parallelStats.deterministic || attempt == maxAttempts - 1) {
+            //            stats = parallelStats;
+            //            stats.solveAttempts = (uint)attempt + 1;
+            //            solvedSlotPartsTree = parallelSolvedSlotPartsTree;
+            //            solutionSeed = currentSeed;
+            //            state.Stop();
+            //        }
+            //    });
 
-            } else {
-                stats = Solve(rulesForSolver.Distinct().ToList(),
-                                    worldSize,
-                                    worldForSolver.ToList(),
-                                    randomSeed,
-                                    maxAttempts,
-                                    maxTime,
-                                    maxObservationsUint,
-                                    entropy,
-                                    out solvedSlotPartsTree);
-            }
+            //} else {
+            stats = Solve(rulesForSolver.Distinct().ToList(),
+                                worldSize,
+                                worldForSolver.ToList(),
+                                randomSeed,
+                                maxAttempts,
+                                maxTime,
+                                maxObservationsUint,
+                                entropy,
+                                out solvedSlotPartsTree);
+            //}
 
 
             if (stats.contradictory) {
@@ -822,159 +822,184 @@ namespace Monoceros {
             // -- Run the thing and **pray** --
             //
 
-            var wfcRngStateHandle = IntPtr.Zero;
-            var wfcWorldStateHandle = IntPtr.Zero;
-            var wfcWorldStateHandleBackup = IntPtr.Zero;
-            unsafe {
-                Native.wfc_rng_state_init(&wfcRngStateHandle, rngSeedLow, rngSeedHigh);
-
-                fixed (AdjacencyRule* adjacencyRulesPtr = &adjacencyRules[0]) {
-                    var result = Native.wfc_world_state_init(&wfcWorldStateHandle,
-                                                             adjacencyRulesPtr,
-                                                             (UIntPtr)adjacencyRules.Length,
-                                                             worldX,
-                                                             worldY,
-                                                             worldZ,
-                                                             entropy);
-
-                    switch (result) {
-                        case WfcWorldStateInitResult.Ok:
-                            // All good
-                            break;
-                        case WfcWorldStateInitResult.ErrTooManyModules:
-                            stats.report = "Monoceros Solver failed: Rules refer to Modules occupying " +
-                                "too many Slots.";
-                            return stats;
-                        case WfcWorldStateInitResult.ErrWorldDimensionsZero:
-                            stats.report = "Monoceros Solver failed: World dimensions are zero.";
-                            return stats;
-                        default:
-                            stats.report = "Monoceros Solver failed with unknown error.";
-                            return stats;
-                    }
-                }
-
-                fixed (SlotState* worldStateSlotsPtr = &worldStateSlots[0]) {
-                    var result = Native.wfc_world_state_slots_set(wfcWorldStateHandle,
-                                                                  worldStateSlotsPtr,
-                                                                  (UIntPtr)worldStateSlots.Length);
-                    switch (result) {
-                        case WfcWorldStateSlotsSetResult.Ok:
-                            // All good
-                            stats.worldNotCanonical = false;
-                            break;
-                        case WfcWorldStateSlotsSetResult.OkWorldNotCanonical:
-                            // All good, but we the slots we gave were not
-                            // canonical. wfc_world_state_slots_set fixed that for us.
-                            stats.worldNotCanonical = true;
-                            break;
-                        case WfcWorldStateSlotsSetResult.ErrWorldContradictory:
-                            stats.report = "Monoceros Solver failed: World state is contradictory. " +
-                                "Try changing Slots, Modules, Rules or add boundary Rules. Changing " +
-                                "random seed or max attempts will not help.";
-                            return stats;
-                    }
-                }
-
-                Native.wfc_world_state_init_from(&wfcWorldStateHandleBackup, wfcWorldStateHandle);
-            }
-
-            uint spentObservations = 0;
             stats.averageObservations = 0;
+            uint spentObservations = 0;
+            uint attempts = 0;
+            var wfcWorldStateHandle = IntPtr.Zero;
+            var wfcRngStateHandle = IntPtr.Zero;
 
             WfcObserveResult observationResult = WfcObserveResult.Contradiction;
 
-            uint attempts = 0;
+            var tempWorldSlotPartsTree = new List<List<string>>();
 
-            var timeStart = DateTime.UtcNow;
+            Parallel.For(0, maxAttempts, (attempt, status) => {
+                var currentWfcRngStateHandle = IntPtr.Zero;
+                var currentWfcWorldStateHandle = IntPtr.Zero;
+                var wfcWorldStateHandleBackup = IntPtr.Zero;
+                unsafe {
+                    Native.wfc_rng_state_init(&currentWfcRngStateHandle, rngSeedLow, rngSeedHigh);
 
-            unsafe {
-                while (true) {
-                    observationResult = Native.wfc_observe(wfcWorldStateHandle,
-                                                    wfcRngStateHandle,
+                    fixed (AdjacencyRule* adjacencyRulesPtr = &adjacencyRules[0]) {
+                        var result = Native.wfc_world_state_init(&currentWfcWorldStateHandle,
+                                                                 adjacencyRulesPtr,
+                                                                 (UIntPtr)adjacencyRules.Length,
+                                                                 worldX,
+                                                                 worldY,
+                                                                 worldZ,
+                                                                 entropy);
+
+                        switch (result) {
+                            case WfcWorldStateInitResult.Ok:
+                                // All good
+                                //status.Stop();
+                                break;
+                            case WfcWorldStateInitResult.ErrTooManyModules:
+                                stats.report = "Monoceros Solver failed: Rules refer to Modules occupying " +
+                                    "too many Slots.";
+                                status.Stop();
+                                break;
+                            case WfcWorldStateInitResult.ErrWorldDimensionsZero:
+                                stats.report = "Monoceros Solver failed: World dimensions are zero.";
+                                status.Stop();
+                                break;
+                            default:
+                                stats.report = "Monoceros Solver failed with unknown error.";
+                                status.Stop();
+                                break;
+                        }
+                    }
+
+                    fixed (SlotState* worldStateSlotsPtr = &worldStateSlots[0]) {
+                        var result = Native.wfc_world_state_slots_set(currentWfcWorldStateHandle,
+                                                                      worldStateSlotsPtr,
+                                                                      (UIntPtr)worldStateSlots.Length);
+                        switch (result) {
+                            case WfcWorldStateSlotsSetResult.Ok:
+                                // All good
+                                stats.worldNotCanonical = false;
+                                //stats.report = "All good";
+                                //status.Stop();
+                                break;
+                            case WfcWorldStateSlotsSetResult.OkWorldNotCanonical:
+                                // All good, but we the slots we gave were not
+                                // canonical. wfc_world_state_slots_set fixed that for us.
+                                stats.worldNotCanonical = true;
+                                //stats.report = "All good but not canonical";
+                                //status.Stop();
+                                break;
+                            case WfcWorldStateSlotsSetResult.ErrWorldContradictory:
+                                stats.report = "Monoceros Solver failed: World state is contradictory. " +
+                                    "Try changing Slots, Modules, Rules or add boundary Rules. Changing " +
+                                    "random seed or max attempts will not help.";
+                                status.Stop();
+                                break;
+                        }
+                    }
+
+                    Native.wfc_world_state_init_from(&wfcWorldStateHandleBackup, currentWfcWorldStateHandle);
+                }
+
+
+                var timeStart = DateTime.UtcNow;
+
+                uint currentSpentObservations = 0;
+
+                unsafe {
+                    observationResult = Native.wfc_observe(currentWfcWorldStateHandle,
+                                                    currentWfcRngStateHandle,
                                                     maxObservations,
-                                                    &spentObservations);
-                    attempts++;
+                                                    &currentSpentObservations);
                     stats.averageObservations += spentObservations;
 
                     if (observationResult == WfcObserveResult.Deterministic
                         || observationResult == WfcObserveResult.Nondeterministic
-                        || attempts == maxAttempts
+                        || attempt == maxAttempts
                         || limitTime && ((DateTime.UtcNow - timeStart).TotalMilliseconds > maxTime)) {
-                        break;
-                    }
-                    Native.wfc_world_state_clone_from(wfcWorldStateHandle, wfcWorldStateHandleBackup);
-                }
-            }
+                        attempts = (uint)attempt;
+                        wfcWorldStateHandle = currentWfcWorldStateHandle;
+                        wfcRngStateHandle = currentWfcRngStateHandle;
+                        if (observationResult == WfcObserveResult.Deterministic) {
+                            stats.deterministic = true;
+                            stats.contradictory = false;
+                        }
+                        if (observationResult == WfcObserveResult.Nondeterministic) {
+                            stats.deterministic = false;
+                            stats.contradictory = false;
+                        }
+                        if (observationResult == WfcObserveResult.Contradiction) {
+                            stats.deterministic = false;
+                            stats.contradictory = true;
+                        }
 
-            if (observationResult == WfcObserveResult.Deterministic) {
-                stats.deterministic = true;
-                stats.contradictory = false;
-            }
-            if (observationResult == WfcObserveResult.Nondeterministic) {
-                stats.deterministic = false;
-                stats.contradictory = false;
-            }
-            if (observationResult == WfcObserveResult.Contradiction) {
-                stats.deterministic = false;
-                stats.contradictory = true;
-            }
+                        stats.observations = spentObservations;
+                        stats.averageObservations /= attempts == 0 ? 1 : attempts;
 
-            stats.observations = spentObservations;
-            stats.averageObservations /= attempts == 0 ? 1 : attempts;
+                        stats.solveAttempts = attempts;
+                        stats.solutionSeed = randomSeed;
 
-            stats.solveAttempts = attempts;
-            stats.solutionSeed = randomSeed;
-
-            if (stats.contradictory) {
-                if (attempts == maxAttempts) {
-                    stats.report = "WFC solver failed to find solution within " + maxAttempts + " attempts";
-                } else if (limitTime && attempts < maxAttempts) {
-                    stats.report = "WFC solver failed to find solution within time limit " + maxTime + " milliseconds";
-                } else {
-                    stats.report = "WFC solver failed to find solution for unknown reason. Please report this error, including screenshots, Rhino file and Grasshopper file at monoceros@sub.digital. Thank you!";
-                }
-            }
-
-            unsafe {
-                fixed (SlotState* worldStateSlotsPtr = &worldStateSlots[0]) {
-                    Native.wfc_world_state_slots_get(wfcWorldStateHandle,
-                                                     worldStateSlotsPtr,
-                                                     (UIntPtr)worldStateSlots.Length);
-                }
-            }
-
-            Native.wfc_world_state_free(wfcWorldStateHandle);
-            Native.wfc_rng_state_free(wfcRngStateHandle);
-
-            // -- Output: World state --
-            for (var i = 0; i < worldStateSlots.Length; ++i) {
-                var partShorts = new List<short>();
-                for (int blkIndex = 0; blkIndex < 4; ++blkIndex) {
-                    for (int bitIndex = 0; bitIndex < 64; ++bitIndex) {
-                        unsafe {
-                            if ((worldStateSlots[i].slot_state[blkIndex] & (1ul << bitIndex)) != 0) {
-                                partShorts.Add((short)(64 * blkIndex + bitIndex));
+                        if (stats.contradictory) {
+                            if (attempts == maxAttempts) {
+                                stats.report = "WFC solver failed to find solution within " + maxAttempts + " attempts";
+                            } else if (limitTime && attempts < maxAttempts) {
+                                stats.report = "WFC solver failed to find solution within time limit " + maxTime + " milliseconds";
+                            } else {
+                                stats.report = "WFC solver failed to find solution for unknown reason. Please report this error, including screenshots, Rhino file and Grasshopper file at monoceros@sub.digital. Thank you!";
                             }
                         }
-                    }
-                }
 
-                var currentWorldSlotParts = new List<string>();
-                foreach (var part in partShorts) {
-                    Debug.Assert(part >= 0);
-                    Debug.Assert(part <= byte.MaxValue);
-                    Debug.Assert(part < maxModuleCount);
-                    var valid = partToName.TryGetValue((byte)part, out var partStr);
-                    if (valid) {
-                        currentWorldSlotParts.Add(partStr);
-                    } else {
-                        stats.report = "Monoceros WFC Solver returned a non-existing Module Part.";
-                        return stats;
+                        unsafe {
+                            fixed (SlotState* worldStateSlotsPtr = &worldStateSlots[0]) {
+                                Native.wfc_world_state_slots_get(wfcWorldStateHandle,
+                                                                 worldStateSlotsPtr,
+                                                                 (UIntPtr)worldStateSlots.Length);
+                            }
+                        }
+
+                        Native.wfc_world_state_free(wfcWorldStateHandle);
+                        Native.wfc_rng_state_free(wfcRngStateHandle);
+
+                        var currentWorldSlotPartsTree = new List<List<string>>();
+                        // -- Output: World state --
+                        for (var i = 0; i < worldStateSlots.Length; ++i) {
+                            var partShorts = new List<short>();
+                            for (int blkIndex = 0; blkIndex < 4; ++blkIndex) {
+                                for (int bitIndex = 0; bitIndex < 64; ++bitIndex) {
+                                    unsafe {
+                                        if ((worldStateSlots[i].slot_state[blkIndex] & (1ul << bitIndex)) != 0) {
+                                            partShorts.Add((short)(64 * blkIndex + bitIndex));
+                                        }
+                                    }
+                                }
+                            }
+
+                            var currentWorldSlotParts = new List<string>();
+                            foreach (var part in partShorts) {
+                                Debug.Assert(part >= 0);
+                                Debug.Assert(part <= byte.MaxValue);
+                                Debug.Assert(part < maxModuleCount);
+                                var valid = partToName.TryGetValue((byte)part, out var partStr);
+                                if (valid) {
+                                    currentWorldSlotParts.Add(partStr);
+                                } else {
+                                    stats.report = "Monoceros WFC Solver returned a non-existing Module Part.";
+                                    status.Stop();
+                                }
+                            }
+                            currentWorldSlotPartsTree.Add(currentWorldSlotParts);
+                        }
+
+                        tempWorldSlotPartsTree = currentWorldSlotPartsTree;
+                        stats.report = "Came all the way here";
+                        stats.solveAttempts = (uint)attempt + 1;
+                        stats.solutionSeed = randomSeed;
+                        status.Stop();
                     }
+                    //Native.wfc_world_state_clone_from(currentWfcWorldStateHandle, wfcWorldStateHandleBackup);
+                    stats.report = "Somehow ended here";
                 }
-                worldSlotPartsTree.Add(currentWorldSlotParts);
-            }
+            });
+
+            worldSlotPartsTree = tempWorldSlotPartsTree;
 
             if (stats.deterministic) {
                 stats.report = "Monoceros WFC Solver found a solution.";
