@@ -73,7 +73,7 @@ namespace Monoceros {
         /// Provides an Icon for every component that will be visible in the
         /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.rule_suggest;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.rule_equals;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it.  It is vital
