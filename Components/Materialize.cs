@@ -218,6 +218,7 @@ namespace Monoceros {
 
 
         }
+
         private bool IsInstantiated => _moduleGeometry != null
                                        && _moduleGuids != null
                                        && _moduleNames != null
