@@ -175,12 +175,19 @@ namespace Monoceros {
                 var referencedAttributes = referencedObjects.Select(obj => obj.Attributes);
                 var referencedNewAttributes = referencedAttributes.Select(originalAttributes => {
                     var mainAttributesDuplicate = att.Duplicate();
-                    mainAttributesDuplicate.ObjectColor = originalAttributes.ObjectColor;
-                    mainAttributesDuplicate.ColorSource = originalAttributes.ColorSource;
-                    mainAttributesDuplicate.MaterialIndex = originalAttributes.MaterialIndex;
-                    mainAttributesDuplicate.MaterialSource = originalAttributes.MaterialSource;
-                    mainAttributesDuplicate.LinetypeIndex = originalAttributes.LinetypeIndex;
-                    mainAttributesDuplicate.LinetypeSource = originalAttributes.LinetypeSource;
+                    mainAttributesDuplicate.ObjectColor = originalAttributes.ColorSource == ObjectColorSource.ColorFromObject
+                    ? originalAttributes.ObjectColor
+                    : doc.Layers[originalAttributes.LayerIndex].Color;
+                    mainAttributesDuplicate.ColorSource = ObjectColorSource.ColorFromObject;
+                    mainAttributesDuplicate.MaterialIndex = originalAttributes.MaterialSource == ObjectMaterialSource.MaterialFromObject
+                    ? originalAttributes.MaterialIndex
+                    : doc.Layers[originalAttributes.LayerIndex].RenderMaterialIndex;
+                    mainAttributesDuplicate.MaterialSource = ObjectMaterialSource.MaterialFromObject;
+                    mainAttributesDuplicate.LinetypeIndex = originalAttributes.LinetypeSource == ObjectLinetypeSource.LinetypeFromObject ?
+                    originalAttributes.LinetypeIndex
+                    : doc.Layers[originalAttributes.LayerIndex].LinetypeIndex;
+                    mainAttributesDuplicate.LinetypeSource = ObjectLinetypeSource.LinetypeFromObject;
+                    mainAttributesDuplicate.LayerIndex = originalAttributes.LayerIndex;
                     return mainAttributesDuplicate;
                 });
                 var geometry = directGeometry.Concat(referencedGeometry).ToList();
@@ -199,9 +206,11 @@ namespace Monoceros {
                                                                     Point3d.Origin,
                                                                     geometry,
                                                                     attributes);
+                    var blockAttributes = att.Duplicate();
+                    blockAttributes.LayerIndex = doc.Layers.CurrentLayerIndex;
                     foreach (var transfrom in transforms) {
                         obj_ids.Add(
-                            doc.Objects.AddInstanceObject(instanceIndex, transfrom)
+                            doc.Objects.AddInstanceObject(instanceIndex, transfrom, blockAttributes)
                             );
                     }
                 }
@@ -209,6 +218,7 @@ namespace Monoceros {
 
 
         }
+
         private bool IsInstantiated => _moduleGeometry != null
                                        && _moduleGuids != null
                                        && _moduleNames != null
