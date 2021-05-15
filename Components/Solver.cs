@@ -15,7 +15,7 @@ namespace Monoceros {
                                          "Main") {
         }
 
-        public override Guid ComponentGuid => new Guid("4C19261E-4137-41F5-A118-A977021B2FA2");
+        public override Guid ComponentGuid => new Guid("97FF0AFD-0FA8-42ED-82C2-6D14B7A629CE");
 
         protected override System.Drawing.Bitmap Icon => Properties.Resources.solver;
 
@@ -48,6 +48,11 @@ namespace Monoceros {
                                          "Maximum Number of Solver Attempts",
                                          GH_ParamAccess.item,
                                          10);
+            pManager.AddIntegerParameter("Max Observations",
+                                         "O",
+                                         "Maximum Number of Solver Observations per Attempt (leave default for virtually unlimited)",
+                                         GH_ParamAccess.item,
+                                         Int32.MaxValue);
             pManager.AddIntegerParameter("Max Time",
                                          "T",
                                          "Maximum Time spent with Attempts (milliseconds). Negative and 0 = infinity",
@@ -58,11 +63,6 @@ namespace Monoceros {
                                          "Whether to use Shannon Entropy instead of the simpler linear entropy calculations",
                                          GH_ParamAccess.item,
                                          false);
-            pManager.AddIntegerParameter("Max Observations",
-                                         "O",
-                                         "Maximum Number of Solver Observations per Attempt (leave default for virtually unlimited)",
-                                         GH_ParamAccess.item,
-                                         Int32.MaxValue);
         }
 
         /// <summary>
@@ -75,10 +75,6 @@ namespace Monoceros {
                                   "S",
                                   "Solved Monoceros Slots",
                                   GH_ParamAccess.list);
-            pManager.AddIntegerParameter("Attempts",
-                                         "A",
-                                         "Number of attempts needed to find a solution",
-                                         GH_ParamAccess.item);
             pManager.AddBooleanParameter("Deterministic",
                                          "OK",
                                          "Did the Monoceros WFC Solver find a solution that can be Materialized?",
@@ -87,9 +83,17 @@ namespace Monoceros {
                                          "C",
                                          "Did the Monoceros WFC Solver end with a contradictory solution?",
                                          GH_ParamAccess.item);
+            pManager.AddIntegerParameter("Seed",
+                                         "S",
+                                         "Random seed of the solution",
+                                         GH_ParamAccess.item);
+            pManager.AddIntegerParameter("Attempts",
+                                         "A",
+                                         "Number of attempts needed to find the solution",
+                                         GH_ParamAccess.item);
             pManager.AddIntegerParameter("Observations",
                                          "O",
-                                         "Number of observations needed to find a solution",
+                                         "Number of observations needed to find the solution",
                                          GH_ParamAccess.item);
         }
 
@@ -132,15 +136,15 @@ namespace Monoceros {
                 return;
             }
 
-            if (!DA.GetData(5, ref maxTime)) {
+            if (!DA.GetData(5, ref maxObservations)) {
                 return;
             }
 
-            if (!DA.GetData(6, ref useShannonEntropy)) {
+            if (!DA.GetData(6, ref maxTime)) {
                 return;
             }
 
-            if (!DA.GetData(7, ref maxObservations)) {
+            if (!DA.GetData(7, ref useShannonEntropy)) {
                 return;
             }
 
@@ -510,10 +514,11 @@ namespace Monoceros {
 
             DA.SetData(0, stats.ToString());
             DA.SetDataList(1, slotsSolved);
-            DA.SetData(2, stats.solveAttempts);
-            DA.SetData(3, stats.deterministic);
-            DA.SetData(4, stats.contradictory);
-            DA.SetData(5, stats.observations);
+            DA.SetData(2, stats.deterministic);
+            DA.SetData(3, stats.contradictory);
+            DA.SetData(4, stats.seed);
+            DA.SetData(5, stats.solveAttempts);
+            DA.SetData(6, stats.observations);
         }
 
         private static void ComputeWorldRelativeBounds(IEnumerable<Slot> slots,
@@ -742,108 +747,122 @@ namespace Monoceros {
                 }
             }
 
-            //
-            // -- Random seed --
-            //
-            // wfc_rng_state_init needs 128 bits worth of random seed, but that
-            // is tricky to provide from GH.  We let GH provide an int, use it
-            // to seed a C# Random, get 16 bytes of data from that and copy
-            // those into two u64's.
-
-            var random = new Random(randomSeed);
-            byte[] rngSeedLowArr = new byte[8];
-            byte[] rngSeedHighArr = new byte[8];
-            random.NextBytes(rngSeedLowArr);
-            random.NextBytes(rngSeedHighArr);
-
-            if (!BitConverter.IsLittleEndian) {
-                // If we are running on a BE machine, we need to reverse the bytes,
-                // because low and high are defined to always be LE.
-                Array.Reverse(rngSeedLowArr);
-                Array.Reverse(rngSeedHighArr);
-            }
-
-            ulong rngSeedLow = BitConverter.ToUInt64(rngSeedLowArr, 0);
-            ulong rngSeedHigh = BitConverter.ToUInt64(rngSeedHighArr, 0);
-
-            //
-            // -- Max attempts --
-            //
-
+            uint attempts = 0;
+            WfcObserveResult observationResult = WfcObserveResult.Contradiction;
+            uint spentObservations;
             uint maxAttempts = (uint)maxAttemptsInt;
-
-            //
-            // -- Run the thing and **pray** --
-            //
 
             var wfcRngStateHandle = IntPtr.Zero;
             var wfcWorldStateHandle = IntPtr.Zero;
             var wfcWorldStateHandleBackup = IntPtr.Zero;
-            unsafe {
-                Native.wfc_rng_state_init(&wfcRngStateHandle, rngSeedLow, rngSeedHigh);
 
-                fixed (AdjacencyRule* adjacencyRulesPtr = &adjacencyRules[0]) {
-                    var result = Native.wfc_world_state_init(&wfcWorldStateHandle,
-                                                             adjacencyRulesPtr,
-                                                             (UIntPtr)adjacencyRules.Length,
-                                                             worldX,
-                                                             worldY,
-                                                             worldZ,
-                                                             entropy);
+            var randomMajor = new Random(randomSeed);
+            var firstAttempt = true;
 
-                    switch (result) {
-                        case WfcWorldStateInitResult.Ok:
-                            // All good
-                            break;
-                        case WfcWorldStateInitResult.ErrTooManyModules:
-                            stats.report = "Monoceros Solver failed: Rules refer to Modules occupying " +
-                                "too many Slots.";
-                            return stats;
-                        case WfcWorldStateInitResult.ErrWorldDimensionsZero:
-                            stats.report = "Monoceros Solver failed: World dimensions are zero.";
-                            return stats;
-                        default:
-                            stats.report = "Monoceros Solver failed with unknown error.";
-                            return stats;
-                    }
+            while (true) {
+
+                //
+                // -- Random seed --
+                //
+                // wfc_rng_state_init needs 128 bits worth of random seed, but that
+                // is tricky to provide from GH.  We let GH provide an int, use it
+                // to seed a C# Random, get 16 bytes of data from that and copy
+                // those into two u64's.
+
+                int currentSeed;
+
+                if (firstAttempt) {
+                    currentSeed = randomSeed;
+                    firstAttempt = false;
+                } else {
+                    currentSeed = randomMajor.Next();
                 }
 
-                fixed (SlotState* worldStateSlotsPtr = &worldStateSlots[0]) {
-                    var result = Native.wfc_world_state_slots_set(wfcWorldStateHandle,
-                                                                  worldStateSlotsPtr,
-                                                                  (UIntPtr)worldStateSlots.Length);
-                    switch (result) {
-                        case WfcWorldStateSlotsSetResult.Ok:
-                            // All good
-                            stats.worldNotCanonical = false;
-                            break;
-                        case WfcWorldStateSlotsSetResult.OkWorldNotCanonical:
-                            // All good, but we the slots we gave were not
-                            // canonical. wfc_world_state_slots_set fixed that for us.
-                            stats.worldNotCanonical = true;
-                            break;
-                        case WfcWorldStateSlotsSetResult.ErrWorldContradictory:
-                            stats.report = "Monoceros Solver failed: World state is contradictory. " +
-                                "Try changing Slots, Modules, Rules or add boundary Rules. Changing " +
-                                "random seed or max attempts will not help.";
-                            return stats;
-                    }
+                stats.seed = currentSeed;
+
+                var random = new Random(currentSeed);
+                byte[] rngSeedLowArr = new byte[8];
+                byte[] rngSeedHighArr = new byte[8];
+                random.NextBytes(rngSeedLowArr);
+                random.NextBytes(rngSeedHighArr);
+
+                if (!BitConverter.IsLittleEndian) {
+                    // If we are running on a BE machine, we need to reverse the bytes,
+                    // because low and high are defined to always be LE.
+                    Array.Reverse(rngSeedLowArr);
+                    Array.Reverse(rngSeedHighArr);
                 }
 
-                Native.wfc_world_state_init_from(&wfcWorldStateHandleBackup, wfcWorldStateHandle);
-            }
+                ulong rngSeedLow = BitConverter.ToUInt64(rngSeedLowArr, 0);
+                ulong rngSeedHigh = BitConverter.ToUInt64(rngSeedHighArr, 0);
 
-            uint spentObservations = 0;
-            stats.averageObservations = 0;
 
-            WfcObserveResult observationResult = WfcObserveResult.Contradiction;
+                //
+                // -- Run the thing and **pray** --
+                //
 
-            uint attempts = 0;
 
-            var timeStart = DateTime.UtcNow;
+                unsafe {
+                    Native.wfc_rng_state_init(&wfcRngStateHandle, rngSeedLow, rngSeedHigh);
 
-            unsafe {
-                while (true) {
+                    fixed (AdjacencyRule* adjacencyRulesPtr = &adjacencyRules[0]) {
+                        var result = Native.wfc_world_state_init(&wfcWorldStateHandle,
+                                                                 adjacencyRulesPtr,
+                                                                 (UIntPtr)adjacencyRules.Length,
+                                                                 worldX,
+                                                                 worldY,
+                                                                 worldZ,
+                                                                 entropy);
+
+                        switch (result) {
+                            case WfcWorldStateInitResult.Ok:
+                                // All good
+                                break;
+                            case WfcWorldStateInitResult.ErrTooManyModules:
+                                stats.report = "Monoceros Solver failed: Rules refer to Modules occupying " +
+                                    "too many Slots.";
+                                return stats;
+                            case WfcWorldStateInitResult.ErrWorldDimensionsZero:
+                                stats.report = "Monoceros Solver failed: World dimensions are zero.";
+                                return stats;
+                            default:
+                                stats.report = "Monoceros Solver failed with unknown error.";
+                                return stats;
+                        }
+                    }
+
+                    fixed (SlotState* worldStateSlotsPtr = &worldStateSlots[0]) {
+                        var result = Native.wfc_world_state_slots_set(wfcWorldStateHandle,
+                                                                      worldStateSlotsPtr,
+                                                                      (UIntPtr)worldStateSlots.Length);
+                        switch (result) {
+                            case WfcWorldStateSlotsSetResult.Ok:
+                                // All good
+                                stats.worldNotCanonical = false;
+                                break;
+                            case WfcWorldStateSlotsSetResult.OkWorldNotCanonical:
+                                // All good, but we the slots we gave were not
+                                // canonical. wfc_world_state_slots_set fixed that for us.
+                                stats.worldNotCanonical = true;
+                                break;
+                            case WfcWorldStateSlotsSetResult.ErrWorldContradictory:
+                                stats.report = "Monoceros Solver failed: World state is contradictory. " +
+                                    "Try changing Slots, Modules, Rules or add boundary Rules. Changing " +
+                                    "random seed or max attempts will not help.";
+                                return stats;
+                        }
+                    }
+
+                    Native.wfc_world_state_init_from(&wfcWorldStateHandleBackup, wfcWorldStateHandle);
+                }
+
+                spentObservations = 0;
+                stats.averageObservations = 0;
+
+                var timeStart = DateTime.UtcNow;
+
+                unsafe {
+
                     observationResult = Native.wfc_observe(wfcWorldStateHandle,
                                                     wfcRngStateHandle,
                                                     maxObservations,
@@ -999,6 +1018,7 @@ namespace Monoceros {
         public uint partCount;
         public uint slotCount;
         public uint solveAttempts;
+        public int seed;
         public uint observationLimit;
         public uint observations;
         public uint averageObservations;
@@ -1022,6 +1042,9 @@ namespace Monoceros {
             b.AppendLine();
             b.Append("Slot count (including outer Slots): ");
             b.Append(slotCount);
+            b.AppendLine();
+            b.Append("Solution random seed: ");
+            b.Append(seed);
             b.AppendLine();
             b.Append("Solve attempts: ");
             b.Append(solveAttempts);

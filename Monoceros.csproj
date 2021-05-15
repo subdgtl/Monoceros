@@ -72,6 +72,7 @@
     <Compile Include="Components\ModuleDeconstruct.cs" />
     <Compile Include="Components\Materialize.cs" />
     <Compile Include="Components\Solver.cs" />
+    <Compile Include="Components\SolverObsolete1238.cs" />
     <Compile Include="Components\SolverObsolete1235.cs" />
     <Compile Include="Components\SliceGeometry.cs" />
     <Compile Include="Components\SlotDeconstruct.cs" />
