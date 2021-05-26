@@ -759,6 +759,8 @@ namespace Monoceros {
             var randomMajor = new Random(randomSeed);
             var firstAttempt = true;
 
+            var timeStart = DateTime.UtcNow;
+
             while (true) {
 
                 //
@@ -859,8 +861,6 @@ namespace Monoceros {
                 spentObservations = 0;
                 stats.averageObservations = 0;
 
-                var timeStart = DateTime.UtcNow;
-
                 unsafe {
 
                     observationResult = Native.wfc_observe(wfcWorldStateHandle,
@@ -873,7 +873,7 @@ namespace Monoceros {
                     if (observationResult == WfcObserveResult.Deterministic
                         || observationResult == WfcObserveResult.Nondeterministic
                         || attempts == maxAttempts
-                        || limitTime && ((DateTime.UtcNow - timeStart).TotalMilliseconds > maxTime)) {
+                        || (limitTime && ((DateTime.UtcNow - timeStart).TotalMilliseconds > maxTime))) {
                         break;
                     }
                     Native.wfc_world_state_clone_from(wfcWorldStateHandle, wfcWorldStateHandleBackup);
