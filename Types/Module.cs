@@ -249,11 +249,6 @@ namespace Monoceros {
             var directionYNegative = new Direction(Axis.Y, Orientation.Negative);
             var directionZNegative = new Direction(Axis.Z, Orientation.Negative);
 
-            var scalingTransform = Transform.Scale(basePlane,
-                                                   partDiagonal.X,
-                                                   partDiagonal.Y,
-                                                   partDiagonal.Z);
-
             // Precompute reusable values
             var xPositiveVectorUnit = directionXPositive.ToVector();
             var yPositiveVectorUnit = directionYPositive.ToVector();
@@ -262,6 +257,21 @@ namespace Monoceros {
             var yNegativeVectorUnit = directionYNegative.ToVector();
             var zNegativeVectorUnit = directionZNegative.ToVector();
 
+
+            var orientationTransform = Transform.PlaneToPlane(Plane.WorldXY, basePlane);
+
+            xPositiveVectorUnit.Transform(orientationTransform);
+            yPositiveVectorUnit.Transform(orientationTransform);
+            zPositiveVectorUnit.Transform(orientationTransform);
+            xNegativeVectorUnit.Transform(orientationTransform);
+            yNegativeVectorUnit.Transform(orientationTransform);
+            zNegativeVectorUnit.Transform(orientationTransform);
+
+            var scalingTransform = Transform.Scale(basePlane,
+                                                   partDiagonal.X,
+                                                   partDiagonal.Y,
+                                                   partDiagonal.Z);
+
             xPositiveVectorUnit.Transform(scalingTransform);
             yPositiveVectorUnit.Transform(scalingTransform);
             zPositiveVectorUnit.Transform(scalingTransform);
@@ -269,8 +279,6 @@ namespace Monoceros {
             yNegativeVectorUnit.Transform(scalingTransform);
             zNegativeVectorUnit.Transform(scalingTransform);
 
-            // Orient to the base coordinate system
-            var baseAlignmentTransform = Transform.PlaneToPlane(Plane.WorldXY, basePlane);
             // Scale up to slot size
             // Connector numbering convention: 
             // (partIndex * 6) + faceIndex, where faceIndex is X=0, Y=1, Z=2, -X=3, -Y=4, -Z=5
@@ -898,11 +906,11 @@ namespace Monoceros {
                     args.Pipeline.DrawCurve((Curve)geo, args.Color, args.Thickness);
                 }
             }
+            var cageEdges = new List<Line>();
             for (var connectorIndex = 0; connectorIndex < Connectors.Count; connectorIndex++) {
                 var connector = Connectors[connectorIndex];
                 // Draw connectors (together they look like a cage around the module)
-                var cageColor = IsValid ? Config.CAGE_COLOR : Config.CAGE_ERROR_COLOR;
-                args.Pipeline.DrawPolyline(connector.Face.ToPolyline(), cageColor);
+                cageEdges.AddRange(connector.Face.ToPolyline().GetSegments());
                 var anchorPosition = connector.AnchorPlane.Origin;
                 var dotColor = Config.ColorFromAxis(connector.Direction.Axis);
                 var textColor = Config.ColorFromOrientation(connector.Direction.Orientation);
@@ -911,6 +919,21 @@ namespace Monoceros {
                                       dotColor,
                                       textColor,
                                       dotColor);
+            }
+
+            var orientedCageEdges = new List<Line>();
+            foreach (var line in cageEdges) {
+                if (!(orientedCageEdges.Any(otherLine => otherLine.From.EpsilonEquals(line.From, Config.EPSILON)
+                                                         && otherLine.To.EpsilonEquals(line.To, Config.EPSILON))
+                    || orientedCageEdges.Any(otherLine => otherLine.From.EpsilonEquals(line.To, Config.EPSILON)
+                                                         && otherLine.To.EpsilonEquals(line.From, Config.EPSILON)))) {
+                    orientedCageEdges.Add(line);
+                }
+            }
+
+            var cageColor = IsValid ? Config.CAGE_COLOR : Config.CAGE_ERROR_COLOR;
+            foreach (var connectorEdge in orientedCageEdges) {
+                args.Pipeline.DrawLine(connectorEdge, cageColor, args.Thickness);
             }
 
             var namePosition = Pivot.Origin;

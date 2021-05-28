@@ -454,7 +454,7 @@ namespace Monoceros {
             var zInterval = new Interval(cage.Z.Min + shrinkSize, cage.Z.Max - shrinkSize);
             var box = new Box(cage.Plane, xInterval, yInterval, zInterval);
 
-            args.Pipeline.DrawBox(box, color);
+            args.Pipeline.DrawBox(box, color, args.Thickness);
         }
 
         /// <summary>
