@@ -112,7 +112,8 @@ namespace Monoceros {
 
             var allowedExplicit = allowedOriginalClean
                 .Where(rule => rule.IsExplicit)
-                .Select(rule => rule.Explicit);
+                .Select(rule => rule.Explicit)
+                .ToList();
             var allowedTyped = allowedOriginalClean
                 .Where(rule => rule.IsTyped)
                 .Select(rule => rule.Typed);
@@ -123,7 +124,8 @@ namespace Monoceros {
 
             var disallowedExplicit = disallowedOriginalClean
                 .Where(rule => rule.IsExplicit)
-                .Select(rule => rule.Explicit);
+                .Select(rule => rule.Explicit)
+                .ToList();
             var disallowedTyped = disallowedOriginalClean
                 .Where(rule => rule.IsTyped)
                 .Select(rule => rule.Typed);
@@ -185,9 +187,8 @@ namespace Monoceros {
 
             var outputRules = finalExplicit
                 .Where(rule => !(rule.SourceModuleName == Config.OUTER_MODULE_NAME && rule.TargetModuleName == Config.OUTER_MODULE_NAME))
-                .Select(explicitRule => new Rule(explicitRule))
-                .Concat(finalTyped.Select(ruleTyped => new Rule(ruleTyped)))
                 .Distinct()
+                .Select(explicitRule => new Rule(explicitRule))
                 .ToList();
 
             outputRules.Sort();
