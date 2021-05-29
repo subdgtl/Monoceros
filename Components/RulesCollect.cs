@@ -112,7 +112,8 @@ namespace Monoceros {
 
             var allowedExplicit = allowedOriginalClean
                 .Where(rule => rule.IsExplicit)
-                .Select(rule => rule.Explicit);
+                .Select(rule => rule.Explicit)
+                .ToList();
             var allowedTyped = allowedOriginalClean
                 .Where(rule => rule.IsTyped)
                 .Select(rule => rule.Typed);
@@ -123,7 +124,8 @@ namespace Monoceros {
 
             var disallowedExplicit = disallowedOriginalClean
                 .Where(rule => rule.IsExplicit)
-                .Select(rule => rule.Explicit);
+                .Select(rule => rule.Explicit)
+                .ToList();
             var disallowedTyped = disallowedOriginalClean
                 .Where(rule => rule.IsTyped)
                 .Select(rule => rule.Typed);
@@ -150,9 +152,7 @@ namespace Monoceros {
                 }
             }
 
-            var finalTyped = new List<RuleTyped>();
-            var finalExplicit = new List<RuleExplicit>();
-
+            // unwrap disallowed typed rules and add them to disallowedExplicit
             foreach (var entry in allTypedByType) {
                 var type = entry.Key;
                 var rules = entry.Value;
@@ -160,19 +160,24 @@ namespace Monoceros {
                     var rulesExplicit = rules.SelectMany(rule => rule.ToRulesExplicit(rules, modulesClean));
                     var disallowedRules = disallowedTypedByType[type];
                     foreach (var rule in rulesExplicit) {
-                        if (!disallowedRules.Any(disallowedRule =>
+                        if (disallowedRules.Any(disallowedRule =>
                             (disallowedRule.ModuleName == rule.SourceModuleName
                              && disallowedRule.ConnectorIndex == rule.SourceConnectorIndex)
                             || (disallowedRule.ModuleName == rule.TargetModuleName
-                                && disallowedRule.ConnectorIndex == rule.TargetConnectorIndex))
-                            && !disallowedExplicit.Any(disallowedRule => disallowedRule.Equals(rule))) {
-                            finalExplicit.Add(rule);
+                                && disallowedRule.ConnectorIndex == rule.TargetConnectorIndex))) {
+                            disallowedExplicit.Add(rule);
                         }
                     }
-                } else {
-                    finalTyped.AddRange(rules);
                 }
             }
+
+            // unwrap all typed rules
+            foreach (var rule in allTypedRules) {
+                var rulesExplicit = rule.ToRulesExplicit(allTypedRules, modulesClean);
+                allowedExplicit.AddRange(rulesExplicit);
+            }
+
+            var finalExplicit = new List<RuleExplicit>();
 
             foreach (var rule in allowedExplicit) {
                 if (!disallowedExplicit.Any(disallowedRule => disallowedRule.Equals(rule))) {
@@ -180,22 +185,21 @@ namespace Monoceros {
                 }
             }
 
-            var outRules = finalExplicit
+            var outputRules = finalExplicit
                 .Where(rule => !(rule.SourceModuleName == Config.OUTER_MODULE_NAME && rule.TargetModuleName == Config.OUTER_MODULE_NAME))
-                .Select(explicitRule => new Rule(explicitRule))
-                .Concat(finalTyped.Select(ruleTyped => new Rule(ruleTyped)))
                 .Distinct()
+                .Select(explicitRule => new Rule(explicitRule))
                 .ToList();
 
-            outRules.Sort();
+            outputRules.Sort();
 
-            foreach (var rule in outRules) {
+            foreach (var rule in outputRules) {
                 if (!rule.IsValid) {
                     AddRuntimeMessage(GH_RuntimeMessageLevel.Error, rule.IsValidWhyNot);
                 }
             }
 
-            DA.SetDataList(0, outRules);
+            DA.SetDataList(0, outputRules);
         }
 
         /// <summary>
