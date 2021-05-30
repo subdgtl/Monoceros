@@ -99,39 +99,19 @@ namespace Monoceros {
                 new Point3i(0, 0, 1)
             };
 
-            var allSlotCenters = slotsClean.Select(slot => slot.RelativeCenter).ToList();
-            var newNeighborCenters = new List<Point3i>();
-            for (int l = 0; l < layers; l++) {
+            var allSlotCenters = slotsClean
+                .Select(slot => slot.RelativeCenter)
+                .ToList();
 
-                var currentNewNeighborCenters = new List<Point3i>();
+            var newSlotCenters = allSlotCenters
+                .SelectMany(center => potentialRelativeNeighborCenters
+                .Select(newRelativeCenter => center + newRelativeCenter));
 
-                for (var i = 0; i < allSlotCenters.Count; i++) {
-                    var slotCenter = allSlotCenters[i];
-                    var currentNeighborCenters = new List<Point3i>();
-                    foreach (var other in allSlotCenters) {
-                        if (slotCenter.IsNeighbor(other)) {
-                            currentNeighborCenters.Add(other);
-                            if (currentNeighborCenters.Count == 6) {
-                                break;
-                            }
-                        }
-                    }
-                    if (currentNeighborCenters.Count < 6) {
-                        var potentialNeighborCenters = potentialRelativeNeighborCenters
-                            .Select(relativeNeighborCenter => slotCenter + relativeNeighborCenter);
-                        var currentNewlNeighborCenters = potentialNeighborCenters.Except(currentNeighborCenters);
-                        currentNewNeighborCenters.AddRange(currentNewlNeighborCenters);
-                    }
-                }
+            var uniqueNewSlotCenters = newSlotCenters
+                .Distinct()
+                .Where(newCenter => !allSlotCenters.Any(center => center.Equals(newCenter)));
 
-                newNeighborCenters = newNeighborCenters
-                    .Concat(currentNewNeighborCenters)
-                    .Distinct()
-                    .ToList();
-                allSlotCenters.AddRange(currentNewNeighborCenters);
-            }
-
-            var newNeighborCentersP3d = newNeighborCenters
+            var newNeighborCentersP3d = uniqueNewSlotCenters
                 .Select(p3i => p3i.ToCartesian(basePlane, diagonal));
 
             DA.SetDataList(0, newNeighborCentersP3d);
