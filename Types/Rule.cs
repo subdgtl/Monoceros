@@ -427,6 +427,17 @@ namespace Monoceros {
             }
             return false;
         }
+        
+        public bool UsesConnector(string moduleName, int connectorIndex) {
+            if (IsExplicit) {
+                return Explicit.SourceModuleName == moduleName && Explicit.SourceConnectorIndex == connectorIndex
+                    || Explicit.TargetModuleName == moduleName && Explicit.TargetConnectorIndex == connectorIndex;
+            }
+            if (IsTyped) {
+                return Typed.ModuleName == moduleName && Typed.ConnectorIndex == connectorIndex;
+            }
+            return false;
+        }
 
         public int CompareTo(Rule other) {
             if (IsExplicit && other.IsExplicit) {
@@ -722,7 +733,7 @@ namespace Monoceros {
         /// <param name="ruleForSolver">Output rule for
         ///     <see cref="ComponentSolver"/>.</param>
         /// <returns>True if the conversion was successful.</returns>
-        public bool ToRuleForSolver(List<Module> modules, out RuleForSolver ruleForSolver) {
+        public bool ToRuleForSolver(IEnumerable<Module> modules, out RuleForSolver ruleForSolver) {
             if (!IsValidWithGivenModules(modules)) {
                 ruleForSolver = default;
                 return false;
@@ -941,7 +952,7 @@ namespace Monoceros {
         /// <returns>A list of <see cref="RuleExplicit"/>. The list may be
         ///     empty.</returns>
         public List<RuleExplicit> ToRulesExplicit(IEnumerable<RuleTyped> otherRules,
-                                                 List<Module> modules) {
+                                                 IEnumerable<Module> modules) {
             var rulesExplicit = new List<RuleExplicit>();
 
             // If the source module and connector exist

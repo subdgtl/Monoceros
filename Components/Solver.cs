@@ -267,41 +267,13 @@ namespace Monoceros {
                 return;
             }
 
-            var modulesUsable = new List<Module>();
+            var modulesUsable = modulesClean.Where(module =>
+                module.Connectors
+                .Select((_, i) => i)
+                .All(connectorIndex => rulesClean.Any(rule => rule.UsesConnector(module.Name, connectorIndex)))
+            );
 
-            foreach (var module in modulesClean) {
-                var usedConnectors = Enumerable.Repeat(false, module.Connectors.Count).ToList();
-                foreach (var rule in rulesClean) {
-                    if (rule.IsExplicit) {
-                        if (rule.Explicit.SourceModuleName == module.Name &&
-                            rule.Explicit.SourceConnectorIndex < module.Connectors.Count) {
-                            usedConnectors[rule.Explicit.SourceConnectorIndex] = true;
-                        }
-                        if (rule.Explicit.TargetModuleName == module.Name &&
-                            rule.Explicit.TargetConnectorIndex < module.Connectors.Count) {
-                            usedConnectors[rule.Explicit.TargetConnectorIndex] = true;
-                        }
-                    }
-                    if (rule.IsTyped) {
-                        if (rule.Typed.ModuleName == module.Name &&
-                            rule.Typed.ConnectorIndex < module.Connectors.Count) {
-                            usedConnectors[rule.Typed.ConnectorIndex] = true;
-                        }
-                    }
-                }
-                if (usedConnectors.Any(boolean => boolean == false)) {
-                    var warningString = "Module \"" + module.Name + "\" will be excluded from the " +
-                        "solution. Connectors not described by any Rule: ";
-                    for (var i = 0; i < usedConnectors.Count; i++) {
-                        if (!usedConnectors[i]) {
-                            warningString += i + ", ";
-                        }
-                    }
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, warningString);
-                } else {
-                    modulesUsable.Add(module);
-                }
-            }
+            // TODO: Inform if any Module was skipped
 
             if (!modulesUsable.Any()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
@@ -310,30 +282,35 @@ namespace Monoceros {
                 return;
             }
 
-            var slotsClean = new List<Slot>();
-            foreach (var slot in slotsValid) {
-                if (slot.AllowedModuleNames.All(moduleName =>
-                moduleName == Config.OUTER_MODULE_NAME
-                || modulesUsable.Any(module => module.Name == moduleName))) {
-                    slotsClean.Add(slot);
-                } else {
-                    var existingModuleNames = slot.AllowedModuleNames.Where(moduleName =>
-                    moduleName == Config.OUTER_MODULE_NAME
-                    || modulesUsable.Any(module => module.Name == moduleName)).ToList();
-                    if (existingModuleNames.Any()) {
-                        slotsClean.Add(new Slot(slot.BasePlane,
-                                                slot.RelativeCenter,
-                                                slot.Diagonal,
-                                                slot.AllowsAnyModule,
-                                                existingModuleNames,
-                                                new List<string>(),
-                                                0));
-                        AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Slot refers to a non-existent Module.");
-                    } else {
-                        AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Slot allows no Module to be placed.");
-                        return;
-                    }
-                }
+            // Convert AllowEverything slots into an explicit list of allowed modules (except Out)
+            var allModuleNames = modulesUsable.Select(module => module.Name).ToList();
+
+            var slotsAllowingAllunwrapped = slotsValid
+                .Where(slot => slot.AllowsAnyModule)
+                .Select(slot => new Slot(slot.BasePlane,
+                                         slot.RelativeCenter,
+                                         slot.Diagonal,
+                                         slot.AllowsAnyModule,
+                                         allModuleNames,
+                                         new List<string>(),
+                                         0));
+            var slotsAllowingUsable = slotsValid
+                .Where(slot => !slot.AllowsAnyModule)
+                .Select(slot => new Slot(slot.BasePlane,
+                                         slot.RelativeCenter,
+                                         slot.Diagonal,
+                                         slot.AllowsAnyModule,
+                                         slot.AllowedModuleNames.Intersect(allModuleNames).ToList(),
+                                         new List<string>(),
+                                         0));
+           
+            // TODO: Inform if Slot refers to a non-existing Module
+
+            var slotsClean = slotsAllowingAllunwrapped.Concat(slotsAllowingUsable);
+
+            if (slotsClean.Any(slot => !slot.AllowedModuleNames.Any())){
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Slot allows no Module to be placed.");
+                return;
             }
 
             if (!slotsClean.Any()) {
@@ -359,15 +336,14 @@ namespace Monoceros {
             var rulesAtBoundary = rulesOutTyped.Select(ruleTyped => new Rule(ruleTyped));
             rulesClean = rulesClean.Concat(rulesAtBoundary);
 
-            // Convert AllowEverything slots into an explicit list of allowed modules (except Out)
-            var allModuleNames = modulesUsable.Select(module => module.Name).ToList();
+
             var slotsUnwrapped = slotsClean.Select(slot =>
                 slot.AllowsAnyModule ?
                     slot.DuplicateWithModuleNames(allModuleNames) :
                     slot
             );
 
-            modulesUsable.Add(moduleOut);
+            modulesUsable = modulesUsable.Concat(Enumerable.Repeat(moduleOut, 1));
 
             // Unwrap typed rules
             var rulesTyped = rulesClean.Where(rule => rule.IsTyped).Select(rule => rule.Typed);
@@ -394,7 +370,7 @@ namespace Monoceros {
                 rulesForSolver.AddRange(module.InternalRules);
             }
 
-            var slotOrder = new List<int>(slotsClean.Count);
+            var slotOrder = new List<int>();
             // Define world space (slots bounding box + 1 layer padding)
             ComputeWorldRelativeBounds(slotsUnwrapped, out var worldMin, out var worldMax);
             var worldLength = ComputeWorldLength(worldMin, worldMax);
@@ -428,7 +404,7 @@ namespace Monoceros {
 
                 var partNames = new List<string>();
                 foreach (var moduleName in slot.AllowedModuleNames) {
-                    var module = modulesUsable.Find(m => m.Name == moduleName);
+                    var module = modulesUsable.First(m => m.Name == moduleName);
                     partNames.AddRange(module.PartNames);
                 }
                 return slot.DuplicateWithPartsCountAndNames(allPartsCount, partNames);
