@@ -406,7 +406,7 @@ namespace Monoceros {
         /// </summary>
         /// <param name="modules">The modules.</param>
         /// <returns>True if valid.</returns>
-        public bool IsValidWithModules(List<Module> modules) {
+        public bool IsValidWithModules(IEnumerable<Module> modules) {
             // TODO: Check for collisions
             if (IsExplicit) {
                 return Explicit.IsValidWithGivenModules(modules);
@@ -992,7 +992,7 @@ namespace Monoceros {
         /// </summary>
         /// <param name="modules">All <see cref="Module"/>s.</param>
         /// <returns>True if valid.</returns>
-        public bool IsValidWithModules(List<Module> modules) {
+        public bool IsValidWithModules(IEnumerable<Module> modules) {
             var sourceModule = modules.FirstOrDefault(module => module.Name == ModuleName);
             if (sourceModule == null || ConnectorIndex >= sourceModule.Connectors.Count) {
                 return false;

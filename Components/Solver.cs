@@ -165,59 +165,61 @@ namespace Monoceros {
                 entropy = Entropy.Shannon;
             }
 
-            var slotsValid = new List<Slot>();
-            foreach (var slot in slotsRaw) {
-                if (slot == null || !slot.IsValid) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Slot is null or invalid.");
-                    return;
-                }
-                slotsValid.Add(slot);
-
+            if (slotsRaw.Any(slot => slot == null || !slot.IsValid)) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "One or more Slot are null or invalid.");
             }
-
-            var rulesValid = new List<Rule>();
-            foreach (var rule in rulesRaw) {
-                if (rule == null || !rule.IsValid) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Rule is null or invalid.");
-                    return;
-                } else {
-                    rulesValid.Add(rule);
-                }
-            }
-
+            var slotsValid = slotsRaw.Where(slot => slot != null || slot.IsValid);
             var anySlotAllowsAll = slotsValid.Any(slot => slot.AllowsAnyModule);
 
-            var modulesClean = new List<Module>();
-            foreach (var module in modulesRaw) {
-                if (module == null || !module.IsValid) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Module is null or invalid.");
-                    return;
-                }
-                if (anySlotAllowsAll
-                    || slotsValid.Any(slot => slot.AllowedModuleNames.Contains(module.Name))
-                    && rulesValid.Any(rule => rule.UsesModule(module.Name))) {
-                    modulesClean.Add(module);
-                } else {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+            if (rulesRaw.Any(rule => rule == null || !rule.IsValid)) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "One or more Rule are null or invalid.");
+            }
+            var rulesValid = rulesRaw.Where(rule => rule != null || rule.IsValid);
+
+
+            if (modulesRaw.Any(module => module == null || !module.IsValid)) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "One or more Modules are null or invalid.");
+            }
+            var modulesValid = modulesRaw.Where(module => module != null || module.IsValid);
+
+            if (!anySlotAllowsAll) {
+                foreach (var module in modulesValid) {
+                    if (!slotsValid.Any(slot => slot.AllowedModuleNames.Contains(module.Name))) {
+                        AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
                         "Module \"" + module.Name + "\" will be excluded from the " +
                         "solution because it is not allowed in any Slot.");
+                    }
                 }
             }
+
+            // TODO: Consider removing this because it may be redundant with the check if all connectors are described by any Rule
+            foreach (var module in modulesValid) {
+                if (!rulesValid.Any(rule => rule.UsesModule(module.Name))) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                    "Module \"" + module.Name + "\" will be excluded from the " +
+                    "solution because it is not described by any Rule.");
+                }
+            }
+
+            var modulesClean = anySlotAllowsAll
+                ? modulesValid
+                : modulesValid.Where(module =>
+                    slotsValid.Any(slot => slot.AllowedModuleNames.Contains(module.Name))
+                    && rulesValid.Any(rule => rule.UsesModule(module.Name)));
 
             if (!modulesClean.Any()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Modules collected.");
                 return;
             }
 
-            var rulesClean = new List<Rule>();
-            foreach (var rule in rulesValid) {
-                if (rule.UsesModule(Config.OUTER_MODULE_NAME) || rule.IsValidWithModules(modulesClean)) {
-                    rulesClean.Add(rule);
-                } else {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                        "Rule \"" + rule.ToString() + "\" will be excluded from the solution because " +
-                        "it does not refer to any existing Module.");
-                }
+            var rulesClean = rulesValid
+                .Where(rule => rule.UsesModule(Config.OUTER_MODULE_NAME) || rule.IsValidWithModules(modulesClean));
+
+
+            // TODO: Consider telling the user which ones are skipped
+            if (rulesValid.Any(rule => !rule.UsesModule(Config.OUTER_MODULE_NAME) && !rule.IsValidWithModules(modulesClean))) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "One or more Rules will be excluded from the solution because " +
+                        "they do not refer to any existing Module.");
             }
 
             if (!rulesClean.Any()) {
@@ -354,8 +356,8 @@ namespace Monoceros {
                                              new Rhino.Geometry.Vector3d(1, 1, 1),
                                              out var moduleOut,
                                              out var rulesOutTyped);
-            var rulesOut = rulesOutTyped.Select(ruleTyped => new Rule(ruleTyped));
-            rulesClean.AddRange(rulesOut);
+            var rulesAtBoundary = rulesOutTyped.Select(ruleTyped => new Rule(ruleTyped));
+            rulesClean = rulesClean.Concat(rulesAtBoundary);
 
             // Convert AllowEverything slots into an explicit list of allowed modules (except Out)
             var allModuleNames = modulesUsable.Select(module => module.Name).ToList();
@@ -597,15 +599,11 @@ namespace Monoceros {
             return From1DTo3D(index, new Point3i(0, 0, 0), max);
         }
 
-        private bool AreModuleNamesUnique(List<Module> modules) {
-            for (var i = 0; i < modules.Count; i++) {
-                for (var j = i + 1; j < modules.Count; j++) {
-                    if (modules[i].Name == modules[j].Name) {
-                        return false;
-                    }
-                }
-            }
-            return true;
+        private bool AreModuleNamesUnique(IEnumerable<Module> modules) {
+            var moduleNameGroupLengths = modules
+                .GroupBy(module => module.Name)
+                .Where(g => g.Count() > 1);
+            return !moduleNameGroupLengths.Any();
         }
 
         private Stats Solve(List<RuleForSolver> rules,
