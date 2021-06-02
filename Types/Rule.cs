@@ -428,17 +428,6 @@ namespace Monoceros {
             return false;
         }
         
-        public bool UsesConnector(string moduleName, int connectorIndex) {
-            if (IsExplicit) {
-                return Explicit.SourceModuleName == moduleName && Explicit.SourceConnectorIndex == connectorIndex
-                    || Explicit.TargetModuleName == moduleName && Explicit.TargetConnectorIndex == connectorIndex;
-            }
-            if (IsTyped) {
-                return Typed.ModuleName == moduleName && Typed.ConnectorIndex == connectorIndex;
-            }
-            return false;
-        }
-
         public int CompareTo(Rule other) {
             if (IsExplicit && other.IsExplicit) {
                 return Explicit.CompareTo(other.Explicit);
