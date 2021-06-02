@@ -453,7 +453,7 @@ namespace Monoceros {
                     return;
                 }
             }
-            var worldSize = (worldMax - worldMin);
+            var worldSize = (worldMax - worldMin) + new Point3i(1, 1, 1);
 
             if (!worldSize.FitsUshort()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
