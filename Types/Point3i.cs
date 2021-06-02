@@ -133,8 +133,8 @@ namespace Monoceros {
 
 
         public int To1D(Point3i min, Point3i max) {
-            var lengthX = max.X - min.X;
-            var lengthY = max.Y - min.Y;
+            var lengthX = max.X - min.X + 1;
+            var lengthY = max.Y - min.Y + 1;
 
             var worldSlotsPerLayer = lengthX * lengthY;
             var worldSlotsPerRow = lengthX;

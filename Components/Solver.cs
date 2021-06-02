@@ -543,22 +543,22 @@ namespace Monoceros {
                 maxZ = Math.Max(maxZ, center.Z);
             }
 
-            minX -= 2;
-            minY -= 2;
-            minZ -= 2;
+            minX -= 1;
+            minY -= 1;
+            minZ -= 1;
 
-            maxX += 2;
-            maxY += 2;
-            maxZ += 2;
+            maxX += 1;
+            maxY += 1;
+            maxZ += 1;
 
             min = new Point3i(minX, minY, minZ);
             max = new Point3i(maxX, maxY, maxZ);
         }
 
         private static int ComputeWorldLength(Point3i min, Point3i max) {
-            var lengthX = max.X - min.X;
-            var lengthY = max.Y - min.Y;
-            var lengthZ = max.Z - min.Z;
+            var lengthX = max.X - min.X + 1;
+            var lengthY = max.Y - min.Y + 1;
+            var lengthZ = max.Z - min.Z + 1;
 
             return (lengthX * lengthY * lengthZ);
         }
