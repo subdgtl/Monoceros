@@ -131,5 +131,42 @@ namespace Monoceros {
             return partCenter;
         }
 
+
+        public int To1D(Point3i min, Point3i max) {
+            var lengthX = max.X - min.X;
+            var lengthY = max.Y - min.Y;
+
+            var worldSlotsPerLayer = lengthX * lengthY;
+            var worldSlotsPerRow = lengthX;
+
+            var p = this - min;
+
+            var index = p.X + p.Y * worldSlotsPerRow + p.Z * worldSlotsPerLayer;
+
+            return index;
+        }
+
+        public int To1D(Point3i max) {
+            return To1D(new Point3i(0, 0, 0), max);
+        }
+
+        public static Point3i From1D(int index, Point3i min, Point3i max) {
+            var lengthX = max.X - min.X;
+            var lengthY = max.Y - min.Y;
+
+            var worldSlotsPerLayer = lengthX * lengthY;
+            var worldSlotsPerRow = lengthX;
+
+            var x = index % worldSlotsPerLayer % worldSlotsPerRow;
+            var y = index % worldSlotsPerLayer / worldSlotsPerRow;
+            var z = index / worldSlotsPerLayer;
+
+            return new Point3i(x, y, z) + min;
+        }
+
+        public static Point3i From1D(int index, Point3i max) {
+            return From1D(index, new Point3i(0, 0, 0), max);
+        }
+
     }
 }

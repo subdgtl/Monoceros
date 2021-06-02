@@ -414,7 +414,7 @@ namespace Monoceros {
             var worldLength = ComputeWorldLength(worldMin, worldMax);
             var worldSlots = Enumerable.Repeat<Slot>(null, worldLength).ToList();
             foreach (var slot in slotsClean) {
-                var index = From3DTo1D(slot.RelativeCenter, worldMin, worldMax);
+                var index = slot.RelativeCenter.To1D(worldMin, worldMax);
                 worldSlots[index] = slot;
                 slotOrder.Add(index);
             }
@@ -422,7 +422,7 @@ namespace Monoceros {
             // Fill unused world slots with Out modules
             for (var i = 0; i < worldSlots.Count; i++) {
                 var slot = worldSlots[i];
-                var relativeCenter = From1DTo3D(i, worldMin, worldMax);
+                var relativeCenter = Point3i.From1D(i, worldMin, worldMax);
                 if (slot == null) {
                     worldSlots[i] = new Slot(slotBasePlane,
                                              relativeCenter,
@@ -501,7 +501,7 @@ namespace Monoceros {
                     .ToList();
                 // Convert world from solver format into slots
                 return new Slot(slotBasePlane,
-                                From1DTo3D(index, worldMin, worldMax),
+                                Point3i.From1D(index, worldMin, worldMax),
                                 diagonal,
                                 false,
                                 allowedModules,
@@ -561,42 +561,6 @@ namespace Monoceros {
             var lengthZ = max.Z - min.Z;
 
             return (lengthX * lengthY * lengthZ);
-        }
-
-        private static int From3DTo1D(Point3i point, Point3i min, Point3i max) {
-            var lengthX = max.X - min.X;
-            var lengthY = max.Y - min.Y;
-
-            var worldSlotsPerLayer = lengthX * lengthY;
-            var worldSlotsPerRow = lengthX;
-
-            var p = point - min;
-
-            var index = p.X + p.Y * worldSlotsPerRow + p.Z * worldSlotsPerLayer;
-
-            return index;
-        }
-
-        private static int From3DTo1D(Point3i p, Point3i max) {
-            return From3DTo1D(p, new Point3i(0, 0, 0), max);
-        }
-
-        private static Point3i From1DTo3D(int index, Point3i min, Point3i max) {
-            var lengthX = max.X - min.X;
-            var lengthY = max.Y - min.Y;
-
-            var worldSlotsPerLayer = lengthX * lengthY;
-            var worldSlotsPerRow = lengthX;
-
-            var x = index % worldSlotsPerLayer % worldSlotsPerRow;
-            var y = index % worldSlotsPerLayer / worldSlotsPerRow;
-            var z = index / worldSlotsPerLayer;
-
-            return new Point3i(x, y, z) + min;
-        }
-
-        private static Point3i From1DTo3D(int index, Point3i max) {
-            return From1DTo3D(index, new Point3i(0, 0, 0), max);
         }
 
         private bool AreModuleNamesUnique(IEnumerable<Module> modules) {

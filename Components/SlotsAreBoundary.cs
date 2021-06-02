@@ -57,14 +57,10 @@ namespace Monoceros {
                 return;
             }
 
-            var slotsClean = new List<Slot>();
-            foreach (var slot in slots) {
-                if (slot == null || !slot.IsValid) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Slot is null or invalid.");
-                } else {
-                    slotsClean.Add(slot);
-                }
+            if (slots.Any(slot => slot == null || !slot.IsValid)) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "One or more Slot are null or invalid.");
             }
+            var slotsClean = slots.Where(slot => slot != null || slot.IsValid).ToList();
 
             if (!slotsClean.Any()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Slots collected.");
@@ -84,32 +80,140 @@ namespace Monoceros {
                 return;
             }
 
-            var boundaryPattern = Enumerable.Repeat(false, slotsClean.Count).ToList();
+            var minX = int.MaxValue;
+            var minY = int.MaxValue;
+            var minZ = int.MaxValue;
+            var maxX = int.MinValue;
+            var maxY = int.MinValue;
+            var maxZ = int.MinValue;
 
-            for (int l = 0; l < layers; l++) {
-                var currentBoundaryPattern = Enumerable.Repeat(true, slotsClean.Count).ToList();
-                for (var i = 0; i < slotsClean.Count; i++) {
-                    if (!boundaryPattern[i]) {
-                        var slot = slotsClean[i];
-                        var neighborsCount = 0;
-                        for (var j = 0; j < slotsClean.Count; j++) {
-                            if (!boundaryPattern[j]) {
-                                var other = slotsClean[j];
-                                if (slot.RelativeCenter.IsNeighbor(other.RelativeCenter) && ++neighborsCount == 6) {
-                                    currentBoundaryPattern[i] = false;
-                                    break;
-                                }
-                            }
+            foreach (var slot in slotsClean) {
+                minX = Math.Min(minX, slot.RelativeCenter.X);
+                minY = Math.Min(minY, slot.RelativeCenter.Y);
+                minZ = Math.Min(minZ, slot.RelativeCenter.Z);
+                maxX = Math.Max(maxX, slot.RelativeCenter.X);
+                maxY = Math.Max(maxY, slot.RelativeCenter.Y);
+                maxZ = Math.Max(maxZ, slot.RelativeCenter.Z);
+            }
+
+            var minPoint = new Point3i(minX, minY, minZ);
+            var maxPoint = new Point3i(maxX, maxY, maxZ);
+
+            var lenX = maxX - minX + 1;
+            var lenY = maxY - minY + 1;
+            var lenZ = maxZ - minZ + 1;
+
+            var blockLength = lenX * lenY * lenZ;
+
+            var usePattern = Enumerable.Repeat(false, blockLength).ToArray();
+
+            foreach (var slot in slotsClean) {
+                var index1D = slot.RelativeCenter.To1D(minPoint, maxPoint);
+                usePattern[index1D] = true;
+            }
+
+            var minDepth = Enumerable.Repeat(int.MaxValue, blockLength).ToArray();
+
+            for (var y = minY; y < maxY; y++) {
+                for (var z = minZ; z < maxZ; z++) {
+                    var depth = 0;
+                    for (var x = minX; x < maxX; x++) {
+                        var p = new Point3i(x, y, z);
+                        var index1D = p.To1D(minPoint, maxPoint);
+                        if (usePattern[index1D]) {
+                            depth++;
+                        } else {
+                            depth = 0;
                         }
+                        minDepth[index1D] = Math.Min(minDepth[index1D], depth);
                     }
-                }
-
-                for (var i = 0; i < currentBoundaryPattern.Count; i++) {
-                    boundaryPattern[i] |= currentBoundaryPattern[i];
                 }
             }
 
-            DA.SetDataList(0, boundaryPattern);
+            for (var y = minY; y < maxY; y++) {
+                for (var z = minZ; z < maxZ; z++) {
+                    var depth = 0;
+                    for (var x = maxX - 1; x >= minX; x--) {
+                        var p = new Point3i(x, y, z);
+                        var index1D = p.To1D(minPoint, maxPoint);
+                        if (usePattern[index1D]) {
+                            depth++;
+                        } else {
+                            depth = 0;
+                        }
+                        minDepth[index1D] = Math.Min(minDepth[index1D], depth);
+                    }
+                }
+            }
+
+            for (var x = minX; x < maxX; x++) {
+                for (var z = minZ; z < maxZ; z++) {
+                    var depth = 0;
+                    for (var y = minY; y < maxY; y++) {
+                        var p = new Point3i(x, y, z);
+                        var index1D = p.To1D(minPoint, maxPoint);
+                        if (usePattern[index1D]) {
+                            depth++;
+                        } else {
+                            depth = 0;
+                        }
+                        minDepth[index1D] = Math.Min(minDepth[index1D], depth);
+                    }
+                }
+            }
+
+            for (var x = minX; x < maxX; x++) {
+                for (var z = minZ; z < maxZ; z++) {
+                    var depth = 0;
+                    for (var y = maxY - 1; y >= minY; y--) {
+                        var p = new Point3i(x, y, z);
+                        var index1D = p.To1D(minPoint, maxPoint);
+                        if (usePattern[index1D]) {
+                            depth++;
+                        } else {
+                            depth = 0;
+                        }
+                        minDepth[index1D] = Math.Min(minDepth[index1D], depth);
+                    }
+                }
+            }
+
+            for (var x = minX; x < maxX; x++) {
+                for (var y = minY; y < maxY; y++) {
+                    var depth = 0;
+                    for (var z = minZ; z < maxZ; z++) {
+                        var p = new Point3i(x, y, z);
+                        var index1D = p.To1D(minPoint, maxPoint);
+                        if (usePattern[index1D]) {
+                            depth++;
+                        } else {
+                            depth = 0;
+                        }
+                        minDepth[index1D] = Math.Min(minDepth[index1D], depth);
+                    }
+                }
+            }
+
+            for (var x = minX; x < maxX; x++) {
+                for (var y = minY; y < maxY; y++) {
+                    var depth = 0;
+                    for (var z = maxZ - 1; z >= minZ; z--) {
+                        var p = new Point3i(x, y, z);
+                        var index1D = p.To1D(minPoint, maxPoint);
+                        if (usePattern[index1D]) {
+                            depth++;
+                        } else {
+                            depth = 0;
+                        }
+                        minDepth[index1D] = Math.Min(minDepth[index1D], depth);
+                    }
+                }
+            }
+
+
+            var layerPattern = minDepth.Select(depth => depth > 0 && depth <= layers);
+
+            DA.SetDataList(0, layerPattern);
         }
 
         /// <summary>
