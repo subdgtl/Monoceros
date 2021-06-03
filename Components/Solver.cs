@@ -216,7 +216,7 @@ namespace Monoceros {
 
             // TODO: Consider telling the user which ones are skipped
             if (unusedRuleCount > 0) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, unusedRuleCount + 
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, unusedRuleCount +
                     " Rules will be excluded from the solution because they do not refer to any " +
                     "existing Module.");
             }
@@ -541,7 +541,6 @@ namespace Monoceros {
                            uint maxObservations,
                            Entropy entropy,
                            out List<List<string>> worldSlotPartsTree) {
-            worldSlotPartsTree = new List<List<string>>();
 
             var stats = new Stats();
             stats.worldNotCanonical = true;
@@ -577,6 +576,7 @@ namespace Monoceros {
                 if (allParts.Count > maxModuleCount) {
                     stats.report = "Too many modules. Maximum allowed is " + maxModuleCount;
                     AddRuntimeMessage(GH_RuntimeMessageLevel.Error, stats.report);
+                    worldSlotPartsTree = new List<List<string>>();
                     return stats;
                 }
             }
@@ -746,12 +746,16 @@ namespace Monoceros {
                                 break;
                             case WfcWorldStateInitResult.ErrTooManyModules:
                                 stats.report = "Monoceros Solver failed: Rules refer to too many Module Parts";
+                                worldSlotPartsTree = new List<List<string>>();
                                 return stats;
                             case WfcWorldStateInitResult.ErrWorldDimensionsZero:
                                 stats.report = "Monoceros Solver failed: World dimensions are zero.";
+                                worldSlotPartsTree = new List<List<string>>();
                                 return stats;
                             default:
-                                stats.report = "WFC solver failed to find solution for unknown reason. Please report this error, including screenshots, Rhino file and Grasshopper file at monoceros@sub.digital. Thank you!";
+                                stats.report = "WFC solver failed to find solution for unknown reason. Please report this error, " +
+                                    "including screenshots, Rhino file and Grasshopper file at monoceros@sub.digital. Thank you!";
+                                worldSlotPartsTree = new List<List<string>>();
                                 return stats;
                         }
                     }
@@ -771,10 +775,13 @@ namespace Monoceros {
                                 stats.worldNotCanonical = true;
                                 break;
                             case WfcWorldStateSlotsSetResult.ErrWorldContradictory:
-                                // TODO: Return the contradictory state anyway
+                                var earlyOutputSuccessful = outputWorldState(worldStateSlots, maxModuleCount, partToName, out worldSlotPartsTree);
                                 stats.report = "Monoceros Solver failed: World state is contradictory. " +
                                     "Try changing Slots, Modules, Rules or add boundary Rules. Changing " +
                                     "random seed or max attempts will not help.";
+                                if (!earlyOutputSuccessful) {
+                                    stats.report += " Monoceros WFC Solver returned a non-existing Module Part.";
+                                }
                                 return stats;
                         }
                     }
@@ -844,6 +851,31 @@ namespace Monoceros {
             Native.wfc_rng_state_free(wfcRngStateHandle);
 
             // -- Output: World state --
+            var outputSuccessful = outputWorldState(worldStateSlots, maxModuleCount, partToName, out worldSlotPartsTree);
+
+            if (!outputSuccessful) {
+                stats.report = "Monoceros WFC Solver returned a non-existing Module Part.";
+                return stats;
+            }
+
+
+            if (stats.deterministic) {
+                stats.report = "Monoceros WFC Solver found a solution.";
+            }
+            if (!stats.deterministic && !stats.contradictory) {
+                stats.report = "Monoceros WFC Solver found a partial solution. Increase number " +
+                    "of observations or run another Solver with the output Slots from this Solver. " +
+                    "WARNING: There is no guarantee that the current setup can be eventually " +
+                    "solved even though the partial solution exists.";
+            }
+
+            return stats;
+        }
+
+
+        private bool outputWorldState(SlotState[] worldStateSlots, uint maxModuleCount,
+                                        Dictionary<byte, string> partToName, out List<List<string>> worldSlotPartsTree) {
+            worldSlotPartsTree = new List<List<string>>();
             for (var i = 0; i < worldStateSlots.Length; ++i) {
                 var partShorts = new List<short>();
                 for (int blkIndex = 0; blkIndex < 4; ++blkIndex) {
@@ -865,24 +897,12 @@ namespace Monoceros {
                     if (valid) {
                         currentWorldSlotParts.Add(partStr);
                     } else {
-                        stats.report = "Monoceros WFC Solver returned a non-existing Module Part.";
-                        return stats;
+                        return false;
                     }
                 }
                 worldSlotPartsTree.Add(currentWorldSlotParts);
             }
-
-            if (stats.deterministic) {
-                stats.report = "Monoceros WFC Solver found a solution.";
-            }
-            if (!stats.deterministic && !stats.contradictory) {
-                stats.report = "Monoceros WFC Solver found a partial solution. Increase number " +
-                    "of observations or run another Solver with the output Slots from this Solver. " +
-                    "WARNING: There is no guarantee that the current setup can be eventually " +
-                    "solved even though the partial solution exists.";
-            }
-
-            return stats;
+            return true;
         }
     }
 
