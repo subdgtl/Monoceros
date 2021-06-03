@@ -84,16 +84,14 @@ namespace Monoceros {
             }
 
             var modules = new List<Module>();
-            var modulesClean = new List<Module>();
             var modulesProvided = false;
             if (DA.GetDataList(2, modules)) {
                 modulesProvided = true;
-                foreach (var module in modules) {
-                    if (module == null || !module.IsValid) {
-                        AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The module is null or invalid.");
-                        continue;
-                    }
-                    modulesClean.Add(module);
+                var invalidModuleCount = modules.RemoveAll(module => module == null || !module.IsValid);
+
+                if (invalidModuleCount > 0) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                      invalidModuleCount + " Modules are null or invalid and were removed.");
                 }
             }
 
@@ -134,7 +132,7 @@ namespace Monoceros {
                                 continue;
                             }
 
-                            if (!modulesProvided || rule.IsValidWithModules(modulesClean)) {
+                            if (!modulesProvided || rule.IsValidWithModules(modules)) {
                                 rules.Add(rule);
                             }
                         }

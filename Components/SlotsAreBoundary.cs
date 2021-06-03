@@ -57,67 +57,50 @@ namespace Monoceros {
                 return;
             }
 
-            if (slots.Any(slot => slot == null || !slot.IsValid)) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "One or more Slot are null or invalid.");
-            }
-            var slotsClean = slots.Where(slot => slot != null || slot.IsValid).ToList();
+            var invalidCount = slots.RemoveAll(slot => slot == null || !slot.IsValid);
 
-            if (!slotsClean.Any()) {
+            if (invalidCount > 0) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  "One or more Slots are null or invalid and were removed.");
+            }
+
+            if (!slots.Any()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Slots collected.");
                 return;
             }
 
-            var diagonal = slotsClean.First().Diagonal;
+            var diagonal = slots.First().Diagonal;
 
-            if (slotsClean.Any(slot => slot.Diagonal != diagonal)) {
+            if (slots.Any(slot => slot.Diagonal != diagonal)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "Slots are not defined with the same diagonal.");
                 return;
             }
 
-            if (!Slot.AreSlotLocationsUnique(slotsClean)) {
+            if (!Slot.AreSlotLocationsUnique(slots)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Slot locations are not unique.");
                 return;
             }
 
-            var minX = int.MaxValue;
-            var minY = int.MaxValue;
-            var minZ = int.MaxValue;
-            var maxX = int.MinValue;
-            var maxY = int.MinValue;
-            var maxZ = int.MinValue;
-
-            foreach (var slot in slotsClean) {
-                minX = Math.Min(minX, slot.RelativeCenter.X);
-                minY = Math.Min(minY, slot.RelativeCenter.Y);
-                minZ = Math.Min(minZ, slot.RelativeCenter.Z);
-                maxX = Math.Max(maxX, slot.RelativeCenter.X);
-                maxY = Math.Max(maxY, slot.RelativeCenter.Y);
-                maxZ = Math.Max(maxZ, slot.RelativeCenter.Z);
-            }
-
-            var minPoint = new Point3i(minX, minY, minZ);
-            var maxPoint = new Point3i(maxX, maxY, maxZ);
-
-            var lenX = maxX - minX + 1;
-            var lenY = maxY - minY + 1;
-            var lenZ = maxZ - minZ + 1;
-
-            var blockLength = lenX * lenY * lenZ;
+            Point3i.ComputeBlockBoundsWithOffset(slots,
+                                                 new Point3i(0, 0, 0),
+                                                 out var minPoint,
+                                                 out var maxPoint);
+            var blockLength = Point3i.ComputeBlockLength(minPoint, maxPoint);
 
             var usePattern = Enumerable.Repeat(false, blockLength).ToArray();
 
-            foreach (var slot in slotsClean) {
+            foreach (var slot in slots) {
                 var index1D = slot.RelativeCenter.To1D(minPoint, maxPoint);
                 usePattern[index1D] = true;
             }
 
             var minDepth = Enumerable.Repeat(int.MaxValue, blockLength).ToArray();
 
-            for (var y = minY; y < maxY; y++) {
-                for (var z = minZ; z < maxZ; z++) {
+            for (var y = minPoint.Y; y < maxPoint.Y; y++) {
+                for (var z = minPoint.Z; z < maxPoint.Z; z++) {
                     var depth = 0;
-                    for (var x = minX; x < maxX; x++) {
+                    for (var x = minPoint.X; x < maxPoint.X; x++) {
                         var p = new Point3i(x, y, z);
                         var index1D = p.To1D(minPoint, maxPoint);
                         if (usePattern[index1D]) {
@@ -130,10 +113,10 @@ namespace Monoceros {
                 }
             }
 
-            for (var y = minY; y < maxY; y++) {
-                for (var z = minZ; z < maxZ; z++) {
+            for (var y = minPoint.Y; y < maxPoint.Y; y++) {
+                for (var z = minPoint.Z; z < maxPoint.Z; z++) {
                     var depth = 0;
-                    for (var x = maxX - 1; x >= minX; x--) {
+                    for (var x = maxPoint.X - 1; x >= minPoint.X; x--) {
                         var p = new Point3i(x, y, z);
                         var index1D = p.To1D(minPoint, maxPoint);
                         if (usePattern[index1D]) {
@@ -146,10 +129,10 @@ namespace Monoceros {
                 }
             }
 
-            for (var x = minX; x < maxX; x++) {
-                for (var z = minZ; z < maxZ; z++) {
+            for (var x = minPoint.X; x < maxPoint.X; x++) {
+                for (var z = minPoint.Z; z < maxPoint.Z; z++) {
                     var depth = 0;
-                    for (var y = minY; y < maxY; y++) {
+                    for (var y = minPoint.Y; y < maxPoint.Y; y++) {
                         var p = new Point3i(x, y, z);
                         var index1D = p.To1D(minPoint, maxPoint);
                         if (usePattern[index1D]) {
@@ -162,10 +145,10 @@ namespace Monoceros {
                 }
             }
 
-            for (var x = minX; x < maxX; x++) {
-                for (var z = minZ; z < maxZ; z++) {
+            for (var x = minPoint.X; x < maxPoint.X; x++) {
+                for (var z = minPoint.Z; z < maxPoint.Z; z++) {
                     var depth = 0;
-                    for (var y = maxY - 1; y >= minY; y--) {
+                    for (var y = maxPoint.Y - 1; y >= minPoint.Y; y--) {
                         var p = new Point3i(x, y, z);
                         var index1D = p.To1D(minPoint, maxPoint);
                         if (usePattern[index1D]) {
@@ -178,10 +161,10 @@ namespace Monoceros {
                 }
             }
 
-            for (var x = minX; x < maxX; x++) {
-                for (var y = minY; y < maxY; y++) {
+            for (var x = minPoint.X; x < maxPoint.X; x++) {
+                for (var y = minPoint.Y; y < maxPoint.Y; y++) {
                     var depth = 0;
-                    for (var z = minZ; z < maxZ; z++) {
+                    for (var z = minPoint.Z; z < maxPoint.Z; z++) {
                         var p = new Point3i(x, y, z);
                         var index1D = p.To1D(minPoint, maxPoint);
                         if (usePattern[index1D]) {
@@ -194,10 +177,10 @@ namespace Monoceros {
                 }
             }
 
-            for (var x = minX; x < maxX; x++) {
-                for (var y = minY; y < maxY; y++) {
+            for (var x = minPoint.X; x < maxPoint.X; x++) {
+                for (var y = minPoint.Y; y < maxPoint.Y; y++) {
                     var depth = 0;
-                    for (var z = maxZ - 1; z >= minZ; z--) {
+                    for (var z = maxPoint.Z - 1; z >= minPoint.Z; z--) {
                         var p = new Point3i(x, y, z);
                         var index1D = p.To1D(minPoint, maxPoint);
                         if (usePattern[index1D]) {
@@ -209,7 +192,6 @@ namespace Monoceros {
                     }
                 }
             }
-
 
             var layerPattern = minDepth.Select(depth => depth > 0 && depth <= layers);
 

@@ -78,7 +78,7 @@ namespace Monoceros {
 
             foreach (var module in modules) {
                 if (module == null || !module.IsValid) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The module is null or invalid.");
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "A Module is null or invalid.");
                     continue;
                 }
                 for (var connectorIndex = 0; connectorIndex < module.Connectors.Count; connectorIndex++) {
@@ -91,7 +91,7 @@ namespace Monoceros {
 
             if (!rules.Any()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                                  "The point does not mark any module connector.");
+                                  "Point " + point + "does not mark any module connector.");
             }
 
             foreach (var rule in rules) {

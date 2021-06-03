@@ -50,16 +50,14 @@ namespace Monoceros {
             var moduleDiagonal = modules.First().PartDiagonal;
 
 
-            var modulesClean = new List<Module>();
-            foreach (var module in modules) {
-                if (module == null || !module.IsValid) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Module is null or invalid.");
-                    return;
-                }
-                modulesClean.Add(module);
+            var invalidModuleCount = modules.RemoveAll(module => module == null || !module.IsValid);
+
+            if (invalidModuleCount > 0) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  invalidModuleCount + " Modules are null or invalid and were removed.");
             }
 
-            if (modulesClean.Any(module => module.PartDiagonal != moduleDiagonal)) {
+            if (modules.Any(module => module.PartDiagonal != moduleDiagonal)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "Modules are not defined with the same diagonal.");
                 return;
@@ -74,9 +72,10 @@ namespace Monoceros {
 
             var connectorGeometries = new List<ConnectorGeometry>();
 
+            // TODO: COnsider using global Epsilon instead
             var precision = moduleDiagonal.Length / 1000;
 
-            foreach (var module in modulesClean) {
+            foreach (var module in modules) {
                 if (module == null || !module.IsValid) {
                     AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The Module is null or invalid.");
                     continue;

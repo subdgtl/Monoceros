@@ -85,7 +85,7 @@ namespace Monoceros {
         protected override void SolveInstance(IGH_DataAccess DA) {
             var slot = new Slot();
             var moduleNames = new List<ModuleName>();
-            var modulesProvided = false;
+            var moduleNamesProvided = false;
 
             if (!DA.GetData(0, ref slot)) {
                 return;
@@ -97,13 +97,13 @@ namespace Monoceros {
             }
 
             if (DA.GetDataList(1, moduleNames)) {
-                modulesProvided = true;
+                moduleNamesProvided = true;
             }
 
-            DA.SetDataList(0, new List<Point3d>() { slot.AbsoluteCenter });
-            DA.SetDataList(1, new List<Plane>() { slot.BasePlane });
-            DA.SetDataList(2, new List<Vector3d>() { slot.Diagonal });
-            if (modulesProvided
+            DA.SetDataList(0, new [] { slot.AbsoluteCenter });
+            DA.SetDataList(1, new [] { slot.BasePlane });
+            DA.SetDataList(2, new [] { slot.Diagonal });
+            if (moduleNamesProvided
                 && moduleNames != null
                 && slot.AllowsAnyModule
                 && slot.AllowedModuleNames.Count == 0) {
@@ -111,25 +111,25 @@ namespace Monoceros {
             } else {
                 DA.SetDataList(3, slot.AllowedModuleNames.Select(name => new ModuleName(name)));
             }
-            if (modulesProvided
+            if (moduleNamesProvided
                 && moduleNames != null
                 && slot.AllowedModuleNames.Count >= moduleNames.Count
                 && moduleNames.All(name => slot.AllowedModuleNames.Contains(name.ToString()))) {
-                DA.SetDataList(5, new List<bool>() { true });
+                DA.SetDataList(5, new [] { true });
             } else {
-                DA.SetDataList(5, new List<bool>() { slot.AllowsAnyModule });
+                DA.SetDataList(5, new [] { slot.AllowsAnyModule });
             }
-            DA.SetDataList(6, new List<bool>() { slot.IsContradictory });
-            if (modulesProvided
+            DA.SetDataList(6, new [] { slot.IsContradictory });
+            if (moduleNamesProvided
                 && moduleNames != null
                 && (slot.AllowedModuleNames.Count > moduleNames.Count
                 || !slot.AllowedModuleNames.All(name => moduleNames.Any(moduleName => moduleName.Name == name))
                 )) {
-                DA.SetDataList(7, new List<bool>() { false });
+                DA.SetDataList(7, new [] { false });
             } else {
-                DA.SetDataList(7, new List<bool>() { slot.IsValid });
+                DA.SetDataList(7, new [] { slot.IsValid });
             }
-            DA.SetDataList(4, new List<bool>() { slot.IsDeterministic });
+            DA.SetDataList(4, new [] { slot.IsDeterministic });
         }
 
         /// <summary>

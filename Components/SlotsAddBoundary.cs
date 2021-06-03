@@ -46,32 +46,34 @@ namespace Monoceros {
                 return;
             }
 
-            if (slots.Any(slot => slot == null || !slot.IsValid)) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Slot is null or invalid.");
+
+            var invalidCount = slots.RemoveAll(slot => slot == null || !slot.IsValid);
+            
+            if (invalidCount > 0) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  "One or more Slots are null or invalid and were removed.");
             }
 
-            var slotsClean = slots.Where(slot => slot != null || slot.IsValid);
-
-            if (!slotsClean.Any()) {
+            if (!slots.Any()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Slots collected.");
                 return;
             }
 
-            if (!Slot.AreSlotDiagonalsCompatible(slotsClean)) {
+            if (!Slot.AreSlotDiagonalsCompatible(slots)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "Slots are not defined with the same diagonal.");
                 return;
             }
-            var diagonal = slotsClean.First().Diagonal;
+            var diagonal = slots.First().Diagonal;
 
-            if (!Slot.AreSlotBasePlanesCompatible(slotsClean)) {
+            if (!Slot.AreSlotBasePlanesCompatible(slots)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "Slots are not defined with the same base plane.");
                 return;
             }
-            var basePlane = slotsClean.First().BasePlane;
+            var basePlane = slots.First().BasePlane;
 
-            if (!Slot.AreSlotLocationsUnique(slotsClean)) {
+            if (!Slot.AreSlotLocationsUnique(slots)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Slot centers are not unique.");
                 return;
             }
@@ -85,7 +87,7 @@ namespace Monoceros {
                 new Point3i(0, 0, 1)
             };
 
-            var allSlotCenters = slotsClean
+            var allSlotCenters = slots
                 .Select(slot => slot.RelativeCenter);
 
             var neighborCenters = allSlotCenters

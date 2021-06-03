@@ -52,73 +52,74 @@ namespace Monoceros {
         /// <param name="DA">The DA object can be used to retrieve data from
         ///     input parameters and to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA) {
-            var modulesRaw = new List<Module>();
-            var slotsRaw = new List<Slot>();
+            var modules = new List<Module>();
+            var slots = new List<Slot>();
 
-            if (!DA.GetDataList(0, slotsRaw)) {
+            if (!DA.GetDataList(0, slots)) {
                 return;
             }
 
-            if (!DA.GetDataList(1, modulesRaw)) {
+            if (!DA.GetDataList(1, modules)) {
                 return;
             }
-
-            var slotsClean = new List<Slot>();
 
             var warnNonDeterministic = false;
 
-            foreach (var slot in slotsRaw) {
-                if (slot == null || !slot.IsValid) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Slot is null or invalid and will be skipped.");
-                    continue;
-                }
-                if (!slot.IsDeterministic) {
-                    warnNonDeterministic = true;
-                }
-                slotsClean.Add(slot);
+            var invalidSlotCount = slots.RemoveAll(slot => slot == null || !slot.IsValid);
+
+            if (invalidSlotCount > 0) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  invalidSlotCount + " Slots are null or invalid and were removed.");
             }
+
+            if (slots.Any(slot => !slot.IsDeterministic)) {
+                warnNonDeterministic = true;
+            }
+
+            // TODO: Optionally support also non-deterministic Slots
             if (warnNonDeterministic) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "One or more Slots are non-deterministic.");
             }
 
-            var modulesClean = new List<Module>();
-            foreach (var module in modulesRaw) {
-                if (module == null || !module.IsValid) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Module is null or invalid.");
-                    continue;
-                }
-                if (module.Geometry.Count + module.ReferencedGeometry.Count == 0) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "Module \"" + module.Name + "\" contains " +
-                        "no geometry and therefore will be skipped.");
-                    continue;
-                }
+            var invalidModuleCount = modules.RemoveAll(module => module == null || !module.IsValid);
 
-                modulesClean.Add(module);
+            if (invalidModuleCount > 0) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  invalidModuleCount + " Modules are null or invalid and were removed.");
             }
 
-            if (!modulesClean.Any()) {
+            var emptyModuleCount = modules.RemoveAll(module => !module.Geometry.Any() && !module.ReferencedGeometry.Any());
+
+            // TODO: Support also Slots without any geometry including/excluding reserved Empty
+            // (backward compatibility issue)
+            if (emptyModuleCount > 0) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  invalidModuleCount + " Modules contain no geometry and therefore were skipped.");
+            }
+
+            if (!modules.Any()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Modules collected.");
                 return;
             }
 
-            if (!slotsClean.Any()) {
+            if (!slots.Any()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Slots collected.");
                 return;
             }
 
             var rulesOut = new List<Rule>();
-            foreach (var slot in slotsClean) {
-                foreach (var slotOther in slotsClean) {
+            foreach (var slot in slots) {
+                foreach (var slotOther in slots) {
                     if (slot.RelativeCenter.IsNeighbor(slotOther.RelativeCenter)) {
                         var neighborVector = (slotOther.RelativeCenter - slot.RelativeCenter).ToVector3d();
                         if (Direction.FromVector(neighborVector, out var direction)
                             && direction.Orientation == Orientation.Positive) {
                             foreach (var currentPart in slot.AllowedPartNames) {
                                 foreach (var otherPart in slotOther.AllowedPartNames) {
-                                    if (modulesClean.Any(module => module.ContainsPart(currentPart))
-                                        && modulesClean.Any(module => module.ContainsPart(otherPart))) {
+                                    if (modules.Any(module => module.ContainsPart(currentPart))
+                                        && modules.Any(module => module.ContainsPart(otherPart))) {
                                         var ruleForSolver = new RuleForSolver(direction.Axis, currentPart, otherPart);
-                                        if (RuleExplicit.FromRuleForSolver(ruleForSolver, modulesClean, out var ruleExplicit)) {
+                                        if (RuleExplicit.FromRuleForSolver(ruleForSolver, modules, out var ruleExplicit)) {
                                             var rule = new Rule(ruleExplicit);
                                             if (!rulesOut.Contains(rule)) {
                                                 rulesOut.Add(rule);

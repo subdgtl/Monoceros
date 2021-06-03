@@ -48,34 +48,34 @@ namespace Monoceros {
         ///     input parameters and to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA) {
             var modules = new List<Module>();
-            var rulesInput = new List<Rule>();
+            var rules = new List<Rule>();
 
             if (!DA.GetDataList(0, modules)) {
                 return;
             }
 
-            if (!DA.GetDataList(1, rulesInput)) {
+            if (!DA.GetDataList(1, rules)) {
                 return;
             }
 
-            var modulesClean = new List<Module>();
-            foreach (var module in modules) {
-                if (module == null || !module.IsValid) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The module is null or invalid.");
-                } else {
-                    modulesClean.Add(module);
-                }
-            }
+            var invalidModuleCount = modules.RemoveAll(module => module == null || !module.IsValid);
 
-            if (rulesInput.Any(rule => rule == null || !rule.IsValid)) {
+            if (invalidModuleCount > 0) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  "Some of the rules are null or invalid.");
+                                  invalidModuleCount + " Modules are null or invalid and were removed.");
             }
 
-            var rulesClean = rulesInput.Where(rule => rule.IsValidWithModules(modulesClean));
 
-            var rulesTyped = rulesClean
-                .Where(rule => rule != null && rule.IsTyped)
+            var invalidRuleCount = rules
+                .RemoveAll(rule => rule == null || !rule.IsValid || !rule.IsValidWithModules(modules));
+
+            if (invalidRuleCount > 0) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  invalidModuleCount + " Rules are null or invalid and were removed.");
+            }
+
+            var rulesTyped = rules
+                .Where(rule => rule.IsTyped)
                 .Select(rule => rule.Typed);
 
             Module.GenerateEmptySingleModule(Config.OUTER_MODULE_NAME,
@@ -84,14 +84,14 @@ namespace Monoceros {
                                              out var moduleOut,
                                              out var rulesOut);
             rulesTyped = rulesTyped.Concat(rulesOut);
-            modulesClean.Add(moduleOut);
+            modules.Add(moduleOut);
 
             var rulesTypedUnwrapped = rulesTyped
-                .SelectMany(ruleTyped => ruleTyped.ToRulesExplicit(rulesTyped, modulesClean))
+                .SelectMany(ruleTyped => ruleTyped.ToRulesExplicit(rulesTyped, modules))
                 .Select(ruleExplicit => new Rule(ruleExplicit));
 
-            var rulesExplicit = rulesClean
-                .Where(rule => rule != null && rule.IsExplicit);
+            var rulesExplicit = rules
+                .Where(rule => rule.IsExplicit);
 
             var rulesDeduplicated = rulesExplicit
                 .Concat(rulesTypedUnwrapped)

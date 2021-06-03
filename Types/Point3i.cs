@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Rhino.Geometry;
 
 namespace Monoceros {
@@ -166,6 +167,39 @@ namespace Monoceros {
 
         public static Point3i From1D(int index, Point3i max) {
             return From1D(index, new Point3i(0, 0, 0), max);
+        }
+
+        public static void ComputeBlockBoundsWithOffset(IEnumerable<Slot> slots,
+                                                                 Point3i offset,
+                                                                 out Point3i min,
+                                                                 out Point3i max) {
+            var minX = int.MaxValue;
+            var minY = int.MaxValue;
+            var minZ = int.MaxValue;
+            var maxX = int.MinValue;
+            var maxY = int.MinValue;
+            var maxZ = int.MinValue;
+
+            foreach (var slot in slots) {
+                var center = slot.RelativeCenter;
+                minX = Math.Min(minX, center.X);
+                minY = Math.Min(minY, center.Y);
+                minZ = Math.Min(minZ, center.Z);
+                maxX = Math.Max(maxX, center.X);
+                maxY = Math.Max(maxY, center.Y);
+                maxZ = Math.Max(maxZ, center.Z);
+            }
+
+            min = new Point3i(minX, minY, minZ) - offset;
+            max = new Point3i(maxX, maxY, maxZ) + offset;
+        }
+
+        public static int ComputeBlockLength(Point3i min, Point3i max) {
+            var lengthX = max.X - min.X + 1;
+            var lengthY = max.Y - min.Y + 1;
+            var lengthZ = max.Z - min.Z + 1;
+
+            return (lengthX * lengthY * lengthZ);
         }
 
     }

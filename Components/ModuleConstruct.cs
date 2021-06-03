@@ -144,8 +144,8 @@ namespace Monoceros {
         /// <param name="DA">The DA object can be used to retrieve data from
         ///     input parameters and to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA) {
-            var slotCenters = new List<Point3d>();
-            var productionGeometryRaw = new List<IGH_GeometricGoo>();
+            var modulePartCenters = new List<Point3d>();
+            var moduleGeometry = new List<IGH_GeometricGoo>();
             var nameRaw = new ModuleName();
             var basePlane = new Plane();
             var slotDiagonal = new Vector3d();
@@ -154,11 +154,11 @@ namespace Monoceros {
                 return;
             }
 
-            if (!DA.GetDataList(1, slotCenters)) {
+            if (!DA.GetDataList(1, modulePartCenters)) {
                 return;
             }
 
-            DA.GetDataList(2, productionGeometryRaw);
+            DA.GetDataList(2, moduleGeometry);
 
             if (!DA.GetData(3, ref basePlane)) {
                 return;
@@ -188,7 +188,7 @@ namespace Monoceros {
                 return;
             }
 
-            if (!slotCenters.Any()) {
+            if (!modulePartCenters.Any()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "Failed to collect Slot Points.");
                 return;
@@ -208,43 +208,48 @@ namespace Monoceros {
             // Orient to the world coordinate system
             var worldAlignmentTransform = Transform.PlaneToPlane(basePlane, Plane.WorldXY);
             // Slot dimension is for the sake of this calculation 1,1,1
-            var partCenters = slotCenters.Select(center => {
+            var partCenters = modulePartCenters.Select(center => {
                 center.Transform(normalizationTransform);
                 center.Transform(worldAlignmentTransform);
                 return new Point3i(center);
             }).Distinct()
             .ToList();
 
-            var gooClean = productionGeometryRaw
-                           .Where(goo => goo != null);
-            var productionGeometryClean = gooClean
+            var inavlidGeometryCount = moduleGeometry.RemoveAll(goo => goo == null);
+
+            if (inavlidGeometryCount > 0) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Some geometry was not used.");
+            }
+
+            if (!moduleGeometry.Any()) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "Module \"" + name + "\" contains" +
+                    " no geometry and will appear empty.");
+            }
+
+            var geometryFromGrasshopper = moduleGeometry
                .Where(goo => !goo.IsReferencedGeometry)
                .Select(ghGeo => {
                    var geo = ghGeo.Duplicate();
                    return GH_Convert.ToGeometryBase(geo);
                });
-            var productionGeometryReferencedClean = gooClean
+            var geometryReferencedFromRhino = moduleGeometry
                .Where(goo => goo.IsReferencedGeometry)
                .Select(ghGeo => {
                    var geo = ghGeo.Duplicate();
                    return GH_Convert.ToGeometryBase(geo);
                });
 
-            var guidsClean = gooClean
+            var referencedGeometryGuids = moduleGeometry
                .Where(goo => goo.IsReferencedGeometry)
                .Select(ghGeo => ghGeo.ReferenceID);
 
             var module = new Module(name,
-                                    productionGeometryClean,
-                                    productionGeometryReferencedClean,
-                                    guidsClean,
+                                    geometryFromGrasshopper,
+                                    geometryReferencedFromRhino,
+                                    referencedGeometryGuids,
                                     basePlane,
                                     partCenters,
                                     slotDiagonal);
-
-            if (module.Geometry.Count + module.ReferencedGeometry.Count != productionGeometryRaw.Count) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Some geometry was not used.");
-            }
 
             if (!module.IsValid) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, module.IsValidWhyNot);

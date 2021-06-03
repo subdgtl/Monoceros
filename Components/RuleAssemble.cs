@@ -11,12 +11,12 @@ using Rhino.Geometry;
 namespace Monoceros {
     public class ComponentAssembleRule : GH_Component, IGH_BakeAwareObject {
 
-        private List<GeometryBase> _sourceModuleGeometry;
-        private List<GeometryBase> _sourceModuleReferencedGeometry;
-        private List<Guid> _sourceModuleGuids;
-        private List<GeometryBase> _targetModuleGeometry;
-        private List<GeometryBase> _targetModuleReferencedGeometry;
-        private List<Guid> _targetModuleGuids;
+        private IEnumerable<GeometryBase> _sourceModuleGeometry;
+        private IEnumerable<GeometryBase> _sourceModuleReferencedGeometry;
+        private IEnumerable<Guid> _sourceModuleGuids;
+        private IEnumerable<GeometryBase> _targetModuleGeometry;
+        private IEnumerable<GeometryBase> _targetModuleReferencedGeometry;
+        private IEnumerable<Guid> _targetModuleGuids;
         private string _ruleString;
 
         public ComponentAssembleRule( ) : base("Assemble Rule",
@@ -69,11 +69,11 @@ namespace Monoceros {
         /// <param name="DA">The DA object can be used to retrieve data from
         ///     input parameters and to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA) {
-            var modulesRaw = new List<Module>();
+            var modules = new List<Module>();
             var rule = new Rule();
             var basePlane = new Plane();
 
-            if (!DA.GetDataList(0, modulesRaw)) {
+            if (!DA.GetDataList(0, modules)) {
                 return;
             }
 
@@ -111,29 +111,27 @@ namespace Monoceros {
                 return;
             }
 
-            var modulesClean = new List<Module>();
-            foreach (var module in modulesRaw) {
-                if (module == null || !module.IsValid) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Module is null or invalid.");
-                } else {
-                    modulesClean.Add(module);
-                }
+            var invalidModuleCount = modules.RemoveAll(module => module == null || !module.IsValid);
+
+            if (invalidModuleCount > 0) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  invalidModuleCount + " Modules are null or invalid and were removed.");
             }
 
-            if (!modulesClean.Any()) {
+            if (!modules.Any()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Modules collected.");
                 return;
             }
 
-            if (!rule.IsValidWithModules(modulesClean)) {
+            if (!rule.IsValidWithModules(modules)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "The Monoceros Rule is not valid with the given Monoceros Modules.");
                 return;
             }
 
-            var sourceModule = modulesClean.Find(module => module.Name == rule.Explicit.SourceModuleName);
+            var sourceModule = modules.Find(module => module.Name == rule.Explicit.SourceModuleName);
             var sourceConnector = sourceModule.Connectors[rule.Explicit.SourceConnectorIndex];
-            var targetModule = modulesClean.Find(module => module.Name == rule.Explicit.TargetModuleName);
+            var targetModule = modules.Find(module => module.Name == rule.Explicit.TargetModuleName);
             var targetConnector = targetModule.Connectors[rule.Explicit.TargetConnectorIndex];
 
             if ((!sourceModule.Geometry.Any()
@@ -150,15 +148,14 @@ namespace Monoceros {
                 var placedGeometry = geo.Duplicate();
                 placedGeometry.Transform(sourceModuleTransform);
                 return placedGeometry;
-            }).ToList();
+            });
             var sourceModuleReferencedGeometry = sourceModule.ReferencedGeometry.Select(geo => {
                 var placedGeometry = geo.Duplicate();
                 placedGeometry.Transform(sourceModuleTransform);
                 return placedGeometry;
-            }).ToList();
+            });
             var allSourceModuleGeometry = sourceModuleGeometry
-                .Concat(sourceModuleReferencedGeometry)
-                .ToList();
+                .Concat(sourceModuleReferencedGeometry);
 
             var transformedSourceConnectorPlane = sourceConnector.AnchorPlane.Clone();
             transformedSourceConnectorPlane.Transform(sourceModuleTransform);
@@ -168,15 +165,14 @@ namespace Monoceros {
                 var placedGeometry = geo.Duplicate();
                 placedGeometry.Transform(targetModuleTransform);
                 return placedGeometry;
-            }).ToList();
+            });
             var targetModuleReferencedGeometry = targetModule.ReferencedGeometry.Select(geo => {
                 var placedGeometry = geo.Duplicate();
                 placedGeometry.Transform(targetModuleTransform);
                 return placedGeometry;
-            }).ToList();
+            });
             var allTargetModuleGeometry = targetModuleGeometry
-                .Concat(targetModuleReferencedGeometry)
-                .ToList();
+                .Concat(targetModuleReferencedGeometry);
 
             _sourceModuleGeometry = sourceModuleGeometry;
             _sourceModuleReferencedGeometry = sourceModuleReferencedGeometry;

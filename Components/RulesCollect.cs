@@ -68,13 +68,18 @@ namespace Monoceros {
 
             DA.GetDataList(2, disallowed);
 
-            var modulesClean = new List<Module>();
-            foreach (var module in modules) {
-                if (module == null || !module.IsValid) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The module is null or invalid.");
-                } else {
-                    modulesClean.Add(module);
-                }
+            var invalidModuleCount = modules.RemoveAll(module => module == null || !module.IsValid);
+
+            if (invalidModuleCount > 0) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  invalidModuleCount + " Modules are null or invalid and were removed.");
+            }
+
+            var invalidAllowedRuleCount = allowed.RemoveAll(rule => rule == null || !rule.IsValid);
+
+            if (invalidAllowedRuleCount > 0) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  invalidModuleCount + " allowed Rules are null or invalid and were removed.");
             }
 
             Module.GenerateEmptySingleModule(Config.OUTER_MODULE_NAME,
@@ -83,31 +88,27 @@ namespace Monoceros {
                                             out var moduleOut,
                                             out var rulesOut);
 
-            var allowedClean = allowed.Concat(
+            allowed.AddRange(
                 rulesOut.Select(ruleExplicit => new Rule(ruleExplicit))
                 );
-            modulesClean.Add(moduleOut);
+            modules.Add(moduleOut);
 
-
-            if (allowed.Any(rule => rule == null || !rule.IsValid)) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  "Some of the allowed Rules are null or invalid.");
-            }
-
-            var allowedOriginalClean = allowedClean
-                .Where(rule => rule.IsValidWithModules(modulesClean))
+            var allowedOriginalClean = allowed
+                .Where(rule => rule.IsValidWithModules(modules))
                 .Distinct();
 
             if (disallowed == null || !disallowed.Any()) {
-                var earlyRules = allowedOriginalClean.ToList();
-                earlyRules.Sort();
-                DA.SetDataList(0, earlyRules);
+                var earlyReturnRules = allowedOriginalClean.ToList();
+                earlyReturnRules.Sort();
+                DA.SetDataList(0, earlyReturnRules);
                 return;
             }
 
-            if (disallowed.Any(rule => rule == null || !rule.IsValid)) {
+            var invalidDisallowedRuleCount = disallowed.RemoveAll(rule => rule == null || !rule.IsValid);
+
+            if (invalidDisallowedRuleCount > 0) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  "Some of the disallowed rules are null or invalid.");
+                                  invalidModuleCount + " disallowed Rules are null or invalid and were removed.");
             }
 
             var allowedExplicit = allowedOriginalClean
@@ -119,7 +120,7 @@ namespace Monoceros {
                 .Select(rule => rule.Typed);
 
             var disallowedOriginalClean = disallowed
-                .Where(rule => rule.IsValidWithModules(modulesClean))
+                .Where(rule => rule.IsValidWithModules(modules))
                 .Distinct();
 
             var disallowedExplicit = disallowedOriginalClean
@@ -157,7 +158,7 @@ namespace Monoceros {
                 var type = entry.Key;
                 var rules = entry.Value;
                 if (disallowedTypedByType.ContainsKey(type)) {
-                    var rulesExplicit = rules.SelectMany(rule => rule.ToRulesExplicit(rules, modulesClean));
+                    var rulesExplicit = rules.SelectMany(rule => rule.ToRulesExplicit(rules, modules));
                     var disallowedRules = disallowedTypedByType[type];
                     foreach (var rule in rulesExplicit) {
                         if (disallowedRules.Any(disallowedRule =>
@@ -173,17 +174,11 @@ namespace Monoceros {
 
             // unwrap all typed rules
             foreach (var rule in allTypedRules) {
-                var rulesExplicit = rule.ToRulesExplicit(allTypedRules, modulesClean);
+                var rulesExplicit = rule.ToRulesExplicit(allTypedRules, modules);
                 allowedExplicit.AddRange(rulesExplicit);
             }
 
-            var finalExplicit = new List<RuleExplicit>();
-
-            foreach (var rule in allowedExplicit) {
-                if (!disallowedExplicit.Any(disallowedRule => disallowedRule.Equals(rule))) {
-                    finalExplicit.Add(rule);
-                }
-            }
+            var finalExplicit = allowedExplicit.Except(disallowedExplicit);
 
             var outputRules = finalExplicit
                 .Where(rule => !(rule.SourceModuleName == Config.OUTER_MODULE_NAME && rule.TargetModuleName == Config.OUTER_MODULE_NAME))

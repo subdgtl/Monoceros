@@ -59,44 +59,40 @@ namespace Monoceros {
         /// <param name="DA">The DA object can be used to retrieve data from
         ///     input parameters and to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA) {
-            var modulesRaw = new List<Module>();
-            var slotsRaw = new List<Slot>();
+            var modules = new List<Module>();
+            var slots = new List<Slot>();
 
-            if (!DA.GetDataList(0, modulesRaw)) {
+            if (!DA.GetDataList(0, modules)) {
                 return;
             }
 
-            if (!DA.GetDataList(1, slotsRaw)) {
+            if (!DA.GetDataList(1, slots)) {
                 return;
             }
 
             var transforms = new DataTree<Transform>();
             var geometry = new DataTree<GeometryBase>();
 
-            var slotsClean = new List<Slot>();
-            foreach (var slot in slotsRaw) {
-                if (slot == null || !slot.IsValid) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Slot is null or invalid.");
-                } else {
-                    slotsClean.Add(slot);
-                }
+            var invalidSlotCount = slots.RemoveAll(slot => slot == null || !slot.IsValid);
+
+            if (invalidSlotCount > 0) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  invalidSlotCount + " Slots are null or invalid and were removed.");
             }
 
-            if (!slotsClean.Any()) {
+            if (!slots.Any()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Slots collected.");
                 return;
             }
 
-            var modulesClean = new List<Module>();
-            foreach (var module in modulesRaw) {
-                if (module == null || !module.IsValid) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Module is null or invalid.");
-                } else {
-                    modulesClean.Add(module);
-                }
+            var invalidModuleCount = modules.RemoveAll(module => module == null || !module.IsValid);
+
+            if (invalidModuleCount > 0) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  invalidModuleCount + " Modules are null or invalid and were removed.");
             }
 
-            if (!modulesClean.Any()) {
+            if (!modules.Any()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Modules collected.");
                 return;
             }
@@ -106,13 +102,13 @@ namespace Monoceros {
             _moduleNames = new List<string>();
             _moduleTransforms = new List<List<Transform>>();
 
-            for (var moduleIndex = 0; moduleIndex < modulesClean.Count; moduleIndex++) {
-                var module = modulesClean[moduleIndex];
+            for (var moduleIndex = 0; moduleIndex < modules.Count; moduleIndex++) {
+                var module = modules[moduleIndex];
                 var currentModuleTransforms = new List<Transform>();
                 var allModuleGeometry = module.Geometry.Concat(module.ReferencedGeometry);
-                for (var slotIndex = 0; slotIndex < slotsClean.Count; slotIndex++) {
-                    var slot = slotsClean[slotIndex];
-                    // TODO: Think about how to display bake contradictory and non-deterministic slots.
+                for (var slotIndex = 0; slotIndex < slots.Count; slotIndex++) {
+                    var slot = slots[slotIndex];
+                    // TODO: Think about how to display and bake contradictory and non-deterministic slots.
                     if (slot.AllowedPartNames.Count == 1 &&
                         slot.AllowedPartNames[0] == module.PivotPartName) {
                         var transform = Transform.PlaneToPlane(module.Pivot, slot.Pivot);
@@ -127,7 +123,7 @@ namespace Monoceros {
                     }
                 }
                 transforms.AddRange(currentModuleTransforms, new GH_Path(new int[] { moduleIndex }));
-                _moduleGeometry.Add(module.Geometry.ToList());
+                _moduleGeometry.Add(module.Geometry);
                 _moduleGuids.Add(module.ReferencedGeometryGuids);
                 _moduleTransforms.Add(currentModuleTransforms);
                 _moduleNames.Add(module.Name);
