@@ -8,6 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F37C40FF-C699-4538-A85B-FEF35009F4AC}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		Components\RuleAssemble.cs = Components\RuleAssemble.cs
 	EndProjectSection
 EndProject
 Global

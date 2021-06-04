@@ -9,17 +9,17 @@ using Rhino.DocObjects;
 using Rhino.Geometry;
 
 namespace Monoceros {
-    public class ComponentAssembleRule : GH_Component, IGH_BakeAwareObject {
+    public class ComponentAssembleRuleObsolete1245 : GH_Component, IGH_BakeAwareObject {
 
-        private IEnumerable<GeometryBase> _sourceModuleGeometry;
-        private IEnumerable<GeometryBase> _sourceModuleReferencedGeometry;
-        private IEnumerable<Guid> _sourceModuleGuids;
-        private IEnumerable<GeometryBase> _targetModuleGeometry;
-        private IEnumerable<GeometryBase> _targetModuleReferencedGeometry;
-        private IEnumerable<Guid> _targetModuleGuids;
+        private List<GeometryBase> _sourceModuleGeometry;
+        private List<GeometryBase> _sourceModuleReferencedGeometry;
+        private List<Guid> _sourceModuleGuids;
+        private List<GeometryBase> _targetModuleGeometry;
+        private List<GeometryBase> _targetModuleReferencedGeometry;
+        private List<Guid> _targetModuleGuids;
         private string _ruleString;
 
-        public ComponentAssembleRule( ) : base("Assemble Rule",
+        public ComponentAssembleRuleObsolete1245( ) : base("Assemble Rule",
                                                "AssembleRule",
                                                "Materialize Monoceros Rule.",
                                                "Monoceros",
@@ -40,9 +40,9 @@ namespace Monoceros {
                                   "R",
                                   "Monoceros Explicit Rule",
                                   GH_ParamAccess.item);
-            pManager.AddPlaneParameter("Source Module Pivot Plane",
+            pManager.AddPlaneParameter("Base Plane",
                                        "P",
-                                       "Plane to put the Source Module's Pivot onto",
+                                       "Base plane for the first Monoceros Module Pivot",
                                        GH_ParamAccess.item,
                                        Plane.WorldXY);
         }
@@ -51,19 +51,19 @@ namespace Monoceros {
         /// Registers all the output parameters for this component.
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
-            pManager.AddParameter(new SlotParameter(),
-                                          "Source Slots",
-                                          "SS",
-                                          "Slots generated from Monoceros Module described by the " +
-                                          "Monoceros Rule as source.",
+            pManager.AddGeometryParameter("Source Geometry",
+                                          "SG",
+                                          "Geometry from Monoceros Module described by the " +
+                                          "Monoceros Rule as source",
                                           GH_ParamAccess.list);
-            pManager.AddParameter(new SlotParameter(),
-                                          "Target Slots",
-                                          "TS",
-                                          "Slots generated from Monoceros Module described by the " +
-                                          "Monoceros Rule as target.",
+            pManager.AddGeometryParameter("Target Geometry",
+                                          "TG",
+                                          "Geometry from Monoceros Module described by the " +
+                                          "Monoceros Rule as target",
                                           GH_ParamAccess.list);
         }
+        public override bool Obsolete => true;
+        public override GH_Exposure Exposure => GH_Exposure.hidden;
 
         /// <summary>
         /// Wrap input geometry into module cages.
@@ -71,11 +71,11 @@ namespace Monoceros {
         /// <param name="DA">The DA object can be used to retrieve data from
         ///     input parameters and to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA) {
-            var modules = new List<Module>();
+            var modulesRaw = new List<Module>();
             var rule = new Rule();
             var basePlane = new Plane();
 
-            if (!DA.GetDataList(0, modules)) {
+            if (!DA.GetDataList(0, modulesRaw)) {
                 return;
             }
 
@@ -113,27 +113,29 @@ namespace Monoceros {
                 return;
             }
 
-            var invalidModuleCount = modules.RemoveAll(module => module == null || !module.IsValid);
-
-            if (invalidModuleCount > 0) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  invalidModuleCount + " Modules are null or invalid and were removed.");
+            var modulesClean = new List<Module>();
+            foreach (var module in modulesRaw) {
+                if (module == null || !module.IsValid) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Module is null or invalid.");
+                } else {
+                    modulesClean.Add(module);
+                }
             }
 
-            if (!modules.Any()) {
+            if (!modulesClean.Any()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Modules collected.");
                 return;
             }
 
-            if (!rule.IsValidWithModules(modules)) {
+            if (!rule.IsValidWithModules(modulesClean)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "The Monoceros Rule is not valid with the given Monoceros Modules.");
                 return;
             }
 
-            var sourceModule = modules.Find(module => module.Name == rule.Explicit.SourceModuleName);
+            var sourceModule = modulesClean.Find(module => module.Name == rule.Explicit.SourceModuleName);
             var sourceConnector = sourceModule.Connectors[rule.Explicit.SourceConnectorIndex];
-            var targetModule = modules.Find(module => module.Name == rule.Explicit.TargetModuleName);
+            var targetModule = modulesClean.Find(module => module.Name == rule.Explicit.TargetModuleName);
             var targetConnector = targetModule.Connectors[rule.Explicit.TargetConnectorIndex];
 
             if ((!sourceModule.Geometry.Any()
@@ -150,14 +152,15 @@ namespace Monoceros {
                 var placedGeometry = geo.Duplicate();
                 placedGeometry.Transform(sourceModuleTransform);
                 return placedGeometry;
-            });
+            }).ToList();
             var sourceModuleReferencedGeometry = sourceModule.ReferencedGeometry.Select(geo => {
                 var placedGeometry = geo.Duplicate();
                 placedGeometry.Transform(sourceModuleTransform);
                 return placedGeometry;
-            });
+            }).ToList();
             var allSourceModuleGeometry = sourceModuleGeometry
-                .Concat(sourceModuleReferencedGeometry);
+                .Concat(sourceModuleReferencedGeometry)
+                .ToList();
 
             var transformedSourceConnectorPlane = sourceConnector.AnchorPlane.Clone();
             transformedSourceConnectorPlane.Transform(sourceModuleTransform);
@@ -167,14 +170,15 @@ namespace Monoceros {
                 var placedGeometry = geo.Duplicate();
                 placedGeometry.Transform(targetModuleTransform);
                 return placedGeometry;
-            });
+            }).ToList();
             var targetModuleReferencedGeometry = targetModule.ReferencedGeometry.Select(geo => {
                 var placedGeometry = geo.Duplicate();
                 placedGeometry.Transform(targetModuleTransform);
                 return placedGeometry;
-            });
+            }).ToList();
             var allTargetModuleGeometry = targetModuleGeometry
-                .Concat(targetModuleReferencedGeometry);
+                .Concat(targetModuleReferencedGeometry)
+                .ToList();
 
             _sourceModuleGeometry = sourceModuleGeometry;
             _sourceModuleReferencedGeometry = sourceModuleReferencedGeometry;
@@ -191,15 +195,6 @@ namespace Monoceros {
         }
 
         /// <summary>
-        /// The Exposure property controls where in the panel a component icon
-        /// will appear. There are seven possible locations (primary to
-        /// septenary), each of which can be combined with the
-        /// GH_Exposure.obscure flag, which ensures the component will only be
-        /// visible on panel dropdowns.
-        /// </summary>
-        public override GH_Exposure Exposure => GH_Exposure.primary;
-
-        /// <summary>
         /// Provides an Icon for every component that will be visible in the
         /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
@@ -210,7 +205,7 @@ namespace Monoceros {
         /// this Guid doesn't change otherwise old ghx files that use the old ID
         /// will partially fail during loading.
         /// </summary>
-        public override Guid ComponentGuid => new Guid("569D505A-5A26-4C29-AE59-AFA06A6B41DD");
+        public override Guid ComponentGuid => new Guid("6DA78B0E-0328-418B-8A08-5956CC3E51CE");
 
         public override bool IsBakeCapable => IsInstantiated;
 

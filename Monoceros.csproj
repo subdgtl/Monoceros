@@ -66,7 +66,7 @@
     <Compile Include="Components\SlotDeconstructObsolete1236.cs" />
     <Compile Include="Components\SlotsFromGeometry.cs" />
     <Compile Include="Components\RuleFromSlots.cs" />
-    <Compile Include="Components\RuleAssemble.cs" />
+    <Compile Include="Components\RuleAssembleObsolete1245.cs" />
     <Compile Include="Components\RuleSuggest.cs" />
     <Compile Include="Components\RuleIndifferentConstruct.cs" />
     <Compile Include="Components\RuleAtBoundaryContruct.cs" />
