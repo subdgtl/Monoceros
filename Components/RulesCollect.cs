@@ -79,7 +79,7 @@ namespace Monoceros {
 
             if (invalidAllowedRuleCount > 0) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  invalidModuleCount + " allowed Rules are null or invalid and were removed.");
+                                  invalidAllowedRuleCount + " allowed Rules are null or invalid and were removed.");
             }
 
             Module.GenerateEmptySingleModule(Config.OUTER_MODULE_NAME,
@@ -88,9 +88,6 @@ namespace Monoceros {
                                             out var moduleOut,
                                             out var rulesOut);
 
-            allowed.AddRange(
-                rulesOut.Select(ruleExplicit => new Rule(ruleExplicit))
-                );
             modules.Add(moduleOut);
 
             var allowedOriginalClean = allowed
@@ -104,11 +101,15 @@ namespace Monoceros {
                 return;
             }
 
+            allowed.AddRange(
+                rulesOut.Select(ruleExplicit => new Rule(ruleExplicit))
+                );
+
             var invalidDisallowedRuleCount = disallowed.RemoveAll(rule => rule == null || !rule.IsValid);
 
             if (invalidDisallowedRuleCount > 0) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  invalidModuleCount + " disallowed Rules are null or invalid and were removed.");
+                                  invalidDisallowedRuleCount + " disallowed Rules are null or invalid and were removed.");
             }
 
             var allowedExplicit = allowedOriginalClean

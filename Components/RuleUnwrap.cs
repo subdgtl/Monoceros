@@ -65,26 +65,26 @@ namespace Monoceros {
                                   invalidModuleCount + " Modules are null or invalid and were removed.");
             }
 
+            Module.GenerateEmptySingleModule(Config.OUTER_MODULE_NAME,
+                                             Config.INDIFFERENT_TAG,
+                                             new Rhino.Geometry.Vector3d(1, 1, 1),
+                                             out var moduleOut,
+                                             out var rulesOut);
+            modules.Add(moduleOut);
 
             var invalidRuleCount = rules
                 .RemoveAll(rule => rule == null || !rule.IsValid || !rule.IsValidWithModules(modules));
 
             if (invalidRuleCount > 0) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  invalidModuleCount + " Rules are null or invalid and were removed.");
+                                  invalidRuleCount + " Rules are null or invalid and were removed.");
             }
 
             var rulesTyped = rules
                 .Where(rule => rule.IsTyped)
                 .Select(rule => rule.Typed);
 
-            Module.GenerateEmptySingleModule(Config.OUTER_MODULE_NAME,
-                                             Config.INDIFFERENT_TAG,
-                                             new Rhino.Geometry.Vector3d(1, 1, 1),
-                                             out var moduleOut,
-                                             out var rulesOut);
             rulesTyped = rulesTyped.Concat(rulesOut);
-            modules.Add(moduleOut);
 
             var rulesTypedUnwrapped = rulesTyped
                 .SelectMany(ruleTyped => ruleTyped.ToRulesExplicit(rulesTyped, modules))

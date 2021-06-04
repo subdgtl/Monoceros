@@ -94,7 +94,7 @@ namespace Monoceros {
             // (backward compatibility issue)
             if (emptyModuleCount > 0) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  invalidModuleCount + " Modules contain no geometry and therefore were skipped.");
+                                  emptyModuleCount + " Modules contain no geometry and therefore were skipped.");
             }
 
             if (!modules.Any()) {

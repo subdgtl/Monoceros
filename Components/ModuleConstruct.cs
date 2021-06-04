@@ -218,7 +218,8 @@ namespace Monoceros {
             var inavlidGeometryCount = moduleGeometry.RemoveAll(goo => goo == null);
 
             if (inavlidGeometryCount > 0) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Some geometry was not used.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, 
+                    inavlidGeometryCount + " geometry items were invalid and therefore removed.");
             }
 
             if (!moduleGeometry.Any()) {

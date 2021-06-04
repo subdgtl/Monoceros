@@ -51,7 +51,7 @@ namespace Monoceros {
             
             if (invalidCount > 0) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  "One or more Slots are null or invalid and were removed.");
+                                  invalidCount + " Slots are null or invalid and were removed.");
             }
 
             if (!slots.Any()) {
