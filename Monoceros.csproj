@@ -63,6 +63,7 @@
   <ItemGroup>
     <Compile Include="Components\RuleExplicit2Lists.cs" />
     <Compile Include="Components\RuleIsEqual.cs" />
+    <Compile Include="Components\RuleUnwrap.cs" />
     <Compile Include="Components\SlotDeconstructObsolete1236.cs" />
     <Compile Include="Components\SlotsFromGeometry.cs" />
     <Compile Include="Components\RuleFromSlots.cs" />
@@ -87,7 +88,7 @@
     <Compile Include="Components\RuleIsTyped.cs" />
     <Compile Include="Components\RuleTypedDeconstruct.cs" />
     <Compile Include="Components\RuleExplicitDeconstruct.cs" />
-    <Compile Include="Components\RuleUnwrap.cs" />
+    <Compile Include="Components\RuleUnwrapObsolete1245.cs" />
     <Compile Include="Components\RulesCollect.cs" />
     <Compile Include="Components\RulePreview.cs" />
     <Compile Include="Components\RuleIndifferentUnused.cs" />

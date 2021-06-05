@@ -32,7 +32,8 @@ namespace Monoceros {
             pManager.AddParameter(new RuleParameter(),
                                   "Rules Disallowed",
                                   "RD",
-                                  "All disallowed Monoceros Rules (optional)",
+                                  "All disallowed Monoceros Rules (optional). " +
+                                  "STRONGLY RECOMMENDED TO USE ONLY EXPLICIT RULES.",
                                   GH_ParamAccess.list);
             pManager[2].Optional = true;
         }
@@ -66,7 +67,10 @@ namespace Monoceros {
                 return;
             }
 
-            DA.GetDataList(2, disallowed);
+            if (!DA.GetDataList(2, disallowed)) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "No Disallowed Rules provided." +
+                    " The Allowed Rules were deduplicated, sorted and invalid Rules were removed.");
+            }
 
             var invalidModuleCount = modules.RemoveAll(module => module == null || !module.IsValid);
 

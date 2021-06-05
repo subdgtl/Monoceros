@@ -93,6 +93,9 @@ namespace Monoceros {
                     AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                       invalidModuleCount + " Modules are null or invalid and were removed.");
                 }
+            } else {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "No Modules provided." +
+                    " Rule validity could not be determined. Some Rules may be removed by the Solver.");
             }
 
             var sourceLongestTreeCount = Math.Max(sourceNamesRaw.PathCount, sourceConnectorIndicesRaw.PathCount);

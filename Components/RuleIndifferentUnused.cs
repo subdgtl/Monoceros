@@ -57,7 +57,10 @@ namespace Monoceros {
                 return;
             }
 
-            DA.GetDataList(1, existingRules);
+            if (!DA.GetDataList(1, existingRules)) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "No Existing Rules provided. " +
+                    "All Module Connectors were marked Indifferent.");
+            }
 
             if (module == null || !module.IsValid) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The module is null or invalid.");

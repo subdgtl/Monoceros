@@ -112,15 +112,18 @@ namespace Monoceros {
                 return;
             }
 
-            DA.GetDataList(1, existingRules);
+            if (!DA.GetDataList(1, existingRules)) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "No Rules provided." +
+                    " Connector Use Pattern could not be determined.");
+            }
 
             if (module == null) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The is null or invalid.");
+               AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The Module is null.");
                 return;
             }
 
             if (!module.IsValid) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The module is invalid.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The Module is invalid.");
             }
 
             var partCenters = module
@@ -130,7 +133,7 @@ namespace Monoceros {
             var connectorUsePattern = Enumerable.Repeat(false, module.Connectors.Count).ToList();
             foreach (var existingRule in existingRules) {
                 if (existingRule == null || !existingRule.IsValid) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The rule is null or invalid.");
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The Rule is null or invalid.");
                     continue;
                 }
 

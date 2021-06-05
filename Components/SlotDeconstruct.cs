@@ -98,6 +98,9 @@ namespace Monoceros {
 
             if (DA.GetDataList(1, moduleNames)) {
                 moduleNamesProvided = true;
+            } else {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "No Modules provided." +
+                    " List of Modules allowed by the Slot could not be determined.");
             }
 
             DA.SetDataList(0, new [] { slot.AbsoluteCenter });

@@ -427,7 +427,7 @@ namespace Monoceros {
             }
             return false;
         }
-        
+
         public int CompareTo(Rule other) {
             if (IsExplicit && other.IsExplicit) {
                 return Explicit.CompareTo(other.Explicit);
@@ -546,15 +546,32 @@ namespace Monoceros {
                             string targetModuleName,
                             uint targetConnectorIndex) {
             if (sourceModuleName.Length == 0) {
-                throw new Exception("Source module name is empty");
+                throw new Exception("Source Module Name is empty");
             }
             if (targetModuleName.Length == 0) {
-                throw new Exception("Target module name is empty");
+                throw new Exception("Target Module Name is empty");
             }
-            SourceModuleName = sourceModuleName.ToLower();
-            SourceConnectorIndex = (int)sourceConnectorIndex;
-            TargetModuleName = targetModuleName.ToLower();
-            TargetConnectorIndex = (int)targetConnectorIndex;
+
+            if (sourceModuleName.CompareTo(targetModuleName) < 0) {
+                SourceModuleName = sourceModuleName.ToLower();
+                SourceConnectorIndex = (int)sourceConnectorIndex;
+                TargetModuleName = targetModuleName.ToLower();
+                TargetConnectorIndex = (int)targetConnectorIndex;
+            }
+
+            if (sourceModuleName.CompareTo(targetModuleName) > 0) {
+                SourceModuleName = targetModuleName.ToLower();
+                SourceConnectorIndex = (int)targetConnectorIndex;
+                TargetModuleName = sourceModuleName.ToLower();
+                TargetConnectorIndex = (int)sourceConnectorIndex;
+            }
+
+            if (sourceModuleName.CompareTo(targetModuleName) == 0) {
+                SourceModuleName = sourceModuleName.ToLower();
+                TargetModuleName = targetModuleName.ToLower();
+                SourceConnectorIndex = (int)Math.Min(sourceConnectorIndex, targetConnectorIndex);
+                TargetConnectorIndex = (int)Math.Max(sourceConnectorIndex, targetConnectorIndex);
+            }
         }
 
         public static bool FromRuleForSolver(RuleForSolver ruleForSolver,

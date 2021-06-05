@@ -10,7 +10,7 @@ namespace Monoceros {
             : base("Indifferent Rule from Point",
                    "RuleIndiffPt",
                    "Connectors of a Monoceros Module marked with a Point connect to any opposite " +
-                   "indifferent connector of any Monoceros Module.",
+                   "Indifferent Connector of any Monoceros Module.",
                    "Monoceros",
                    "Rule") {
         }
@@ -76,7 +76,7 @@ namespace Monoceros {
 
             if (!rules.Any()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                                  "Point " + point + "does not mark any module connector.");
+                                  "Point {" + point + "} does not mark any Module Connector.");
             }
 
             foreach (var rule in rules) {

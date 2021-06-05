@@ -337,6 +337,13 @@ namespace Monoceros {
                 }
             }
 
+            var partNameToModuleName = new Dictionary<string, string>();
+            foreach (var module in modulesUsable) {
+                foreach (var partName in module.PartNames) {
+                    partNameToModuleName.Add(partName, module.Name);
+                }
+            }
+
             var slotsUnwrapped = slots.Select(slot => {
                 if (slot.AllowsAnyModule) {
                     return new Slot(slot.BasePlane,
@@ -346,6 +353,22 @@ namespace Monoceros {
                                     allModuleNames,
                                     allModulePartNames,
                                     allPartsCount);
+                }
+                if (slot.AllowedPartNames.Any()) {
+                    if (slot.AllowedPartNames.All(partName => partNameToModuleName.ContainsKey(partName))) {
+                        return new Slot(slot.BasePlane,
+                                        slot.RelativeCenter,
+                                        slot.Diagonal,
+                                        false,
+                                        slot.AllowedPartNames
+                                            .Select(partName => partNameToModuleName[partName])
+                                            .Distinct()
+                                            .ToList(),
+                                        slot.AllowedPartNames,
+                                        allPartsCount);
+                    }
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                              "Slot refers to unavailable ModulePart. Falling back to Module names.");
                 }
                 var allowedModuleNames = slot.AllowedModuleNames.Intersect(allModuleNames).ToList();
                 var allowedModulePartNames = allowedModuleNames

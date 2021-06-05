@@ -24,10 +24,18 @@ namespace Monoceros {
                                   "All Monoceros Modules",
                                   GH_ParamAccess.list);
             pManager.AddParameter(new RuleParameter(),
-                                  "Rules",
+                                  "Rules To Unwrap",
                                   "R",
-                                  "All Monoceros Rules (Explicit will pass through intact)",
+                                  "Monoceros Rules to unwrap (Explicit Rules will pass through " +
+                                  "intact).",
                                   GH_ParamAccess.list);
+            pManager.AddParameter(new RuleParameter(),
+                                  "All Typed Rules",
+                                  "TR",
+                                  "All Monoceros Rules needed for unwrapping (Explicit Rules " +
+                                  "will be ignored). (Optional)",
+                                  GH_ParamAccess.list);
+            pManager[2].Optional = true;
         }
 
         /// <summary>
@@ -48,14 +56,21 @@ namespace Monoceros {
         ///     input parameters and to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA) {
             var modules = new List<Module>();
-            var rules = new List<Rule>();
+            var rulesToUnwrap = new List<Rule>();
+            var allRules = new List<Rule>();
 
             if (!DA.GetDataList(0, modules)) {
                 return;
             }
 
-            if (!DA.GetDataList(1, rules)) {
+            if (!DA.GetDataList(1, rulesToUnwrap)) {
                 return;
+            }
+
+            if (!DA.GetDataList(2, allRules)) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark,
+                                  "List of All Typed Rules was not provided. The Rules to be " +
+                                  "Unwrapped were considered to be all Rules in the setup.");
             }
 
             var invalidModuleCount = modules.RemoveAll(module => module == null || !module.IsValid);
@@ -72,7 +87,7 @@ namespace Monoceros {
                                              out var rulesOut);
             modules.Add(moduleOut);
 
-            var invalidRuleCount = rules
+            var invalidRuleCount = rulesToUnwrap
                 .RemoveAll(rule => rule == null || !rule.IsValid || !rule.IsValidWithModules(modules));
 
             if (invalidRuleCount > 0) {
@@ -80,21 +95,78 @@ namespace Monoceros {
                                   invalidRuleCount + " Rules are null or invalid and were removed.");
             }
 
-            var rulesTyped = rules
+            var invalidAllRulesCount = allRules
+                .RemoveAll(rule => rule == null || !rule.IsValid || !rule.IsValidWithModules(modules));
+
+            if (invalidAllRulesCount > 0) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  invalidAllRulesCount + " of All Rules are null or invalid and " +
+                                  "were removed.");
+            }
+
+
+            var rulesToUnwrapTyped = rulesToUnwrap
                 .Where(rule => rule.IsTyped)
                 .Select(rule => rule.Typed);
 
-            rulesTyped = rulesTyped.Concat(rulesOut);
+            var typesToUnwrap = rulesToUnwrapTyped.Select(rule => rule.ConnectorType).Distinct();
 
-            var rulesTypedUnwrapped = rulesTyped
-                .SelectMany(ruleTyped => ruleTyped.ToRulesExplicit(rulesTyped, modules))
-                .Select(ruleExplicit => new Rule(ruleExplicit));
+            allRules
+                .RemoveAll(rule => rule.IsExplicit || !typesToUnwrap.Contains(rule.Typed.ConnectorType));
 
-            var rulesExplicit = rules
+            var allRulesTyped = allRules
+                .Where(rule => rule.IsTyped)
+                .Select(rule => rule.Typed)
+                .Concat(rulesOut)
+                .Concat(rulesToUnwrapTyped)
+                .Distinct();
+
+            // -----
+
+            var allTypedByType = new Dictionary<string, List<RuleTyped>>();
+            foreach (var rule in allRulesTyped) {
+                var type = rule.ConnectorType;
+                if (allTypedByType.ContainsKey(type)) {
+                    allTypedByType[type].Add(rule);
+                } else {
+                    allTypedByType.Add(type, new List<RuleTyped>() { rule });
+                }
+            }
+
+            var toUnwrapByType = new Dictionary<string, List<RuleTyped>>();
+            foreach (var rule in rulesToUnwrapTyped) {
+                var type = rule.ConnectorType;
+                if (toUnwrapByType.ContainsKey(type)) {
+                    toUnwrapByType[type].Add(rule);
+                } else {
+                    toUnwrapByType.Add(type, new List<RuleTyped>() { rule });
+                }
+            }
+
+            var unwrappedExplicit = new List<Rule>();
+            foreach (var entry in allTypedByType) {
+                var type = entry.Key;
+                var rules = entry.Value;
+                if (toUnwrapByType.ContainsKey(type)) {
+                    var rulesExplicit = rules.SelectMany(rule => rule.ToRulesExplicit(rules, modules));
+                    var toBeUnwrappedRules = toUnwrapByType[type];
+                    foreach (var ruleExplicit in rulesExplicit) {
+                        if (toBeUnwrappedRules.Any(toBeUnwrappedRule =>
+                            (toBeUnwrappedRule.ModuleName == ruleExplicit.SourceModuleName
+                             && toBeUnwrappedRule.ConnectorIndex == ruleExplicit.SourceConnectorIndex)
+                            || (toBeUnwrappedRule.ModuleName == ruleExplicit.TargetModuleName
+                                && toBeUnwrappedRule.ConnectorIndex == ruleExplicit.TargetConnectorIndex))) {
+                            unwrappedExplicit.Add(new Rule(ruleExplicit));
+                        }
+                    }
+                }
+            }
+
+            var originalExplicit = rulesToUnwrap
                 .Where(rule => rule.IsExplicit);
 
-            var rulesDeduplicated = rulesExplicit
-                .Concat(rulesTypedUnwrapped)
+            var rulesDeduplicated = originalExplicit
+                .Concat(unwrappedExplicit)
                 .Distinct()
                 .Where(rule => !(rule.IsExplicit && rule.Explicit.SourceModuleName == Config.OUTER_MODULE_NAME && rule.Explicit.TargetModuleName == Config.OUTER_MODULE_NAME))
                 .ToList();
@@ -134,6 +206,6 @@ namespace Monoceros {
         /// this Guid doesn't change otherwise old ghx files that use the old ID
         /// will partially fail during loading.
         /// </summary>
-        public override Guid ComponentGuid => new Guid("08CD1CF1-A33C-485D-9E10-436B3E36EA56");
+        public override Guid ComponentGuid => new Guid("6BA8D8A8-A5C1-4C37-998D-94FA87F63724");
     }
 }
