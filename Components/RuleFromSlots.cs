@@ -203,12 +203,12 @@ namespace Monoceros {
                             }
 
                             IEnumerable<string> otherPartNames = null;
-                            if (slot.AllowsAnyModule) {
+                            if (slotOther.AllowsAnyModule) {
                                 otherPartNames = allModulePartNames;
-                            } else if (slot.AllowedPartNames.Any()) {
-                                otherPartNames = slot.AllowedPartNames;
+                            } else if (slotOther.AllowedPartNames.Any()) {
+                                otherPartNames = slotOther.AllowedPartNames;
                             } else {
-                                otherPartNames = slot.AllowedModuleNames
+                                otherPartNames = slotOther.AllowedModuleNames
                                     .SelectMany(moduleName =>
                                         modules.First(module => module.Name == moduleName).PartNames)
                                     .Distinct();
@@ -239,6 +239,10 @@ namespace Monoceros {
                     rulesCollectedInsideEnvelope.Add(rule);
                 }
             }
+
+            rulesCollectedOnBoundaryOfEnvelope
+                .RemoveAll(rule => rule.Explicit.SourceModuleName == Config.OUTER_MODULE_NAME
+                && rule.Explicit.TargetModuleName == Config.OUTER_MODULE_NAME);
 
             rulesCollectedInsideEnvelope.Sort();
             rulesCollectedOnBoundaryOfEnvelope.Sort();
