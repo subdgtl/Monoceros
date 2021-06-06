@@ -18,7 +18,7 @@ namespace Monoceros {
                    "RulePreview",
                    "Preview Monoceros Rules as lines connecting individual Connectors of Monoceros Modules.",
                    "Monoceros",
-                   "Postprocess") {
+                   "Rule") {
             _explicitLines = new List<ExplicitLine>();
             _typedLines = new List<TypedLine>();
             _outLines = new List<OutLine>();
@@ -301,7 +301,7 @@ namespace Monoceros {
         /// GH_Exposure.obscure flag, which ensures the component will only be
         /// visible on panel dropdowns.
         /// </summary>
-        public override GH_Exposure Exposure => GH_Exposure.primary;
+        public override GH_Exposure Exposure => GH_Exposure.septenary;
 
         /// <summary>
         /// Provides an Icon for every component that will be visible in the
