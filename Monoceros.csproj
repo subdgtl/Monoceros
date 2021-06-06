@@ -61,13 +61,14 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\RuleAssemble.cs" />
     <Compile Include="Components\RuleExplicit2Lists.cs" />
     <Compile Include="Components\RuleIsEqual.cs" />
     <Compile Include="Components\RuleUnwrap.cs" />
     <Compile Include="Components\SlotDeconstructObsolete1236.cs" />
     <Compile Include="Components\SlotsFromGeometry.cs" />
     <Compile Include="Components\RuleFromSlots.cs" />
-    <Compile Include="Components\RuleAssemble.cs" />
+    <Compile Include="Components\RuleAssembleObsolete1245.cs" />
     <Compile Include="Components\RuleSuggest.cs" />
     <Compile Include="Components\RuleIndifferentConstruct.cs" />
     <Compile Include="Components\RuleAtBoundaryContruct.cs" />

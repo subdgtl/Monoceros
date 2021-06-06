@@ -4,26 +4,17 @@ using System.Drawing;
 using System.Linq;
 using Grasshopper;
 using Grasshopper.Kernel;
-using Rhino;
-using Rhino.DocObjects;
 using Rhino.Geometry;
 
 namespace Monoceros {
-    public class ComponentAssembleRule : GH_Component, IGH_BakeAwareObject {
+    public class ComponentAssembleRule : GH_Component {
 
-        private IEnumerable<GeometryBase> _sourceModuleGeometry;
-        private IEnumerable<GeometryBase> _sourceModuleReferencedGeometry;
-        private IEnumerable<Guid> _sourceModuleGuids;
-        private IEnumerable<GeometryBase> _targetModuleGeometry;
-        private IEnumerable<GeometryBase> _targetModuleReferencedGeometry;
-        private IEnumerable<Guid> _targetModuleGuids;
-        private string _ruleString;
-
-        public ComponentAssembleRule( ) : base("Assemble Rule",
+        public ComponentAssembleRule( ) : base("Assemble Rule into Slots",
                                                "AssembleRule",
-                                               "Materialize Monoceros Rule.",
+                                               "Create deterministic Slots that contain Monoceros Modules " +
+                                               "assembled according to the given Monoceros Rule.",
                                                "Monoceros",
-                                               "Postprocess") {
+                                               "Slot") {
         }
 
         /// <summary>
@@ -40,9 +31,9 @@ namespace Monoceros {
                                   "R",
                                   "Monoceros Explicit Rule",
                                   GH_ParamAccess.item);
-            pManager.AddPlaneParameter("Base Plane",
+            pManager.AddPlaneParameter("Source Module Pivot Plane",
                                        "P",
-                                       "Base plane for the first Monoceros Module Pivot",
+                                       "Plane to put the Source Module's Pivot onto",
                                        GH_ParamAccess.item,
                                        Plane.WorldXY);
         }
@@ -51,15 +42,17 @@ namespace Monoceros {
         /// Registers all the output parameters for this component.
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
-            pManager.AddGeometryParameter("Source Geometry",
-                                          "SG",
-                                          "Geometry from Monoceros Module described by the " +
-                                          "Monoceros Rule as source",
+            pManager.AddParameter(new SlotParameter(),
+                                          "Source Slots",
+                                          "SS",
+                                          "Slots generated from Monoceros Module described by the " +
+                                          "Monoceros Rule as source.",
                                           GH_ParamAccess.list);
-            pManager.AddGeometryParameter("Target Geometry",
-                                          "TG",
-                                          "Geometry from Monoceros Module described by the " +
-                                          "Monoceros Rule as target",
+            pManager.AddParameter(new SlotParameter(),
+                                          "Target Slots",
+                                          "TS",
+                                          "Slots generated from Monoceros Module described by the " +
+                                          "Monoceros Rule as target.",
                                           GH_ParamAccess.list);
         }
 
@@ -88,7 +81,6 @@ namespace Monoceros {
             var transforms = new DataTree<Transform>();
             var geometry = new DataTree<GeometryBase>();
 
-
             if (rule == null || !rule.IsValid) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The rule is null or invalid.");
                 return;
@@ -96,18 +88,9 @@ namespace Monoceros {
 
             if (!rule.IsExplicit) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  "Catalog currently works only with Monoceros Explicit Rules. " +
+                                  "Rule Assemble works only with Monoceros Explicit Rules to " +
+                                  "make sure a single Rule generate a single assembly. " +
                                   "Unwrap Monoceros Rules first.");
-                return;
-            }
-
-            if (rule.Explicit.SourceModuleName == Config.OUTER_MODULE_NAME
-                || rule.Explicit.TargetModuleName == Config.OUTER_MODULE_NAME
-                || rule.Explicit.SourceModuleName == Config.EMPTY_MODULE_NAME
-                || rule.Explicit.TargetModuleName == Config.EMPTY_MODULE_NAME) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  "Catalog cannot display a Monoceros Rule describing a connection " +
-                                  "to an outer or empty Monoceros Module.");
                 return;
             }
 
@@ -134,58 +117,65 @@ namespace Monoceros {
             var targetModule = modules.Find(module => module.Name == rule.Explicit.TargetModuleName);
             var targetConnector = targetModule.Connectors[rule.Explicit.TargetConnectorIndex];
 
-            if ((!sourceModule.Geometry.Any()
-                && !sourceModule.ReferencedGeometry.Any())
-                || (!targetModule.Geometry.Any()
-                && !targetModule.ReferencedGeometry.Any())) {
+            if (sourceModule.BasePlane != targetModule.BasePlane) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  "The source or target Monoceros Module does not contain any geometry.");
+                    "The source and target Modules are not defined with the same Base Plane. " +
+                    "The resulting Slots would be incompatible.");
                 return;
             }
 
-            var sourceModuleTransform = Transform.PlaneToPlane(sourceModule.Pivot, basePlane);
-            var sourceModuleGeometry = sourceModule.Geometry.Select(geo => {
-                var placedGeometry = geo.Duplicate();
-                placedGeometry.Transform(sourceModuleTransform);
-                return placedGeometry;
-            });
-            var sourceModuleReferencedGeometry = sourceModule.ReferencedGeometry.Select(geo => {
-                var placedGeometry = geo.Duplicate();
-                placedGeometry.Transform(sourceModuleTransform);
-                return placedGeometry;
-            });
-            var allSourceModuleGeometry = sourceModuleGeometry
-                .Concat(sourceModuleReferencedGeometry);
+            if (sourceModule.PartDiagonal != targetModule.PartDiagonal) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                    "The source and target Module Part Diagonals are not identical. " +
+                    "The Modules are incompatible.");
+                return;
+            }
 
-            var transformedSourceConnectorPlane = sourceConnector.AnchorPlane.Clone();
-            transformedSourceConnectorPlane.Transform(sourceModuleTransform);
-            var targetModuleTransform = Transform.PlaneToPlane(targetConnector.AnchorPlane,
-                                                               transformedSourceConnectorPlane);
-            var targetModuleGeometry = targetModule.Geometry.Select(geo => {
-                var placedGeometry = geo.Duplicate();
-                placedGeometry.Transform(targetModuleTransform);
-                return placedGeometry;
-            });
-            var targetModuleReferencedGeometry = targetModule.ReferencedGeometry.Select(geo => {
-                var placedGeometry = geo.Duplicate();
-                placedGeometry.Transform(targetModuleTransform);
-                return placedGeometry;
-            });
-            var allTargetModuleGeometry = targetModuleGeometry
-                .Concat(targetModuleReferencedGeometry);
+            var allPartsCount = sourceModule.PartCenters.Count + targetModule.PartCenters.Count;
 
-            _sourceModuleGeometry = sourceModuleGeometry;
-            _sourceModuleReferencedGeometry = sourceModuleReferencedGeometry;
-            _sourceModuleGuids = sourceModule.ReferencedGeometryGuids;
+            var sourcePivotOffset = Point3i.FromCartesian(sourceModule.Pivot.Origin,
+                                                          sourceModule.BasePlane,
+                                                          sourceModule.PartDiagonal);
 
-            _targetModuleGeometry = targetModuleGeometry;
-            _targetModuleReferencedGeometry = targetModuleReferencedGeometry;
-            _targetModuleGuids = targetModule.ReferencedGeometryGuids;
+            var sourceSlots = new List<Slot>();
+            for (var i = 0; i < sourceModule.PartNames.Count; i++) {
+                var sourceModulePartCenter = sourceModule.PartCenters[i] - sourcePivotOffset;
+                var sourceModulePartName = sourceModule.PartNames[i];
+                var slot = new Slot(basePlane,
+                                    sourceModulePartCenter,
+                                    sourceModule.PartDiagonal,
+                                    false,
+                                    new List<string> { sourceModule.Name },
+                                    new List<string> { sourceModulePartName },
+                                    allPartsCount);
+                sourceSlots.Add(slot);
+            }
 
-            _ruleString = rule.ToString();
+            var targetToSourceTransfrom = Transform.PlaneToPlane(targetConnector.AnchorPlane, sourceConnector.AnchorPlane);
+            var targetPartCenters = targetModule.PartCenters.Select(center => center.ToCartesian(targetModule.BasePlane, targetModule.PartDiagonal));
 
-            DA.SetDataList(0, allSourceModuleGeometry);
-            DA.SetDataList(1, allTargetModuleGeometry);
+            var targetSlots = new List<Slot>();
+            for (var i = 0; i < targetModule.PartNames.Count; i++) {
+                var targetModulePartCenterCartesian = targetModule
+                    .PartCenters[i]
+                    .ToCartesian(targetModule.BasePlane, targetModule.PartDiagonal);
+                targetModulePartCenterCartesian.Transform(targetToSourceTransfrom);
+                var targetModulePartCenter = Point3i.FromCartesian(targetModulePartCenterCartesian,
+                                                                   sourceModule.BasePlane,
+                                                                   sourceModule.PartDiagonal) - sourcePivotOffset;
+                var targetModulePartName = targetModule.PartNames[i];
+                var slot = new Slot(basePlane,
+                                    targetModulePartCenter,
+                                    targetModule.PartDiagonal,
+                                    false,
+                                    new List<string> { targetModule.Name },
+                                    new List<string> { targetModulePartName },
+                                    allPartsCount);
+                targetSlots.Add(slot);
+            }
+
+            DA.SetDataList(0, sourceSlots);
+            DA.SetDataList(1, targetSlots);
         }
 
         /// <summary>
@@ -195,7 +185,7 @@ namespace Monoceros {
         /// GH_Exposure.obscure flag, which ensures the component will only be
         /// visible on panel dropdowns.
         /// </summary>
-        public override GH_Exposure Exposure => GH_Exposure.primary;
+        public override GH_Exposure Exposure => GH_Exposure.quarternary;
 
         /// <summary>
         /// Provides an Icon for every component that will be visible in the
@@ -208,91 +198,6 @@ namespace Monoceros {
         /// this Guid doesn't change otherwise old ghx files that use the old ID
         /// will partially fail during loading.
         /// </summary>
-        public override Guid ComponentGuid => new Guid("6DA78B0E-0328-418B-8A08-5956CC3E51CE");
-
-        public override bool IsBakeCapable => IsInstantiated;
-
-        public override void BakeGeometry(RhinoDoc doc, List<Guid> obj_ids) {
-            BakeGeometry(doc, new ObjectAttributes(), obj_ids);
-        }
-
-        public override void BakeGeometry(RhinoDoc doc, ObjectAttributes att, List<Guid> obj_ids) {
-            // TODO: Bakes into "Default" layer for some reason
-            var sourceReferencedObjects = _sourceModuleGuids
-                .Select(guid => doc.Objects.FindId(guid))
-                .Where(obj => obj != null);
-            var sourceReferencedAttributes = sourceReferencedObjects.Select(obj => obj.Attributes);
-            var sourceNewAttributes = sourceReferencedAttributes.Select(originalAttributes => {
-                var mainAttributesDuplicate = att.Duplicate();
-                mainAttributesDuplicate.ObjectColor = originalAttributes.ObjectColor;
-                mainAttributesDuplicate.ColorSource = originalAttributes.ColorSource;
-                mainAttributesDuplicate.MaterialIndex = originalAttributes.MaterialIndex;
-                mainAttributesDuplicate.MaterialSource = originalAttributes.MaterialSource;
-                mainAttributesDuplicate.LinetypeIndex = originalAttributes.LinetypeIndex;
-                mainAttributesDuplicate.LinetypeSource = originalAttributes.LinetypeSource;
-                return mainAttributesDuplicate;
-            });
-            var sourceData = _sourceModuleReferencedGeometry
-                .Zip(sourceNewAttributes, (geo, attrib) => new { geo, attrib });
-
-            var sourceGroupId = doc.Groups.Add(_ruleString + " Source");
-            foreach (var geometry in _sourceModuleGeometry) {
-                var geomId = doc.Objects.Add(geometry, att);
-                doc.Groups.AddToGroup(sourceGroupId, geomId);
-                obj_ids.Add(geomId);
-            }
-
-            foreach (var item in sourceData) {
-                var geometry = item.geo;
-                var attributes = item.attrib;
-                var geomId = doc.Objects.Add(geometry, attributes);
-                doc.Groups.AddToGroup(sourceGroupId, geomId);
-                obj_ids.Add(geomId);
-            }
-
-            var targetReferencedObjects = _targetModuleGuids
-                .Select(guid => doc.Objects.FindId(guid))
-                .Where(obj => obj != null);
-            var targetReferencedAttributes = targetReferencedObjects.Select(obj => obj.Attributes);
-            var targetNewAttributes = targetReferencedAttributes.Select(originalAttributes => {
-                var mainAttributesDuplicate = att.Duplicate();
-                mainAttributesDuplicate.ObjectColor = originalAttributes.ObjectColor;
-                mainAttributesDuplicate.ColorSource = originalAttributes.ColorSource;
-                mainAttributesDuplicate.MaterialIndex = originalAttributes.MaterialIndex;
-                mainAttributesDuplicate.MaterialSource = originalAttributes.MaterialSource;
-                mainAttributesDuplicate.LinetypeIndex = originalAttributes.LinetypeIndex;
-                mainAttributesDuplicate.LinetypeSource = originalAttributes.LinetypeSource;
-                return mainAttributesDuplicate;
-            });
-            var targetData = _targetModuleReferencedGeometry
-                .Zip(targetNewAttributes, (geo, attrib) => new { geo, attrib });
-
-            var targetGroupId = doc.Groups.Add(_ruleString + " Target");
-            foreach (var geometry in _targetModuleGeometry) {
-                var geomId = doc.Objects.Add(geometry, att);
-                doc.Groups.AddToGroup(targetGroupId, geomId);
-                obj_ids.Add(geomId);
-            }
-
-            foreach (var item in targetData) {
-                var geometry = item.geo;
-                var attributes = item.attrib;
-                var geomId = doc.Objects.Add(geometry, attributes);
-                doc.Groups.AddToGroup(targetGroupId, geomId);
-                obj_ids.Add(geomId);
-
-            }
-
-        }
-
-        private bool IsInstantiated => _sourceModuleGeometry != null
-                                       && _sourceModuleGuids != null
-                                       && _targetModuleGeometry != null
-                                       && _targetModuleGuids != null
-                                       && _ruleString != null
-                                       && _sourceModuleGeometry.All(x => x != null)
-                                       && _sourceModuleGuids.All(x => x != null)
-                                       && _targetModuleGeometry.All(x => x != null)
-                                       && _targetModuleGuids.All(x => x != null);
+        public override Guid ComponentGuid => new Guid("569D505A-5A26-4C29-AE59-AFA06A6B41DD");
     }
 }
