@@ -131,5 +131,18 @@ namespace Monoceros {
             return partCenter;
         }
 
+        public static Point3i FromCartesian(Point3d point, Plane basePlane, Vector3d diagonal) {
+            var baseAlignmentTransform = Transform.PlaneToPlane(basePlane, Plane.WorldXY);
+            var scalingTransform = Transform.Scale(Plane.WorldXY,
+                                                   1 / diagonal.X,
+                                                   1 / diagonal.Y,
+                                                   1 / diagonal.Z);
+
+            point.Transform(baseAlignmentTransform);
+            point.Transform(scalingTransform);
+
+            return new Point3i(point);
+        }
+
     }
 }

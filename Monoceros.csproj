@@ -61,6 +61,7 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\RuleAssemble.cs" />
     <Compile Include="Components\RuleExplicit2Lists.cs" />
     <Compile Include="Components\RuleIsEqual.cs" />
     <Compile Include="Components\SlotDeconstructObsolete1236.cs" />
