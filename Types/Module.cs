@@ -905,6 +905,13 @@ namespace Monoceros {
                     // Draw those geometries of the module that are a curve
                     args.Pipeline.DrawCurve((Curve)geo, args.Color, args.Thickness);
                 }
+
+                if (args.Viewport.DisplayMode.WireframePipelineRequired && geo.ObjectType == ObjectType.Brep) {
+                    args.Pipeline.DrawBrepWires((Brep)geo, args.Color);
+                }
+                if (args.Viewport.DisplayMode.WireframePipelineRequired && geo.ObjectType == ObjectType.Mesh) {
+                    args.Pipeline.DrawMeshWires((Mesh)geo, args.Color);
+                }
             }
             var cageEdges = new List<Line>();
             for (var connectorIndex = 0; connectorIndex < Connectors.Count; connectorIndex++) {
