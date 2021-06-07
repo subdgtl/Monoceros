@@ -64,6 +64,7 @@
     <Compile Include="Components\RuleAssemble.cs" />
     <Compile Include="Components\RuleExplicit2Lists.cs" />
     <Compile Include="Components\RuleIsEqual.cs" />
+    <Compile Include="Components\RulesCollectObsolete1234.cs" />
     <Compile Include="Components\RuleUnwrap.cs" />
     <Compile Include="Components\SlotDeconstructObsolete1236.cs" />
     <Compile Include="Components\SlotsFromGeometry.cs" />
