@@ -114,8 +114,8 @@ namespace Monoceros {
 
             if (!supportTyped && disallowed.Any(rule => rule.IsTyped)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  "Typed Rules are not supported in the Disallowed Rules list. " +
-                                  "It is an advanced feature and has to be enabled manually.");
+                                  "Unwrap Typed Rules before setting the Disallowed Rules list. " +
+                                  "Disallowed Typed Rules are an advanced feature and have to be enabled manually.");
                 return;
             }
 

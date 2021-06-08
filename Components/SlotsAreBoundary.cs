@@ -97,103 +97,112 @@ namespace Monoceros {
 
             var minDepth = Enumerable.Repeat(int.MaxValue, blockLength).ToArray();
 
-            for (var y = minPoint.Y; y < maxPoint.Y; y++) {
-                for (var z = minPoint.Z; z < maxPoint.Z; z++) {
+            for (var y = minPoint.Y; y <= maxPoint.Y; y++) {
+                for (var z = minPoint.Z; z <= maxPoint.Z; z++) {
                     var depth = 0;
-                    for (var x = minPoint.X; x < maxPoint.X; x++) {
+                    for (var x = minPoint.X; x <= maxPoint.X; x++) {
                         var p = new Point3i(x, y, z);
                         var index1D = p.To1D(minPoint, maxPoint);
                         if (usePattern[index1D]) {
-                            depth++;
+                            depth = Math.Min(minDepth[index1D], depth + 1);
                         } else {
                             depth = 0;
                         }
-                        minDepth[index1D] = Math.Min(minDepth[index1D], depth);
+                        minDepth[index1D] = depth;
                     }
                 }
             }
 
-            for (var y = minPoint.Y; y < maxPoint.Y; y++) {
-                for (var z = minPoint.Z; z < maxPoint.Z; z++) {
+            for (var y = minPoint.Y; y <= maxPoint.Y; y++) {
+                for (var z = minPoint.Z; z <= maxPoint.Z; z++) {
                     var depth = 0;
-                    for (var x = maxPoint.X - 1; x >= minPoint.X; x--) {
+                    for (var x = maxPoint.X; x >= minPoint.X; x--) {
                         var p = new Point3i(x, y, z);
                         var index1D = p.To1D(minPoint, maxPoint);
                         if (usePattern[index1D]) {
-                            depth++;
+                            depth = Math.Min(minDepth[index1D], depth + 1);
                         } else {
                             depth = 0;
                         }
-                        minDepth[index1D] = Math.Min(minDepth[index1D], depth);
+                        minDepth[index1D] = depth;
                     }
                 }
             }
 
-            for (var x = minPoint.X; x < maxPoint.X; x++) {
-                for (var z = minPoint.Z; z < maxPoint.Z; z++) {
+            for (var x = minPoint.X; x <= maxPoint.X; x++) {
+                for (var z = minPoint.Z; z <= maxPoint.Z; z++) {
                     var depth = 0;
-                    for (var y = minPoint.Y; y < maxPoint.Y; y++) {
+                    for (var y = minPoint.Y; y <= maxPoint.Y; y++) {
                         var p = new Point3i(x, y, z);
                         var index1D = p.To1D(minPoint, maxPoint);
                         if (usePattern[index1D]) {
-                            depth++;
+                            depth = Math.Min(minDepth[index1D], depth + 1);
                         } else {
                             depth = 0;
                         }
-                        minDepth[index1D] = Math.Min(minDepth[index1D], depth);
+                        minDepth[index1D] = depth;
                     }
                 }
             }
 
-            for (var x = minPoint.X; x < maxPoint.X; x++) {
-                for (var z = minPoint.Z; z < maxPoint.Z; z++) {
+            for (var x = minPoint.X; x <= maxPoint.X; x++) {
+                for (var z = minPoint.Z; z <= maxPoint.Z; z++) {
                     var depth = 0;
-                    for (var y = maxPoint.Y - 1; y >= minPoint.Y; y--) {
+                    for (var y = maxPoint.Y; y >= minPoint.Y; y--) {
                         var p = new Point3i(x, y, z);
                         var index1D = p.To1D(minPoint, maxPoint);
                         if (usePattern[index1D]) {
-                            depth++;
+                            depth = Math.Min(minDepth[index1D], depth + 1);
                         } else {
                             depth = 0;
                         }
-                        minDepth[index1D] = Math.Min(minDepth[index1D], depth);
+                        minDepth[index1D] = depth;
                     }
                 }
             }
 
-            for (var x = minPoint.X; x < maxPoint.X; x++) {
-                for (var y = minPoint.Y; y < maxPoint.Y; y++) {
+            for (var x = minPoint.X; x <= maxPoint.X; x++) {
+                for (var y = minPoint.Y; y <= maxPoint.Y; y++) {
                     var depth = 0;
-                    for (var z = minPoint.Z; z < maxPoint.Z; z++) {
+                    for (var z = minPoint.Z; z <= maxPoint.Z; z++) {
                         var p = new Point3i(x, y, z);
                         var index1D = p.To1D(minPoint, maxPoint);
                         if (usePattern[index1D]) {
-                            depth++;
+                            depth = Math.Min(minDepth[index1D], depth + 1);
                         } else {
                             depth = 0;
                         }
-                        minDepth[index1D] = Math.Min(minDepth[index1D], depth);
+                        minDepth[index1D] = depth;
                     }
                 }
             }
 
-            for (var x = minPoint.X; x < maxPoint.X; x++) {
-                for (var y = minPoint.Y; y < maxPoint.Y; y++) {
+            for (var x = minPoint.X; x <= maxPoint.X; x++) {
+                for (var y = minPoint.Y; y <= maxPoint.Y; y++) {
                     var depth = 0;
-                    for (var z = maxPoint.Z - 1; z >= minPoint.Z; z--) {
+                    for (var z = maxPoint.Z; z >= minPoint.Z; z--) {
                         var p = new Point3i(x, y, z);
                         var index1D = p.To1D(minPoint, maxPoint);
                         if (usePattern[index1D]) {
-                            depth++;
+                            depth = Math.Min(minDepth[index1D], depth + 1);
                         } else {
                             depth = 0;
                         }
-                        minDepth[index1D] = Math.Min(minDepth[index1D], depth);
+                        minDepth[index1D] = depth;
                     }
                 }
             }
 
-            var layerPattern = minDepth.Select(depth => depth > 0 && depth <= layers);
+            foreach (var slot in slots) {
+                var index1D = slot.RelativeCenter.To1D(minPoint, maxPoint);
+                usePattern[index1D] = true;
+            }
+
+            var layerPattern = slots.Select(slot => {
+                var index1D = slot.RelativeCenter.To1D(minPoint, maxPoint);
+                var depth = minDepth[index1D];
+                return depth > 0 && depth <= layers;
+            });
 
             DA.SetDataList(0, layerPattern);
         }
