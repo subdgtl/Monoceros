@@ -88,123 +88,77 @@ namespace Monoceros {
                                                  out var maxPoint);
             var blockLength = Point3i.ComputeBlockLength(minPoint, maxPoint);
 
-            var usePattern = Enumerable.Repeat(false, blockLength).ToArray();
+            var depthPattern = Enumerable.Repeat(0, blockLength).ToArray();
 
             foreach (var slot in slots) {
                 var index1D = slot.RelativeCenter.To1D(minPoint, maxPoint);
-                usePattern[index1D] = true;
+                depthPattern[index1D] = int.MaxValue;
             }
 
-            var minDepth = Enumerable.Repeat(int.MaxValue, blockLength).ToArray();
+            var firstDepth = 1;
+            var visitStack = new List<int>();
 
-            for (var y = minPoint.Y; y <= maxPoint.Y; y++) {
-                for (var z = minPoint.Z; z <= maxPoint.Z; z++) {
-                    var depth = 0;
-                    for (var x = minPoint.X; x <= maxPoint.X; x++) {
-                        var p = new Point3i(x, y, z);
-                        var index1D = p.To1D(minPoint, maxPoint);
-                        if (usePattern[index1D]) {
-                            depth = Math.Min(minDepth[index1D], depth + 1);
-                        } else {
-                            depth = 0;
+            // TODO: identify first layer, only then find the second
+            for (var index1D = 0; index1D < depthPattern.Length; index1D++) {
+                var currentDepth = depthPattern[index1D];
+                if (currentDepth > firstDepth) {
+                    var position3D = Point3i.From1D(index1D, minPoint, maxPoint);
+                    for (var z = position3D.Z - 1; z <= position3D.Z + 1; z++) {
+                        for (var y = position3D.Y - 1; y <= position3D.Y + 1; y++) {
+                            for (var x = position3D.X - 1; x <= position3D.X + 1; x++) {
+                                var neighborPoint = new Point3i(x, y, z);
+                                if (!IsOutOfBounds(neighborPoint, minPoint, maxPoint)) {
+                                    var neighborIndex1D = neighborPoint.To1D(minPoint, maxPoint);
+                                    if (depthPattern[neighborIndex1D] == firstDepth - 1) {
+                                        depthPattern[index1D] = firstDepth;
+                                    } else if (!depthPattern.Contains(neighborIndex1D)) {
+                                        visitStack.Add(neighborIndex1D);
+                                    }
+                                }
+                            }
                         }
-                        minDepth[index1D] = depth;
                     }
                 }
             }
 
-            for (var y = minPoint.Y; y <= maxPoint.Y; y++) {
-                for (var z = minPoint.Z; z <= maxPoint.Z; z++) {
-                    var depth = 0;
-                    for (var x = maxPoint.X; x >= minPoint.X; x--) {
-                        var p = new Point3i(x, y, z);
-                        var index1D = p.To1D(minPoint, maxPoint);
-                        if (usePattern[index1D]) {
-                            depth = Math.Min(minDepth[index1D], depth + 1);
-                        } else {
-                            depth = 0;
+            for (var depth = 2; depth <= layers; depth++) {
+                var nextVisitStack = new List<int>();
+                foreach (var index1D in visitStack) {
+                    var position3D = Point3i.From1D(index1D, minPoint, maxPoint);
+                    depthPattern[index1D] = depth;
+                    for (var z = position3D.Z - 1; z <= position3D.Z + 1; z++) {
+                        for (var y = position3D.Y - 1; y <= position3D.Y + 1; y++) {
+                            for (var x = position3D.X - 1; x <= position3D.X + 1; x++) {
+                                var neighborPoint = new Point3i(x, y, z);
+                                if (!IsOutOfBounds(neighborPoint, minPoint, maxPoint)) {
+                                    var neighborIndex1D = neighborPoint.To1D(minPoint, maxPoint);
+                                    if (depthPattern[neighborIndex1D] > depth) {
+                                        nextVisitStack.Add(neighborIndex1D);
+                                    }
+                                }
+                            }
                         }
-                        minDepth[index1D] = depth;
                     }
                 }
-            }
-
-            for (var x = minPoint.X; x <= maxPoint.X; x++) {
-                for (var z = minPoint.Z; z <= maxPoint.Z; z++) {
-                    var depth = 0;
-                    for (var y = minPoint.Y; y <= maxPoint.Y; y++) {
-                        var p = new Point3i(x, y, z);
-                        var index1D = p.To1D(minPoint, maxPoint);
-                        if (usePattern[index1D]) {
-                            depth = Math.Min(minDepth[index1D], depth + 1);
-                        } else {
-                            depth = 0;
-                        }
-                        minDepth[index1D] = depth;
-                    }
-                }
-            }
-
-            for (var x = minPoint.X; x <= maxPoint.X; x++) {
-                for (var z = minPoint.Z; z <= maxPoint.Z; z++) {
-                    var depth = 0;
-                    for (var y = maxPoint.Y; y >= minPoint.Y; y--) {
-                        var p = new Point3i(x, y, z);
-                        var index1D = p.To1D(minPoint, maxPoint);
-                        if (usePattern[index1D]) {
-                            depth = Math.Min(minDepth[index1D], depth + 1);
-                        } else {
-                            depth = 0;
-                        }
-                        minDepth[index1D] = depth;
-                    }
-                }
-            }
-
-            for (var x = minPoint.X; x <= maxPoint.X; x++) {
-                for (var y = minPoint.Y; y <= maxPoint.Y; y++) {
-                    var depth = 0;
-                    for (var z = minPoint.Z; z <= maxPoint.Z; z++) {
-                        var p = new Point3i(x, y, z);
-                        var index1D = p.To1D(minPoint, maxPoint);
-                        if (usePattern[index1D]) {
-                            depth = Math.Min(minDepth[index1D], depth + 1);
-                        } else {
-                            depth = 0;
-                        }
-                        minDepth[index1D] = depth;
-                    }
-                }
-            }
-
-            for (var x = minPoint.X; x <= maxPoint.X; x++) {
-                for (var y = minPoint.Y; y <= maxPoint.Y; y++) {
-                    var depth = 0;
-                    for (var z = maxPoint.Z; z >= minPoint.Z; z--) {
-                        var p = new Point3i(x, y, z);
-                        var index1D = p.To1D(minPoint, maxPoint);
-                        if (usePattern[index1D]) {
-                            depth = Math.Min(minDepth[index1D], depth + 1);
-                        } else {
-                            depth = 0;
-                        }
-                        minDepth[index1D] = depth;
-                    }
-                }
-            }
-
-            foreach (var slot in slots) {
-                var index1D = slot.RelativeCenter.To1D(minPoint, maxPoint);
-                usePattern[index1D] = true;
+                visitStack = nextVisitStack;
             }
 
             var layerPattern = slots.Select(slot => {
                 var index1D = slot.RelativeCenter.To1D(minPoint, maxPoint);
-                var depth = minDepth[index1D];
+                var depth = depthPattern[index1D];
                 return depth > 0 && depth <= layers;
             });
 
             DA.SetDataList(0, layerPattern);
+        }
+
+        private bool IsOutOfBounds(Point3i p, Point3i min, Point3i max) {
+            return p.X < min.X
+                || p.X > max.X
+                || p.Y < min.Y
+                || p.Y > max.Y
+                || p.Z < min.Z
+                || p.Z > max.Z;
         }
 
         /// <summary>
