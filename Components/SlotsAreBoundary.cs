@@ -90,61 +90,54 @@ namespace Monoceros {
 
             var depthPattern = Enumerable.Repeat(0, blockLength).ToArray();
 
-            foreach (var slot in slots) {
-                var index1D = slot.RelativeCenter.To1D(minPoint, maxPoint);
+            var slotIndices1D = slots.Select(slot => slot.RelativeCenter.To1D(minPoint, maxPoint));
+
+            foreach (var index1D in slotIndices1D) {
                 depthPattern[index1D] = int.MaxValue;
             }
 
-            var firstDepth = 1;
-            var visitStack = new List<int>();
-
-            // TODO: identify first layer, only then find the second
-            for (var index1D = 0; index1D < depthPattern.Length; index1D++) {
-                var currentDepth = depthPattern[index1D];
-                if (currentDepth > firstDepth) {
-                    var position3D = Point3i.From1D(index1D, minPoint, maxPoint);
-                    for (var z = position3D.Z - 1; z <= position3D.Z + 1; z++) {
-                        for (var y = position3D.Y - 1; y <= position3D.Y + 1; y++) {
-                            for (var x = position3D.X - 1; x <= position3D.X + 1; x++) {
-                                var neighborPoint = new Point3i(x, y, z);
-                                if (!IsOutOfBounds(neighborPoint, minPoint, maxPoint)) {
-                                    var neighborIndex1D = neighborPoint.To1D(minPoint, maxPoint);
-                                    if (depthPattern[neighborIndex1D] == firstDepth - 1) {
-                                        depthPattern[index1D] = firstDepth;
-                                    } else if (!depthPattern.Contains(neighborIndex1D)) {
-                                        visitStack.Add(neighborIndex1D);
-                                    }
-                                }
-                            }
+            var relativeNeighbors = new List<Point3i>();
+            for (var z = -1; z <= 1; z++) {
+                for (var y = -1; y <= 1; y++) {
+                    for (var x = -1; x <= 1; x++) {
+                        if (!(x == 0 && y == 0 && z == 0)) {
+                            relativeNeighbors.Add(new Point3i(x, y, z));
                         }
                     }
                 }
             }
 
-            for (var depth = 2; depth <= layers; depth++) {
+            var visitStack = new List<int>();
+
+
+            for (var index1D = 0; index1D < depthPattern.Length; index1D++) {
+                if (depthPattern[index1D] > 0) {
+                    var position3D = Point3i.From1D(index1D, minPoint, maxPoint);
+                    if (relativeNeighbors
+                        .Select(relative => position3D + relative)
+                        .Any(neighbor3D => IsOutOfBounds(neighbor3D, minPoint, maxPoint)
+                            || depthPattern[neighbor3D.To1D(minPoint, maxPoint)] == 0)) {
+                        visitStack.Add(index1D);
+                    }
+                }
+            }
+
+            for (var depth = 1; depth <= layers; depth++) {
                 var nextVisitStack = new List<int>();
                 foreach (var index1D in visitStack) {
-                    var position3D = Point3i.From1D(index1D, minPoint, maxPoint);
                     depthPattern[index1D] = depth;
-                    for (var z = position3D.Z - 1; z <= position3D.Z + 1; z++) {
-                        for (var y = position3D.Y - 1; y <= position3D.Y + 1; y++) {
-                            for (var x = position3D.X - 1; x <= position3D.X + 1; x++) {
-                                var neighborPoint = new Point3i(x, y, z);
-                                if (!IsOutOfBounds(neighborPoint, minPoint, maxPoint)) {
-                                    var neighborIndex1D = neighborPoint.To1D(minPoint, maxPoint);
-                                    if (depthPattern[neighborIndex1D] > depth) {
-                                        nextVisitStack.Add(neighborIndex1D);
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    var position3D = Point3i.From1D(index1D, minPoint, maxPoint);
+                    var neighbors1DDeeper = relativeNeighbors
+                                            .Select(relative => position3D + relative)
+                                            .Where(neighbor3D => !IsOutOfBounds(neighbor3D, minPoint, maxPoint))
+                                            .Select(neighbor3D => neighbor3D.To1D(minPoint, maxPoint))
+                                            .Where(neighbor1D => depthPattern[neighbor1D] > depth);
+                    nextVisitStack.AddRange(neighbors1DDeeper);
                 }
                 visitStack = nextVisitStack;
             }
 
-            var layerPattern = slots.Select(slot => {
-                var index1D = slot.RelativeCenter.To1D(minPoint, maxPoint);
+            var layerPattern = slotIndices1D.Select(index1D => {
                 var depth = depthPattern[index1D];
                 return depth > 0 && depth <= layers;
             });
