@@ -5,14 +5,17 @@ using System.Linq;
 using Grasshopper.Kernel;
 
 namespace Monoceros {
-    public class ComponentAreSlotsBoundary : GH_Component {
+    public class ComponentAreSlotsBoundaryObsolete1245 : GH_Component {
 
-        public ComponentAreSlotsBoundary( ) : base("Are Slots Boundary",
+        public ComponentAreSlotsBoundaryObsolete1245( ) : base("Are Slots Boundary",
                                                    "AreSlotsBound",
                                                    "Are Monoceros Slots on the boundary of the world?",
                                                    "Monoceros",
                                                    "Slot") {
         }
+
+        public override bool Obsolete => true;
+        public override GH_Exposure Exposure => GH_Exposure.hidden;
 
         /// <summary>
         /// Registers all the input parameters for this component.
@@ -28,21 +31,6 @@ namespace Monoceros {
                                          "Number of outer layers to identify",
                                          GH_ParamAccess.item,
                                          1);
-            pManager.AddBooleanParameter("Include X",
-                                         "X",
-                                         "Scan for boundary in X direction",
-                                         GH_ParamAccess.item,
-                                         true);
-            pManager.AddBooleanParameter("Include Y",
-                                         "Y",
-                                         "Scan for boundary in Y direction",
-                                         GH_ParamAccess.item,
-                                         true);
-            pManager.AddBooleanParameter("Include Z",
-                                         "Z",
-                                         "Scan for boundary in Z direction",
-                                         GH_ParamAccess.item,
-                                         true);
         }
 
         /// <summary>
@@ -63,27 +51,12 @@ namespace Monoceros {
         protected override void SolveInstance(IGH_DataAccess DA) {
             var slots = new List<Slot>();
             var layers = 1;
-            var scanX = false;
-            var scanY = false;
-            var scanZ = false;
 
             if (!DA.GetDataList(0, slots)) {
                 return;
             }
 
             if (!DA.GetData(1, ref layers)) {
-                return;
-            }
-
-            if (!DA.GetData(2, ref scanX)) {
-                return;
-            }
-
-            if (!DA.GetData(3, ref scanY)) {
-                return;
-            }
-
-            if (!DA.GetData(4, ref scanZ)) {
                 return;
             }
 
@@ -126,14 +99,10 @@ namespace Monoceros {
                 depthPattern[index1D] = int.MaxValue;
             }
 
-            var xNeighbors = scanX ? 1 : 0;
-            var yNeighbors = scanY ? 1 : 0;
-            var zNeighbors = scanZ ? 1 : 0;
-
             var relativeNeighbors = new List<Point3i>();
-            for (var z = -zNeighbors; z <= zNeighbors; z++) {
-                for (var y = -yNeighbors; y <= yNeighbors; y++) {
-                    for (var x = -xNeighbors; x <= xNeighbors; x++) {
+            for (var z = -1; z <= 1; z++) {
+                for (var y = -1; y <= 1; y++) {
+                    for (var x = -1; x <= 1; x++) {
                         if (!(x == 0 && y == 0 && z == 0)) {
                             relativeNeighbors.Add(new Point3i(x, y, z));
                         }
@@ -166,10 +135,7 @@ namespace Monoceros {
                                             .Where(neighbor1D => depthPattern[neighbor1D] > depth);
                     nextVisitStack.AddRange(neighbors1DDeeper);
                 }
-                if (!nextVisitStack.Any()) {
-                    break;
-                }
-                visitStack = nextVisitStack.Distinct().ToList();
+                visitStack = nextVisitStack;
             }
 
             var layerPattern = slotIndices1D.Select(index1D => {
@@ -190,15 +156,6 @@ namespace Monoceros {
         }
 
         /// <summary>
-        /// The Exposure property controls where in the panel a component icon
-        /// will appear. There are seven possible locations (primary to
-        /// septenary), each of which can be combined with the
-        /// GH_Exposure.obscure flag, which ensures the component will only be
-        /// visible on panel dropdowns.
-        /// </summary>
-        public override GH_Exposure Exposure => GH_Exposure.secondary;
-
-        /// <summary>
         /// Provides an Icon for every component that will be visible in the
         /// User Interface. Icons need to be 24x24 pixels.
         /// </summary>
@@ -209,7 +166,7 @@ namespace Monoceros {
         /// this Guid doesn't change otherwise old ghx files that use the old ID
         /// will partially fail during loading.
         /// </summary>
-        public override Guid ComponentGuid => new Guid("2B92B9DD-14FA-4C0D-8EF3-48A5A1CEB74B");
+        public override Guid ComponentGuid => new Guid("079C0EE8-72D2-4591-9342-D0AE027FAF16");
 
     }
 }
