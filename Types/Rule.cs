@@ -121,6 +121,9 @@ namespace Monoceros {
         ///     contain <see cref="RuleTyped"/>.</returns>
         public bool IsExplicit => Explicit != null && Typed == null;
 
+
+        // TODO: Change to enum
+
         /// <summary>
         /// Checks if the <see cref="Rule"/> wraps a <see cref="RuleTyped"/>.
         /// </summary>

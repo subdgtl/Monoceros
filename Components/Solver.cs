@@ -19,9 +19,6 @@ namespace Monoceros {
 
         protected override System.Drawing.Bitmap Icon => Properties.Resources.solver;
 
-        /// <summary>
-        /// Registers all the input parameters for this component.
-        /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager) {
             pManager.AddParameter(new SlotParameter(),
                                   "Slots",
@@ -36,7 +33,7 @@ namespace Monoceros {
             pManager.AddParameter(new RuleParameter(),
                                   "Rules",
                                   "R",
-                                  "All Monoceros rules",
+                                  "All Monoceros Rules",
                                   GH_ParamAccess.list);
             pManager.AddIntegerParameter("Random Seed",
                                          "S",
@@ -65,9 +62,6 @@ namespace Monoceros {
                                          false);
         }
 
-        /// <summary>
-        /// Registers all the output parameters for this component.
-        /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager) {
             pManager.AddTextParameter("out", "out", "Solver report", GH_ParamAccess.item);
             pManager.AddParameter(new SlotParameter(),
@@ -97,22 +91,17 @@ namespace Monoceros {
                                          GH_ParamAccess.item);
         }
 
-        /// <summary>
-        /// Wrap input geometry into module cages.
-        /// </summary>
-        /// <param name="DA">The DA object can be used to retrieve data from
-        ///     input parameters and to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA) {
             var slots = new List<Slot>();
             var modules = new List<Module>();
             var rules = new List<Rule>();
             var randomSeed = 42;
             var maxAttempts = 10;
-            var maxTime = 0;
+            var maxTimeMillis = 0;
             bool useShannonEntropy = false;
             var maxObservations = 0;
 
-            // Due to many early return branches it is easier to set and the re-set the output pin
+            // Due to many early return branches it is easier to set and then re-set the output pin
             DA.SetData(3, false);
             DA.SetData(4, true);
 
@@ -140,23 +129,11 @@ namespace Monoceros {
                 return;
             }
 
-            if (!DA.GetData(6, ref maxTime)) {
+            if (!DA.GetData(6, ref maxTimeMillis)) {
                 return;
             }
 
             if (!DA.GetData(7, ref useShannonEntropy)) {
-                return;
-            }
-
-            if (maxObservations < 0) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Maximum number of " +
-                    "observations must be 0 or more.");
-                return;
-            }
-
-            if (maxAttempts < 1) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Maximum number of attempts must " +
-                    "be 1 or more.");
                 return;
             }
 
@@ -165,111 +142,192 @@ namespace Monoceros {
                 entropy = Entropy.Shannon;
             }
 
-            var invalidSlotCount = slots.RemoveAll(slot => slot == null || !slot.IsValid);
+            var invalidInputs = false;
 
-            if (invalidSlotCount > 0) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  invalidSlotCount + " Slots are null or invalid and were removed.");
+            if (maxObservations < 0) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Maximum number of " +
+                    "observations must be 0 or more.");
+                invalidInputs = true;
             }
 
-            var anySlotAllowsAll = slots.Any(slot => slot.AllowsAnyModule);
-
-            var invalidRuleCount = rules.RemoveAll(rule => rule == null || !rule.IsValid);
-
-            if (invalidRuleCount > 0) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  invalidRuleCount + " Rules are null or invalid and were removed.");
+            if (maxAttempts < 1) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Maximum number of attempts must " +
+                    "be 1 or more.");
+                invalidInputs = true;
             }
 
-            var invalidModulesCount = modules.RemoveAll(module => module == null || !module.IsValid);
 
-            if (invalidModulesCount > 0) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  invalidModulesCount + " Modules are null or invalid and were removed.");
+
+            foreach (var slot in slots) {
+                if (slot == null || !slot.IsValid) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Some Slots are null or invalid.");
+                    invalidInputs = true;
+                    break;
+                }
             }
 
-            if (!anySlotAllowsAll) {
-                foreach (var module in modules) {
-                    if (!slots.Any(slot => slot.AllowedModuleNames.Contains(module.Name))) {
-                        AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                        "Module \"" + module.Name + "\" will be excluded from the " +
-                        "solution because it is not allowed in any Slot.");
+            foreach (var rule in rules) {
+                if (rule == null || !rule.IsValid) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Some Rules are null or invalid.");
+                    invalidInputs = true;
+                    break;
+                }
+            }
+
+            foreach (var module in modules) {
+                if (module == null || !module.IsValid) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Some Modules are null or invalid.");
+                    invalidInputs = true;
+                    break;
+                }
+            }
+
+            if (invalidInputs) {
+                return;
+            }
+
+            var anySlotAllowsAll = false;
+            foreach (var slot in slots) {
+                if (slot.AllowsAnyModule) {
+                    anySlotAllowsAll = true;
+                    break;
+                }
+            }
+
+            var moduleNames = new HashSet<string>();
+            foreach (var module in modules) {
+                moduleNames.Add(module.Name);
+            }
+
+            // TODO: Honor AllowedModuleParts first
+            var slotModuleNames = new HashSet<string>();
+            foreach (var slot in slots) {
+                foreach (var moduleName in slot.AllowedModuleNames) {
+                    slotModuleNames.Add(moduleName);
+                }
+            }
+
+            var ruleModuleNames = new HashSet<string>();
+            foreach (var rule in rules) {
+                if (rule.IsExplicit) {
+                    if (!ruleModuleNames.Contains(rule.Explicit.SourceModuleName)) {
+                        ruleModuleNames.Add(rule.Explicit.SourceModuleName);
+                    }
+                    if (!ruleModuleNames.Contains(rule.Explicit.TargetModuleName)) {
+                        ruleModuleNames.Add(rule.Explicit.TargetModuleName);
+                    }
+                }
+                if (rule.IsTyped) {
+                    if (!ruleModuleNames.Contains(rule.Typed.ModuleName)) {
+                        ruleModuleNames.Add(rule.Typed.ModuleName);
                     }
                 }
             }
 
-            var modulesUsed = anySlotAllowsAll
-                ? modules
-                : modules.Where(module =>
-                    slots.Any(slot => slot.AllowedModuleNames.Contains(module.Name))
-                    && rules.Any(rule => rule.UsesModule(module.Name)));
-
-            if (!modulesUsed.Any()) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Modules collected.");
-                return;
-            }
-
-            var unusedRuleCount = rules
-                .RemoveAll(rule => !rule.UsesModule(Config.OUTER_MODULE_NAME)
-                && !rule.IsValidWithModules(modulesUsed));
-
-
-            // TODO: Consider telling the user which ones are skipped
-            if (unusedRuleCount > 0) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, unusedRuleCount +
-                    " Rules will be excluded from the solution because they do not refer to any " +
-                    "existing Module.");
-            }
-
-            if (!rules.Any()) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Modules collected.");
-                return;
-            }
-
-            // TODO: Consider smarter compatibility check or non-uniform scaling
-            if (!Slot.AreSlotDiagonalsCompatible(slots)) {
+            var moduleDiagonal = modules[0].PartDiagonal;
+            var diagonal = slots[0].Diagonal;
+            if (!moduleDiagonal.Equals(diagonal)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  "Slots are not defined with the same diagonal.");
-                return;
-            }
-            var diagonal = slots.First().Diagonal;
-
-            // TODO: Consider smarter compatibility check or base plane conversion
-            if (!Slot.AreSlotBasePlanesCompatible(slots)) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  "Slots are not defined with the same base plane.");
-                return;
-            }
-            var slotBasePlane = slots.First().BasePlane;
-
-            if (!Slot.AreSlotLocationsUnique(slots)) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Slot centers are not unique.");
-                return;
+                                  "Modules and Slots are not defined with the same diagonal.");
+                invalidInputs = true;
             }
 
-            var moduleDiagonal = modulesUsed.First().PartDiagonal;
-
-            if (modulesUsed.Any(module => module.PartDiagonal != moduleDiagonal)) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+            var modulesUsed = new List<Module>();
+            foreach (var module in modules) {
+                if ((anySlotAllowsAll || slotModuleNames.Contains(module.Name))
+                    && ruleModuleNames.Contains(module.Name)) {
+                    modulesUsed.Add(module);
+                } else {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                    "Module \"" + module.Name + "\" will be excluded from the " +
+                    "solution because it is not allowed in any Slot or not described by any Rule.");
+                }
+                if (!module.PartDiagonal.Equals(moduleDiagonal)) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "Modules are not defined with the same diagonal.");
+                    invalidInputs = true;
+                }
+            }
+
+            if (modulesUsed.Count == 0) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Modules collected.");
+                invalidInputs = true;
+            }
+
+            if (invalidInputs) {
                 return;
             }
 
-            if (!AreModuleNamesUnique(modulesUsed)) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Module names are not unique.");
+            var rulesUsed = new List<Rule>();
+            foreach (var rule in rules) {
+                if ((rule.IsExplicit
+                    && (moduleNames.Contains(rule.Explicit.SourceModuleName) || rule.Explicit.SourceModuleName == Config.OUTER_MODULE_NAME)
+                    && (moduleNames.Contains(rule.Explicit.TargetModuleName) || rule.Explicit.TargetModuleName == Config.OUTER_MODULE_NAME))
+                    || (rule.IsTyped
+                    && (moduleNames.Contains(rule.Typed.ModuleName) || rule.Typed.ModuleName == Config.OUTER_MODULE_NAME)
+                    )) {
+                    rulesUsed.Add(rule);
+                } else {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                        "Rule " + rule + " will be excluded from the solution because it does not refer to any " +
+                        "existing Module.");
+                }
+            }
+
+            if (rulesUsed.Count == 0) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Rules collected.");
+                invalidInputs = true;
+            }
+
+            if (invalidInputs) {
                 return;
             }
 
-            if (moduleDiagonal != diagonal) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  "Modules and slots are not defined with the same diagonal.");
+            var slotBasePlane = slots[0].BasePlane;
+            var uniqueSlotCenters = new List<Point3i>(slots.Count);
+            foreach (var slot in slots) {
+                if (!slot.Diagonal.Equals(diagonal)) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                      "Slots are not defined with the same diagonal.");
+                    invalidInputs = true;
+                }
+                if (!slot.BasePlane.Equals(slotBasePlane)) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                      "Slots are not defined with the same base plane.");
+                    invalidInputs = true;
+                }
+                if (uniqueSlotCenters.Contains(slot.RelativeCenter)) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Slot centers are not unique.");
+                    invalidInputs = true;
+                } else {
+                    uniqueSlotCenters.Add(slot.RelativeCenter);
+                }
+                if (invalidInputs) {
+                    break;
+                }
+            }
+
+            var moduleNamesUnique = new HashSet<string>();
+            foreach (var module in modulesUsed) {
+                moduleNamesUnique.Add(module.Name);
+            }
+
+            if (moduleNamesUnique.Count != modulesUsed.Count) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Module Names are not unique.");
+                invalidInputs = true;
+            }
+
+            if (invalidInputs) {
                 return;
             }
 
             var modulesUsable = new List<Module>();
+            var usedConnectors = new bool[Config.MAX_PARTS];
             foreach (var module in modulesUsed) {
-                var usedConnectors = Enumerable.Repeat(false, module.Connectors.Count).ToList();
-                foreach (var rule in rules) {
+                for (var i = 0; i < module.Connectors.Count; i++) {
+                    usedConnectors[i] = false;
+                }
+                foreach (var rule in rulesUsed) {
                     if (rule.IsExplicit) {
                         if (rule.Explicit.SourceModuleName == module.Name &&
                             rule.Explicit.SourceConnectorIndex < module.Connectors.Count) {
@@ -286,15 +344,20 @@ namespace Monoceros {
                             usedConnectors[rule.Typed.ConnectorIndex] = true;
                         }
                     }
-                    if (usedConnectors.All(used => used)) {
+                }
+
+                var allUsed = true;
+                for (var i = 0; i < module.Connectors.Count; i++) {
+                    allUsed = usedConnectors[i];
+                    if (!allUsed) {
                         break;
                     }
                 }
 
-                if (usedConnectors.Any(boolean => boolean == false)) {
+                if (!allUsed) {
                     var warningString = "Module \"" + module.Name + "\" will be excluded from the " +
                         "solution. Connectors not described by any Rule: ";
-                    for (var i = 0; i < usedConnectors.Count; i++) {
+                    for (var i = 0; i < module.Connectors.Count; i++) {
                         if (!usedConnectors[i]) {
                             warningString += i + ", ";
                         }
@@ -304,6 +367,8 @@ namespace Monoceros {
                     modulesUsable.Add(module);
                 }
             }
+
+
 
             if (!modulesUsable.Any()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
@@ -397,22 +462,26 @@ namespace Monoceros {
                 return;
             }
 
+            if (invalidInputs) {
+                return;
+            }
+
             Module.GenerateEmptySingleModule(Config.OUTER_MODULE_NAME,
                                              Config.INDIFFERENT_TAG,
                                              new Rhino.Geometry.Vector3d(1, 1, 1),
                                              out var moduleOut,
                                              out var rulesOutTyped);
             var rulesAtBoundary = rulesOutTyped.Select(ruleTyped => new Rule(ruleTyped));
-            rules.AddRange(rulesAtBoundary);
+            rulesUsed.AddRange(rulesAtBoundary);
 
             var modulesWithBoundary = modulesUsable.Concat(Enumerable.Repeat(moduleOut, 1)).ToList();
 
             // Unwrap typed rules
-            var rulesTyped = rules.Where(rule => rule.IsTyped).Select(rule => rule.Typed);
+            var rulesTyped = rulesUsed.Where(rule => rule.IsTyped).Select(rule => rule.Typed);
             var rulesTypedUnwrappedToExplicit = rulesTyped
                 .SelectMany(ruleTyped => ruleTyped.ToRulesExplicit(rulesTyped, modulesWithBoundary));
 
-            var rulesExplicit = rules
+            var rulesExplicit = rulesUsed
                 .Where(rule => rule.IsExplicit)
                 .Select(rule => rule.Explicit);
 
@@ -496,7 +565,7 @@ namespace Monoceros {
                               worldSlots,
                               randomSeed,
                               maxAttempts,
-                              maxTime,
+                              maxTimeMillis,
                               maxObservationsUint,
                               entropy,
                               out var solvedSlotPartsTree);
@@ -547,8 +616,7 @@ namespace Monoceros {
             DA.SetData(6, stats.observations);
         }
 
-
-        private bool AreModuleNamesUnique(IEnumerable<Module> modules) {
+        private bool AreModuleNamesUnique(Module[] modules) {
             var moduleNameGroupLengths = modules
                 .GroupBy(module => module.Name)
                 .Where(g => g.Count() > 1);
@@ -962,22 +1030,6 @@ namespace Monoceros {
     [StructLayout(LayoutKind.Sequential)]
     internal unsafe struct SlotState {
         public fixed ulong slot_state[4];
-
-        public override string ToString( ) {
-            var b = new StringBuilder("Slot state { ", 64);
-
-            b.Append("[");
-            b.Append(slot_state[0]);
-            b.Append("][");
-            b.Append(slot_state[1]);
-            b.Append("][");
-            b.Append(slot_state[2]);
-            b.Append("][");
-            b.Append(slot_state[3]);
-            b.Append("] }");
-
-            return b.ToString();
-        }
     }
 
     internal struct Stats {
