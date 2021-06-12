@@ -482,8 +482,8 @@ namespace Monoceros {
             && Diagonal != null
             && AllowedModuleNames != null
             && AllowedPartNames != null
-            && (AllowsAnyModule || AllowedModuleNames.Any())
-            && (!AllowedPartNames.Any() || AllowedModuleNames.Any());
+            // TODO: Consider this to be a valid Slot state if it helps anything
+            && (AllowsAnyModule || AllowedModuleNames.Count != 0 || AllowedPartNames.Count != 0);
 
         /// <summary>
         /// Explains the invalidity of the <see cref="Slot"/>. Required by
@@ -504,8 +504,8 @@ namespace Monoceros {
                 if (AllowedPartNames == null) {
                     reasons += "Allowed Part names is null. ";
                 }
-                if (!(AllowsAnyModule || AllowedModuleNames.Any())) {
-                    reasons += "Allowed Module names are empty and the Slot does not allow any Module. ";
+                if (!(AllowsAnyModule || AllowedModuleNames.Count != 0 || AllowedPartNames.Count != 0)) {
+                    reasons += "Slot does not allow placement of any Module.";
                 }
                 if (Diagonal.X <= 0 || Diagonal.Y <= 0 || Diagonal.Z <= 0) {
                     reasons += "Diagonal is zero in one of its directions. ";
