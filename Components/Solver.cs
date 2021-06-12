@@ -362,15 +362,16 @@ namespace Monoceros {
                     if (modulesConnectorUsePattern.ContainsKey(rule.Explicit.SourceModuleName)
                         && rule.Explicit.SourceConnectorIndex < modulesConnectorUsePattern[rule.Explicit.SourceModuleName].Length) {
                         modulesConnectorUsePattern[rule.Explicit.SourceModuleName][rule.Explicit.SourceConnectorIndex] = true;
-                    } else {
+                    } else if (!(rule.Explicit.SourceModuleName == Config.OUTER_MODULE_NAME && rule.Explicit.SourceConnectorIndex < 6)) {
                         AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Rule " + rule + " refers to unavailable source Module or Connector.");
                         DA.SetData(OUT_PARAM_DETERMINISTIC, false);
                         return;
+
                     }
                     if (modulesConnectorUsePattern.ContainsKey(rule.Explicit.TargetModuleName)
                         && rule.Explicit.TargetConnectorIndex < modulesConnectorUsePattern[rule.Explicit.TargetModuleName].Length) {
                         modulesConnectorUsePattern[rule.Explicit.TargetModuleName][rule.Explicit.TargetConnectorIndex] = true;
-                    } else {
+                    } else if (!(rule.Explicit.TargetModuleName == Config.OUTER_MODULE_NAME && rule.Explicit.TargetConnectorIndex < 6)) {
                         AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Rule " + rule + " refers to unavailable target Module or Connector.");
                         DA.SetData(OUT_PARAM_DETERMINISTIC, false);
                         return;
@@ -380,7 +381,7 @@ namespace Monoceros {
                     if (modulesConnectorUsePattern.ContainsKey(rule.Typed.ModuleName)
                         && rule.Typed.ConnectorIndex < modulesConnectorUsePattern[rule.Typed.ModuleName].Length) {
                         modulesConnectorUsePattern[rule.Typed.ModuleName][rule.Typed.ConnectorIndex] = true;
-                    } else {
+                    } else if (!(rule.Typed.ModuleName == Config.OUTER_MODULE_NAME && rule.Typed.ConnectorIndex < 6)) {
                         AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Rule " + rule + " refers to unavailable target Module or Connector.");
                         DA.SetData(OUT_PARAM_DETERMINISTIC, false);
                         return;
