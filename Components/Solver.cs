@@ -619,9 +619,7 @@ namespace Monoceros {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, stats.report);
             }
 
-            // Sort slots into the same order as they were input
             var slotsSolved = new Slot[slotOrder.Length];
-
             for (var originalIndex = 0; originalIndex < solvedSlotPartsTree.Count; originalIndex++) {
                 var allowedParts = solvedSlotPartsTree[originalIndex];
                 var allowedModules = new HashSet<string>();
