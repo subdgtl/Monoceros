@@ -79,27 +79,25 @@ namespace Monoceros {
                 supportTyped = false;
             }
 
-            var invalidModuleCount = modules.RemoveAll(module => module == null || !module.IsValid);
-
-            if (invalidModuleCount > 0) {
+            if (modules.Any(module => module == null || !module.IsValid)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  invalidModuleCount + " Modules are null or invalid and were removed.");
+                                  " One or more Modules are null or invalid.");
+                return;
             }
 
-            var invalidAllowedRuleCount = allowed.RemoveAll(rule => rule == null || !rule.IsValid);
-
-            if (invalidAllowedRuleCount > 0) {
+            if (allowed.Any(rule => rule == null || !rule.IsValid)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  invalidAllowedRuleCount + " allowed Rules are null or invalid and were removed.");
+                                  " One or more Rules are null or invalid.");
+                return;
             }
 
             Module.GenerateEmptySingleModule(Config.OUTER_MODULE_NAME,
                                             Config.INDIFFERENT_TAG,
-                                            new Rhino.Geometry.Vector3d(1, 1, 1),
-                                            out var moduleOut,
-                                            out var rulesOut);
+                                            modules[0].PartDiagonal,
+                                            out var outModule,
+                                            out var typedRulesOfOutModule);
 
-            modules.Add(moduleOut);
+            modules.Add(outModule);
 
             var allowedOriginalClean = allowed
                 .Where(rule => rule.IsValidWithModules(modules))
@@ -109,6 +107,7 @@ namespace Monoceros {
                 var earlyReturnRules = allowedOriginalClean.ToList();
                 earlyReturnRules.Sort();
                 DA.SetDataList(0, earlyReturnRules);
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "No Rules have been disallowed.");
                 return;
             }
 
@@ -120,14 +119,13 @@ namespace Monoceros {
             }
 
             allowed.AddRange(
-                rulesOut.Select(ruleExplicit => new Rule(ruleExplicit))
+                typedRulesOfOutModule.Select(typedRule => new Rule(typedRule))
                 );
 
-            var invalidDisallowedRuleCount = disallowed.RemoveAll(rule => rule == null || !rule.IsValid);
-
-            if (invalidDisallowedRuleCount > 0) {
+            if (disallowed.Any(rule => rule == null || !rule.IsValid)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  invalidDisallowedRuleCount + " disallowed Rules are null or invalid and were removed.");
+                                  " One or more disallowed Rules are null or invalid.");
+                return;
             }
 
             var allowedExplicit = allowedOriginalClean
@@ -254,26 +252,10 @@ namespace Monoceros {
         public void VariableParameterMaintenance( ) {
         }
 
-        /// <summary>
-        /// The Exposure property controls where in the panel a component icon
-        /// will appear. There are seven possible locations (primary to
-        /// septenary), each of which can be combined with the
-        /// GH_Exposure.obscure flag, which ensures the component will only be
-        /// visible on panel dropdowns.
-        /// </summary>
         public override GH_Exposure Exposure => GH_Exposure.secondary;
 
-        /// <summary>
-        /// Provides an Icon for every component that will be visible in the
-        /// User Interface. Icons need to be 24x24 pixels.
-        /// </summary>
         protected override Bitmap Icon => Properties.Resources.rules_collect;
 
-        /// <summary>
-        /// Each component must have a unique Guid to identify it.  It is vital
-        /// this Guid doesn't change otherwise old ghx files that use the old ID
-        /// will partially fail during loading.
-        /// </summary>
         public override Guid ComponentGuid => new Guid("8DAA6103-4CB8-466A-B484-23E0D4614ADE");
     }
 }

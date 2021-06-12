@@ -584,8 +584,9 @@ namespace Monoceros {
                     if (conversionOK) {
                         rulesForSolver.Add(ruleForSolver);
                     } else {
-                        AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Failed to convert Rule " + rulesTyped +
-                            ", which was unwrapped to " + ruleUnwrappedToExplicit + ", to WFC Solver format.");
+                        AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Rule " + rulesTyped +
+                            ", which was unwrapped to " + ruleUnwrappedToExplicit + ", failed to " +
+                            "convert to WFC Solver format.");
                         DA.SetData(OUT_PARAM_DETERMINISTIC, false);
                         return;
                     }
@@ -626,22 +627,6 @@ namespace Monoceros {
                 }
             }
 
-            foreach (var slot in worldSlots) {
-                if (!slot.IsValid) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, slot.IsValidWhyNot);
-                    DA.SetData(OUT_PARAM_DETERMINISTIC, false);
-                    return;
-                }
-
-                if (slot.IsContradictory) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  "Slot at " + slot.AbsoluteCenter + "does not allow any Module " +
-                                  "to be placed.");
-                    DA.SetData(OUT_PARAM_DETERMINISTIC, false);
-                    DA.SetData(OUT_PARAM_CONTRADICTORY, true);
-                    return;
-                }
-            }
             var worldSize = (worldMax - worldMin) + new Point3i(1, 1, 1);
 
             if (!worldSize.FitsUshort()) {
@@ -652,8 +637,8 @@ namespace Monoceros {
                 return;
             }
 
-            uint maxObservationsUint = maxObservations == Int32.MaxValue
-                ? UInt32.MaxValue
+            uint maxObservationsUint = maxObservations == int.MaxValue
+                ? uint.MaxValue
                 : (uint)maxObservations;
 
             // SOLVER
@@ -672,7 +657,6 @@ namespace Monoceros {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, stats.report);
             }
 
-            var slotsSolved = new Slot[slotOrder.Length];
             for (var originalIndex = 0; originalIndex < solvedSlotPartsTree.Count; originalIndex++) {
                 var allowedParts = solvedSlotPartsTree[originalIndex];
                 var allowedModules = new HashSet<string>();
@@ -680,13 +664,13 @@ namespace Monoceros {
                     allowedModules.Add(modulePartNameToModuleName[partName]);
                 }
                 var solvedSlot = new Slot(slotBasePlane,
-                                Point3i.From1D(slotOrder[originalIndex], worldMin, worldMax),
+                                slots[originalIndex].RelativeCenter,
                                 slotDiagonal,
                                 false,
                                 new List<string>(allowedModules),
                                 allowedParts,
                                 allPartsCount);
-                slotsSolved[originalIndex] = solvedSlot;
+                slots[originalIndex] = solvedSlot;
             }
 
             if (!stats.deterministic) {
@@ -695,7 +679,7 @@ namespace Monoceros {
             }
 
             DA.SetData(OUT_PARAM_REPORT, stats.ToString());
-            DA.SetDataList(OUT_PARAM_SLOTS, slotsSolved);
+            DA.SetDataList(OUT_PARAM_SLOTS, slots);
             DA.SetData(OUT_PARAM_DETERMINISTIC, stats.deterministic);
             DA.SetData(OUT_PARAM_CONTRADICTORY, stats.contradictory);
             DA.SetData(OUT_PARAM_SEED, stats.seed);
