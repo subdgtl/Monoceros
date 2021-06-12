@@ -169,8 +169,6 @@ namespace Monoceros {
                 invalidInputs = true;
             }
 
-
-
             foreach (var slot in slots) {
                 if (slot == null || !slot.IsValid) {
                     AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Some Slots are null or invalid.");
@@ -269,33 +267,6 @@ namespace Monoceros {
             if (!moduleDiagonal.Equals(diagonal)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
                                   "Modules and Slots are not defined with the same diagonal.");
-                invalidModulesAndSlots = true;
-            }
-
-            // TODO: cleanup together with modulesUsable
-            var modulesUsed = new List<Module>();
-            foreach (var module in modules) {
-                if ((anySlotAllowsAll || slotModuleNames.Contains(module.Name))
-                    && ruleModuleNames.Contains(module.Name)) {
-                    modulesUsed.Add(module);
-                } else {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                    "Module \"" + module.Name + "\" will be excluded from the " +
-                    "solution because it is not allowed in any Slot or not described by any Rule.");
-                }
-                if (!module.PartDiagonal.Equals(moduleDiagonal)) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  "Modules are not defined with the same diagonal.");
-                    invalidModulesAndSlots = true;
-                }
-            }
-
-            if (modulesUsed.Count == 0) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The Rules and Slots do not refer to any provided Module.");
-                invalidModulesAndSlots = true;
-            }
-
-            if (invalidModulesAndSlots) {
                 DA.SetData(OUT_PARAM_DETERMINISTIC, false);
                 return;
             }
@@ -349,7 +320,7 @@ namespace Monoceros {
             }
 
             var modulesConnectorUsePattern = new Dictionary<string, bool[]>();
-            foreach (var module in modulesUsed) {
+            foreach (var module in modules) {
                 var usePattern = new bool[module.Connectors.Count];
                 for (var i = 0; i < usePattern.Length; i++) {
                     usePattern[i] = false;
@@ -389,8 +360,23 @@ namespace Monoceros {
                 }
             }
 
+
             var modulesUsable = new List<Module>();
-            foreach (var module in modulesUsed) {
+            foreach (var module in modules) {
+                if (!anySlotAllowsAll && !slotModuleNames.Contains(module.Name)
+                   || !ruleModuleNames.Contains(module.Name)) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                    "Module \"" + module.Name + "\" will be excluded from the " +
+                    "solution because it is not allowed in any Slot or not described by any Rule.");
+                    continue;
+                }
+                if (!module.PartDiagonal.Equals(moduleDiagonal)) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  "Modules are not defined with the same diagonal.");
+                    DA.SetData(OUT_PARAM_DETERMINISTIC, false);
+                    return;
+                }
+
                 var moduleConnectorsUse = modulesConnectorUsePattern[module.Name];
                 var anyUnusedConnector = false;
                 foreach (var isUsed in moduleConnectorsUse) {
@@ -439,18 +425,13 @@ namespace Monoceros {
             // Convert AllowEverything slots into an explicit list of allowed modules (except Out)
             var usableModuleNames = new List<string>(modulesUsable.Count);
             var usableModulePartNames = new List<string>();
+            var usableModulePartNameToModuleName = new Dictionary<string, string>();
+            var usableModuleNameToModulePartNames = new Dictionary<string, List<string>>();
 
-            foreach (var module in modules) {
+            foreach (var module in modulesUsable) {
                 usableModuleNames.Add(module.Name);
                 foreach (var partName in module.PartNames) {
                     usableModulePartNames.Add(partName);
-                }
-            }
-
-            var usableModulePartNameToModuleName = new Dictionary<string, string>();
-            var usableModuleNameToModulePartNames = new Dictionary<string, List<string>>();
-            foreach (var module in modulesUsable) {
-                foreach (var partName in module.PartNames) {
                     usableModulePartNameToModuleName.Add(partName, module.Name);
                 }
                 usableModuleNameToModulePartNames.Add(module.Name, module.PartNames);
