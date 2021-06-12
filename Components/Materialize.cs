@@ -81,7 +81,7 @@ namespace Monoceros {
             }
 
             if (!slots.Any()) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "No valid Slots collected.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "No valid Slots collected.");
                 return;
             }
 
