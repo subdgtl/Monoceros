@@ -48,7 +48,7 @@ namespace Monoceros {
                                          "O",
                                          "Maximum Number of Solver Observations per Attempt (leave default for virtually unlimited)",
                                          GH_ParamAccess.item,
-                                         Int32.MaxValue);
+                                         int.MaxValue);
             pManager.AddIntegerParameter("Max Time",
                                          "T",
                                          "Maximum Time spent with Attempts (milliseconds). Negative or 0 = infinity",
@@ -115,8 +115,12 @@ namespace Monoceros {
             var randomSeed = 42;
             var maxAttempts = 10;
             var maxTimeMillis = 0;
-            bool useShannonEntropy = false;
+            var useShannonEntropy = false;
             var maxObservations = 0;
+
+            var profilerStats = "\n";
+
+            var timeMilestone = DateTime.UtcNow;
 
             if (!DA.GetDataList(IN_PARAM_SLOTS, slots)) {
                 return;
@@ -150,7 +154,7 @@ namespace Monoceros {
                 return;
             }
 
-            Entropy entropy = Entropy.Linear;
+            var entropy = Entropy.Linear;
             if (useShannonEntropy) {
                 entropy = Entropy.Shannon;
             }
@@ -637,9 +641,13 @@ namespace Monoceros {
                 return;
             }
 
-            uint maxObservationsUint = maxObservations == int.MaxValue
+            var maxObservationsUint = maxObservations == int.MaxValue
                 ? uint.MaxValue
                 : (uint)maxObservations;
+
+            var timeMilestoneNow = DateTime.UtcNow;
+            profilerStats += "Data preprocessing: " + Math.Round((timeMilestoneNow - timeMilestone).TotalMilliseconds) + "ms \n";
+            timeMilestone = timeMilestoneNow;
 
             // SOLVER
             var stats = Solve(new List<RuleForSolver>(rulesForSolver),
@@ -652,6 +660,15 @@ namespace Monoceros {
                               entropy,
                               slotOrder,
                               out var solvedSlotPartsTree);
+
+            timeMilestoneNow = DateTime.UtcNow;
+            profilerStats +=
+                "WFC Solver: " + Math.Round((timeMilestoneNow - timeMilestone).TotalMilliseconds) + "ms \n" +
+                "WFC Pre & Post-processing: " + Math.Round((timeMilestoneNow - timeMilestone).TotalMilliseconds - stats.totalAttemptTime) + "ms \n" +
+                "WFC Attempts: " + Math.Round(stats.totalAttemptTime) + "ms; " +
+                "Fastest: " + Math.Round(stats.fasestAttempt) + "ms; " +
+                "Slowest: " + Math.Round(stats.slowestAttempt) + "ms \n";
+            timeMilestone = timeMilestoneNow;
 
             if (stats.contradictory) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, stats.report);
@@ -677,6 +694,11 @@ namespace Monoceros {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Current solution is partial. " +
                     "A complete valid solution is not guaranteed!");
             }
+
+            timeMilestoneNow = DateTime.UtcNow;
+            profilerStats += "Data postprocessing: " + Math.Round((timeMilestoneNow - timeMilestone).TotalMilliseconds) + "ms \n";
+
+            stats.report += "\n" + profilerStats;
 
             DA.SetData(OUT_PARAM_REPORT, stats.ToString());
             DA.SetDataList(OUT_PARAM_SLOTS, slots);
@@ -721,7 +743,7 @@ namespace Monoceros {
 
             // Check ahead of time, if there are at most maxModuleCount modules
             // altogether in the input.
-            uint maxModuleCount = Native.wfc_max_module_count_get();
+            var maxModuleCount = Native.wfc_max_module_count_get();
             {
                 var allParts = new HashSet<string>();
 
@@ -783,11 +805,11 @@ namespace Monoceros {
             // -- World dimensions --
             //
 
-            ushort worldX = (ushort)worldSize.X;
-            ushort worldY = (ushort)worldSize.Y;
-            ushort worldZ = (ushort)worldSize.Z;
-            uint worldDimensions = (uint)worldX * worldY * worldZ;
-            uint worldSlotsPerLayer = (uint)worldX * worldY;
+            var worldX = (ushort)worldSize.X;
+            var worldY = (ushort)worldSize.Y;
+            var worldZ = (ushort)worldSize.Z;
+            var worldDimensions = (uint)worldX * worldY * worldZ;
+            var worldSlotsPerLayer = (uint)worldX * worldY;
             uint worldSlotsPerRow = worldX;
 
             //
@@ -817,8 +839,8 @@ namespace Monoceros {
                     if (nameToPart.TryGetValue(partString, out var partByte)) {
                         Debug.Assert(slotIndex < worldStateSlots.Length);
 
-                        byte blkIndex = (byte)(partByte / 64u);
-                        byte bitIndex = (byte)(partByte % 64u);
+                        var blkIndex = (byte)(partByte / 64u);
+                        var bitIndex = (byte)(partByte % 64u);
 
                         Debug.Assert(blkIndex < 4);
                         unsafe {
@@ -829,9 +851,9 @@ namespace Monoceros {
             }
 
             uint attempts = 0;
-            WfcObserveResult observationResult = WfcObserveResult.Contradiction;
+            var observationResult = WfcObserveResult.Contradiction;
             uint spentObservations;
-            uint maxAttempts = (uint)maxAttemptsInt;
+            var maxAttempts = (uint)maxAttemptsInt;
 
             var wfcRngStateHandle = IntPtr.Zero;
             var wfcWorldStateHandle = IntPtr.Zero;
@@ -840,9 +862,12 @@ namespace Monoceros {
             var randomMajor = new Random(randomSeed);
             var firstAttempt = true;
 
-            var timeStart = DateTime.UtcNow;
+            var timeSpent = 0d;
+            var fastestAttempt = double.MaxValue;
+            var slowestAttempt = double.MinValue;
 
             while (true) {
+                var attemptStart = DateTime.UtcNow;
 
                 //
                 // -- Random seed --
@@ -864,8 +889,8 @@ namespace Monoceros {
                 stats.seed = currentSeed;
 
                 var random = new Random(currentSeed);
-                byte[] rngSeedLowArr = new byte[8];
-                byte[] rngSeedHighArr = new byte[8];
+                var rngSeedLowArr = new byte[8];
+                var rngSeedHighArr = new byte[8];
                 random.NextBytes(rngSeedLowArr);
                 random.NextBytes(rngSeedHighArr);
 
@@ -876,8 +901,8 @@ namespace Monoceros {
                     Array.Reverse(rngSeedHighArr);
                 }
 
-                ulong rngSeedLow = BitConverter.ToUInt64(rngSeedLowArr, 0);
-                ulong rngSeedHigh = BitConverter.ToUInt64(rngSeedHighArr, 0);
+                var rngSeedLow = BitConverter.ToUInt64(rngSeedLowArr, 0);
+                var rngSeedHigh = BitConverter.ToUInt64(rngSeedHighArr, 0);
 
 
                 //
@@ -948,8 +973,6 @@ namespace Monoceros {
                                 return stats;
                         }
                     }
-
-                    Native.wfc_world_state_init_from(&wfcWorldStateHandleBackup, wfcWorldStateHandle);
                 }
 
                 spentObservations = 0;
@@ -964,15 +987,26 @@ namespace Monoceros {
                     attempts++;
                     stats.averageObservations += spentObservations;
 
+                    var attemptEnd = DateTime.UtcNow;
+                    var attemptDuration = (attemptEnd - attemptStart).TotalMilliseconds;
+                    timeSpent += attemptDuration;
+                    fastestAttempt = Math.Min(fastestAttempt, attemptDuration);
+                    slowestAttempt = Math.Max(slowestAttempt, attemptDuration);
+
                     if (observationResult == WfcObserveResult.Deterministic
                         || observationResult == WfcObserveResult.Nondeterministic
                         || attempts == maxAttempts
-                        || (limitTime && ((DateTime.UtcNow - timeStart).TotalMilliseconds > maxTime))) {
+                        || (limitTime && attemptDuration > maxTime)) {
                         break;
                     }
-                    Native.wfc_world_state_clone_from(wfcWorldStateHandle, wfcWorldStateHandleBackup);
                 }
+                Native.wfc_world_state_free(wfcWorldStateHandle);
+                Native.wfc_rng_state_free(wfcRngStateHandle);
             }
+
+            stats.fasestAttempt = fastestAttempt;
+            stats.slowestAttempt = slowestAttempt;
+            stats.totalAttemptTime = timeSpent;
 
             if (observationResult == WfcObserveResult.Deterministic) {
                 stats.deterministic = true;
@@ -1043,8 +1077,8 @@ namespace Monoceros {
                                       Dictionary<byte, string> partToName,
                                       out List<string> slotParts) {
             slotParts = new List<string>();
-            for (int blkIndex = 0; blkIndex < 4; ++blkIndex) {
-                for (int bitIndex = 0; bitIndex < 64; ++bitIndex) {
+            for (var blkIndex = 0; blkIndex < 4; ++blkIndex) {
+                for (var bitIndex = 0; bitIndex < 64; ++bitIndex) {
                     unsafe {
                         if ((slotState.slot_state[blkIndex] & (1ul << bitIndex)) != 0) {
                             var part = (short)(64 * blkIndex + bitIndex);
@@ -1116,6 +1150,9 @@ namespace Monoceros {
         public bool worldNotCanonical;
         public Entropy entropy;
         public string report;
+        internal double fasestAttempt;
+        internal double slowestAttempt;
+        internal double totalAttemptTime;
 
         public override string ToString( ) {
             var b = new StringBuilder(1024);
@@ -1191,7 +1228,7 @@ namespace Monoceros {
         internal static extern uint wfc_max_module_count_get( );
 
         [DllImport("monoceros-wfc-0.2.0.dll", CallingConvention = CallingConvention.StdCall)]
-        internal static unsafe extern WfcWorldStateInitResult wfc_world_state_init(IntPtr* wfc_world_state_handle_ptr,
+        internal static extern unsafe WfcWorldStateInitResult wfc_world_state_init(IntPtr* wfc_world_state_handle_ptr,
                                                                                    AdjacencyRule* adjacency_rules_ptr,
                                                                                    UIntPtr adjacency_rules_len,
                                                                                    ushort world_x,
@@ -1200,28 +1237,28 @@ namespace Monoceros {
                                                                                    Entropy entropy);
 
         [DllImport("monoceros-wfc-0.2.0.dll", CallingConvention = CallingConvention.StdCall)]
-        internal static unsafe extern void wfc_world_state_init_from(IntPtr* wfc_world_state_handle_ptr,
+        internal static extern unsafe void wfc_world_state_init_from(IntPtr* wfc_world_state_handle_ptr,
                                                                      IntPtr source_wfc_world_state_handle);
 
         [DllImport("monoceros-wfc-0.2.0.dll", CallingConvention = CallingConvention.StdCall)]
-        internal static unsafe extern void wfc_world_state_clone_from(IntPtr destination_wfc_world_state_handle,
+        internal static extern unsafe void wfc_world_state_clone_from(IntPtr destination_wfc_world_state_handle,
                                                                       IntPtr source_wfc_world_state_handle);
 
         [DllImport("monoceros-wfc-0.2.0.dll", CallingConvention = CallingConvention.StdCall)]
         internal static extern void wfc_world_state_free(IntPtr wfc_world_state_handle);
 
         [DllImport("monoceros-wfc-0.2.0.dll", CallingConvention = CallingConvention.StdCall)]
-        internal static unsafe extern WfcWorldStateSlotsSetResult wfc_world_state_slots_set(IntPtr wfc_world_state_handle,
+        internal static extern unsafe WfcWorldStateSlotsSetResult wfc_world_state_slots_set(IntPtr wfc_world_state_handle,
                                                                                             SlotState* slots_ptr,
                                                                                             UIntPtr slots_len);
 
         [DllImport("monoceros-wfc-0.2.0.dll", CallingConvention = CallingConvention.StdCall)]
-        internal static unsafe extern void wfc_world_state_slots_get(IntPtr wfc_world_state_handle,
+        internal static extern unsafe void wfc_world_state_slots_get(IntPtr wfc_world_state_handle,
                                                                      SlotState* slots_ptr,
                                                                      UIntPtr slots_len);
 
         [DllImport("monoceros-wfc-0.2.0.dll", CallingConvention = CallingConvention.StdCall)]
-        internal static unsafe extern void wfc_rng_state_init(IntPtr* wfc_rng_state_handle_ptr,
+        internal static extern unsafe void wfc_rng_state_init(IntPtr* wfc_rng_state_handle_ptr,
                                                               ulong rng_seed_low,
                                                               ulong rng_seed_high);
 
@@ -1229,7 +1266,7 @@ namespace Monoceros {
         internal static extern void wfc_rng_state_free(IntPtr wfc_rng_state_handle);
 
         [DllImport("monoceros-wfc-0.2.0.dll", CallingConvention = CallingConvention.StdCall)]
-        internal static unsafe extern WfcObserveResult wfc_observe(IntPtr wfc_world_state_handle,
+        internal static extern unsafe WfcObserveResult wfc_observe(IntPtr wfc_world_state_handle,
                                                             IntPtr wfc_rng_state_handle,
                                                             uint max_observations,
                                                             uint* spent_observations);
