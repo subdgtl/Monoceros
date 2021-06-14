@@ -866,6 +866,71 @@ namespace Monoceros {
             var fastestAttempt = double.MaxValue;
             var slowestAttempt = double.MinValue;
 
+            unsafe {
+                fixed (AdjacencyRule* adjacencyRulesPtr = &adjacencyRules[0]) {
+                    var result = Native.wfc_world_state_init(&wfcWorldStateHandle,
+                                                             adjacencyRulesPtr,
+                                                             (UIntPtr)adjacencyRules.Length,
+                                                             worldX,
+                                                             worldY,
+                                                             worldZ,
+                                                             entropy);
+
+                    switch (result) {
+                        case WfcWorldStateInitResult.Ok:
+                            // All good
+                            break;
+                        case WfcWorldStateInitResult.ErrTooManyModules:
+                            stats.report = "Monoceros Solver failed: Rules refer to too many Module Parts";
+                            orderedSlotPartsTree = new List<List<string>>();
+                            return stats;
+                        case WfcWorldStateInitResult.ErrWorldDimensionsZero:
+                            stats.report = "Monoceros Solver failed: World dimensions are zero.";
+                            orderedSlotPartsTree = new List<List<string>>();
+                            return stats;
+                        default:
+                            stats.report = "WFC solver failed to find solution for unknown reason. Please report this error, " +
+                                "including screenshots, Rhino file and Grasshopper file at monoceros@sub.digital. Thank you!";
+                            orderedSlotPartsTree = new List<List<string>>();
+                            return stats;
+                    }
+                }
+
+                fixed (SlotState* worldStateSlotsPtr = &worldStateSlots[0]) {
+                    var result = Native.wfc_world_state_slots_set(wfcWorldStateHandle,
+                                                                  worldStateSlotsPtr,
+                                                                  (UIntPtr)worldStateSlots.Length);
+                    switch (result) {
+                        case WfcWorldStateSlotsSetResult.Ok:
+                            // All good
+                            stats.worldNotCanonical = false;
+                            break;
+                        case WfcWorldStateSlotsSetResult.OkWorldNotCanonical:
+                            // All good, but we the slots we gave were not
+                            // canonical. wfc_world_state_slots_set fixed that for us.
+                            stats.worldNotCanonical = true;
+                            break;
+                        case WfcWorldStateSlotsSetResult.ErrWorldContradictory:
+                            orderedSlotPartsTree = new List<List<string>>();
+                            foreach (var worldIndex in slotOrder) {
+                                var slotState = worldStateSlots[worldIndex];
+                                var conversionToPartNameSuccessful = outputSlotState(slotState, maxModuleCount, partToName, out var slotParts);
+                                stats.report = "Monoceros Solver failed: World state is contradictory. " +
+                                    "Try changing Slots, Modules, Rules or add boundary Rules. Changing " +
+                                    "random seed or max attempts will not help.";
+                                if (conversionToPartNameSuccessful) {
+                                    orderedSlotPartsTree.Add(slotParts);
+                                } else {
+                                    stats.report += " Monoceros WFC Solver returned a unavailable Module Part. The output Slots may be shuffled.";
+                                }
+                            }
+                            return stats;
+                    }
+                }
+
+                Native.wfc_world_state_init_from(&wfcWorldStateHandleBackup, wfcWorldStateHandle);
+            }
+
             while (true) {
                 var attemptStart = DateTime.UtcNow;
 
@@ -912,67 +977,6 @@ namespace Monoceros {
 
                 unsafe {
                     Native.wfc_rng_state_init(&wfcRngStateHandle, rngSeedLow, rngSeedHigh);
-
-                    fixed (AdjacencyRule* adjacencyRulesPtr = &adjacencyRules[0]) {
-                        var result = Native.wfc_world_state_init(&wfcWorldStateHandle,
-                                                                 adjacencyRulesPtr,
-                                                                 (UIntPtr)adjacencyRules.Length,
-                                                                 worldX,
-                                                                 worldY,
-                                                                 worldZ,
-                                                                 entropy);
-
-                        switch (result) {
-                            case WfcWorldStateInitResult.Ok:
-                                // All good
-                                break;
-                            case WfcWorldStateInitResult.ErrTooManyModules:
-                                stats.report = "Monoceros Solver failed: Rules refer to too many Module Parts";
-                                orderedSlotPartsTree = new List<List<string>>();
-                                return stats;
-                            case WfcWorldStateInitResult.ErrWorldDimensionsZero:
-                                stats.report = "Monoceros Solver failed: World dimensions are zero.";
-                                orderedSlotPartsTree = new List<List<string>>();
-                                return stats;
-                            default:
-                                stats.report = "WFC solver failed to find solution for unknown reason. Please report this error, " +
-                                    "including screenshots, Rhino file and Grasshopper file at monoceros@sub.digital. Thank you!";
-                                orderedSlotPartsTree = new List<List<string>>();
-                                return stats;
-                        }
-                    }
-
-                    fixed (SlotState* worldStateSlotsPtr = &worldStateSlots[0]) {
-                        var result = Native.wfc_world_state_slots_set(wfcWorldStateHandle,
-                                                                      worldStateSlotsPtr,
-                                                                      (UIntPtr)worldStateSlots.Length);
-                        switch (result) {
-                            case WfcWorldStateSlotsSetResult.Ok:
-                                // All good
-                                stats.worldNotCanonical = false;
-                                break;
-                            case WfcWorldStateSlotsSetResult.OkWorldNotCanonical:
-                                // All good, but we the slots we gave were not
-                                // canonical. wfc_world_state_slots_set fixed that for us.
-                                stats.worldNotCanonical = true;
-                                break;
-                            case WfcWorldStateSlotsSetResult.ErrWorldContradictory:
-                                orderedSlotPartsTree = new List<List<string>>();
-                                foreach (var worldIndex in slotOrder) {
-                                    var slotState = worldStateSlots[worldIndex];
-                                    var conversionTopartNameSuccessful = outputSlotState(slotState, maxModuleCount, partToName, out var slotParts);
-                                    stats.report = "Monoceros Solver failed: World state is contradictory. " +
-                                        "Try changing Slots, Modules, Rules or add boundary Rules. Changing " +
-                                        "random seed or max attempts will not help.";
-                                    if (conversionTopartNameSuccessful) {
-                                        orderedSlotPartsTree.Add(slotParts);
-                                    } else {
-                                        stats.report += " Monoceros WFC Solver returned a unavailable Module Part. The output Slots may be shuffled.";
-                                    }
-                                }
-                                return stats;
-                        }
-                    }
                 }
 
                 spentObservations = 0;
@@ -1000,8 +1004,8 @@ namespace Monoceros {
                         break;
                     }
                 }
-                Native.wfc_world_state_free(wfcWorldStateHandle);
                 Native.wfc_rng_state_free(wfcRngStateHandle);
+                Native.wfc_world_state_clone_from(wfcWorldStateHandle, wfcWorldStateHandleBackup);
             }
 
             stats.fasestAttempt = fastestAttempt;
