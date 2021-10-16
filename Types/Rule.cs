@@ -121,6 +121,9 @@ namespace Monoceros {
         ///     contain <see cref="RuleTyped"/>.</returns>
         public bool IsExplicit => Explicit != null && Typed == null;
 
+
+        // TODO: Change to enum
+
         /// <summary>
         /// Checks if the <see cref="Rule"/> wraps a <see cref="RuleTyped"/>.
         /// </summary>
@@ -406,7 +409,7 @@ namespace Monoceros {
         /// </summary>
         /// <param name="modules">The modules.</param>
         /// <returns>True if valid.</returns>
-        public bool IsValidWithModules(List<Module> modules) {
+        public bool IsValidWithModules(IEnumerable<Module> modules) {
             // TODO: Check for collisions
             if (IsExplicit) {
                 return Explicit.IsValidWithGivenModules(modules);
@@ -546,15 +549,32 @@ namespace Monoceros {
                             string targetModuleName,
                             uint targetConnectorIndex) {
             if (sourceModuleName.Length == 0) {
-                throw new Exception("Source module name is empty");
+                throw new Exception("Source Module Name is empty");
             }
             if (targetModuleName.Length == 0) {
-                throw new Exception("Target module name is empty");
+                throw new Exception("Target Module Name is empty");
             }
-            SourceModuleName = sourceModuleName.ToLower();
-            SourceConnectorIndex = (int)sourceConnectorIndex;
-            TargetModuleName = targetModuleName.ToLower();
-            TargetConnectorIndex = (int)targetConnectorIndex;
+
+            if (sourceModuleName.CompareTo(targetModuleName) < 0) {
+                SourceModuleName = sourceModuleName.ToLower();
+                SourceConnectorIndex = (int)sourceConnectorIndex;
+                TargetModuleName = targetModuleName.ToLower();
+                TargetConnectorIndex = (int)targetConnectorIndex;
+            }
+
+            if (sourceModuleName.CompareTo(targetModuleName) > 0) {
+                SourceModuleName = targetModuleName.ToLower();
+                SourceConnectorIndex = (int)targetConnectorIndex;
+                TargetModuleName = sourceModuleName.ToLower();
+                TargetConnectorIndex = (int)sourceConnectorIndex;
+            }
+
+            if (sourceModuleName.CompareTo(targetModuleName) == 0) {
+                SourceModuleName = sourceModuleName.ToLower();
+                TargetModuleName = targetModuleName.ToLower();
+                SourceConnectorIndex = (int)Math.Min(sourceConnectorIndex, targetConnectorIndex);
+                TargetConnectorIndex = (int)Math.Max(sourceConnectorIndex, targetConnectorIndex);
+            }
         }
 
         public static bool FromRuleForSolver(RuleForSolver ruleForSolver,
@@ -722,7 +742,7 @@ namespace Monoceros {
         /// <param name="ruleForSolver">Output rule for
         ///     <see cref="ComponentSolver"/>.</param>
         /// <returns>True if the conversion was successful.</returns>
-        public bool ToRuleForSolver(List<Module> modules, out RuleForSolver ruleForSolver) {
+        public bool ToRuleForSolver(IEnumerable<Module> modules, out RuleForSolver ruleForSolver) {
             if (!IsValidWithGivenModules(modules)) {
                 ruleForSolver = default;
                 return false;
@@ -941,7 +961,7 @@ namespace Monoceros {
         /// <returns>A list of <see cref="RuleExplicit"/>. The list may be
         ///     empty.</returns>
         public List<RuleExplicit> ToRulesExplicit(IEnumerable<RuleTyped> otherRules,
-                                                 List<Module> modules) {
+                                                 IEnumerable<Module> modules) {
             var rulesExplicit = new List<RuleExplicit>();
 
             // If the source module and connector exist
@@ -992,7 +1012,7 @@ namespace Monoceros {
         /// </summary>
         /// <param name="modules">All <see cref="Module"/>s.</param>
         /// <returns>True if valid.</returns>
-        public bool IsValidWithModules(List<Module> modules) {
+        public bool IsValidWithModules(IEnumerable<Module> modules) {
             var sourceModule = modules.FirstOrDefault(module => module.Name == ModuleName);
             if (sourceModule == null || ConnectorIndex >= sourceModule.Connectors.Count) {
                 return false;

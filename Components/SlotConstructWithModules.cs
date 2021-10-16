@@ -91,7 +91,7 @@ namespace Monoceros {
 
             var allowedModules = allowedModulesRaw
                 .Where(name => name != null)
-                .Select(name => name.Name).Distinct().ToList();
+                .Select(name => name.Name).Distinct();
 
             if (Config.RESERVED_CHARS.Any(chars => allowedModules.Contains(chars))) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Input text contains " +
@@ -133,7 +133,7 @@ namespace Monoceros {
                                 slotCenterPoint,
                                 diagonal,
                                 false,
-                                allowedModules,
+                                allowedModules.ToList(),
                                 allowedParts,
                                 allModulesCount);
 

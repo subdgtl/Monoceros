@@ -69,8 +69,8 @@ namespace Monoceros {
             }
 
             if (Config.RESERVED_CHARS.Any(chars => type.Contains(chars))) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Input text contains " +
-                    "a forbidden content: :, ->, = or newline.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Connector Type Name contains " +
+                    "forbidden characters: :, ->, = or newline.");
                 return;
             }
 
@@ -78,7 +78,7 @@ namespace Monoceros {
 
             foreach (var module in modules) {
                 if (module == null || !module.IsValid) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The module is null or invalid.");
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "A Module is null or invalid.");
                     continue;
                 }
                 for (var connectorIndex = 0; connectorIndex < module.Connectors.Count; connectorIndex++) {
@@ -91,7 +91,7 @@ namespace Monoceros {
 
             if (!rules.Any()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                                  "The point does not mark any module connector.");
+                                  "Point {" + point + "} does not mark any Module Connector.");
             }
 
             foreach (var rule in rules) {

@@ -4,8 +4,6 @@ using System.Drawing;
 using System.Linq;
 using Grasshopper;
 using Grasshopper.Kernel;
-using Rhino;
-using Rhino.DocObjects;
 using Rhino.Geometry;
 
 namespace Monoceros {
@@ -13,7 +11,8 @@ namespace Monoceros {
 
         public ComponentAssembleRule( ) : base("Assemble Rule into Slots",
                                                "AssembleRule",
-                                               "Materialize Monoceros Rule.",
+                                               "Create deterministic Slots that contain Monoceros Modules " +
+                                               "assembled according to the given Monoceros Rule.",
                                                "Monoceros",
                                                "Slot") {
         }
@@ -82,7 +81,6 @@ namespace Monoceros {
             var transforms = new DataTree<Transform>();
             var geometry = new DataTree<GeometryBase>();
 
-
             if (rule == null || !rule.IsValid) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The rule is null or invalid.");
                 return;
@@ -95,16 +93,6 @@ namespace Monoceros {
                                   "Unwrap Monoceros Rules first.");
                 return;
             }
-
-            //if (rule.Explicit.SourceModuleName == Config.OUTER_MODULE_NAME
-            //    || rule.Explicit.TargetModuleName == Config.OUTER_MODULE_NAME
-            //    || rule.Explicit.SourceModuleName == Config.EMPTY_MODULE_NAME
-            //    || rule.Explicit.TargetModuleName == Config.EMPTY_MODULE_NAME) {
-            //    AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-            //                      "Catalog cannot display a Monoceros Rule describing a connection " +
-            //                      "to an outer or empty Monoceros Module.");
-            //    return;
-            //}
 
             var invalidModuleCount = modules.RemoveAll(module => module == null || !module.IsValid);
 

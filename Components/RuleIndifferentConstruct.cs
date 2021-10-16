@@ -61,7 +61,6 @@ namespace Monoceros {
 
             var rule = new Rule(moduleName, connectorIndex, Config.INDIFFERENT_TAG);
 
-
             DA.SetData(0, rule);
         }
 

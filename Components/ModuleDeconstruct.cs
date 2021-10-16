@@ -70,15 +70,15 @@ namespace Monoceros {
                                         "Vector specifying single Module Part dimensions" +
                                         "in base-plane-aligned XYZ axes. The Module Part Diagonal " +
                                         "must match Envelope's Slot diagonals.",
-                                        GH_ParamAccess.item);
+                                        GH_ParamAccess.list);
             pManager.AddBooleanParameter("Is Compact",
                                         "C",
                                         "Does the Module hold together?",
-                                        GH_ParamAccess.item);
+                                        GH_ParamAccess.list);
             pManager.AddBooleanParameter("Is Valid",
                                         "V",
                                         "Is the Module valid for the Monoceros WFC Solver?",
-                                        GH_ParamAccess.item);
+                                        GH_ParamAccess.list);
             pManager.AddPlaneParameter("Connectors",
                                        "CP",
                                        "Connector planes",
@@ -112,15 +112,18 @@ namespace Monoceros {
                 return;
             }
 
-            DA.GetDataList(1, existingRules);
+            if (!DA.GetDataList(1, existingRules)) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "No Rules provided." +
+                    " Connector Use Pattern could not be determined.");
+            }
 
             if (module == null) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The is null or invalid.");
+               AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The Module is null.");
                 return;
             }
 
             if (!module.IsValid) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The module is invalid.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "The Module is invalid.");
             }
 
             var partCenters = module
@@ -130,7 +133,7 @@ namespace Monoceros {
             var connectorUsePattern = Enumerable.Repeat(false, module.Connectors.Count).ToList();
             foreach (var existingRule in existingRules) {
                 if (existingRule == null || !existingRule.IsValid) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The rule is null or invalid.");
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The Rule is null or invalid.");
                     continue;
                 }
 
@@ -153,14 +156,14 @@ namespace Monoceros {
                 }
             }
 
-            DA.SetDataList(0, new List<ModuleName> { new ModuleName(module.Name) });
+            DA.SetDataList(0, new [] { new ModuleName(module.Name) });
             DA.SetDataList(1, partCenters);
-            DA.SetDataList(2, module.Geometry.Concat(module.ReferencedGeometry).ToList());
-            DA.SetDataList(3, new List<Plane> { module.BasePlane });
-            DA.SetDataList(4, new List<Vector3d> { module.PartDiagonal });
+            DA.SetDataList(2, module.Geometry.Concat(module.ReferencedGeometry));
+            DA.SetDataList(3, new [] { module.BasePlane });
+            DA.SetDataList(4, new [] { module.PartDiagonal });
 
-            DA.SetData(5, module.Compact);
-            DA.SetData(6, module.IsValid);
+            DA.SetDataList(5, new [] { module.Compact });
+            DA.SetDataList(6, new [] { module.IsValid });
 
             var connectors = module.Connectors;
             DA.SetDataList(7, connectors.Select(connector => connector.AnchorPlane));

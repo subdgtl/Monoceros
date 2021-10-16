@@ -18,7 +18,7 @@ namespace Monoceros {
                    "RulePreview",
                    "Preview Monoceros Rules as lines connecting individual Connectors of Monoceros Modules.",
                    "Monoceros",
-                   "Postprocess") {
+                   "Rule") {
             _explicitLines = new List<ExplicitLine>();
             _typedLines = new List<TypedLine>();
             _outLines = new List<OutLine>();
@@ -53,36 +53,42 @@ namespace Monoceros {
         /// <param name="DA">The DA object can be used to retrieve data from
         ///     input parameters and to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess DA) {
-            var modulesRaw = new List<Module>();
-            var rulesRaw = new List<Rule>();
+            var modules = new List<Module>();
+            var rules = new List<Rule>();
             _explicitLines.Clear();
             _typedLines.Clear();
             _outLines.Clear();
 
-            if (!DA.GetDataList(0, modulesRaw)) {
+            if (!DA.GetDataList(0, modules)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Failed to collect input Modules.");
                 return;
             }
 
-            if (!DA.GetDataList(1, rulesRaw)) {
+            if (!DA.GetDataList(1, rules)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Failed to collect input Rules.");
                 return;
             }
 
-            var modules = modulesRaw.Where(module => module != null && module.IsValid).ToList();
-            var rules = rulesRaw.Where(rule => rule != null && rule.IsValid).ToList();
+            var invalidModuleCount = modules.RemoveAll(module => module == null || !module.IsValid);
+
+            if (invalidModuleCount > 0) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  invalidModuleCount + " Modules are null or invalid and were removed.");
+            }
+            
+            
+            var invalidRuleCount = rules.RemoveAll(rule => rule == null || !rule.IsValid);
+
+            if (invalidRuleCount > 0) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  invalidRuleCount + " Rules are null or invalid and were removed.");
+            }
 
             if (!modules.Any() || !rules.Any()) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Failed to collect input data.");
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "No valid Modules or Rules provided.");
                 return;
             }
 
-            if (modules.Count != modulesRaw.Count || rules.Count != rulesRaw.Count) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, "Some input data was invalid.");
-            }
-
-            var minimumSlotDimension = 1.0;
-            var averageSlotDiagonal = new Vector3d();
 
             var moduleNames = modules.Select(module => module.Name).ToList();
             if (moduleNames.Count != moduleNames.Distinct().ToList().Count) {
@@ -90,45 +96,20 @@ namespace Monoceros {
                                   "Module names are not unique.");
             }
 
-            var modulesClean = new List<Module>();
-            foreach (var module in modules) {
-                if (module == null || !module.IsValid) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The Module is null or invalid.");
-                    continue;
-                }
-                modulesClean.Add(module);
-                var minSize = module.PartDiagonal.MinimumCoordinate;
-                if (minSize < minimumSlotDimension) {
-                    minimumSlotDimension = minSize;
-                }
-                averageSlotDiagonal += module.PartDiagonal;
-            }
-
-            averageSlotDiagonal /= modulesClean.Count;
-
-            var rulesClean = new List<Rule>();
-            foreach (var rule in rules) {
-                if (rule == null || !rule.IsValid) {
-                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The Rule is null or invalid.");
-                } else {
-                    rulesClean.Add(rule);
-                }
-            }
-
-            var rulesExplicit = rulesClean.Where(rule => rule.IsExplicit).Select(rule => rule.Explicit);
-            var rulesTyped = rulesClean.Where(rule => rule.IsTyped).Select(rule => rule.Typed);
+            var rulesExplicit = rules.Where(rule => rule.IsExplicit).Select(rule => rule.Explicit);
+            var rulesTyped = rules.Where(rule => rule.IsTyped).Select(rule => rule.Typed);
 
             foreach (var ruleExplicit in rulesExplicit) {
                 if (ruleExplicit.SourceModuleName != Config.OUTER_MODULE_NAME
                     && ruleExplicit.TargetModuleName != Config.OUTER_MODULE_NAME) {
-                    ConstructLineFromExplicitRule(modulesClean,
+                    ConstructLineFromExplicitRule(modules,
                                                   ruleExplicit,
                                                   out var line,
                                                   out var axis);
                     _explicitLines.Add(new ExplicitLine(line, Config.ColorFromAxis(axis)));
                 }
                 if (ruleExplicit.TargetModuleName == Config.OUTER_MODULE_NAME) {
-                    ConstructArrowFromOutRule(modulesClean,
+                    ConstructArrowFromOutRule(modules,
                                               ruleExplicit,
                                               out var line,
                                               out var axis);
@@ -137,12 +118,12 @@ namespace Monoceros {
             }
 
             foreach (var ruleTyped in rulesTyped) {
-                var rulesExplicitComputed = ruleTyped.ToRulesExplicit(rulesTyped, modulesClean);
+                var rulesExplicitComputed = ruleTyped.ToRulesExplicit(rulesTyped, modules);
 
                 foreach (var ruleExplicit in rulesExplicitComputed) {
                     if (ruleExplicit.SourceModuleName != Config.OUTER_MODULE_NAME
                         && ruleExplicit.TargetModuleName != Config.OUTER_MODULE_NAME) {
-                        ConstructLineFromExplicitRule(modulesClean,
+                        ConstructLineFromExplicitRule(modules,
                                                       ruleExplicit,
                                                       out var line,
                                                       out var axis);
@@ -320,7 +301,7 @@ namespace Monoceros {
         /// GH_Exposure.obscure flag, which ensures the component will only be
         /// visible on panel dropdowns.
         /// </summary>
-        public override GH_Exposure Exposure => GH_Exposure.primary;
+        public override GH_Exposure Exposure => GH_Exposure.septenary;
 
         /// <summary>
         /// Provides an Icon for every component that will be visible in the

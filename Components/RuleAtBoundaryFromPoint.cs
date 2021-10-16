@@ -83,7 +83,7 @@ namespace Monoceros {
 
             if (!rules.Any()) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
-                                  "The point does not mark any Module connector.");
+                                  "Point {" + point + "} does not mark any Module Connector.");
             }
 
             foreach (var rule in rules) {

@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using Grasshopper.Kernel;
-using Grasshopper.Kernel.Parameters;
-using Grasshopper.Kernel.Types;
 
 namespace Monoceros {
-    public class ComponentCollectRules : GH_Component, IGH_VariableParameterComponent {
-        public ComponentCollectRules( ) : base("Collect Rules",
+    public class ComponentCollectRulesObsolete1234 : GH_Component {
+        public ComponentCollectRulesObsolete1234( ) : base("Collect Rules",
                                                "CollectRules",
                                                "Collect, convert to Explicit, deduplicate, sort and " +
                                                "remove disallowed Monoceros Rules. Automatically " +
@@ -16,6 +14,9 @@ namespace Monoceros {
                                                "Monoceros",
                                                "Rule") {
         }
+
+        public override bool Obsolete => true;
+        public override GH_Exposure Exposure => GH_Exposure.hidden;
 
         /// <summary>
         /// Registers all the input parameters for this component.
@@ -32,10 +33,9 @@ namespace Monoceros {
                                   "All allowed Monoceros Rules",
                                   GH_ParamAccess.list);
             pManager.AddParameter(new RuleParameter(),
-                                  "Explicit Rules Disallowed",
+                                  "Rules Disallowed",
                                   "RD",
-                                  "All disallowed Monoceros Rules (optional). " +
-                                  "OVERRIDES ALL ALLOWED RULES.",
+                                  "All disallowed Monoceros Rules (optional)",
                                   GH_ParamAccess.list);
             pManager[2].Optional = true;
         }
@@ -60,7 +60,10 @@ namespace Monoceros {
             var modules = new List<Module>();
             var allowed = new List<Rule>();
             var disallowed = new List<Rule>();
-            var supportTyped = false;
+
+            AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,
+                              "This is an obsolete component and the results are wrong! Please " +
+                              "use the updated Collect Rules component.");
 
             if (!DA.GetDataList(0, modules)) {
                 return;
@@ -70,80 +73,64 @@ namespace Monoceros {
                 return;
             }
 
-            if (!DA.GetDataList(2, disallowed)) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "No Disallowed Rules provided." +
-                    " The Allowed Rules were deduplicated, sorted and invalid Rules were removed.");
-            }
+            DA.GetDataList(2, disallowed);
 
-            if (Params.Input.Count < 4 || !DA.GetData(3, ref supportTyped)) {
-                supportTyped = false;
-            }
-
-            if (modules.Any(module => module == null || !module.IsValid)) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  " One or more Modules are null or invalid.");
-                return;
-            }
-
-            if (allowed.Any(rule => rule == null || !rule.IsValid)) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  " One or more Rules are null or invalid.");
-                return;
+            var modulesClean = new List<Module>();
+            foreach (var module in modules) {
+                if (module == null || !module.IsValid) {
+                    AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "The module is null or invalid.");
+                } else {
+                    modulesClean.Add(module);
+                }
             }
 
             Module.GenerateEmptySingleModule(Config.OUTER_MODULE_NAME,
                                             Config.INDIFFERENT_TAG,
-                                            modules[0].PartDiagonal,
-                                            out var outModule,
-                                            out var typedRulesOfOutModule);
+                                            new Rhino.Geometry.Vector3d(1, 1, 1),
+                                            out var moduleOut,
+                                            out var rulesOut);
 
-            modules.Add(outModule);
+            var allowedClean = allowed.Concat(
+                rulesOut.Select(ruleExplicit => new Rule(ruleExplicit))
+                );
+            modulesClean.Add(moduleOut);
 
-            var allowedOriginalClean = allowed
-                .Where(rule => rule.IsValidWithModules(modules))
+
+            if (allowed.Any(rule => rule == null || !rule.IsValid)) {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
+                                  "Some of the allowed Rules are null or invalid.");
+            }
+
+            var allowedOriginalClean = allowedClean
+                .Where(rule => rule.IsValidWithModules(modulesClean))
                 .Distinct();
 
             if (disallowed == null || !disallowed.Any()) {
-                var earlyReturnRules = allowedOriginalClean.ToList();
-                earlyReturnRules.Sort();
-                DA.SetDataList(0, earlyReturnRules);
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, "No Rules have been disallowed.");
+                var earlyRules = allowedOriginalClean.ToList();
+                earlyRules.Sort();
+                DA.SetDataList(0, earlyRules);
                 return;
             }
-
-            if (!supportTyped && disallowed.Any(rule => rule.IsTyped)) {
-                AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  "Unwrap Typed Rules before setting the Disallowed Rules list. " +
-                                  "Disallowed Typed Rules are an advanced feature and have to be enabled manually.");
-                return;
-            }
-
-            allowed.AddRange(
-                typedRulesOfOutModule.Select(typedRule => new Rule(typedRule))
-                );
 
             if (disallowed.Any(rule => rule == null || !rule.IsValid)) {
                 AddRuntimeMessage(GH_RuntimeMessageLevel.Error,
-                                  " One or more disallowed Rules are null or invalid.");
-                return;
+                                  "Some of the disallowed rules are null or invalid.");
             }
 
             var allowedExplicit = allowedOriginalClean
                 .Where(rule => rule.IsExplicit)
-                .Select(rule => rule.Explicit)
-                .ToList();
+                .Select(rule => rule.Explicit);
             var allowedTyped = allowedOriginalClean
                 .Where(rule => rule.IsTyped)
                 .Select(rule => rule.Typed);
 
             var disallowedOriginalClean = disallowed
-                .Where(rule => rule.IsValidWithModules(modules))
+                .Where(rule => rule.IsValidWithModules(modulesClean))
                 .Distinct();
 
             var disallowedExplicit = disallowedOriginalClean
                 .Where(rule => rule.IsExplicit)
-                .Select(rule => rule.Explicit)
-                .ToList();
+                .Select(rule => rule.Explicit);
             var disallowedTyped = disallowedOriginalClean
                 .Where(rule => rule.IsTyped)
                 .Select(rule => rule.Typed);
@@ -170,92 +157,69 @@ namespace Monoceros {
                 }
             }
 
-            // unwrap disallowed typed rules and add them to disallowedExplicit
+            var finalTyped = new List<RuleTyped>();
+            var finalExplicit = new List<RuleExplicit>();
+
             foreach (var entry in allTypedByType) {
                 var type = entry.Key;
                 var rules = entry.Value;
                 if (disallowedTypedByType.ContainsKey(type)) {
-                    var rulesExplicit = rules.SelectMany(rule => rule.ToRulesExplicit(rules, modules));
+                    var rulesExplicit = rules.SelectMany(rule => rule.ToRulesExplicit(rules, modulesClean));
                     var disallowedRules = disallowedTypedByType[type];
                     foreach (var rule in rulesExplicit) {
-                        if (disallowedRules.Any(disallowedRule =>
+                        if (!disallowedRules.Any(disallowedRule =>
                             (disallowedRule.ModuleName == rule.SourceModuleName
                              && disallowedRule.ConnectorIndex == rule.SourceConnectorIndex)
                             || (disallowedRule.ModuleName == rule.TargetModuleName
-                                && disallowedRule.ConnectorIndex == rule.TargetConnectorIndex))) {
-                            disallowedExplicit.Add(rule);
+                                && disallowedRule.ConnectorIndex == rule.TargetConnectorIndex))
+                            && !disallowedExplicit.Any(disallowedRule => disallowedRule.Equals(rule))) {
+                            finalExplicit.Add(rule);
                         }
                     }
+                } else {
+                    finalTyped.AddRange(rules);
                 }
             }
 
-            // unwrap all typed rules
-            foreach (var rule in allTypedRules) {
-                var rulesExplicit = rule.ToRulesExplicit(allTypedRules, modules);
-                allowedExplicit.AddRange(rulesExplicit);
+            foreach (var rule in allowedExplicit) {
+                if (!disallowedExplicit.Any(disallowedRule => disallowedRule.Equals(rule))) {
+                    finalExplicit.Add(rule);
+                }
             }
 
-            var finalExplicit = allowedExplicit.Except(disallowedExplicit);
-
-            var outputRules = finalExplicit
+            var outRules = finalExplicit
                 .Where(rule => !(rule.SourceModuleName == Config.OUTER_MODULE_NAME && rule.TargetModuleName == Config.OUTER_MODULE_NAME))
-                .Distinct()
                 .Select(explicitRule => new Rule(explicitRule))
+                .Concat(finalTyped.Select(ruleTyped => new Rule(ruleTyped)))
+                .Distinct()
                 .ToList();
 
-            outputRules.Sort();
+            outRules.Sort();
 
-            foreach (var rule in outputRules) {
+            foreach (var rule in outRules) {
                 if (!rule.IsValid) {
                     AddRuntimeMessage(GH_RuntimeMessageLevel.Error, rule.IsValidWhyNot);
                 }
             }
 
-            DA.SetDataList(0, outputRules);
+            DA.SetDataList(0, outRules);
         }
 
-        public bool CanInsertParameter(GH_ParameterSide side, int index) {
-            if (side == GH_ParameterSide.Input && index == 3) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        public bool CanRemoveParameter(GH_ParameterSide side, int index) {
-            if (side == GH_ParameterSide.Input && index == 3) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        public IGH_Param CreateParameter(GH_ParameterSide side, int index) {
-            Params.Input[2].Name = "Rules Disallowed";
-            var lockSwitch = new Param_Boolean {
-                NickName = "U",
-                Name = "Unlock Typed",
-                Description = "ADVANCED: Unlock support for Disallow Typed Rules",
-                Access = GH_ParamAccess.item
-            };
-            lockSwitch.PersistentData.Append(new GH_Boolean(false));
-            return lockSwitch;
-        }
-
-        public bool DestroyParameter(GH_ParameterSide side, int index) {
-            Params.Input[2].Name = "Explicit Rules Disallowed";
-            Params.UnregisterInputParameter(Params.Input[index]);
-            ExpireSolution(true);
-            return true;
-        }
-
-        public void VariableParameterMaintenance( ) {
-        }
-
-        public override GH_Exposure Exposure => GH_Exposure.secondary;
+        /// <summary>
+        /// The Exposure property controls where in the panel a component icon
+        /// will appear. There are seven possible locations (primary to
+        /// septenary), each of which can be combined with the
+        /// GH_Exposure.obscure flag, which ensures the component will only be
+        /// visible on panel dropdowns.
+        /// </summary>
 
         protected override Bitmap Icon => Properties.Resources.rules_collect;
 
-        public override Guid ComponentGuid => new Guid("8DAA6103-4CB8-466A-B484-23E0D4614ADE");
+        /// <summary>
+        /// Each component must have a unique Guid to identify it.  It is vital
+        /// this Guid doesn't change otherwise old ghx files that use the old ID
+        /// will partially fail during loading.
+        /// </summary>
+        public override Guid ComponentGuid => new Guid("41CC16C9-739A-41C3-B37A-97969D6D5DAF");
     }
 }
